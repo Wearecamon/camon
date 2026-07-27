@@ -60,7 +60,7 @@
        della barra Home e lasciava una striscia nera in fondo.
        left/right + margin auto tengono l'app centrata su desktop. */
     position: fixed;
-    top: 0; bottom: auto; left: 0; right: 0;
+    top: auto; bottom: 0; left: 0; right: 0;
     height: var(--app-h);
     width: 100%;
     max-width: 430px;
@@ -71,10 +71,10 @@
   #app::after {
     content: '';
     position: fixed;
-    bottom: var(--safe-bottom);
+    top: 0;
     left: 0; right: 0;
     height: 15px;
-    background: linear-gradient(to bottom, transparent, #000);
+    background: linear-gradient(to top, transparent, #000);
     z-index: 198;
     pointer-events: none;
   }
@@ -93,7 +93,7 @@
   /* ===== BOTTOM NAV ===== */
   .bottom-nav {
     position: fixed;
-    bottom: var(--safe-bottom);
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 32px);
@@ -897,7 +897,7 @@
      GAMES PAGE — scroll con colori
   ======================================== */
   #page-games { background: #111; overflow: hidden; }
-  .games-active { top: auto !important; bottom: 0 !important; }
+  /* games-active: app gia' ancorata in basso globalmente */
   .games-active .bottom-nav { bottom: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: transparent !important; box-shadow: none !important; border: none !important; }
   .games-active::after { display: none !important; }
 
@@ -3150,7 +3150,7 @@
   }
   .settings-drawer { height: var(--app-h); bottom: auto; }
 
-  .bottom-nav { bottom: calc(var(--safe-bottom) - var(--vp-gap)); }
+  .bottom-nav { bottom: calc(0px - var(--vp-gap)); }
   .card-fab-wrap,
   .story-fab-wrap { bottom: calc(100px + var(--safe-bottom) - var(--vp-gap)); }
   .profile-save-fab-wrap,
