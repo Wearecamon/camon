@@ -38,6 +38,9 @@
        Impostati da uno script; qui i valori neutri per browser/desktop. */
     --vp-gap: 0px;
     --app-h: 100%;
+    /* di quanto la barra in fondo deborda sotto il bordo dello schermo,
+       per non avere mai un suo margine inferiore dentro l'area visibile */
+    --nav-over: 160px;
   }
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
@@ -81,13 +84,18 @@
   /* ===== BOTTOM NAV ===== */
   .bottom-nav {
     position: fixed;
-    bottom: 0;
+    /* La barra deborda di --nav-over sotto il bordo dello schermo e
+       recupera con altrettanto padding: le icone restano dove sono, ma
+       il rettangolo giallo e' UNO SOLO e non finisce mai dentro l'area
+       visibile. Niente giunzioni fra riquadri = niente riga scura che
+       trapela sul bordo inferiore. */
+    bottom: calc(-1 * var(--nav-over));
     left: 0; right: 0;
     width: 100%;
     max-width: 430px;
     margin: 0 auto;
-    height: calc(56px + var(--safe-bottom));
-    padding-bottom: var(--safe-bottom);
+    height: calc(56px + var(--safe-bottom) + var(--nav-over));
+    padding-bottom: calc(var(--safe-bottom) + var(--nav-over));
     /* tinta piatta: niente vetro, ombre o velature che scuriscano
        il bordo inferiore — il colore deve restare identico ovunque */
     background-color: #f7cc49;
@@ -103,19 +111,6 @@
     justify-content: space-around;
     padding-left: 0; padding-right: 0;
     z-index: 200;
-  }
-  /* Prolunga la barra ben oltre il bordo inferiore dello schermo.
-     Cosi' la fascia della barra Home e' dipinta dallo STESSO elemento
-     della fila di icone: niente due superfici affiancate, niente
-     stacco di tonalita' visibile dove si incontravano. */
-  .bottom-nav::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0; right: 0;
-    height: 160px;
-    background-color: inherit;
-    pointer-events: none;
   }
   .nav-btn {
     background: none;
@@ -3150,7 +3145,7 @@
   }
   .settings-drawer { height: var(--app-h); bottom: auto; }
 
-  .bottom-nav { bottom: calc(0px - var(--vp-gap)); }
+  .bottom-nav { bottom: calc(0px - var(--vp-gap) - var(--nav-over)); }
   .card-fab-wrap,
   .story-fab-wrap { bottom: calc(100px + var(--safe-bottom) - var(--vp-gap)); }
   .profile-save-fab-wrap,
