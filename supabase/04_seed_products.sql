@@ -1,0 +1,66 @@
+-- ============================================================
+--  CAMON · Menu iniziale (tabella products)
+--  Prezzi in centesimi. Nomi identici a quelli del menu dell'app
+--  (alcuni prodotti compaiono in più categorie: è voluto).
+--
+--  Rilanciabile: svuota e ricarica il menu da capo.
+-- ============================================================
+
+delete from public.products;
+
+insert into public.products (name, macro, category, price_cents, description, sort) values
+('SPRITZ','drink','cocktail',499,'Aperol, prosecco, soda · alla spina',0),
+('MOJITO','drink','cocktail',499,'Rum, lime, menta, soda · alla spina',1),
+('GIN TONIC','drink','cocktail',499,'Gin, tonica, lime · alla spina',2),
+('NEGRONI','drink','cocktail',499,'Gin, Campari, vermouth · alla spina',3),
+('MOSCOW MULE','drink','cocktail',499,'Vodka, ginger beer, lime · alla spina',4),
+('SEX ON THE BEACH','drink','cocktail',499,'Vodka, pesca, arancia, cranberry · alla spina',5),
+('TEQUILA SUNRISE','drink','cocktail',499,'Tequila, arancia, granadina · alla spina',6),
+('MARGARITA','drink','cocktail',499,'Tequila, triple sec, lime · alla spina',7),
+('HUGO','drink','cocktail',499,'Prosecco, sambuco, menta, soda · alla spina',8),
+('TEQUILA','drink','shot',250,'Il classico intramontabile',9),
+('AFTER SHOCK','drink','shot',250,'Verde, dolce, micidiale',10),
+('JÄGERMEISTER','drink','shot',300,'Erbe, servito ghiacciato',11),
+('LAGER · MEDIA','drink','birra',350,'Chiara alla spina, 0.4L',12),
+('LAGER · GRANDE','drink','birra',500,'Chiara alla spina, 0.6L',13),
+('IPA · MEDIA','drink','birra',400,'Artigianale alla spina, 0.4L',14),
+('IPA · GRANDE','drink','birra',550,'Artigianale alla spina, 0.6L',15),
+('PROSECCO','drink','vino',1200,'Bottiglia 75cl · al calice €3,50',16),
+('PROSECCO 20cl','drink','vino',400,'Mini bottiglia, monoporzione',17),
+('PINOT GRIGIO','drink','vino',1100,'Bianco secco · bottiglia 75cl · calice €3,50',18),
+('ROSSO DELLA CASA','drink','vino',1100,'Barbera · bottiglia 75cl · calice €3,50',19),
+('VIRGIN MOJITO','drink','analcolico',350,'Lime, menta, soda · alla spina',20),
+('SOFT DRINK','drink','analcolico',250,'Cola, aranciata, tonica',21),
+('ACQUA','drink','analcolico',150,'Naturale o frizzante, 0.5L',22),
+('VEGGIE BURGER','cibo','speciale',650,'100% vegetale, panino veg, salsa',23),
+('PATATINE','cibo','speciale',350,'Croccanti, friggitrice dedicata',24),
+('NACHOS & GUACAMOLE','cibo','speciale',500,'Mais, guacamole e salsa',25),
+('BROWNIE VEGANO','cibo','speciale',400,'Senza uova né latte',26),
+('BURGER SENZA GLUTINE','cibo','speciale',700,'Manzo, cheddar, panino gluten free',27),
+('PATATINE GF','cibo','speciale',350,'Croccanti, friggitrice dedicata',28),
+('NACHOS & GUACAMOLE','cibo','speciale',500,'Mais (naturalmente senza glutine)',29),
+('ALETTE DI POLLO GF','cibo','speciale',550,'Non impanate, glassate BBQ',30),
+('PATATINE','cibo','fritto',350,'Croccanti, con paprika · friggitrice dedicata',31),
+('PATATINE CHEDDAR & BACON','cibo','fritto',450,'Con salsa cheddar e bacon croccante',32),
+('ALETTE DI POLLO','cibo','fritto',550,'8 pezzi, glassate BBQ o piccanti',33),
+('NUGGETS DI POLLO','cibo','fritto',450,'8 pezzi, salsa BBQ',34),
+('MOZZARELLA STICK','cibo','fritto',450,'Impanate e fritte, 6 pezzi',35),
+('JALAPEÑO POPPERS','cibo','fritto',450,'Peperoncini ripieni di formaggio, 6 pezzi',36),
+('ONION RINGS','cibo','fritto',400,'Anelli di cipolla croccanti',37),
+('ARANCINI','cibo','fritto',450,'Ragù o burro, 3 pezzi',38),
+('CHEESEBURGER','cibo','burger',650,'Manzo, cheddar, bacon, salsa',39),
+('DOUBLE BACON','cibo','burger',750,'Doppio manzo, doppio bacon, cheddar',40),
+('CHICKEN BURGER','cibo','burger',650,'Pollo croccante, insalata, maionese',41),
+('VEGGIE BURGER','cibo','burger',650,'100% vegetale, panino veg, salsa',42),
+('BURGER SENZA GLUTINE','cibo','burger',700,'Manzo, cheddar, panino gluten free',43),
+('PIADINA CLASSICA','cibo','burger',500,'Crudo, squacquerone, rucola',44),
+('HOT DOG','cibo','burger',400,'Wurstel, senape, ketchup, cipolla',45),
+('CAMON BOX','cibo','tagliere',1200,'Mix di fritti per il tavolo · per 3-4',46),
+('NACHOS & GUACAMOLE','cibo','tagliere',500,'Mais, guacamole e salsa · da condividere',47),
+('TAGLIERE MISTO','cibo','tagliere',900,'Salumi e formaggi, per 2',48),
+('LASAGNA','cibo','primo',600,'Al forno, ragù e besciamella',49),
+('MAC & CHEESE','cibo','primo',550,'Pasta al forno con cheddar fuso',50),
+('PASTA DEL GIORNO','cibo','primo',550,'Carbonara o amatriciana a rotazione',51),
+('BROWNIE','cibo','dolce',350,'Cioccolato fondente',52),
+('BROWNIE VEGANO','cibo','dolce',400,'Senza uova né latte',53),
+('TIRAMISÙ','cibo','dolce',400,'Monoporzione',54);
