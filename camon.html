@@ -68,6 +68,16 @@
     overflow: hidden;
     background: #000;
   }
+  #app::after {
+    content: '';
+    position: fixed;
+    bottom: var(--safe-bottom);
+    left: 0; right: 0;
+    height: 15px;
+    background: linear-gradient(to bottom, transparent, #000);
+    z-index: 198;
+    pointer-events: none;
+  }
 
   /* ===== PAGES ===== */
   .page {
