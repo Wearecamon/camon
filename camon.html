@@ -10,19 +10,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <!-- barra di stato trasparente: l'app parte dal bordo superiore e il
      contenuto passa dietro ora e batteria (comportamento a tutto schermo) -->
-<!-- Barra di stato OPACA. Misurato sull'iPhone di riferimento: con
-     "black-translucent" iOS concede solo 812pt su 874, e gli ultimi 62pt
-     li dipinge il sistema, non la pagina. Il bordo di quella finestra e'
-     la riga scura che si vedeva sotto la barra in fondo, e nessuna regola
-     CSS puo' arrivarci. Con "black" la finestra tocca il bordo inferiore
-     dello schermo e la bottom bar dipinge da sola la zona della barra
-     Home: un solo giallo, nessuna giunzione. In cambio, in alto compare
-     una fascia di sistema opaca dietro ora e batteria.
-     Attenzione: iOS legge questo valore SOLO quando si aggiunge l'icona
-     alla schermata Home. Per vederne l'effetto va reinstallata. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CAMON">
-<meta name="theme-color" content="#0a0a0a">
+<!-- Colore della cornice di finestra usato da iOS. La finestra dell'app e'
+     piu' corta dello schermo (812 su 874) e la fascia che avanza in fondo la
+     dipinge il sistema con QUESTO colore: se resta scuro si vede una riga
+     nera sotto la barra gialla. Va tenuto uguale al giallo della bottom bar. -->
+<meta name="theme-color" content="#f7cc49">
 <!-- Icona dell'app: usata quando si aggiunge alla schermata Home -->
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
@@ -3323,7 +3317,7 @@
         </div>
       </div>
 
-      <div class="settings-version" id="settings-version">CAMON v1.2.0 · Bar Torino</div>
+      <div class="settings-version" id="settings-version">CAMON v1.2.1 · Bar Torino</div>
 
     </div>
   </div>
@@ -9623,7 +9617,7 @@
       var app = document.getElementById('app');
       var appH = app ? Math.round(app.getBoundingClientRect().height) : 0;
       var cs = getComputedStyle(document.documentElement);
-      el.textContent = 'v1.2.0 · SY ' + (window.screenY || window.screenTop || 0) +
+      el.textContent = 'v1.2.1 · SY ' + (window.screenY || window.screenTop || 0) +
                        ' · SA ' + misura('env(safe-area-inset-top,0px)') +
                        '/' + misura('env(safe-area-inset-bottom,0px)') +
                        ' · USA ' + cs.getPropertyValue('--safe-top').trim() +
