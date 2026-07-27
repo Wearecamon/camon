@@ -8,9 +8,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<!-- barra di stato trasparente: l'app parte dal bordo superiore e il
-     contenuto passa dietro ora e batteria (comportamento a tutto schermo) -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- barra di stato OPACA: e' l'unico modo per avere la finestra alta come
+     tutto lo schermo. Con "black-translucent" iOS la accorcia (812 su 874) e
+     i 62px finali li dipinge il sistema, non la pagina: la barra in fondo non
+     puo' arrivarci e si vede lo stacco di colore. Con "black" la finestra
+     tocca il bordo inferiore e la bottom bar dipinge da sola la zona della
+     barra Home, quindi il giallo resta uno solo. In cambio, in alto compare
+     una fascia di sistema (che qui e' lo spazio vuoto voluto). -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0a0a0a">
 <!-- Icona dell'app: usata quando si aggiunge alla schermata Home -->
