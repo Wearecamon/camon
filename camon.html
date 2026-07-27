@@ -83,7 +83,7 @@
   /* ===== BOTTOM NAV ===== */
   .bottom-nav {
     position: fixed;
-    bottom: calc(4px + var(--safe-bottom));
+    bottom: var(--safe-bottom);
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 32px);
@@ -107,7 +107,7 @@
   .bottom-nav.shrunk {
     width: calc(100% - 120px);
     max-width: 300px;
-    bottom: calc(4px + var(--safe-bottom));
+    bottom: var(--safe-bottom);
   }
   .nav-btn {
     background: none;
@@ -3141,7 +3141,7 @@
   }
   .settings-drawer { height: var(--app-h); bottom: auto; }
 
-  .bottom-nav { bottom: calc(4px + var(--safe-bottom) - var(--vp-gap)); }
+  .bottom-nav { bottom: calc(var(--safe-bottom) - var(--vp-gap)); }
   .card-fab-wrap,
   .story-fab-wrap { bottom: calc(100px + var(--safe-bottom) - var(--vp-gap)); }
   .profile-save-fab-wrap,
