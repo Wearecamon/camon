@@ -897,6 +897,9 @@
      GAMES PAGE — scroll con colori
   ======================================== */
   #page-games { background: #111; overflow: hidden; }
+  .games-active #page-games { padding-top: var(--safe-bottom); }
+  .games-active .bottom-nav { bottom: 0 !important; }
+  .games-active #app::after { bottom: auto; top: 0; background: linear-gradient(to top, transparent, #000); }
 
   .games-scroll {
     flex: 1;
@@ -5374,6 +5377,7 @@
     const navBtn = document.getElementById('nav-' + navTarget);
     if (navBtn) navBtn.classList.add('active');
     // entrando nei giochi, ripristina la posizione (resta sullo stesso gioco al ritorno)
+    document.getElementById('app').classList.toggle('games-active', page === 'games' || gamePages.includes(page));
     if (page === 'games') {
       if (typeof gamesRender === 'function') gamesRender();
       const sc = document.getElementById('games-scroll');
