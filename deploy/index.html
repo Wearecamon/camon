@@ -104,6 +104,19 @@
     padding-left: 0; padding-right: 0;
     z-index: 200;
   }
+  /* Prolunga la barra ben oltre il bordo inferiore dello schermo.
+     Cosi' la fascia della barra Home e' dipinta dallo STESSO elemento
+     della fila di icone: niente due superfici affiancate, niente
+     stacco di tonalita' visibile dove si incontravano. */
+  .bottom-nav::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    height: 160px;
+    background-color: inherit;
+    pointer-events: none;
+  }
   .nav-btn {
     background: none;
     border: none;
