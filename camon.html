@@ -25,7 +25,7 @@
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   /* stesso nero del fondo delle pagine: se iOS lascia una fascia fuori
      dalla finestra, si confonde con l'app invece di sembrare un taglio */
-  html, body { height: 100%; overflow: hidden; background: #1B5E20; }
+  html, body { height: 100%; overflow: hidden; background: #0a0a0a; }
   body { font-family: 'Manrope', sans-serif; color: #fff; }
 
   /* Zone sicure iPhone (notch sopra, barra Home sotto).
@@ -5377,7 +5377,9 @@
     const navBtn = document.getElementById('nav-' + navTarget);
     if (navBtn) navBtn.classList.add('active');
     // entrando nei giochi, ripristina la posizione (resta sullo stesso gioco al ritorno)
-    document.getElementById('app').classList.toggle('games-active', page === 'games' || gamePages.includes(page));
+    var isGames = page === 'games' || gamePages.includes(page);
+    document.getElementById('app').classList.toggle('games-active', isGames);
+    document.body.style.background = isGames ? '#1B5E20' : '#0a0a0a';
     if (page === 'games') {
       if (typeof gamesRender === 'function') gamesRender();
       const sc = document.getElementById('games-scroll');
