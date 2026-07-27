@@ -12,7 +12,7 @@
      una finestra alta come tutto lo schermo (874 su 874), quindi nessuna
      striscia morta in fondo. Con "black-translucent" la finestra resta 812
      e i 62 punti in fondo non appartengono all'app. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0a0a0a">
 <!-- Icona dell'app: usata quando si aggiunge alla schermata Home -->
@@ -60,21 +60,13 @@
        della barra Home e lasciava una striscia nera in fondo.
        left/right + margin auto tengono l'app centrata su desktop. */
     position: fixed;
-    top: 0; bottom: 0; left: 0; right: 0;
+    top: 0; bottom: auto; left: 0; right: 0;
+    height: var(--app-h);
     width: 100%;
     max-width: 430px;
     margin: 0 auto;
     overflow: hidden;
-    background: #0a0a0a;
-  }
-  #app::after {
-    content: '';
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: env(safe-area-inset-bottom, 0px);
-    background: #0a0a0a;
-    z-index: 199;
-    pointer-events: none;
+    background: #000;
   }
 
   /* ===== PAGES ===== */
@@ -3142,9 +3134,10 @@
   .add-guest-overlay,
   #onboard-overlay,
   #remove-guest-overlay {
-    bottom: 0;
+    height: var(--app-h);
+    bottom: auto;
   }
-  .settings-drawer { bottom: 0; }
+  .settings-drawer { height: var(--app-h); bottom: auto; }
 
   .bottom-nav { bottom: calc(16px + var(--safe-bottom) - var(--vp-gap)); }
   .card-fab-wrap,
