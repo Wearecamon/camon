@@ -108,6 +108,12 @@
     justify-content: space-around;
     padding: 0 8px;
     z-index: 200;
+    transition: transform 0.35s cubic-bezier(0.32,0.72,0,1),
+                opacity 0.35s cubic-bezier(0.32,0.72,0,1);
+  }
+  .bottom-nav.shrunk {
+    transform: translateX(-50%) scaleX(0.75) scaleY(0.85);
+    opacity: 0.75;
   }
   .nav-btn {
     background: none;
@@ -9839,6 +9845,36 @@
   // se il modulo Supabase ha già finito prima di questo script, parte subito
   if (window.sb) camonAuthInit();
   else window.dispatchEvent(new Event('camon-init-ready'));
+</script>
+
+<script>
+(function(){
+  var nav = document.querySelector('.bottom-nav');
+  if (!nav) return;
+  var lastY = 0;
+  var shrunk = false;
+
+  function attach() {
+    document.querySelectorAll('.scroll-area').forEach(function(el) {
+      if (el._navScroll) return;
+      el._navScroll = true;
+      el.addEventListener('scroll', function() {
+        var y = el.scrollTop;
+        if (y > lastY && y > 30 && !shrunk) {
+          nav.classList.add('shrunk');
+          shrunk = true;
+        } else if (y < lastY && shrunk) {
+          nav.classList.remove('shrunk');
+          shrunk = false;
+        }
+        lastY = y;
+      }, {passive: true});
+    });
+  }
+
+  attach();
+  new MutationObserver(attach).observe(document.getElementById('app'), {childList:true, subtree:true});
+})();
 </script>
 
 </body>
