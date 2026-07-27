@@ -81,22 +81,23 @@
   /* ===== BOTTOM NAV ===== */
   .bottom-nav {
     position: fixed;
-    bottom: calc(16px + var(--safe-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 32px);
-    max-width: 398px;
-    height: 64px;
-    background: rgba(255,255,255,0.07);
-    -webkit-backdrop-filter: blur(48px) saturate(220%) brightness(1.25) contrast(1.05);
-    backdrop-filter: blur(48px) saturate(220%) brightness(1.25) contrast(1.05);
-    border: 1px solid rgba(255,255,255,0.22);
-    border-radius: 32px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.25), inset 1px 0 0 rgba(255,255,255,0.08), inset -1px 0 0 rgba(255,255,255,0.08);
+    bottom: 0;
+    left: 0; right: 0;
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    height: calc(56px + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background: rgba(18,18,18,0.95);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0;
+    box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    padding: 0 8px;
+    padding-left: 0; padding-right: 0;
     z-index: 200;
   }
   .nav-btn {
@@ -3131,7 +3132,7 @@
   }
   .settings-drawer { height: var(--app-h); bottom: auto; }
 
-  .bottom-nav { bottom: calc(16px + var(--safe-bottom) - var(--vp-gap)); }
+  .bottom-nav { bottom: calc(0px - var(--vp-gap)); }
   .card-fab-wrap,
   .story-fab-wrap { bottom: calc(100px + var(--safe-bottom) - var(--vp-gap)); }
   .profile-save-fab-wrap,
