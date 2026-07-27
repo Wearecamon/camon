@@ -88,8 +88,14 @@
     margin: 0 auto;
     height: calc(56px + var(--safe-bottom));
     padding-bottom: var(--safe-bottom);
-    background: #f7cc49;
-    border-top: none;
+    /* tinta piatta: niente vetro, ombre o velature che scuriscano
+       il bordo inferiore — il colore deve restare identico ovunque */
+    background-color: #f7cc49;
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    filter: none;
+    border: none;
     border-radius: 0;
     box-shadow: none;
     display: flex;
