@@ -8,11 +8,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<!-- Barra di stato OPACA: e' l'unica impostazione con cui iOS da' all'app
-     una finestra alta come tutto lo schermo (874 su 874), quindi nessuna
-     striscia morta in fondo. Con "black-translucent" la finestra resta 812
-     e i 62 punti in fondo non appartengono all'app. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!-- barra di stato trasparente: l'app parte dal bordo superiore e il
+     contenuto passa dietro ora e batteria (comportamento a tutto schermo) -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0a0a0a">
 <!-- Icona dell'app: usata quando si aggiunge alla schermata Home -->
@@ -60,23 +58,13 @@
        della barra Home e lasciava una striscia nera in fondo.
        left/right + margin auto tengono l'app centrata su desktop. */
     position: fixed;
-    top: 0; bottom: auto; left: 0; right: 0;
+    top: auto; bottom: 0; left: 0; right: 0;
     height: var(--app-h);
     width: 100%;
     max-width: 430px;
     margin: 0 auto;
     overflow: hidden;
     background: #000;
-  }
-  #app::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0; right: 0;
-    height: 15px;
-    background: linear-gradient(to top, transparent, #000);
-    z-index: 198;
-    pointer-events: none;
   }
 
   /* ===== PAGES ===== */
@@ -93,7 +81,7 @@
   /* ===== BOTTOM NAV ===== */
   .bottom-nav {
     position: fixed;
-    bottom: 0;
+    bottom: calc(16px + var(--safe-bottom));
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 32px);
@@ -110,14 +98,6 @@
     justify-content: space-around;
     padding: 0 8px;
     z-index: 200;
-    transition: width 0.35s cubic-bezier(0.32,0.72,0,1),
-                max-width 0.35s cubic-bezier(0.32,0.72,0,1),
-                bottom 0.35s cubic-bezier(0.32,0.72,0,1);
-  }
-  .bottom-nav.shrunk {
-    width: calc(100% - 120px);
-    max-width: 300px;
-    bottom: var(--safe-bottom);
   }
   .nav-btn {
     background: none;
@@ -897,9 +877,6 @@
      GAMES PAGE — scroll con colori
   ======================================== */
   #page-games { background: #111; overflow: hidden; }
-  /* games-active: app gia' ancorata in basso globalmente */
-  .games-active .bottom-nav { bottom: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: transparent !important; box-shadow: none !important; border: none !important; }
-  .games-active::after { display: none !important; }
 
   .games-scroll {
     flex: 1;
@@ -2845,8 +2822,12 @@
 
   /* Bollino notifica Giochi */
   .nav-games-dot {
-    display: none;
+    position: absolute; top: 6px; right: 10px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #f7cc49; border: 2px solid #111;
+    display: block;
   }
+  #nav-games.active .nav-games-dot { border-color: #111; }
 
   /* ============================================
      LIQUID GLASS (stile iOS) — vetro lucido su tutta l'app
@@ -3150,7 +3131,7 @@
   }
   .settings-drawer { height: var(--app-h); bottom: auto; }
 
-  .bottom-nav { bottom: calc(0px - var(--vp-gap)); }
+  .bottom-nav { bottom: calc(16px + var(--safe-bottom) - var(--vp-gap)); }
   .card-fab-wrap,
   .story-fab-wrap { bottom: calc(100px + var(--safe-bottom) - var(--vp-gap)); }
   .profile-save-fab-wrap,
@@ -3318,7 +3299,7 @@
         </div>
       </div>
 
-      <div class="settings-version" id="settings-version">CAMON v1.1.2 · Bar Torino</div>
+      <div class="settings-version" id="settings-version">CAMON v1.1.1 · Bar Torino</div>
 
     </div>
   </div>
@@ -5377,10 +5358,6 @@
     const navBtn = document.getElementById('nav-' + navTarget);
     if (navBtn) navBtn.classList.add('active');
     // entrando nei giochi, ripristina la posizione (resta sullo stesso gioco al ritorno)
-    var isGames = page === 'games' || gamePages.includes(page);
-    document.getElementById('app').classList.toggle('games-active', isGames);
-    if (!isGames) document.body.style.background = '#0a0a0a';
-    else if (typeof updateGamesBg === 'function') updateGamesBg();
     if (page === 'games') {
       if (typeof gamesRender === 'function') gamesRender();
       const sc = document.getElementById('games-scroll');
@@ -8889,11 +8866,7 @@
     const next = Math.min(idx + 1, gamesColors.length - 1);
     const frac = pos - Math.floor(pos);
     // a riposo (frac=0) è il colore esatto del gioco → tinta piatta; durante lo scroll sfuma verso il successivo
-    var col = lerpHex(gamesColors[idx], gamesColors[next], frac);
-    bg.style.background = col;
-    if (document.getElementById('app').classList.contains('games-active')) {
-      document.body.style.background = col;
-    }
+    bg.style.background = lerpHex(gamesColors[idx], gamesColors[next], frac);
   }
 
   function gamesSwitch(cat) {
@@ -9626,7 +9599,7 @@
       var app = document.getElementById('app');
       var appH = app ? Math.round(app.getBoundingClientRect().height) : 0;
       var cs = getComputedStyle(document.documentElement);
-      el.textContent = 'v1.1.2 · SY ' + (window.screenY || window.screenTop || 0) +
+      el.textContent = 'v1.1.1 · SY ' + (window.screenY || window.screenTop || 0) +
                        ' · SA ' + misura('env(safe-area-inset-top,0px)') +
                        '/' + misura('env(safe-area-inset-bottom,0px)') +
                        ' · USA ' + cs.getPropertyValue('--safe-top').trim() +
@@ -9857,36 +9830,6 @@
   // se il modulo Supabase ha già finito prima di questo script, parte subito
   if (window.sb) camonAuthInit();
   else window.dispatchEvent(new Event('camon-init-ready'));
-</script>
-
-<script>
-(function(){
-  var nav = document.querySelector('.bottom-nav');
-  if (!nav) return;
-  var lastY = 0;
-  var shrunk = false;
-
-  function attach() {
-    document.querySelectorAll('.scroll-area').forEach(function(el) {
-      if (el._navScroll) return;
-      el._navScroll = true;
-      el.addEventListener('scroll', function() {
-        var y = el.scrollTop;
-        if (y > lastY && y > 30 && !shrunk) {
-          nav.classList.add('shrunk');
-          shrunk = true;
-        } else if (y < lastY && shrunk) {
-          nav.classList.remove('shrunk');
-          shrunk = false;
-        }
-        lastY = y;
-      }, {passive: true});
-    });
-  }
-
-  attach();
-  new MutationObserver(attach).observe(document.getElementById('app'), {childList:true, subtree:true});
-})();
 </script>
 
 </body>
