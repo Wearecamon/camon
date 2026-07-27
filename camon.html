@@ -5379,7 +5379,8 @@
     // entrando nei giochi, ripristina la posizione (resta sullo stesso gioco al ritorno)
     var isGames = page === 'games' || gamePages.includes(page);
     document.getElementById('app').classList.toggle('games-active', isGames);
-    document.body.style.background = isGames ? '#1B5E20' : '#0a0a0a';
+    if (!isGames) document.body.style.background = '#0a0a0a';
+    else if (typeof updateGamesBg === 'function') updateGamesBg();
     if (page === 'games') {
       if (typeof gamesRender === 'function') gamesRender();
       const sc = document.getElementById('games-scroll');
