@@ -8888,7 +8888,11 @@
     const next = Math.min(idx + 1, gamesColors.length - 1);
     const frac = pos - Math.floor(pos);
     // a riposo (frac=0) è il colore esatto del gioco → tinta piatta; durante lo scroll sfuma verso il successivo
-    bg.style.background = lerpHex(gamesColors[idx], gamesColors[next], frac);
+    var col = lerpHex(gamesColors[idx], gamesColors[next], frac);
+    bg.style.background = col;
+    if (document.getElementById('app').classList.contains('games-active')) {
+      document.body.style.background = col;
+    }
   }
 
   function gamesSwitch(cat) {
