@@ -23,7 +23,7 @@
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   /* stesso nero del fondo delle pagine: se iOS lascia una fascia fuori
      dalla finestra, si confonde con l'app invece di sembrare un taglio */
-  html, body { height: 100%; overflow: hidden; background: blue; }
+  html, body { height: 100%; overflow: hidden; background: #0a0a0a; }
   body { font-family: 'Manrope', sans-serif; color: #fff; }
 
   /* Zone sicure iPhone (notch sopra, barra Home sotto).
@@ -64,7 +64,7 @@
     max-width: 430px;
     margin: 0 auto;
     overflow: hidden;
-    background: blue;
+    background: #000;
   }
 
   /* ===== PAGES ===== */
@@ -99,13 +99,6 @@
     justify-content: space-around;
     padding-left: 0; padding-right: 0;
     z-index: 200;
-  }
-  .bottom-nav::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: var(--safe-bottom);
-    background: blue;
   }
   .nav-btn {
     background: none;
