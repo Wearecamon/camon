@@ -100,10 +100,12 @@
     justify-content: space-around;
     padding: 0 8px;
     z-index: 200;
-    transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+    transition: width 0.35s cubic-bezier(0.32,0.72,0,1),
+                max-width 0.35s cubic-bezier(0.32,0.72,0,1);
   }
   .bottom-nav.shrunk {
-    transform: translateX(-50%) scale(0.8);
+    width: calc(100% - 120px);
+    max-width: 300px;
   }
   .nav-btn {
     background: none;
