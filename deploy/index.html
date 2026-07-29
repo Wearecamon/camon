@@ -12,11 +12,7 @@
      contenuto passa dietro ora e batteria (comportamento a tutto schermo) -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CAMON">
-<!-- Colore della cornice di finestra usato da iOS. La finestra dell'app e'
-     piu' corta dello schermo (812 su 874) e la fascia che avanza in fondo la
-     dipinge il sistema con QUESTO colore: se resta scuro si vede una riga
-     nera sotto la barra gialla. Va tenuto uguale al giallo della bottom bar. -->
-<meta name="theme-color" content="#f7cc49">
+<meta name="theme-color" content="#0a0a0a">
 <!-- Icona dell'app: usata quando si aggiunge alla schermata Home -->
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
@@ -27,7 +23,7 @@
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   /* stesso nero del fondo delle pagine: se iOS lascia una fascia fuori
      dalla finestra, si confonde con l'app invece di sembrare un taglio */
-  html, body { height: 100%; overflow: hidden; background: #f7cc49; }
+  html, body { height: 100%; overflow: hidden; background: #0a0a0a; }
   body { font-family: 'Manrope', sans-serif; color: #fff; }
 
   /* Zone sicure iPhone (notch sopra, barra Home sotto).
@@ -42,9 +38,6 @@
        Impostati da uno script; qui i valori neutri per browser/desktop. */
     --vp-gap: 0px;
     --app-h: 100%;
-    /* di quanto la barra in fondo deborda sotto il bordo dello schermo,
-       per non avere mai un suo margine inferiore dentro l'area visibile */
-    --nav-over: 160px;
   }
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
@@ -71,7 +64,7 @@
     max-width: 430px;
     margin: 0 auto;
     overflow: hidden;
-    background: #f7cc49;
+    background: #000;
   }
 
   /* ===== PAGES ===== */
@@ -88,32 +81,22 @@
   /* ===== BOTTOM NAV ===== */
   .bottom-nav {
     position: fixed;
-    /* La barra deborda di --nav-over sotto il bordo dello schermo e
-       recupera con altrettanto padding: le icone restano dove sono, ma
-       il rettangolo giallo e' UNO SOLO e non finisce mai dentro l'area
-       visibile. Niente giunzioni fra riquadri = niente riga scura che
-       trapela sul bordo inferiore. */
-    bottom: calc(-1 * var(--nav-over));
-    left: 0; right: 0;
-    width: 100%;
-    max-width: 430px;
-    margin: 0 auto;
-    height: calc(56px + var(--safe-bottom) + var(--nav-over));
-    padding-bottom: calc(var(--safe-bottom) + var(--nav-over));
-    /* tinta piatta: niente vetro, ombre o velature che scuriscano
-       il bordo inferiore — il colore deve restare identico ovunque */
-    background-color: #f7cc49;
-    background-image: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    filter: none;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
+    bottom: calc(16px + var(--safe-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 398px;
+    height: 64px;
+    background: rgba(255,255,255,0.07);
+    -webkit-backdrop-filter: blur(48px) saturate(220%) brightness(1.25) contrast(1.05);
+    backdrop-filter: blur(48px) saturate(220%) brightness(1.25) contrast(1.05);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.25), inset 1px 0 0 rgba(255,255,255,0.08), inset -1px 0 0 rgba(255,255,255,0.08);
     display: flex;
     align-items: center;
     justify-content: space-around;
-    padding-left: 0; padding-right: 0;
+    padding: 0 8px;
     z-index: 200;
   }
   .nav-btn {
@@ -132,12 +115,12 @@
   }
   .nav-btn:active { transform: scale(0.90); }
   .nav-btn.active {
-    background: transparent;
+    background: rgba(247,204,73,0.15);
   }
   .nav-icon {
     width: 22px;
     height: 22px;
-    stroke: rgba(0,0,0,0.42);
+    stroke: rgba(255,255,255,0.38);
     fill: none;
     stroke-width: 1.8;
     stroke-linecap: round;
@@ -147,10 +130,9 @@
   .nav-label { display: none; }
   /* logo CAMON come icona del pulsante Home */
   .nav-logo { height: 30px; width: auto; display: block; }
-  .nav-logo path { fill: #111; }
-  .nav-btn:not(.active) .nav-logo { opacity: 0.45; }
-  .nav-btn.active .nav-icon { stroke: #111; }
-  .nav-btn.active .nav-label { color: #111; }
+  .nav-btn:not(.active) .nav-logo { opacity: 0.5; }
+  .nav-btn.active .nav-icon { stroke: #f7cc49; }
+  .nav-btn.active .nav-label { color: #f7cc49; }
 
   /* ===== SCROLLABLE CONTENT ===== */
   .scroll-area {
@@ -3149,7 +3131,7 @@
   }
   .settings-drawer { height: var(--app-h); bottom: auto; }
 
-  .bottom-nav { bottom: calc(0px - var(--vp-gap) - var(--nav-over)); }
+  .bottom-nav { bottom: calc(16px + var(--safe-bottom) - var(--vp-gap)); }
   .card-fab-wrap,
   .story-fab-wrap { bottom: calc(100px + var(--safe-bottom) - var(--vp-gap)); }
   .profile-save-fab-wrap,
@@ -3317,7 +3299,7 @@
         </div>
       </div>
 
-      <div class="settings-version" id="settings-version">CAMON v1.2.1 · Bar Torino</div>
+      <div class="settings-version" id="settings-version">CAMON v1.1.1 · Bar Torino</div>
 
     </div>
   </div>
@@ -9617,7 +9599,7 @@
       var app = document.getElementById('app');
       var appH = app ? Math.round(app.getBoundingClientRect().height) : 0;
       var cs = getComputedStyle(document.documentElement);
-      el.textContent = 'v1.2.1 · SY ' + (window.screenY || window.screenTop || 0) +
+      el.textContent = 'v1.1.1 · SY ' + (window.screenY || window.screenTop || 0) +
                        ' · SA ' + misura('env(safe-area-inset-top,0px)') +
                        '/' + misura('env(safe-area-inset-bottom,0px)') +
                        ' · USA ' + cs.getPropertyValue('--safe-top').trim() +
