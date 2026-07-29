@@ -101,10 +101,9 @@
     transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s cubic-bezier(.4,0,.2,1);
     will-change: transform, opacity;
   }
-  .bottom-nav.nav-hidden {
-    transform: translateX(-50%) translateY(calc(100% + 16px));
-    opacity: 0;
-    pointer-events: none;
+  .bottom-nav.nav-shrink {
+    transform: translateX(-50%) scale(0.82);
+    opacity: 0.75;
   }
   .nav-btn {
     background: none;
@@ -9541,9 +9540,9 @@
         requestAnimationFrame(function () {
           ticking = false;
           if (delta > THRESHOLD) {
-            nav.classList.add('nav-hidden');
+            nav.classList.add('nav-shrink');
           } else if (delta < -THRESHOLD) {
-            nav.classList.remove('nav-hidden');
+            nav.classList.remove('nav-shrink');
           }
         });
       }
@@ -9554,7 +9553,7 @@
     var orig = window.goTo;
     if (orig) {
       window.goTo = function () {
-        nav.classList.remove('nav-hidden');
+        nav.classList.remove('nav-shrink');
         return orig.apply(this, arguments);
       };
     }
