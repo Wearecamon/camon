@@ -98,6 +98,13 @@
     justify-content: space-around;
     padding: 0 8px;
     z-index: 200;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s cubic-bezier(.4,0,.2,1);
+    will-change: transform, opacity;
+  }
+  .bottom-nav.nav-hidden {
+    transform: translateX(-50%) translateY(calc(100% + 16px));
+    opacity: 0;
+    pointer-events: none;
   }
   .nav-btn {
     background: none;
@@ -9505,6 +9512,52 @@
     video.pause();
     if (video.readyState >= 1) setup();
     else video.addEventListener('loadedmetadata', setup);
+  })();
+</script>
+
+<script>
+  /* ===== Bottom nav hide on scroll (Instagram-style) ===== */
+  (function () {
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = 0;
+    var ticking = false;
+    var THRESHOLD = 8;
+
+    function onScroll(e) {
+      var el = e.target;
+      if (!el || !el.classList) return;
+      if (!el.classList.contains('scroll-area') &&
+          !el.classList.contains('games-scroll') &&
+          !el.classList.contains('book-scroll') &&
+          !el.classList.contains('settings-scroll')) return;
+
+      var y = el.scrollTop;
+      var delta = y - (el._navLastY || 0);
+      el._navLastY = y;
+
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(function () {
+          ticking = false;
+          if (delta > THRESHOLD) {
+            nav.classList.add('nav-hidden');
+          } else if (delta < -THRESHOLD) {
+            nav.classList.remove('nav-hidden');
+          }
+        });
+      }
+    }
+
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+
+    var orig = window.goTo;
+    if (orig) {
+      window.goTo = function () {
+        nav.classList.remove('nav-hidden');
+        return orig.apply(this, arguments);
+      };
+    }
   })();
 </script>
 
