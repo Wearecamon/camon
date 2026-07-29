@@ -1275,6 +1275,8 @@
   .book-map-wrap { border-radius:16px; overflow:hidden; border:1px solid rgba(247,204,73,0.25); }
   .book-map-wrap svg { display:block; width:100%; }
   .book-table-pill { background:#f7cc49; color:#111; border-radius:30px; padding:12px 20px; display:flex; align-items:center; justify-content:center; gap:10px; font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; }
+  .book-change-btn { background:rgba(247,204,73,0.12); color:#f7cc49; border:1.5px solid rgba(247,204,73,0.3); border-radius:14px; padding:14px; font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:border-color 0.15s; }
+  .book-change-btn:active { border-color:#f7cc49; }
   .book-back-btn { background:rgba(255,255,255,0.07); color:#fff; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:14px; font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; }
   /* step scelta tavolo */
   .book-pick-head { padding:20px 22px 0; display:flex; align-items:center; gap:18px; }
@@ -4398,8 +4400,7 @@
 
           </svg>
         </div>
-        <div style="font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.35);text-align:center;margin-top:6px">Tocca un altro tavolo per cambiare posto</div>
-
+        <button class="book-change-btn" onclick="bookOpenChangePicker()">🔄 Cambia tavolo</button>
         <button class="book-back-btn" onclick="bookReset()">← Torna alla prenotazione</button>
       </div>
     </div>
@@ -6049,6 +6050,9 @@
     var personeNum = bookPendingData.personeNum;
     if (bookOccupied[tableId] || !bookTableFits(tableId, personeNum)) return;
 
+    var cap = tableCapacity[tableId] || 0;
+    if (!confirm('Confermi ' + tableId + ' (' + cap + ' posti) per ' + personeNum + (personeNum === 1 ? ' persona?' : ' persone?'))) return;
+
     bookPickedTable = tableId;
     var allTables = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'];
     allTables.forEach(function(t) {
@@ -6095,9 +6099,9 @@
     document.getElementById('book-step-pick').style.display = 'none';
     if (currentBooking) {
       bookOccupied[currentBooking.table] = true;
-      document.getElementById('book-active').style.display = 'flex';
-      bookRenderFill(currentBooking.table);
-      bookUpdateMinimap(currentBooking.table);
+      bookHighlightTable(currentBooking.table);
+      document.getElementById('book-table-number').textContent = currentBooking.table;
+      document.getElementById('book-step3').style.display = 'flex';
     } else {
       document.getElementById('book-step2').style.display = 'flex';
     }
@@ -6462,6 +6466,24 @@
     var name = document.getElementById('add-guest-input').value.trim();
     closeAddGuest();
     alert('📲 Link inviato a "' + (name||'questo contatto') + '" per scaricare CAMON!\nQuando si iscrive potrà aggiungersi al tuo tavolo.');
+  }
+
+  function bookOpenChangePicker() {
+    if (!currentBooking) return;
+    var personeNum = currentBooking.persone || 1;
+    bookPendingData = {
+      nome: currentBooking.nome,
+      data: currentBooking.data,
+      ora: currentBooking.ora,
+      dataFmt: currentBooking.dataFmt,
+      personeNum: personeNum
+    };
+    bookPickedTable = null;
+    bookOccupied[currentBooking.table] = false;
+    bookSetupPickMap(personeNum);
+    document.getElementById('book-pick-sub').textContent = 'Tavoli disponibili per ' + personeNum + (personeNum === 1 ? ' persona' : ' persone');
+    document.getElementById('book-step3').style.display = 'none';
+    document.getElementById('book-step-pick').style.display = 'flex';
   }
 
   function bookMapSwitch(newTable) {
