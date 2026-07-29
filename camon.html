@@ -1276,6 +1276,31 @@
   .book-map-wrap svg { display:block; width:100%; }
   .book-table-pill { background:#f7cc49; color:#111; border-radius:30px; padding:12px 20px; display:flex; align-items:center; justify-content:center; gap:10px; font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; }
   .book-back-btn { background:rgba(255,255,255,0.07); color:#fff; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:14px; font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; }
+  /* step scelta tavolo */
+  .book-pick-head { padding:20px 22px 0; display:flex; align-items:center; gap:18px; }
+  .book-pick-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:1px; }
+  .book-pick-title span { color:#f7cc49; }
+  .book-pick-sub { font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.4); padding:4px 22px 0; }
+  .book-pick-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 22px calc(96px + var(--safe-bottom)); }
+  .book-pick-scroll::-webkit-scrollbar { display:none; }
+  .book-pick-map { border-radius:16px; overflow:hidden; border:1px solid rgba(247,204,73,0.25); margin-bottom:16px; }
+  .book-pick-map svg { display:block; width:100%; }
+  .book-pick-or { text-align:center; font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.3); margin:14px 0; text-transform:uppercase; letter-spacing:1px; }
+  .book-pick-auto { background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); border-radius:14px; padding:16px; cursor:pointer; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; gap:14px; transition:border-color 0.15s; }
+  .book-pick-auto:active { border-color:#f7cc49; }
+  .book-pick-auto-ico { font-size:24px; flex-shrink:0; }
+  .book-pick-auto-txt { font-family:'Manrope',sans-serif; font-size:14px; font-weight:700; color:#fff; }
+  .book-pick-auto-sub { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
+  .book-pick-legend { display:flex; gap:16px; margin:14px 0 6px; flex-wrap:wrap; }
+  .book-pick-legend-item { display:flex; align-items:center; gap:6px; font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.5); }
+  .book-pick-legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  /* tavolo selezionabile sulla mappa pick */
+  .map-table-pick { cursor:pointer; transition:opacity 0.15s; }
+  .map-table-pick:active { opacity:0.7; }
+  .map-table-pick.unavailable { opacity:0.25; pointer-events:none; }
+  .map-table-pick.selected rect, .map-table-pick.selected circle { fill:#f7cc49 !important; stroke:#f7cc49 !important; }
+  .map-table-pick.selected text { fill:#111 !important; }
+
   /* pulse sul tavolo assegnato */
   @keyframes tableGlow { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .table-assigned rect, .table-assigned circle { animation: tableGlow 1.4s ease-in-out infinite; }
@@ -4246,6 +4271,66 @@
       </div>
     </div>
 
+    <!-- STEP 2B: scelta tavolo -->
+    <div id="book-step-pick" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-pick-head">
+        <button class="book-back" onclick="bookPickBack()">←</button>
+        <div class="book-pick-title">SCEGLI IL <span>TAVOLO</span></div>
+      </div>
+      <div class="book-pick-sub" id="book-pick-sub">Tavoli disponibili per 2 persone</div>
+      <div class="book-pick-scroll">
+        <div class="book-pick-legend">
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#4CD964"></div>Disponibile</div>
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#f7cc49"></div>Selezionato</div>
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#333"></div>Occupato / troppo grande</div>
+        </div>
+        <div class="book-pick-map">
+          <svg id="book-pick-svg" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a1a;">
+            <rect x="128" y="10" width="282" height="295" rx="2" fill="#2a2418" stroke="#f7cc49" stroke-width="1.5"/>
+            <rect x="128" y="10" width="26" height="295" fill="#1e1a10" stroke="#f7cc49" stroke-width="1"/>
+            <text x="141" y="100" fill="#f7cc49" font-size="6.5" text-anchor="middle" transform="rotate(-90,141,100)">SPILLATORI</text>
+            <rect x="154" y="10" width="80" height="40" rx="2" fill="#1a1510" stroke="#f7cc49" stroke-width="0.9"/>
+            <text x="194" y="27" fill="#f7cc49" font-size="7.5" font-weight="bold" text-anchor="middle">CASSE</text>
+            <text x="194" y="40" fill="#aaa" font-size="6" text-anchor="middle">automatiche</text>
+            <rect x="234" y="10" width="80" height="40" rx="2" fill="#12200f" stroke="#4CD964" stroke-width="1"/>
+            <text x="274" y="27" fill="#4CD964" font-size="7.5" font-weight="bold" text-anchor="middle">INGRESSO</text>
+            <text x="274" y="39" fill="#4CD964" font-size="6.5" text-anchor="middle">/ USCITA</text>
+            <polygon points="267,8 274,2 281,8" fill="#4CD964"/>
+            <rect x="314" y="10" width="96" height="80" rx="2" fill="#111" stroke="#777" stroke-width="1.2" stroke-dasharray="4,2"/>
+            <text x="362" y="46" fill="#888" font-size="8" font-weight="bold" text-anchor="middle">SCALE</text>
+            <line x1="322" y1="70" x2="402" y2="70" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="62" x2="402" y2="62" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="54" x2="402" y2="54" stroke="#555" stroke-width="0.7"/>
+            <rect x="8" y="10" width="118" height="215" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="110" fill="#444" font-size="8" text-anchor="middle">CUCINA</text>
+            <text x="67" y="122" fill="#444" font-size="8" text-anchor="middle">+ RETRO</text>
+            <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
+            <!-- Tavoli cliccabili -->
+            <g id="pick-T1" class="map-table-pick" onclick="bookPickTable('T1')"><rect x="165" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T1</text><text x="186" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T2" class="map-table-pick" onclick="bookPickTable('T2')"><rect x="251" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T2</text><text x="272" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T3" class="map-table-pick" onclick="bookPickTable('T3')"><rect x="165" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T3</text><text x="186" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T4" class="map-table-pick" onclick="bookPickTable('T4')"><rect x="251" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T4</text><text x="272" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T5" class="map-table-pick" onclick="bookPickTable('T5')"><rect x="335" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T5</text><text x="356" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T6" class="map-table-pick" onclick="bookPickTable('T6')"><circle cx="272" cy="193" r="26" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T6</text><text x="272" y="168" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">8 posti</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T7" class="map-table-pick" onclick="bookPickTable('T7')"><rect x="158" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="179" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T7</text><text x="179" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T8" class="map-table-pick" onclick="bookPickTable('T8')"><rect x="350" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="371" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T8</text><text x="371" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T9" class="map-table-pick" onclick="bookPickTable('T9')"><rect x="165" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T9</text><text x="186" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T10" class="map-table-pick" onclick="bookPickTable('T10')"><rect x="251" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T10</text><text x="272" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T11" class="map-table-pick" onclick="bookPickTable('T11')"><rect x="335" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T11</text><text x="356" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+          </svg>
+        </div>
+        <div class="book-pick-or">oppure</div>
+        <div class="book-pick-auto" onclick="bookPickAuto()">
+          <div class="book-pick-auto-ico">🎲</div>
+          <div>
+            <div class="book-pick-auto-txt">È indifferente</div>
+            <div class="book-pick-auto-sub">Assegnaci il tavolo migliore disponibile</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- STEP 3: conferma + mappa tavolo -->
     <div id="book-step3" style="display:none;flex-direction:column;flex:1;overflow:hidden">
       <div class="book-confirmed-wrap">
@@ -5380,6 +5465,7 @@
     if (page === 'book') {
       document.getElementById('book-step2').style.display = 'none';
       document.getElementById('book-step3').style.display = 'none';
+      document.getElementById('book-step-pick').style.display = 'none';
       if (currentBooking) {
         document.getElementById('ba-table').textContent = currentBooking.table;
         document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
@@ -5887,11 +5973,12 @@
     document.getElementById('book-step1').style.display = 'flex';
   }
 
+  var bookPendingData = null;
+  var bookPickedTable = null;
+
   function bookConfirm() {
     const btn = document.querySelector('.book-confirm-btn');
-    // flusso invito segreto: niente nome/data/ora — la persona invitata propone l'orario
     if (bookType === 'invite') {
-      // bersaglio: utente CAMON scelto, @ Instagram scelto, oppure @ scritto a mano
       let target = null;
       if (inviteUser) target = inviteUser.name;
       else if (inviteIgHandle) target = inviteIgHandle;
@@ -5911,47 +5998,128 @@
       setTimeout(() => { btn.textContent = 'Invia invito segreto'; btn.style.background = '#f7cc49'; btn.disabled = false; }, 2600);
       return;
     }
-    // flusso prenotazione normale
     const _nm = document.getElementById('edit-nome');
-    const _cg = document.getElementById('edit-cognome');
     const nome = ((_nm ? _nm.value.trim() : '') || 'Tu');
     const data = document.getElementById('book-data').value;
     const ora  = document.getElementById('book-ora').value;
     if (!data) { alert('Scegli una data.'); return; }
     if (!ora)  { alert('Scegli un orario.'); return; }
 
-    // calcola persone prima dell'assegnazione
     var activePersonePill = document.querySelector('#persone-grid .people-pill.active');
     var personeVal = activePersonePill ? activePersonePill.textContent.replace(' pers.','').replace('+','').trim() : '1';
     var personeNum = personeVal === 'Solo io' ? 1 : (parseInt(personeVal) || 1);
 
-    // assegnazione: priorità centro→bordi, solo tavoli con capienza >= persone richieste
-    var priority = ['T6','T4','T2','T10','T3','T5','T7','T8','T9','T11','T1'];
-    var assigned = priority.find(function(t){
-      return !bookOccupied[t] && (tableCapacity[t] || 0) >= personeNum;
-    });
-    if (!assigned) {
-      bookShowInlineError('Nessun tavolo disponibile per ' + personeNum + ' persone in questo momento.\nProva con meno posti o scegli un\'altra data.');
-      return;
-    }
-    bookOccupied[assigned] = true;
-
-    // info data
     var d = new Date(data + 'T12:00:00');
     var giorni = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
     var mesi = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
     var dataFmt = giorni[d.getDay()] + ' ' + d.getDate() + ' ' + mesi[d.getMonth()];
 
-    // aggiorna testi
-    document.getElementById('book-confirmed-detail').textContent = nome + ' · ' + dataFmt + ' alle ' + ora + ' — CAMON';
+    bookPendingData = { nome: nome, data: data, ora: ora, dataFmt: dataFmt, personeNum: personeNum };
+    bookPickedTable = null;
+
+    bookSetupPickMap(personeNum);
+    document.getElementById('book-pick-sub').textContent = 'Tavoli disponibili per ' + personeNum + (personeNum === 1 ? ' persona' : ' persone');
+    document.getElementById('book-step2').style.display = 'none';
+    document.getElementById('book-step-pick').style.display = 'flex';
+  }
+
+  function bookTableFits(tableId, personeNum) {
+    var cap = tableCapacity[tableId] || 0;
+    if (cap < personeNum) return false;
+    if (cap > personeNum * 2 + 1) return false;
+    return true;
+  }
+
+  function bookSetupPickMap(personeNum) {
+    var allTables = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'];
+    allTables.forEach(function(t) {
+      var g = document.getElementById('pick-' + t);
+      if (!g) return;
+      g.classList.remove('selected', 'unavailable');
+      var available = !bookOccupied[t] && bookTableFits(t, personeNum);
+      if (!available) {
+        g.classList.add('unavailable');
+      }
+      var mainShape = g.querySelector('rect') || g.querySelector('circle');
+      var txt = g.querySelector('text');
+      if (available) {
+        if (mainShape.tagName === 'rect') { mainShape.setAttribute('stroke', '#4CD964'); }
+        else { mainShape.setAttribute('stroke', '#4CD964'); }
+        if (txt) txt.setAttribute('fill', '#4CD964');
+      } else {
+        if (mainShape.tagName === 'rect') { mainShape.setAttribute('stroke', '#333'); mainShape.setAttribute('fill', '#1a1a1a'); }
+        else { mainShape.setAttribute('stroke', '#333'); mainShape.setAttribute('fill', '#1a1a1a'); }
+        if (txt) txt.setAttribute('fill', '#444');
+      }
+    });
+  }
+
+  function bookPickTable(tableId) {
+    if (!bookPendingData) return;
+    var personeNum = bookPendingData.personeNum;
+    if (bookOccupied[tableId] || !bookTableFits(tableId, personeNum)) return;
+
+    bookPickedTable = tableId;
+    var allTables = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'];
+    allTables.forEach(function(t) {
+      var g = document.getElementById('pick-' + t);
+      if (!g) return;
+      g.classList.remove('selected');
+      if (g.classList.contains('unavailable')) return;
+      var mainShape = g.querySelector('rect') || g.querySelector('circle');
+      var txt = g.querySelector('text');
+      if (t === tableId) {
+        g.classList.add('selected');
+        if (mainShape) { mainShape.setAttribute('fill', '#f7cc49'); mainShape.setAttribute('stroke', '#f7cc49'); }
+        if (txt) txt.setAttribute('fill', '#111');
+      } else {
+        if (mainShape) { mainShape.setAttribute('fill', '#252525'); mainShape.setAttribute('stroke', '#4CD964'); }
+        if (txt) txt.setAttribute('fill', '#4CD964');
+      }
+    });
+
+    setTimeout(function() { bookFinalizeWithTable(tableId); }, 400);
+  }
+
+  function bookPickAuto() {
+    if (!bookPendingData) return;
+    var personeNum = bookPendingData.personeNum;
+    var priority = ['T7','T8','T3','T4','T5','T1','T2','T9','T10','T11','T6'];
+    var assigned = priority.find(function(t) {
+      return !bookOccupied[t] && bookTableFits(t, personeNum);
+    });
+    if (!assigned) {
+      var fallback = ['T6','T4','T2','T10','T3','T5','T7','T8','T9','T11','T1'];
+      assigned = fallback.find(function(t) {
+        return !bookOccupied[t] && (tableCapacity[t] || 0) >= personeNum;
+      });
+    }
+    if (!assigned) {
+      alert('Nessun tavolo disponibile per ' + personeNum + ' persone.');
+      return;
+    }
+    bookFinalizeWithTable(assigned);
+  }
+
+  function bookPickBack() {
+    document.getElementById('book-step-pick').style.display = 'none';
+    document.getElementById('book-step2').style.display = 'flex';
+    bookPendingData = null;
+    bookPickedTable = null;
+  }
+
+  function bookFinalizeWithTable(assigned) {
+    if (!bookPendingData) return;
+    var p = bookPendingData;
+    bookOccupied[assigned] = true;
+
+    document.getElementById('book-confirmed-detail').textContent = p.nome + ' · ' + p.dataFmt + ' alle ' + p.ora + ' — CAMON';
     document.getElementById('book-table-number').textContent = assigned;
 
-    // highlight mappa: rimuovi overlay precedente e aggiungi nuovo
     var svg = document.getElementById('book-map-svg');
     var old = svg.querySelector('.map-highlight');
     if (old) old.parentNode.removeChild(old);
 
-    // coordinate centro di ogni tavolo per il cerchio pulsante
     var centers = {
       T1:{x:186,y:71}, T2:{x:272,y:71},
       T3:{x:186,y:129}, T4:{x:272,y:129}, T5:{x:356,y:129},
@@ -5964,12 +6132,10 @@
       var ns = 'http://www.w3.org/2000/svg';
       var g = document.createElementNS(ns, 'g');
       g.setAttribute('class','map-highlight');
-      // alone esterno pulsante
       var pulse = document.createElementNS(ns, 'circle');
       pulse.setAttribute('cx', c.x); pulse.setAttribute('cy', c.y); pulse.setAttribute('r', assigned==='T6'?34:26);
       pulse.setAttribute('fill','rgba(247,204,73,0.25)'); pulse.setAttribute('stroke','#f7cc49'); pulse.setAttribute('stroke-width','2');
       pulse.innerHTML = '<animate attributeName="r" values="'+(assigned==='T6'?'34;40;34':'26;32;26')+'" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite"/>';
-      // etichetta "SEI QUI"
       var lbl = document.createElementNS(ns, 'text');
       lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y - (assigned==='T6'?40:32));
       lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','#f7cc49');
@@ -5980,22 +6146,20 @@
       svg.appendChild(g);
     }
 
-    // salva prenotazione
     var typeLabel = {shared:'Tavolo Condiviso', private:'Tavolo Privato', room:'Stanza Privata', invite:'Invito Segreto'};
-    currentBooking = { table: assigned, nome: nome, data: data, ora: ora, dataFmt: dataFmt, type: typeLabel[bookType] || bookType, persone: personeNum, bookType: bookType };
+    currentBooking = { table: assigned, nome: p.nome, data: p.data, ora: p.ora, dataFmt: p.dataFmt, type: typeLabel[bookType] || bookType, persone: p.personeNum, bookType: bookType };
 
-    // trasferisci i compagni selezionati durante la prenotazione in bookAddedGuests
     bookAddedGuests = companionSlots
       .filter(function(s){ return s.selectedUser; })
       .map(function(s){ return s.selectedUser.name; });
 
-    // highlight tavolo sulla mappa e mostra step3
     bookRenderFill(assigned);
     bookHighlightTable(assigned);
-    document.getElementById('book-confirmed-detail').textContent = nome + ' · ' + dataFmt + ' alle ' + ora + ' — CAMON';
+    document.getElementById('book-confirmed-detail').textContent = p.nome + ' · ' + p.dataFmt + ' alle ' + p.ora + ' — CAMON';
     document.getElementById('book-table-number').textContent = assigned;
-    document.getElementById('book-step2').style.display = 'none';
+    document.getElementById('book-step-pick').style.display = 'none';
     document.getElementById('book-step3').style.display = 'flex';
+    bookPendingData = null;
   }
 
   // traccia tavoli occupati e prenotazione corrente
@@ -6319,6 +6483,7 @@
     currentBooking = null;
     document.getElementById('book-active').style.display = 'none';
     document.getElementById('book-step3').style.display = 'none';
+    document.getElementById('book-step-pick').style.display = 'none';
     document.getElementById('book-step1').style.display = 'flex';
   }
 
