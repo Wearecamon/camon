@@ -14,8 +14,10 @@
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0a0a0a">
 <!-- Icona dell'app: usata quando si aggiunge alla schermata Home -->
-<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180-dark.png" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
 <title>CAMON — Bar Torino</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2857,12 +2859,8 @@
 
   /* Bollino notifica Giochi */
   .nav-games-dot {
-    position: absolute; top: 6px; right: 10px;
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #f7cc49; border: 2px solid #111;
-    display: block;
+    display: none;
   }
-  #nav-games.active .nav-games-dot { border-color: #111; }
 
   /* ============================================
      LIQUID GLASS (stile iOS) — vetro lucido su tutta l'app
