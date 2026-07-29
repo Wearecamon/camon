@@ -1273,7 +1273,8 @@
   .book-map-label { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:0.5px; color:#fff; }
   .book-map-label span { color:#f7cc49; }
   .book-map-wrap { border-radius:16px; overflow:hidden; border:1px solid rgba(247,204,73,0.25); }
-  .book-map-wrap svg { display:block; width:100%; }
+  .book-map-wrap svg { display:block; width:100%; transform:rotate(180deg); }
+  .book-map-wrap svg text { transform-box:fill-box; transform:rotate(180deg); transform-origin:center; }
   .book-table-pill { background:#f7cc49; color:#111; border-radius:30px; padding:12px 20px; display:flex; align-items:center; justify-content:center; gap:10px; font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; }
   .book-change-btn { background:rgba(247,204,73,0.12); color:#f7cc49; border:1.5px solid rgba(247,204,73,0.3); border-radius:14px; padding:14px; font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:border-color 0.15s; }
   .book-change-btn:active { border-color:#f7cc49; }
@@ -1286,7 +1287,8 @@
   .book-pick-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 22px calc(96px + var(--safe-bottom)); }
   .book-pick-scroll::-webkit-scrollbar { display:none; }
   .book-pick-map { border-radius:16px; overflow:hidden; border:1px solid rgba(247,204,73,0.25); margin-bottom:16px; }
-  .book-pick-map svg { display:block; width:100%; }
+  .book-pick-map svg { display:block; width:100%; transform:rotate(180deg); }
+  .book-pick-map svg text { transform-box:fill-box; transform:rotate(180deg); transform-origin:center; }
   .book-pick-or { text-align:center; font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.3); margin:14px 0; text-transform:uppercase; letter-spacing:1px; }
   .book-pick-auto { background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); border-radius:14px; padding:16px; cursor:pointer; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; gap:14px; transition:border-color 0.15s; }
   .book-pick-auto:active { border-color:#f7cc49; }
