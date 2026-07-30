@@ -10034,7 +10034,7 @@
   }
   function camonBuildCard(p) {
     const seed = encodeURIComponent(p.name.toLowerCase().replace(/\s+/g, '-'));
-    const img = `https://picsum.photos/seed/${seed}/400/400`;
+    const img = p.image_url || `https://picsum.photos/seed/${seed}/400/400`;
     const card = document.createElement('div');
     card.className = 'drink-card';
     card.dataset.macro = p.macro || '';
