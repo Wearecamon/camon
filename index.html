@@ -3047,71 +3047,69 @@
   /* --- Griglia e schede prodotto --- */
   #page-menu .drinks-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    padding: 8px 18px 0;
+    gap: 12px;
+    padding: 8px 16px 0;
   }
   #page-menu .drink-card {
     display: flex; flex-direction: column;
-    padding: 9px 9px 14px;
-    border-radius: 24px;
+    padding: 0;
+    border-radius: 18px;
     backdrop-filter: none; -webkit-backdrop-filter: none;
-    background: rgba(255,255,255,0.045);
-    border: 1px solid rgba(255,255,255,0.09);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.34);
-    transition: transform 0.16s, border-color 0.2s, background 0.2s;
+    background: rgba(255,255,255,0.06);
+    border: none;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.4);
+    transition: transform 0.16s, box-shadow 0.2s;
+    overflow: hidden;
   }
-  #page-menu .drink-card::after { display: none; }   /* via il riflesso vetro */
-  #page-menu .drink-card:hover { border-color: rgba(247,204,73,0.34); }
+  #page-menu .drink-card::after { display: none; }
+  #page-menu .drink-card:hover { box-shadow: 0 10px 28px rgba(0,0,0,0.5); }
   #page-menu .drink-card:active {
     transform: scale(0.975);
-    border-color: rgba(247,204,73,0.5);
-    background: rgba(247,204,73,0.07);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
   }
 
-  /* vetrina del prodotto */
   #page-menu .drink-emoji {
     order: 1;
-    height: 112px;
-    margin: 0 0 12px;
-    border-radius: 18px;
+    height: 140px;
+    margin: 0;
+    border-radius: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 46px; line-height: 1;
+    font-size: 52px; line-height: 1;
     background:
-      radial-gradient(circle at 50% 38%, rgba(247,204,73,0.26) 0%, rgba(247,204,73,0.06) 62%, rgba(255,255,255,0.02) 100%);
-    border: 1px solid rgba(247,204,73,0.13);
+      radial-gradient(circle at 50% 45%, rgba(247,204,73,0.18) 0%, rgba(30,22,0,0.6) 100%);
+    border: none;
     overflow: hidden;
   }
   #page-menu .drink-emoji img {
     width: 100%; height: 100%;
-    object-fit: contain;
-    padding: 10px;
-    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+    object-fit: cover;
+    padding: 0;
+    filter: none;
   }
 
   #page-menu .drink-name {
     order: 2;
-    font-size: 18px; letter-spacing: 0.6px;
-    margin: 0 0 4px; padding: 0 5px;
-    line-height: 1.05;
+    font-size: 19px; letter-spacing: 0.6px;
+    margin: 0; padding: 12px 10px 4px;
+    line-height: 1.1;
+    text-align: center;
+    color: #1a1400;
+    background: #f7cc49;
   }
   #page-menu .drink-desc {
-    order: 3;
-    margin: 0; padding: 0 5px;
-    font-size: 11px; line-height: 1.45;
-    color: rgba(255,245,220,0.4);
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: none;
   }
   #page-menu .drink-price {
-    order: 4;
-    align-self: flex-start;
-    margin: 11px 0 0 5px;
-    padding: 5px 12px;
-    border-radius: 30px;
-    background: rgba(247,204,73,0.14);
-    border: 1px solid rgba(247,204,73,0.4);
-    color: #f7cc49;
-    font-size: 12.5px; font-weight: 800; letter-spacing: 0.3px;
+    order: 3;
+    align-self: stretch;
+    margin: 0;
+    padding: 6px 10px 10px;
+    border-radius: 0;
+    background: #f7cc49;
+    border: none;
+    color: rgba(40,30,0,0.65);
+    font-size: 13px; font-weight: 800; letter-spacing: 0.3px;
+    text-align: center;
   }
 
   /* intestazioni di sotto-sezione */
@@ -3606,37 +3604,37 @@
 
         <!-- ===== DRINK ===== -->
         <!-- COCKTAIL alla spina self-service · €4,99 -->
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🍊</div><div class="drink-name">SPRITZ</div><div class="drink-price">€4,99</div><div class="drink-desc">Aperol, prosecco, soda · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🍹</div><div class="drink-name">MOJITO</div><div class="drink-price">€4,99</div><div class="drink-desc">Rum, lime, menta, soda · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🍸</div><div class="drink-name">GIN TONIC</div><div class="drink-price">€4,99</div><div class="drink-desc">Gin, tonica, lime · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🥃</div><div class="drink-name">NEGRONI</div><div class="drink-price">€4,99</div><div class="drink-desc">Gin, Campari, vermouth · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🟠</div><div class="drink-name">MOSCOW MULE</div><div class="drink-price">€4,99</div><div class="drink-desc">Vodka, ginger beer, lime · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🍑</div><div class="drink-name">SEX ON THE BEACH</div><div class="drink-price">€4,99</div><div class="drink-desc">Vodka, pesca, arancia, cranberry · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🌅</div><div class="drink-name">TEQUILA SUNRISE</div><div class="drink-price">€4,99</div><div class="drink-desc">Tequila, arancia, granadina · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🍋</div><div class="drink-name">MARGARITA</div><div class="drink-price">€4,99</div><div class="drink-desc">Tequila, triple sec, lime · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji">🌿</div><div class="drink-name">HUGO</div><div class="drink-price">€4,99</div><div class="drink-desc">Prosecco, sambuco, menta, soda · alla spina</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=400&h=400&fit=crop" alt="Spritz"></div><div class="drink-name">SPRITZ</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=400&fit=crop" alt="Mojito"></div><div class="drink-name">MOJITO</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400&h=400&fit=crop" alt="Gin Tonic"></div><div class="drink-name">GIN TONIC</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1609951651556-5334e2706168?w=400&h=400&fit=crop" alt="Negroni"></div><div class="drink-name">NEGRONI</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1556855810-ac404aa91e85?w=400&h=400&fit=crop" alt="Moscow Mule"></div><div class="drink-name">MOSCOW MULE</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1587223962930-cb7f31384c19?w=400&h=400&fit=crop" alt="Sex on the Beach"></div><div class="drink-name">SEX ON THE BEACH</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1536935338788-846bb9981813?w=400&h=400&fit=crop" alt="Tequila Sunrise"></div><div class="drink-name">TEQUILA SUNRISE</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=400&fit=crop" alt="Margarita"></div><div class="drink-name">MARGARITA</div><div class="drink-price">€4,99</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="cocktail"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1560512823-829485b8bf24?w=400&h=400&fit=crop" alt="Hugo"></div><div class="drink-name">HUGO</div><div class="drink-price">€4,99</div></div>
 
         <!-- SHOT -->
-        <div class="drink-card" data-macro="drink" data-cat="shot"><div class="drink-emoji">🔥</div><div class="drink-name">TEQUILA</div><div class="drink-price">€2,50</div><div class="drink-desc">Il classico intramontabile</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="shot"><div class="drink-emoji">💚</div><div class="drink-name">AFTER SHOCK</div><div class="drink-price">€2,50</div><div class="drink-desc">Verde, dolce, micidiale</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="shot"><div class="drink-emoji">⚫</div><div class="drink-name">JÄGERMEISTER</div><div class="drink-price">€3</div><div class="drink-desc">Erbe, servito ghiacciato</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="shot"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400&h=400&fit=crop" alt="Tequila"></div><div class="drink-name">TEQUILA</div><div class="drink-price">€2,50</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="shot"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=400&fit=crop" alt="After Shock"></div><div class="drink-name">AFTER SHOCK</div><div class="drink-price">€2,50</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="shot"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1527281400683-1aae777175f8?w=400&h=400&fit=crop" alt="Jägermeister"></div><div class="drink-name">JÄGERMEISTER</div><div class="drink-price">€3</div></div>
 
         <!-- BIRRA alla spina · 2 vie -->
-        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji">🍺</div><div class="drink-name">LAGER · MEDIA</div><div class="drink-price">€3,50</div><div class="drink-desc">Chiara alla spina, 0.4L</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji">🍻</div><div class="drink-name">LAGER · GRANDE</div><div class="drink-price">€5</div><div class="drink-desc">Chiara alla spina, 0.6L</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji">🍺</div><div class="drink-name">IPA · MEDIA</div><div class="drink-price">€4</div><div class="drink-desc">Artigianale alla spina, 0.4L</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji">🍻</div><div class="drink-name">IPA · GRANDE</div><div class="drink-price">€5,50</div><div class="drink-desc">Artigianale alla spina, 0.6L</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=400&fit=crop" alt="Lager Media"></div><div class="drink-name">LAGER · MEDIA</div><div class="drink-price">€3,50</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=400&fit=crop" alt="Lager Grande"></div><div class="drink-name">LAGER · GRANDE</div><div class="drink-price">€5</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1566633806327-68e152aaf26d?w=400&h=400&fit=crop" alt="IPA Media"></div><div class="drink-name">IPA · MEDIA</div><div class="drink-price">€4</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="birra"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1566633806327-68e152aaf26d?w=400&h=400&fit=crop" alt="IPA Grande"></div><div class="drink-name">IPA · GRANDE</div><div class="drink-price">€5,50</div></div>
 
         <!-- VINO in bottiglia -->
-        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji">🥂</div><div class="drink-name">PROSECCO</div><div class="drink-price">€12</div><div class="drink-desc">Bottiglia 75cl · al calice €3,50</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji">🍾</div><div class="drink-name">PROSECCO 20cl</div><div class="drink-price">€4</div><div class="drink-desc">Mini bottiglia, monoporzione</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji">🥂</div><div class="drink-name">PINOT GRIGIO</div><div class="drink-price">€11</div><div class="drink-desc">Bianco secco · bottiglia 75cl · calice €3,50</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji">🍷</div><div class="drink-name">ROSSO DELLA CASA</div><div class="drink-price">€11</div><div class="drink-desc">Barbera · bottiglia 75cl · calice €3,50</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1598306442928-4d90f32c6866?w=400&h=400&fit=crop" alt="Prosecco"></div><div class="drink-name">PROSECCO</div><div class="drink-price">€12</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1598306442928-4d90f32c6866?w=400&h=400&fit=crop" alt="Prosecco 20cl"></div><div class="drink-name">PROSECCO 20cl</div><div class="drink-price">€4</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1474722883778-792e7990302f?w=400&h=400&fit=crop" alt="Pinot Grigio"></div><div class="drink-name">PINOT GRIGIO</div><div class="drink-price">€11</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="vino"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop" alt="Rosso della Casa"></div><div class="drink-name">ROSSO DELLA CASA</div><div class="drink-price">€11</div></div>
 
         <!-- ANALCOLICI -->
-        <div class="drink-card" data-macro="drink" data-cat="analcolico"><div class="drink-emoji">🧃</div><div class="drink-name">VIRGIN MOJITO</div><div class="drink-price">€3,50</div><div class="drink-desc">Lime, menta, soda · alla spina</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="analcolico"><div class="drink-emoji">🥤</div><div class="drink-name">SOFT DRINK</div><div class="drink-price">€2,50</div><div class="drink-desc">Cola, aranciata, tonica</div></div>
-        <div class="drink-card" data-macro="drink" data-cat="analcolico"><div class="drink-emoji">💧</div><div class="drink-name">ACQUA</div><div class="drink-price">€1,50</div><div class="drink-desc">Naturale o frizzante, 0.5L</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="analcolico"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed514?w=400&h=400&fit=crop" alt="Virgin Mojito"></div><div class="drink-name">VIRGIN MOJITO</div><div class="drink-price">€3,50</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="analcolico"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1581006852262-e4307cf6283a?w=400&h=400&fit=crop" alt="Soft Drink"></div><div class="drink-name">SOFT DRINK</div><div class="drink-price">€2,50</div></div>
+        <div class="drink-card" data-macro="drink" data-cat="analcolico"><div class="drink-emoji"><img src="https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=400&fit=crop" alt="Acqua"></div><div class="drink-name">ACQUA</div><div class="drink-price">€1,50</div></div>
 
         <!-- ===== CIBO ===== -->
         <!-- VEG & SENZA GLUTINE — sezione con due sotto-sezioni -->
