@@ -1306,6 +1306,16 @@
   .map-table-pick.selected rect, .map-table-pick.selected circle { fill:#f7cc49 !important; stroke:#f7cc49 !important; }
   .map-table-pick.selected text { fill:#111 !important; }
 
+  /* custom confirm modal */
+  .camon-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; padding:24px; backdrop-filter:blur(4px); }
+  .camon-modal { background:#1a1a1a; border:1px solid rgba(247,204,73,0.3); border-radius:18px; padding:28px 24px 20px; max-width:320px; width:100%; text-align:center; }
+  .camon-modal-msg { font-family:'Manrope',sans-serif; font-size:15px; font-weight:600; color:#fff; line-height:1.5; margin-bottom:22px; }
+  .camon-modal-btns { display:flex; gap:10px; }
+  .camon-modal-btn { flex:1; padding:13px 0; border-radius:12px; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; border:none; cursor:pointer; transition:opacity 0.15s; }
+  .camon-modal-btn:active { opacity:0.7; }
+  .camon-modal-btn.cancel { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); }
+  .camon-modal-btn.ok { background:#f7cc49; color:#111; }
+
   /* pulse sul tavolo assegnato */
   @keyframes tableGlow { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .table-assigned rect, .table-assigned circle { animation: tableGlow 1.4s ease-in-out infinite; }
@@ -4281,7 +4291,7 @@
       <div class="book-pick-sub" id="book-pick-sub">Tavoli disponibili per 2 persone</div>
       <div class="book-pick-scroll">
         <div class="book-pick-legend">
-          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#4CD964"></div>Disponibile</div>
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#fff"></div>Disponibile</div>
           <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#f7cc49"></div>Selezionato</div>
           <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#333"></div>Occupato / troppo grande</div>
         </div>
@@ -4308,17 +4318,17 @@
             <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
             <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
             <!-- Tavoli cliccabili -->
-            <g id="pick-T1" class="map-table-pick"><rect x="165" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T1</text><text x="186" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T2" class="map-table-pick"><rect x="251" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T2</text><text x="272" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T3" class="map-table-pick"><rect x="165" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T3</text><text x="186" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T4" class="map-table-pick"><rect x="251" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T4</text><text x="272" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T5" class="map-table-pick"><rect x="335" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T5</text><text x="356" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T6" class="map-table-pick"><circle cx="272" cy="193" r="26" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T6</text><text x="272" y="168" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">8 posti</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T7" class="map-table-pick"><rect x="158" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="179" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T7</text><text x="179" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T8" class="map-table-pick"><rect x="350" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="371" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T8</text><text x="371" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T9" class="map-table-pick"><rect x="165" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T9</text><text x="186" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T10" class="map-table-pick"><rect x="251" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T10</text><text x="272" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T11" class="map-table-pick"><rect x="335" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T11</text><text x="356" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T1" class="map-table-pick"><rect x="165" y="60" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="186" y="74" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T1</text><text x="186" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T2" class="map-table-pick"><rect x="251" y="60" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="272" y="74" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T2</text><text x="272" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T3" class="map-table-pick"><rect x="165" y="118" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="186" y="132" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T3</text><text x="186" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T4" class="map-table-pick"><rect x="251" y="118" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="272" y="132" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T4</text><text x="272" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T5" class="map-table-pick"><rect x="335" y="118" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="356" y="132" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T5</text><text x="356" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T6" class="map-table-pick"><circle cx="272" cy="193" r="26" fill="#252525" stroke="none"/><text x="272" y="197" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T6</text><text x="272" y="168" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">8 posti</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T7" class="map-table-pick"><rect x="158" y="183" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="179" y="197" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T7</text><text x="179" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T8" class="map-table-pick"><rect x="350" y="183" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="371" y="197" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T8</text><text x="371" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T9" class="map-table-pick"><rect x="165" y="250" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="186" y="264" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T9</text><text x="186" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T10" class="map-table-pick"><rect x="251" y="250" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="272" y="264" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T10</text><text x="272" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T11" class="map-table-pick"><rect x="335" y="250" width="42" height="22" rx="3" fill="#252525" stroke="none"/><text x="356" y="264" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">T11</text><text x="356" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
           </svg>
         </div>
         <div class="book-pick-or">oppure</div>
@@ -5966,6 +5976,16 @@
   var bookPendingData = null;
   var bookPickedTable = null;
 
+  function camonConfirm(msg, onOk) {
+    var ov = document.createElement('div');
+    ov.className = 'camon-modal-overlay';
+    ov.innerHTML = '<div class="camon-modal"><div class="camon-modal-msg">' + msg + '</div><div class="camon-modal-btns"><button class="camon-modal-btn cancel">Annulla</button><button class="camon-modal-btn ok">Conferma</button></div></div>';
+    document.body.appendChild(ov);
+    ov.querySelector('.cancel').onclick = function() { ov.remove(); };
+    ov.querySelector('.ok').onclick = function() { ov.remove(); onOk(); };
+    ov.addEventListener('click', function(e) { if (e.target === ov) ov.remove(); });
+  }
+
   function bookConfirm() {
     const btn = document.querySelector('.book-confirm-btn');
     if (bookType === 'invite') {
@@ -6007,6 +6027,12 @@
     bookPendingData = { nome: nome, data: data, ora: ora, dataFmt: dataFmt, personeNum: personeNum };
     bookPickedTable = null;
 
+    if (bookType === 'shared') {
+      document.getElementById('book-step2').style.display = 'none';
+      bookPickAuto();
+      return;
+    }
+
     bookSetupPickMap(personeNum);
     document.getElementById('book-pick-sub').textContent = 'Tavoli disponibili per ' + personeNum + (personeNum === 1 ? ' persona' : ' persone');
     document.getElementById('book-step2').style.display = 'none';
@@ -6033,9 +6059,9 @@
       var mainShape = g.querySelector('rect') || g.querySelector('circle');
       var txt = g.querySelector('text');
       if (available) {
-        if (mainShape.tagName === 'rect') { mainShape.setAttribute('stroke', '#4CD964'); }
-        else { mainShape.setAttribute('stroke', '#4CD964'); }
-        if (txt) txt.setAttribute('fill', '#4CD964');
+        mainShape.setAttribute('stroke', 'none');
+        mainShape.setAttribute('fill', '#252525');
+        if (txt) txt.setAttribute('fill', '#fff');
       } else {
         if (mainShape.tagName === 'rect') { mainShape.setAttribute('stroke', '#333'); mainShape.setAttribute('fill', '#1a1a1a'); }
         else { mainShape.setAttribute('stroke', '#333'); mainShape.setAttribute('fill', '#1a1a1a'); }
@@ -6050,28 +6076,27 @@
     if (bookOccupied[tableId] || !bookTableFits(tableId, personeNum)) return;
 
     var cap = tableCapacity[tableId] || 0;
-    if (!confirm('Confermi ' + tableId + ' (' + cap + ' posti) per ' + personeNum + (personeNum === 1 ? ' persona?' : ' persone?'))) return;
-
-    bookPickedTable = tableId;
-    var allTables = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'];
-    allTables.forEach(function(t) {
-      var g = document.getElementById('pick-' + t);
-      if (!g) return;
-      g.classList.remove('selected');
-      if (g.classList.contains('unavailable')) return;
-      var mainShape = g.querySelector('rect') || g.querySelector('circle');
-      var txt = g.querySelector('text');
-      if (t === tableId) {
-        g.classList.add('selected');
-        if (mainShape) { mainShape.setAttribute('fill', '#f7cc49'); mainShape.setAttribute('stroke', '#f7cc49'); }
-        if (txt) txt.setAttribute('fill', '#111');
-      } else {
-        if (mainShape) { mainShape.setAttribute('fill', '#252525'); mainShape.setAttribute('stroke', '#4CD964'); }
-        if (txt) txt.setAttribute('fill', '#4CD964');
-      }
+    camonConfirm('Confermi ' + tableId + ' (' + cap + ' posti) per ' + personeNum + (personeNum === 1 ? ' persona?' : ' persone?'), function() {
+      bookPickedTable = tableId;
+      var allTables = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'];
+      allTables.forEach(function(t) {
+        var g = document.getElementById('pick-' + t);
+        if (!g) return;
+        g.classList.remove('selected');
+        if (g.classList.contains('unavailable')) return;
+        var mainShape = g.querySelector('rect') || g.querySelector('circle');
+        var txt = g.querySelector('text');
+        if (t === tableId) {
+          g.classList.add('selected');
+          if (mainShape) { mainShape.setAttribute('fill', '#f7cc49'); mainShape.setAttribute('stroke', '#f7cc49'); }
+          if (txt) txt.setAttribute('fill', '#111');
+        } else {
+          if (mainShape) { mainShape.setAttribute('fill', '#252525'); mainShape.setAttribute('stroke', 'none'); }
+          if (txt) txt.setAttribute('fill', '#fff');
+        }
+      });
+      setTimeout(function() { bookFinalizeWithTable(tableId); }, 400);
     });
-
-    setTimeout(function() { bookFinalizeWithTable(tableId); }, 400);
   }
 
   function bookPickAuto() {
@@ -6493,46 +6518,46 @@
     var cap = tableCapacity[newTable] || 0;
     if (cap < personeNum) return;
 
-    if (!confirm('Sei sicuro di voler cambiare tavolo da ' + currentBooking.table + ' a ' + newTable + '?')) return;
+    camonConfirm('Cambiare tavolo da ' + currentBooking.table + ' a ' + newTable + '?', function() {
+      var oldTable = currentBooking.table;
+      bookOccupied[oldTable] = false;
+      bookOccupied[newTable] = true;
+      currentBooking.table = newTable;
 
-    var oldTable = currentBooking.table;
-    bookOccupied[oldTable] = false;
-    bookOccupied[newTable] = true;
-    currentBooking.table = newTable;
+      bookHighlightTable(newTable);
+      bookRenderFill(newTable);
+      document.getElementById('book-table-number').textContent = newTable;
+      document.getElementById('ba-table').textContent = newTable;
 
-    bookHighlightTable(newTable);
-    bookRenderFill(newTable);
-    document.getElementById('book-table-number').textContent = newTable;
-    document.getElementById('ba-table').textContent = newTable;
-
-    var svg = document.getElementById('book-map-svg');
-    var old = svg.querySelector('.map-highlight');
-    if (old) old.parentNode.removeChild(old);
-    var centers = {
-      T1:{x:186,y:71}, T2:{x:272,y:71},
-      T3:{x:186,y:129}, T4:{x:272,y:129}, T5:{x:356,y:129},
-      T6:{x:272,y:193},
-      T7:{x:179,y:194}, T8:{x:371,y:194},
-      T9:{x:186,y:261}, T10:{x:272,y:261}, T11:{x:356,y:261}
-    };
-    var c = centers[newTable];
-    if (c) {
-      var ns = 'http://www.w3.org/2000/svg';
-      var g = document.createElementNS(ns, 'g');
-      g.setAttribute('class','map-highlight');
-      var pulse = document.createElementNS(ns, 'circle');
-      pulse.setAttribute('cx', c.x); pulse.setAttribute('cy', c.y); pulse.setAttribute('r', newTable==='T6'?34:26);
-      pulse.setAttribute('fill','rgba(247,204,73,0.25)'); pulse.setAttribute('stroke','#f7cc49'); pulse.setAttribute('stroke-width','2');
-      pulse.innerHTML = '<animate attributeName="r" values="'+(newTable==='T6'?'34;40;34':'26;32;26')+'" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite"/>';
-      var lbl = document.createElementNS(ns, 'text');
-      lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y - (newTable==='T6'?40:32));
-      lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','#f7cc49');
-      lbl.setAttribute('font-size','8'); lbl.setAttribute('font-weight','bold');
-      lbl.setAttribute('font-family','Bebas Neue, sans-serif'); lbl.setAttribute('letter-spacing','1');
-      lbl.textContent = '▼ SEI QUI';
-      g.appendChild(pulse); g.appendChild(lbl);
-      svg.appendChild(g);
-    }
+      var svg = document.getElementById('book-map-svg');
+      var old = svg.querySelector('.map-highlight');
+      if (old) old.parentNode.removeChild(old);
+      var centers = {
+        T1:{x:186,y:71}, T2:{x:272,y:71},
+        T3:{x:186,y:129}, T4:{x:272,y:129}, T5:{x:356,y:129},
+        T6:{x:272,y:193},
+        T7:{x:179,y:194}, T8:{x:371,y:194},
+        T9:{x:186,y:261}, T10:{x:272,y:261}, T11:{x:356,y:261}
+      };
+      var c = centers[newTable];
+      if (c) {
+        var ns = 'http://www.w3.org/2000/svg';
+        var g = document.createElementNS(ns, 'g');
+        g.setAttribute('class','map-highlight');
+        var pulse = document.createElementNS(ns, 'circle');
+        pulse.setAttribute('cx', c.x); pulse.setAttribute('cy', c.y); pulse.setAttribute('r', newTable==='T6'?34:26);
+        pulse.setAttribute('fill','rgba(247,204,73,0.25)'); pulse.setAttribute('stroke','#f7cc49'); pulse.setAttribute('stroke-width','2');
+        pulse.innerHTML = '<animate attributeName="r" values="'+(newTable==='T6'?'34;40;34':'26;32;26')+'" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite"/>';
+        var lbl = document.createElementNS(ns, 'text');
+        lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y - (newTable==='T6'?40:32));
+        lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','#f7cc49');
+        lbl.setAttribute('font-size','8'); lbl.setAttribute('font-weight','bold');
+        lbl.setAttribute('font-family','Bebas Neue, sans-serif'); lbl.setAttribute('letter-spacing','1');
+        lbl.textContent = '▼ SEI QUI';
+        g.appendChild(pulse); g.appendChild(lbl);
+        svg.appendChild(g);
+      }
+    });
   }
 
   function bookNewBooking() {
@@ -6542,13 +6567,14 @@
   }
 
   function bookCancelConfirm() {
-    if (!confirm('Sei sicuro di voler annullare la prenotazione?')) return;
-    bookAddedGuests = [];
-    currentBooking = null;
-    document.getElementById('book-active').style.display = 'none';
-    document.getElementById('book-step3').style.display = 'none';
-    document.getElementById('book-step-pick').style.display = 'none';
-    document.getElementById('book-step1').style.display = 'flex';
+    camonConfirm('Sei sicuro di voler annullare la prenotazione?', function() {
+      bookAddedGuests = [];
+      currentBooking = null;
+      document.getElementById('book-active').style.display = 'none';
+      document.getElementById('book-step3').style.display = 'none';
+      document.getElementById('book-step-pick').style.display = 'none';
+      document.getElementById('book-step1').style.display = 'flex';
+    });
   }
 
   function bookReset() {
@@ -6741,10 +6767,11 @@
     bandRender();
   }
   function bandRemove(code) {
-    if (!confirm('Rimuovere il braccialetto ' + code + ' dal conto? Potrai ricollegarlo in seguito col suo codice.')) return;
-    bands = bands.filter(b => b.code !== code);
-    bandsSave();
-    bandRender();
+    camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', function() {
+      bands = bands.filter(b => b.code !== code);
+      bandsSave();
+      bandRender();
+    });
   }
   function bandRender() {
     const list = document.getElementById('band-list');
