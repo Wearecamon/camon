@@ -1304,8 +1304,8 @@
   .map-table-pick:active { opacity:0.7; }
   .map-table-pick.available { filter:drop-shadow(0 0 6px rgba(76,217,100,0.5)); }
   .map-table-pick.unavailable { opacity:0.25; pointer-events:none; }
-  .map-table-pick.selected rect:not(.svg-hit), .map-table-pick.selected circle:not(.svg-hit) { fill:#f7cc49 !important; stroke:#f7cc49 !important; }
-  .map-table-pick.selected text { fill:#111 !important; }
+  .map-table-pick.selected rect:not(.svg-hit), .map-table-pick.selected circle:not(.svg-hit) { fill:#3d3200 !important; stroke:#f7cc49 !important; stroke-width:1.2 !important; }
+  .map-table-pick.selected text { fill:#f7cc49 !important; }
   .map-table-pick.selected { filter:drop-shadow(0 0 8px rgba(247,204,73,0.6)) !important; }
 
   /* custom confirm modal */
@@ -6093,8 +6093,8 @@
         var txt = g.querySelector('text');
         if (t === tableId) {
           g.classList.add('selected');
-          if (mainShape) { mainShape.setAttribute('fill', '#f7cc49'); mainShape.setAttribute('stroke', '#f7cc49'); }
-          if (txt) txt.setAttribute('fill', '#111');
+          if (mainShape) { mainShape.setAttribute('fill', '#3d3200'); mainShape.setAttribute('stroke', '#f7cc49'); mainShape.setAttribute('stroke-width', '1.2'); }
+          if (txt) txt.setAttribute('fill', '#f7cc49');
         } else {
           if (mainShape) { mainShape.setAttribute('fill', '#1a3d1a'); mainShape.setAttribute('stroke', '#4CD964'); }
           if (txt) txt.setAttribute('fill', '#4CD964');
@@ -6213,18 +6213,20 @@
       var g = document.getElementById('map-' + t);
       if (!g) return;
       var isAssigned = (t === assigned);
-      var mainEl = g.querySelector('rect') || g.querySelector('circle');
+      var mainEl = g.querySelector('rect:not(.svg-hit)') || g.querySelector('circle:not(.svg-hit)');
       if (mainEl) {
-        mainEl.setAttribute('fill', isAssigned ? '#3a2e00' : '#252525');
+        mainEl.setAttribute('fill', isAssigned ? '#3d3200' : '#252525');
         mainEl.setAttribute('stroke', isAssigned ? '#f7cc49' : '#444');
+        mainEl.setAttribute('stroke-width', isAssigned ? '1.2' : '1');
       }
-      g.querySelectorAll('circle').forEach(function(ch) {
+      g.querySelectorAll('circle:not(.svg-hit)').forEach(function(ch) {
         if (ch === mainEl) return;
         ch.setAttribute('fill', isAssigned ? '#2a2418' : '#1c1c1c');
         ch.setAttribute('stroke', isAssigned ? '#f7cc49' : '#3a3a3a');
       });
       var txt = g.querySelector('text');
       if (txt) txt.setAttribute('fill', isAssigned ? '#f7cc49' : '#777');
+      g.style.filter = isAssigned ? 'drop-shadow(0 0 8px rgba(247,204,73,0.5))' : 'none';
     });
     // rimuovi highlight precedente
     var old = svg.querySelector('.map-highlight');
