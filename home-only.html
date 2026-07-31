@@ -3340,9 +3340,12 @@
      sotto. Lo sfondo pieno serve proprio a questo: senza, le schede
      si vedrebbero in trasparenza mentre ci passano dietro.
      ============================================================ */
+  /* Fissa davvero: ancorata al viewport, non scorre mai insieme al
+     contenuto nemmeno all'inizio o col rimbalzo dello scorrimento.
+     Lo spazio che lascerebbe libero lo rimette adattaTesteFisse(). */
   .testa-fissa {
-    position: sticky;
-    top: 0;
+    position: fixed;
+    top: 0; left: 0; right: 0;
     z-index: 300;
     background: #0a0a0a;
     padding-top: env(safe-area-inset-top, 0px);
@@ -6890,6 +6893,9 @@
     /* Torna in cima alla lista: a scorrere ora e' il documento, non
        piu' la .scroll-area, e la testa fissa resta comunque in alto. */
     window.scrollTo(0, 0);
+    /* Le due file di categorie hanno altezze diverse: lo spazio va
+       ricalcolato a ogni cambio. */
+    if (typeof adattaTesteFisse === 'function') adattaTesteFisse();
   }
 
   function filterCat(btn, cat) {
@@ -9571,6 +9577,27 @@
      il pulsante Giochi nella barra. */
   var gamePages = ['shotquest','shotiq','kings','beerpong','flipcup','obbligo'];
 
+  /* Le teste di menu e prenota sono fissate al viewport, quindi non
+     occupano piu' spazio nel documento: senza questo il contenuto
+     partirebbe sotto di loro, nascosto. Si misura l'altezza vera e la
+     si restituisce come spazio al blocco che segue. */
+  function adattaTesteFisse() {
+    document.querySelectorAll('.page.active .testa-fissa').forEach(function (testa) {
+      if (!testa.offsetParent && testa.offsetHeight === 0) return;
+      var dopo = testa.nextElementSibling;
+      while (dopo && getComputedStyle(dopo).display === 'none') dopo = dopo.nextElementSibling;
+      if (!dopo) return;
+      /* con priorita': il foglio di stile usa !important su queste spaziature */
+      dopo.style.setProperty('padding-top', Math.round(testa.getBoundingClientRect().height) + 'px', 'important');
+    });
+  }
+  window.adattaTesteFisse = adattaTesteFisse;
+
+  ['resize', 'orientationchange'].forEach(function (ev) {
+    window.addEventListener(ev, function () { setTimeout(adattaTesteFisse, 60); });
+  });
+  window.addEventListener('load', function () { setTimeout(adattaTesteFisse, 120); });
+
   function mostra(page) {
     var el = document.getElementById('page-' + page);
     if (!el) return false;
@@ -9649,6 +9676,11 @@
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
+
+    /* Due passaggi: subito, e dopo un attimo perche' alcune fasce
+       cambiano altezza quando i loro contenuti finiscono di disporsi. */
+    adattaTesteFisse();
+    setTimeout(adattaTesteFisse, 80);
     return true;
   }
 
