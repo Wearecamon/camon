@@ -3320,10 +3320,14 @@
   #page-profile.active {
     display: flex !important;
     flex-direction: column;
-    /* Il profilo non ha una .scroll-area, quindi partiva dal bordo
-       superiore dello schermo: il tasto matita finiva sotto l'orologio
-       e non si riusciva a premerlo. */
-    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* La foto del profilo resta a tutto schermo: si abbassano solo i due
+     tasti tondi in cima, che partendo a 16px finivano sotto l'orologio
+     e non si riuscivano a premere. */
+  .prof-edit-fab,
+  .prof-tondo-alto {
+    top: calc(16px + env(safe-area-inset-top, 0px)) !important;
   }
 
   /* ============================================================
@@ -4786,7 +4790,7 @@
     <!-- FORM MODIFICA (nascosto) -->
     <div id="prof-edit-section" style="flex:1;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:96px">
       <div class="prof-photo-wrap" style="position:relative" onclick="document.getElementById('prof-file').click()">
-        <button onclick="event.stopPropagation();profEsciDalleModifiche()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
+        <button class="prof-tondo-alto" onclick="event.stopPropagation();profEsciDalleModifiche()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
         <img class="prof-photo-img" id="prof-photo-img" src="" alt="">
