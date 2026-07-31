@@ -3323,7 +3323,162 @@
 </head>
 <body>
 <div class="prova-riga-rossa"></div>
-<div class="prova-versione">v6 · menu e prenota</div>
+<div class="prova-versione">v7 · completa</div>
+  <div class="pwa-banner" id="pwa-banner">
+    <div class="pwa-banner-ico">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+    </div>
+    <div class="pwa-banner-txt">
+      <div class="pwa-banner-lbl">Aggiungi alla home</div>
+      <div class="pwa-banner-sub">Aprila come un'app, sempre a portata</div>
+    </div>
+    <button class="pwa-banner-btn" onclick="settingsInstall();pwaBannerDismiss()">Installa</button>
+    <button class="pwa-banner-close" onclick="pwaBannerDismiss()">✕</button>
+  </div>
+
+  <!-- ============================
+       SETTINGS DRAWER
+  ============================ -->
+  <div class="settings-overlay" id="settings-overlay" onclick="settingsClose()"></div>
+  <div class="settings-drawer" id="settings-drawer">
+    <div class="settings-head">
+      <div class="settings-head-title">IMPOST<span>AZIONI</span></div>
+      <button class="settings-close" onclick="settingsClose()">✕</button>
+    </div>
+    <div class="settings-scroll">
+
+      <!-- LINGUA -->
+      <div class="settings-section-lbl">Lingua</div>
+      <div class="lang-row-wrap">
+        <button class="lang-btn active" onclick="setLang(this,'it')">🇮🇹 Italiano</button>
+        <button class="lang-btn" onclick="setLang(this,'en')">🇬🇧 English</button>
+        <button class="lang-btn" onclick="setLang(this,'es')">🇪🇸 Español</button>
+        <button class="lang-btn" onclick="setLang(this,'fr')">🇫🇷 Français</button>
+        <button class="lang-btn" onclick="setLang(this,'de')">🇩🇪 Deutsch</button>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- NOTIFICHE -->
+      <div class="settings-section-lbl">Notifiche</div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-ico accent">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl">Notifiche push</div>
+            <div class="settings-row-sub">Offerte, eventi, matching tavoli</div>
+          </div>
+        </div>
+        <label class="s-toggle"><input type="checkbox" checked id="tog-notifiche"><div class="s-toggle-track"></div></label>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl">Newsletter</div>
+            <div class="settings-row-sub">Novità ed eventi del locale</div>
+          </div>
+        </div>
+        <label class="s-toggle"><input type="checkbox" id="tog-newsletter"><div class="s-toggle-track"></div></label>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- WEB APP -->
+      <div class="settings-section-lbl">Web App</div>
+      <div class="settings-row" onclick="settingsInstall()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico accent">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl">Aggiungi alla home</div>
+            <div class="settings-row-sub">Apri CAMON come un'app vera</div>
+          </div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- CONDIVIDI -->
+      <div class="settings-section-lbl">Condividi</div>
+      <div class="settings-row" onclick="settingsShare()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico accent">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl">Condividi CAMON</div>
+            <div class="settings-row-sub">Invita i tuoi amici al bar</div>
+          </div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- SUPPORTO -->
+      <div class="settings-section-lbl">Supporto</div>
+      <div class="settings-row" onclick="alert('Scrivici su Instagram @camon.bar o via email.')">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div><div class="settings-row-lbl">Contattaci</div><div class="settings-row-sub">Problemi o suggerimenti</div></div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="settings-row" onclick="settingsReport()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div><div class="settings-row-lbl">Segnala un problema</div><div class="settings-row-sub">Qualcosa non funziona?</div></div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- LEGALE -->
+      <div class="settings-section-lbl">Legale</div>
+      <div class="settings-row" onclick="alert('Termini e condizioni di utilizzo.')">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div><div class="settings-row-lbl">Termini e condizioni</div></div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="settings-row" onclick="alert('Privacy policy di CAMON.')">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div><div class="settings-row-lbl">Privacy policy</div></div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+
+      <div class="settings-row" id="settings-logout" style="display:none" onclick="camonLogout()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </div>
+          <div><div class="settings-row-lbl" style="color:#ff6b6b">Esci dall'account</div></div>
+        </div>
+      </div>
+
+      <div class="settings-version" id="settings-version">CAMON v1.1.1 · Bar Torino</div>
+
+    </div>
+  </div>
   <div class="page active" id="page-home">
     <div class="scroll-area">
 
@@ -5218,6 +5373,86 @@
   <!-- ============================
        PROFILO PAGE
   ============================ -->
+  <div class="page game-detail" id="page-story" style="background:#1A0A1E">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">STORIA <span style="color:#F472B6">= SHOT</span></div>
+    </div>
+    <div class="story-body">
+      <div class="story-hero">
+        <div class="story-hero-emoji">🥃</div>
+        <div class="story-hero-title">UNO SHOT GRATIS<br>PER UNA STORIA</div>
+        <div class="story-hero-sub">Tagga il CAMON nella tua storia Instagram e l'aperitivo lo offriamo noi.</div>
+      </div>
+      <div class="story-steps">
+        <div class="story-step"><span class="story-step-n">1</span><div>Pubblica una <b>storia su Instagram</b> taggando <b>@camon.torino</b>.</div></div>
+        <div class="story-step"><span class="story-step-n">2</span><div>Torna qui e genera il tuo <b>codice del giorno</b>.</div></div>
+        <div class="story-step"><span class="story-step-n">3</span><div>Mostra allo staff <b>il codice + la storia ancora online</b>: shot servito.</div></div>
+      </div>
+      <div class="story-action" id="story-action"></div>
+      <div class="story-warn">
+        <span class="story-warn-ico">ℹ️</span>
+        <div>Perché l'offerta sia valida, la storia deve restare pubblicata fino alla scadenza. Qualora ne venisse rilevata la rimozione anticipata, l'offerta non sarà disponibile per i prossimi 30 giorni.</div>
+      </div>
+      <div class="story-fineprint">1 storia a serata, si azzera ogni mattina alle 8:00. Lo staff verifica la storia al momento del ritiro.</div>
+    </div>
+  </div>
+
+  <!-- OVERLAY + BOTTOM SHEET AGGIUNGI PARTECIPANTE -->
+  <!-- Modal conferma rimozione partecipante -->
+  <div id="remove-guest-overlay" onclick="closeRemoveGuest()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)"></div>
+  <div id="remove-guest-modal" style="display:none;position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;background:#1c1c1e;border-radius:24px 24px 0 0;padding:28px 24px 40px;z-index:1001;box-shadow:0 -8px 40px rgba(0,0,0,0.6)">
+    <div style="width:36px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 24px"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#fff;margin-bottom:6px">RIMUOVI PARTECIPANTE</div>
+    <div id="remove-guest-txt" style="font-family:'Manrope',sans-serif;font-size:14px;color:rgba(255,255,255,0.55);margin-bottom:28px"></div>
+    <button onclick="confirmRemoveGuest()" style="width:100%;padding:16px;background:#ff4444;border:none;border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#fff;cursor:pointer;margin-bottom:12px">Sì, rimuovi</button>
+    <button onclick="closeRemoveGuest()" style="width:100%;padding:16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#fff;cursor:pointer">Annulla</button>
+  </div>
+
+  <div class="add-guest-overlay" id="add-guest-overlay" onclick="closeAddGuest()"></div>
+  <div class="add-guest-sheet hidden" id="add-guest-sheet">
+    <div class="add-guest-handle"></div>
+    <div class="add-guest-title">AGGIUNGI <span>PARTECIPANTE</span></div>
+    <div class="add-guest-search">
+      <input id="add-guest-input" type="text" placeholder="Cerca per nome su CAMON…" oninput="searchAddGuest(this.value)" autocomplete="off"/>
+    </div>
+    <div class="add-guest-results" id="add-guest-results" style="display:none"></div>
+    <div class="add-guest-invite" id="add-guest-invite-btn" onclick="addGuestInvite()" style="display:none">
+      <div class="add-guest-invite-ico">📲</div>
+      <div>
+        <div class="add-guest-invite-txt">Non è su CAMON?</div>
+        <div class="add-guest-invite-sub">Invitagli il link per scaricare l'app</div>
+      </div>
+    </div>
+    <button class="add-guest-close" onclick="closeAddGuest()">Annulla</button>
+  </div>
+
+  <!-- BOLLINO CARTA (presente su tutte le pagine) -->
+  <div class="card-fab-wrap">
+    <button class="card-fab" id="card-fab" onclick="goTo('carta')" aria-label="La tua carta">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span class="card-fab-lbl">CARTA</span>
+    </button>
+  </div>
+
+  <!-- FAB SALVA PROFILO (compare solo in modifica profilo, al posto del bollino carta) -->
+  <div class="profile-save-fab-wrap hidden" id="profile-save-fab-wrap">
+    <button class="profile-save-fab" onclick="profSave()" aria-label="Salva profilo">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#08310f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span class="profile-save-fab-lbl">SALVA</span>
+    </button>
+  </div>
+
+  <!-- BOLLINO STORIA = SHOT (solo home, lato sinistro) -->
+  <div class="story-fab-wrap hidden" id="story-fab-wrap">
+    <button class="story-fab" id="story-fab" onclick="goTo('story')" aria-label="Storia per uno shot gratis">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14l-2 14H7L5 4z"/><line x1="5" y1="4" x2="19" y2="4"/><line x1="7" y1="18" x2="17" y2="18"/></svg>
+      <span class="story-fab-lbl">FREE<br>SHOT</span>
+    </button>
+  </div>
+
+</div>
+
   <nav class="bottom-nav">
     <button class="nav-btn" id="nav-book" onclick="goTo('book')">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -5241,6 +5476,299 @@
       <span class="nav-label">Profilo</span>
     </button>
   </nav>
+<script>
+  /* ===== SETTINGS DRAWER ===== */
+  document.querySelector('.hamburger').addEventListener('click', function() {
+    this.classList.toggle('open');
+    document.getElementById('settings-drawer').classList.toggle('open');
+    document.getElementById('settings-overlay').classList.toggle('open');
+  });
+
+  function settingsClose() {
+    document.querySelector('.hamburger').classList.remove('open');
+    document.getElementById('settings-drawer').classList.remove('open');
+    document.getElementById('settings-overlay').classList.remove('open');
+  }
+
+  function setLang(btn, lang) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // placeholder: qui in futuro si cambierebbe la lingua dell'app
+  }
+
+  function settingsShare() {
+    if (navigator.share) {
+      navigator.share({ title: 'CAMON — Bar Torino', text: 'Vieni a CAMON, il bar universitario di Torino 🍹', url: window.location.href });
+    } else {
+      alert('Copia il link e condividilo con i tuoi amici!');
+    }
+  }
+
+  // ===== PWA BANNER =====
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt = e; });
+
+  function pwaBannerDismiss() {
+    document.getElementById('pwa-banner').classList.remove('show');
+    localStorage.setItem('pwa_dismissed', '1');
+  }
+
+  function pwaBannerInit() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const dismissed = localStorage.getItem('pwa_dismissed');
+    if (!isStandalone && !dismissed) {
+      setTimeout(() => document.getElementById('pwa-banner').classList.add('show'), 2200);
+    }
+  }
+
+  // ===== HOME: stato aperto/chiuso =====
+  function homeUpdateStatus() {
+    const now = new Date();
+    const day = now.getDay(); // 0=dom, 1=lun … 6=sab
+    const h = now.getHours() + now.getMinutes() / 60;
+    // Aperto mar-dom 18:00–03:00; lunedì chiuso
+    const openDays = [0, 2, 3, 4, 5, 6]; // dom=0, mar=2 … sab=6
+    let open = false;
+    if (h >= 18) {
+      open = openDays.includes(day);
+    } else if (h < 3) {
+      const prevDay = (day + 6) % 7;
+      open = openDays.includes(prevDay);
+    }
+    const el = document.getElementById('home-open-status');
+    const txt = document.getElementById('home-open-txt');
+    if (el && txt) {
+      el.className = 'home-info-status ' + (open ? 'open' : 'closed');
+      txt.textContent = open ? 'Aperto ora' : 'Chiuso';
+    }
+  }
+
+  // ===== HOME: saldo sul tile carta =====
+  function homeUpdateTile() {
+    const t = document.getElementById('home-tile-balance');
+    if (t) t.textContent = 'Saldo: ' + fmtEuro(cardBalance).replace('€ ', '€');
+  }
+
+  // Aggiungi alla schermata home
+
+  function settingsInstall() {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+    } else {
+      // iOS Safari non supporta beforeinstallprompt — istruzioni manuali
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        alert('Su iPhone:\n1. Tocca il tasto Condividi (□↑) in Safari\n2. Scorri e scegli "Aggiungi a schermata Home"\n3. CAMON apparirà come un\'app!');
+      } else {
+        alert('Apri CAMON in Chrome, poi tocca i tre puntini ⋮ in alto a destra e scegli "Aggiungi a schermata Home".');
+      }
+    }
+  }
+
+  // Segnala problema
+  function settingsReport() {
+    settingsClose();
+    setTimeout(() => {
+      const msg = prompt('Descrivi il problema che hai riscontrato:');
+      if (msg && msg.trim()) alert('Grazie! Il tuo feedback è stato inviato al team di CAMON 🙏');
+    }, 300);
+  }
+
+  /* ===== OFFERTE: accesso riservato agli iscritti ===== */
+  function offerteGate() {
+    const bloccato = !profHasProfile();
+    const lista = document.getElementById('offerte-list');
+    const gate  = document.getElementById('offerte-locked');
+    if (lista) lista.style.display = bloccato ? 'none' : 'flex';
+    if (gate)  gate.style.display  = bloccato ? 'flex' : 'none';
+  }
+
+  /* ===== OFFERTE INFINITE SCROLL ===== */
+  (function() {
+    const track = document.querySelector('.offers-auto-scroll');
+    if (!track) return;
+    // Duplicate cards for seamless infinite loop
+    const clone = track.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    // Merge clone's children into track (so animation covers 50% = original set)
+    Array.from(clone.children).forEach(function(child) {
+      track.appendChild(child.cloneNode(true));
+    });
+
+  })();
+
+  // Copia il background-image dai hiw-card alle hero delle info-page (stessa immagine, piena opacità)
+  (function syncInfoHeroBg() {
+    const map = [
+      { card: 'info-social', hero: 'page-info-social' },
+      { card: 'info-games',  hero: 'page-info-games'  },
+      { card: 'info-spina',  hero: 'page-info-spina'  },
+    ];
+    map.forEach(function(m) {
+      const card = document.querySelector('[onclick="goTo(\'' + m.card + '\')"] .hiw-card-bg');
+      const hero = document.querySelector('#' + m.hero + ' .info-page-hero');
+      if (card && hero) {
+        const bg = card.style.backgroundImage;
+        if (bg) {
+          hero.style.backgroundImage = bg;
+          hero.style.backgroundSize = 'cover';
+          hero.style.backgroundPosition = 'center';
+          hero.style.background = ''; // rimuovi il gradient inline
+          hero.style.backgroundImage = bg; // riapplica dopo il reset
+        }
+      }
+    });
+  })();
+
+</script>
+<script>
+  /* ===== HOME: il gesto fa avanzare il video, poi si scorre ===== */
+  (function () {
+    const video    = document.getElementById('homeVideo');
+    const scroller = document.querySelector('#page-home .scroll-area');
+    if (!video || !scroller) return;
+
+    /* px di gesto necessari per percorrere tutto il video */
+    const PX_PER_SECOND = 180;
+    /* inseguimento morbido del tempo target (piu' basso = piu' dolce) */
+    const EASING = 0.14;
+
+    let scrubRange = 0;   /* px totali del gesto */
+    let progress   = 0;   /* 0..scrubRange */
+    let locked     = true;
+    let targetTime = 0;
+    let rafId      = null;
+    let touchY     = null;
+
+    function setup() {
+      const d = video.duration;
+      if (!d || !isFinite(d)) return;
+      scrubRange = Math.max(d * PX_PER_SECOND, 600);
+    }
+
+    function advance(delta) {
+      progress = Math.min(Math.max(progress + delta, 0), scrubRange);
+      const d = video.duration;
+      if (d && isFinite(d)) {
+        targetTime = (progress / scrubRange) * d;
+        if (rafId === null) rafId = requestAnimationFrame(animate);
+      }
+      /* sbloccato solo a video finito */
+      locked = progress < scrubRange;
+    }
+
+    function animate() {
+      const d = video.duration;
+      if (!d || !isFinite(d)) { rafId = null; return; }
+      const diff = targetTime - video.currentTime;
+      if (Math.abs(diff) < 0.015) {
+        rafId = null;
+        return;
+      }
+      if (video.readyState >= 2 && !video.seeking) {
+        video.currentTime += diff * EASING;
+      }
+      rafId = requestAnimationFrame(animate);
+    }
+
+    /* Il blocco vale finche' il video non e' completo. Tornando in cima
+       si rientra nella fase video e il gesto lo manda all'indietro. */
+    function shouldLock(delta) {
+      if (locked) return true;
+      return delta < 0 && scroller.scrollTop <= 0;
+    }
+
+    scroller.addEventListener('wheel', function (e) {
+      if (!scrubRange) return;
+      if (!shouldLock(e.deltaY)) return;
+      e.preventDefault();
+      advance(e.deltaY);
+    }, { passive: false });
+
+    scroller.addEventListener('touchstart', function (e) {
+      touchY = e.touches[0].clientY;
+    }, { passive: true });
+
+    scroller.addEventListener('touchmove', function (e) {
+      if (!scrubRange || touchY === null) return;
+      const y = e.touches[0].clientY;
+      const delta = touchY - y;          /* swipe verso l'alto = avanti */
+      if (!shouldLock(delta)) { touchY = y; return; }
+      e.preventDefault();
+      touchY = y;
+      advance(delta);
+    }, { passive: false });
+
+    scroller.addEventListener('touchend', function () { touchY = null; }, { passive: true });
+
+    /* ===== Arrivo sotto i loghi: l'header diventa opaco =====
+       Il bordo del foglio resta sempre stondato (vedi .home-sheet). */
+    const sheet  = document.getElementById('homeSheet');
+    const header = document.querySelector('#page-home .home-header');
+    const HEADER_H = 68;   /* 18 padding + 32 logo + 18 padding */
+
+    function updateEdge() {
+      if (!sheet || !header) return;
+      const top = sheet.getBoundingClientRect().top;
+      header.classList.toggle('solid', top <= HEADER_H);
+    }
+
+    scroller.addEventListener('scroll', updateEdge, { passive: true });
+    window.addEventListener('resize', updateEdge);
+    updateEdge();
+
+    window.addEventListener('resize', setup);
+
+    video.pause();
+    if (video.readyState >= 1) setup();
+    else video.addEventListener('loadedmetadata', setup);
+  })();
+</script>
+<script>
+  /* ===== Bottom nav hide on scroll (Instagram-style) ===== */
+  (function () {
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = 0;
+    var ticking = false;
+    var THRESHOLD = 8;
+
+    function onScroll(e) {
+      var el = e.target;
+      if (!el || !el.classList) return;
+      if (!el.classList.contains('scroll-area') &&
+          !el.classList.contains('games-scroll') &&
+          !el.classList.contains('book-scroll') &&
+          !el.classList.contains('settings-scroll')) return;
+
+      var y = el.scrollTop;
+      var delta = y - (el._navLastY || 0);
+      el._navLastY = y;
+
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(function () {
+          ticking = false;
+          if (delta > THRESHOLD) {
+            nav.classList.add('nav-shrink');
+          } else if (delta < -THRESHOLD) {
+            nav.classList.remove('nav-shrink');
+          }
+        });
+      }
+    }
+
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+
+    var orig = window.goTo;
+    if (orig) {
+      window.goTo = function () {
+        nav.classList.remove('nav-shrink');
+        return orig.apply(this, arguments);
+      };
+    }
+  })();
+</script>
 <script>
   /* ===== PRENOTAZIONE ===== */
   let bookType = null;
@@ -8969,6 +9497,20 @@
         if (passo1) passo1.style.display = 'flex';
       }
     }
+    /* Bollini flottanti, come nell'app: la carta sparisce dove darebbe
+       fastidio, la storia si vede solo in home e nel menu, il salva
+       profilo resta nascosto finche' non si entra in modifica. */
+    var cardFab = document.getElementById('card-fab');
+    var cardWrap = cardFab && cardFab.parentElement;
+    var nascondiCarta = (page === 'carta' || page === 'games' || page === 'story' ||
+                         (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0));
+    if (cardWrap) cardWrap.classList.toggle('hidden', nascondiCarta);
+    var storyFab = document.getElementById('story-fab-wrap');
+    if (storyFab) storyFab.classList.toggle('hidden', page !== 'home' && page !== 'menu');
+    var saveFab = document.getElementById('profile-save-fab-wrap');
+    if (saveFab) saveFab.classList.add('hidden');
+
+    if (page === 'offerte' && typeof offerteGate === 'function') offerteGate();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
