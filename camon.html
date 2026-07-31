@@ -25,7 +25,9 @@
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   /* stesso nero del fondo delle pagine: se iOS lascia una fascia fuori
      dalla finestra, si confonde con l'app invece di sembrare un taglio */
-  html, body { height: 100%; overflow: hidden; background: #0a0a0a; }
+  /* Niente overflow:hidden qui: serviva alla vecchia shell fissa e
+     oggi impedirebbe alle teste fisse di agganciarsi. */
+  html, body { height: 100%; background: #0a0a0a; }
   body { font-family: 'Manrope', sans-serif; color: #fff; }
 
   /* Zone sicure iPhone (notch sopra, barra Home sotto).
@@ -3259,8 +3261,11 @@
   html, body {
     height: auto;
     min-height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    /* clip e non hidden: hidden renderebbe html/body un contenitore di
+       scorrimento e le teste fisse non si aggancerebbero piu'.
+       clip taglia l'orizzontale senza farlo. */
+    overflow-x: clip;
+    overflow-y: visible;
     background: #0a0a0a;
     -webkit-text-size-adjust: 100%;
   }
@@ -3278,7 +3283,14 @@
   }
   /* Ogni pagina copre almeno lo schermo: se il contenuto e' corto, il
      suo fondo arriva comunque in basso invece di tagliarsi a meta'. */
-  .page.active { display: block !important; min-height: 100dvh; }
+  .page.active {
+    display: block !important;
+    min-height: 100dvh;
+    /* Un contenitore che taglia il contenuto impedisce alla testa
+       fissa di agganciarsi: qui a scorrere e' solo il documento.
+       La pagina giochi resta l'eccezione, piu' sotto. */
+    overflow: visible !important;
+  }
 
   /* L'area che prima scorreva da sola ora scorre insieme al documento.
      Il respiro sopra e sotto viene solo dai valori veri di env(). */
@@ -3320,6 +3332,38 @@
   #page-profile.active {
     display: flex !important;
     flex-direction: column;
+  }
+
+  /* ============================================================
+     TESTA FISSA (menu e prenota)
+     Titolo e filtri restano in alto e il contenuto scorre passando
+     sotto. Lo sfondo pieno serve proprio a questo: senza, le schede
+     si vedrebbero in trasparenza mentre ci passano dietro.
+     ============================================================ */
+  .testa-fissa {
+    position: sticky;
+    top: 0;
+    z-index: 300;
+    background: #0a0a0a;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  /* Sfumatura in coda: il contenuto sparisce sotto invece di
+     tagliarsi di netto sul bordo della fascia. */
+  .testa-fissa::after {
+    content: '';
+    position: absolute; left: 0; right: 0; top: 100%;
+    height: 14px; pointer-events: none;
+    background: linear-gradient(#0a0a0a, rgba(10,10,10,0));
+  }
+
+  /* La fascia porta gia' lo spazio del notch: senza questo il menu
+     lo conterebbe due volte. */
+  #page-menu .scroll-area { padding-top: 0 !important; }
+
+  /* Una fascia appiccicata non funziona dentro un contenitore che
+     taglia il contenuto: qui il documento e' l'unico a scorrere. */
+  #book-step1, #page-book .book-scroll {
+    overflow: visible !important;
   }
 
   /* La foto del profilo resta a tutto schermo, senza fasce nere sopra:
@@ -4888,6 +4932,9 @@
   <!-- INFO: TAVOLI SOCIALI -->
   <!-- ═══════════ PAGINA OFFERTE ═══════════ -->
   <div class="page" id="page-menu">
+    <!-- Testa fissa: titolo, Drink/Cibo e categorie restano in alto
+         mentre i prodotti scorrono e passano sotto -->
+    <div class="testa-fissa" id="menu-testa">
     <div class="page-header">
       <div class="page-title">IL <span>MENU</span></div>
     </div>
@@ -4920,6 +4967,7 @@
       <button class="cat-btn" onclick="filterCat(this,'primo')">Primi</button>
       <button class="cat-btn" onclick="filterCat(this,'dolce')">Dolci</button>
     </div>
+    </div><!-- /testa fissa -->
 
     <div class="scroll-area" style="padding-top:4px">
 
@@ -5145,9 +5193,13 @@
 
     <!-- STEP 1: scegli tipo -->
     <div id="book-step1" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-      <div style="padding:24px 22px 4px">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px">PRENOTA <span style="color:#f7cc49">UN POSTO</span></div>
-        <div style="font-family:'Manrope',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px">Come vuoi passare la serata?</div>
+      <!-- Testa fissa: il titolo resta in alto mentre i tipi di tavolo
+           scorrono e passano sotto -->
+      <div class="testa-fissa">
+        <div style="padding:24px 22px 12px">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px">PRENOTA <span style="color:#f7cc49">UN POSTO</span></div>
+          <div style="font-family:'Manrope',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px">Come vuoi passare la serata?</div>
+        </div>
       </div>
       <div class="book-scroll">
         <div class="book-type-list">
@@ -6837,9 +6889,9 @@
     row.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     row.querySelector('.cat-btn').classList.add('active');
     applyMenuFilter('tutti');
-    // riporta lo scroll in cima
-    const sa = document.querySelector('#page-menu .scroll-area');
-    if (sa) sa.scrollTop = 0;
+    /* Torna in cima alla lista: a scorrere ora e' il documento, non
+       piu' la .scroll-area, e la testa fissa resta comunque in alto. */
+    window.scrollTo(0, 0);
   }
 
   function filterCat(btn, cat) {
