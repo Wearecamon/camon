@@ -3276,6 +3276,10 @@
      tutta larghezza e il testo prende il respiro in fondo. */
   .info-page-content { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 118px) !important; }
 
+  /* Nemmeno la prenotazione usa .scroll-area: senza questo l'ultima
+     scheda finiva dietro la barra in fondo. */
+  #page-book .book-scroll { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important; }
+
   /* La pagina giochi e' fatta apposta per occupare tutto lo schermo:
      le slide scattano una a una dentro il suo scroller. Nel flusso
      normale non erediterebbe piu' un'altezza, quindi gliela diamo. */
@@ -3319,7 +3323,7 @@
 </head>
 <body>
 <div class="prova-riga-rossa"></div>
-<div class="prova-versione">v5 · profilo</div>
+<div class="prova-versione">v6 · menu e prenota</div>
   <div class="page active" id="page-home">
     <div class="scroll-area">
 
@@ -4664,6 +4668,556 @@
   ============================ -->
   <!-- INFO: TAVOLI SOCIALI -->
   <!-- ═══════════ PAGINA OFFERTE ═══════════ -->
+  <div class="page" id="page-menu">
+    <div class="page-header">
+      <div class="page-title">IL <span>MENU</span></div>
+    </div>
+
+    <!-- Toggle macro: Drink / Cibo -->
+    <div class="menu-macro">
+      <button class="macro-btn active" id="macro-drink" onclick="setMacro(this,'drink')"><span class="mi">🍹</span> Drink</button>
+      <button class="macro-btn" id="macro-cibo" onclick="setMacro(this,'cibo')"><span class="mi">🍽️</span> Cibo</button>
+    </div>
+
+    <!-- Sotto-filtri DRINK -->
+    <div class="cat-row" id="cats-drink">
+      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
+      <button class="cat-btn" onclick="filterCat(this,'cocktail')">Cocktail</button>
+      <button class="cat-btn" onclick="filterCat(this,'shot')">Shot</button>
+      <button class="cat-btn" onclick="filterCat(this,'birra')">Birra</button>
+      <button class="cat-btn" onclick="filterCat(this,'vino')">Vino</button>
+      <button class="cat-btn" onclick="filterCat(this,'analcolico')">Analcolici</button>
+    </div>
+
+    <!-- Sotto-filtri CIBO -->
+    <div class="cat-row" id="cats-cibo" style="display:none">
+      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
+      <button class="cat-btn" onclick="filterCat(this,'pizza')">Pizza</button>
+      <button class="cat-btn" onclick="filterCat(this,'burger')">Burger</button>
+      <button class="cat-btn" onclick="filterCat(this,'panuozzo')">Panuozzi</button>
+      <button class="cat-btn" onclick="filterCat(this,'fritto')">Fritti</button>
+      <button class="cat-btn" onclick="filterCat(this,'tagliere')">Tagliere</button>
+      <button class="cat-btn" onclick="filterCat(this,'speciale')">Veg &amp; Senza Glutine</button>
+      <button class="cat-btn" onclick="filterCat(this,'primo')">Primi</button>
+      <button class="cat-btn" onclick="filterCat(this,'dolce')">Dolci</button>
+    </div>
+
+    <div class="scroll-area" style="padding-top:4px">
+
+      <!-- Banner Offerte & Promo (prima dei prodotti, d'impatto) -->
+      <button class="menu-offers-hero" onclick="goTo('offerte')">
+        <div class="moh-glow"></div>
+        <div class="moh-top">
+          <span class="moh-badge">🔥 Promo attive</span>
+          <span class="moh-tag">Offerte</span>
+        </div>
+        <div class="moh-title">OFFERTE <span>&amp; PROMO</span></div>
+        <div class="moh-chips">
+          <span>🍻 Happy Hour</span>
+          <span>🏓 Tornei</span>
+          <span>🍹 2x1 Spritz</span>
+        </div>
+        <div class="moh-cta">
+          Scopri tutte le offerte
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </button>
+
+      <div class="drinks-grid" id="drinks-grid">
+        <div class="menu-empty" id="menu-empty">
+          <strong>Nessun risultato</strong>
+          Prova con un altro nome o cambia categoria.
+        </div>
+      </div>
+
+      <!-- Scheda prodotto overlay -->
+      <div class="product-overlay" id="product-overlay" onclick="closeProductSheet()">
+        <div class="product-sheet" onclick="event.stopPropagation()">
+          <button class="product-sheet-close" onclick="closeProductSheet()">&times;</button>
+          <img class="product-sheet-img" id="product-sheet-img" src="" alt="">
+          <div class="product-sheet-body">
+            <h2 class="product-sheet-name" id="product-sheet-name"></h2>
+            <p class="product-sheet-price" id="product-sheet-price"></p>
+            <p class="product-sheet-desc" id="product-sheet-desc"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================
+       CARTA / WALLET PAGE
+  ============================ -->
+  <div class="page" id="page-carta">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('menu')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">LA TUA <span>CARTA</span></div>
+    </div>
+    <div class="carta-scroll">
+
+      <!-- Carta virtuale -->
+      <div class="wallet-card">
+        <div class="wc-top">
+          <div class="wc-brand">CAM<span>ON</span></div>
+          <div class="wc-chip"></div>
+        </div>
+        <div class="wc-bal-cap">Saldo disponibile</div>
+        <div class="wc-bal" id="card-balance">€ 0,00</div>
+        <div class="wc-foot">
+          <div class="wc-holder" id="card-holder">Carta CAMON</div>
+          <div class="wc-num">•••• 4823</div>
+        </div>
+      </div>
+
+      <!-- Importi rapidi -->
+      <div class="wallet-lbl">Scegli un importo</div>
+      <div class="amt-grid">
+        <div class="amt-chip" onclick="selectAmount(this,10)">€10</div>
+        <div class="amt-chip active" onclick="selectAmount(this,20)">€20</div>
+        <div class="amt-chip" onclick="selectAmount(this,50)">€50</div>
+        <div class="amt-chip" onclick="selectAmount(this,100)">€100</div>
+      </div>
+      <div class="amt-custom">
+        <span>€</span>
+        <input id="recharge-input" type="number" inputmode="decimal" min="10" max="500" placeholder="Altro importo (min. €10)" oninput="clearAmtChips()">
+      </div>
+
+      <button class="wallet-recharge-btn" onclick="doRecharge()">Ricarica ora</button>
+      <div style="text-align:center;font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px">Ricarica minima da app €10 · Importi inferiori al banco</div>
+
+      <div class="wallet-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Credito spendibile solo all'interno del locale
+      </div>
+
+      <!-- I miei braccialetti -->
+      <div class="bands-block">
+        <div class="bands-head">
+          <div class="bands-title">I miei braccialetti</div>
+          <div class="bands-sub">Stesso saldo su tutti, uno attivo per volta</div>
+        </div>
+        <div class="band-add">
+          <input id="band-code-input" type="text" placeholder="Inserisci codice braccialetto" autocomplete="off" maxlength="12" oninput="this.value=this.value.toUpperCase()">
+          <button class="band-add-btn" onclick="bandLink()">Collega</button>
+        </div>
+        <div class="band-hint">Trovi il codice stampato sul braccialetto.</div>
+        <div id="band-list" class="band-list"></div>
+      </div>
+
+      <!-- Demo spina self-service -->
+      <button class="spina-demo-btn" onclick="goTo('spina-demo')">
+        <span>🍺 Prova la spina self-service</span>
+        <small>Demo: avvicina il braccialetto e spilla</small>
+      </button>
+
+      <!-- Storico movimenti -->
+      <div class="wallet-lbl">Movimenti</div>
+      <div id="wallet-history"></div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================
+       SPINA SELF-SERVICE (demo)
+  ============================ -->
+  <div class="page" id="page-spina-demo">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('carta')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">SPINA <span>SELF-SERVICE</span></div>
+    </div>
+    <div class="spina-wrap">
+
+      <div class="spina-product-tabs">
+        <button class="spina-tab active" id="spina-tab-ipa" onclick="spinaSelectProduct('IPA')">🍺 IPA</button>
+        <button class="spina-tab" id="spina-tab-mojito" onclick="spinaSelectProduct('Mojito')">🍹 Mojito</button>
+      </div>
+      <div class="spina-tap-name" id="spina-tap-name">Spina 1 · <b>IPA del Birrificio</b></div>
+      <div class="spina-price" id="spina-tap-price">€10,00 / litro</div>
+
+      <!-- bicchiere -->
+      <div class="spina-glass">
+        <div class="spina-fill" id="spina-fill"></div>
+        <div class="spina-foam" id="spina-foam"></div>
+      </div>
+
+      <div class="spina-counters">
+        <div><span id="spina-ml">0</span> ml</div>
+        <div class="spina-cost">€ <span id="spina-cost">0,00</span></div>
+      </div>
+
+      <!-- stato braccialetto -->
+      <div class="spina-band" id="spina-band">—</div>
+
+      <!-- pulsante spilla -->
+      <button class="spina-pour-btn" id="spina-pour-btn">
+        <span class="spina-pour-lbl">TIENI PREMUTO PER SPILLARE</span>
+      </button>
+      <div class="spina-saldo" id="spina-saldo">Saldo: € 0,00</div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================
+       GAMES PAGE — scroll colorato
+  ============================ -->
+  <div class="page" id="page-book">
+
+    <!-- PRENOTAZIONE ATTIVA (visibile solo se c'è una prenotazione in corso) -->
+    <div id="book-active" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-active-wrap">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3)">CAMON · PRENOTAZIONE</div>
+
+        <!-- Titolo -->
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;line-height:1">LA TUA <span style="color:#f7cc49">PRENOTAZIONE</span></div>
+
+        <!-- Tavolo assegnato — tap per vedere posizione -->
+        <div class="book-active-table" onclick="bookShowMap()" style="position:relative">
+          <div>
+            <div class="book-active-table-lbl">TAVOLO ASSEGNATO</div>
+            <div class="book-active-table-num" id="ba-table">T6</div>
+          </div>
+          <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div style="font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;color:#111;text-align:center;letter-spacing:0.3px;line-height:1.3;white-space:nowrap">TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE</div>
+          </div>
+          <svg class="book-active-table-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="10" width="18" height="10" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="10" x2="8" y2="6"/><line x1="16" y1="10" x2="16" y2="6"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
+        </div>
+
+        <!-- Dettagli -->
+        <div class="book-active-hero">
+          <div class="book-active-label">Dettagli</div>
+          <div class="book-active-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+            <div><div class="book-active-row-lbl">Data e ora</div><div class="book-active-row-val" id="ba-datetime">—</div></div>
+          </div>
+          <div class="book-active-row" style="margin-top:8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            <div><div class="book-active-row-lbl">Tipo</div><div class="book-active-row-val" id="ba-type">—</div></div>
+          </div>
+          <div class="book-active-row" style="margin-top:8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div><div class="book-active-row-lbl">Prenotato da</div><div class="book-active-row-val" id="ba-nome">—</div></div>
+          </div>
+        </div>
+
+        <!-- Indicatore riempimento (solo tavolo condiviso) -->
+        <div id="book-fill-box" class="book-fill-box" style="display:none">
+          <div class="book-fill-top">
+            <div class="book-fill-label">Posti al tavolo</div>
+            <div class="book-fill-count" id="book-fill-count">1 / 6</div>
+          </div>
+          <div class="book-fill-seats" id="book-fill-seats"></div>
+          <div class="book-fill-legend" id="book-fill-legend"></div>
+          <div class="book-fill-bar"><div class="book-fill-progress" id="book-fill-progress" style="width:0%"></div></div>
+          <div class="book-fill-complete" id="book-fill-complete" style="display:none">🎉 Tavolo completo — ci siete tutti!</div>
+        </div>
+
+        <!-- Azioni -->
+        <div class="book-active-actions">
+          <button class="book-new-btn" onclick="bookNewBooking()">+ Nuova prenotazione</button>
+          <button class="book-cancel-btn" onclick="bookCancelConfirm()">Annulla prenotazione</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: scegli tipo -->
+    <div id="book-step1" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div style="padding:24px 22px 4px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px">PRENOTA <span style="color:#f7cc49">UN POSTO</span></div>
+        <div style="font-family:'Manrope',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px">Come vuoi passare la serata?</div>
+      </div>
+      <div class="book-scroll">
+        <div class="book-type-list">
+
+          <!-- Tavolo condiviso -->
+          <div class="book-type-card shared" onclick="bookSelectType('shared')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Sociale
+            </div>
+            <div class="book-type-name">TAVOLO<br>CONDIVISO</div>
+            <div class="book-type-desc">Siediti con altri avventori scelti per te. Nuove persone, nuove amicizie — il cuore di CAMON.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Tavolo privato -->
+          <div class="book-type-card private" onclick="bookSelectType('private')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Il tuo gruppo
+            </div>
+            <div class="book-type-name">TAVOLO<br>PRIVATO</div>
+            <div class="book-type-desc">Un tavolo riservato solo a te e ai tuoi amici. Nessuno si aggiunge senza il tuo invito.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Stanza privata -->
+          <div class="book-type-card room" onclick="bookSelectType('room')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Premium
+            </div>
+            <div class="book-type-name">STANZA<br>PRIVATA</div>
+            <div class="book-type-desc">Un'esperienza esclusiva per serate speciali. Spazio dedicato, massima privacy, servizio dedicato.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Invito anonimo -->
+          <div class="book-type-card invite" onclick="bookSelectType('invite')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg>
+              Anonimo
+            </div>
+            <div class="book-type-name">INVITO<br>SEGRETO</div>
+            <div class="book-type-desc">Vuoi conoscere qualcuno? Proponi un tavolo in forma anonima: ci pensiamo noi a chiederglielo. Funziona anche se non è ancora su CAMON.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: form -->
+    <div id="book-step2" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-step-head">
+        <button class="book-back" onclick="bookGoBack()">←</button>
+        <div class="book-step-title">DETTAGLI <span>PRENOTAZIONE</span></div>
+      </div>
+      <div class="book-scroll">
+        <div class="book-form-new">
+
+          <!-- Riepilogo tipo scelto -->
+          <div class="book-summary-card" id="book-summary-card">
+            <div class="book-summary-ico" id="book-sum-ico">👥</div>
+            <div>
+              <div class="book-summary-name" id="book-sum-name">TAVOLO CONDIVISO</div>
+              <div class="book-summary-desc" id="book-sum-desc">Matchato con altri avventori</div>
+            </div>
+          </div>
+
+          <!-- Data + Ora -->
+          <div class="bfield-row" id="bfield-datetime">
+            <div class="bfield">
+              <label>Data</label>
+              <input id="book-data" type="date">
+            </div>
+            <div class="bfield">
+              <label>Ora</label>
+              <input id="book-ora" type="time" value="21:00">
+            </div>
+          </div>
+
+          <!-- Quante persone -->
+          <div class="bfield" id="bfield-persone">
+            <label id="persone-lbl">Quante persone porti?</label>
+            <div class="people-grid" id="persone-grid"></div>
+          </div>
+
+          <!-- Compagni (solo tavolo condiviso, se > 1 persona) -->
+          <div class="bfield" id="bfield-compagni" style="display:none">
+            <label>Chi porti con te?</label>
+            <div class="companions-wrap" id="companions-wrap"></div>
+          </div>
+
+          <!-- Invito segreto (solo tipo invite) -->
+          <div class="bfield" id="bfield-invite" style="display:none">
+            <div class="invite-concept">
+              <span class="invite-concept-ico">💌</span>
+              <div>C'è qualcuno che vorresti conoscere? Mandagli un <b>invito segreto</b> al CAMON. Resti <b>anonimo</b>: gli sveliamo chi sei <b>solo se accetta</b>.</div>
+            </div>
+            <div class="invite-steps">
+              <div class="invite-step"><span class="invite-step-n">1</span><span>Scegli la persona, sull'app o su Instagram.</span></div>
+              <div class="invite-step"><span class="invite-step-n">2</span><span>Riceve l'invito e <b>propone lei giorno e ora</b>.</span></div>
+              <div class="invite-step"><span class="invite-step-n">3</span><span>Ti avvisiamo: <b>accetti</b> e il tavolo è prenotato.</span></div>
+            </div>
+            <label>Chi vuoi invitare?</label>
+            <div class="companion-slot" id="invite-slot"></div>
+            <!-- riga-indicazione: passa a Instagram se non è su CAMON / torna indietro -->
+            <div id="invite-switch"></div>
+            <div class="invite-ig-note" id="invite-hint"></div>
+          </div>
+
+
+          <!-- Occasione (solo stanza privata) -->
+          <div class="bfield" id="bfield-occasione" style="display:none">
+            <label>Occasione</label>
+            <select id="book-occasione">
+              <option value="">Seleziona occasione</option>
+              <option>Compleanno 🎂</option>
+              <option>Anniversario 💑</option>
+              <option>Festa di laurea 🎓</option>
+              <option>Serata aziendale 💼</option>
+              <option>Addio al celibato/nubilato 🎉</option>
+              <option>Altro</option>
+            </select>
+          </div>
+
+          <!-- Note -->
+          <div class="bfield" id="bfield-note">
+            <label>Note (opzionale)</label>
+            <textarea id="book-note" placeholder="Richieste particolari, giochi preferiti, allergie..."></textarea>
+          </div>
+
+          <button class="book-confirm-btn" onclick="bookConfirm()">Conferma prenotazione</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2B: scelta tavolo -->
+    <div id="book-step-pick" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-pick-head">
+        <button class="book-back" onclick="bookPickBack()">←</button>
+        <div class="book-pick-title">SCEGLI IL <span>TAVOLO</span></div>
+      </div>
+      <div class="book-pick-sub" id="book-pick-sub">Tavoli disponibili per 2 persone</div>
+      <div class="book-pick-scroll">
+        <div class="book-pick-legend">
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#4CD964"></div>Disponibile</div>
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#f7cc49"></div>Selezionato</div>
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#333"></div>Occupato / troppo grande</div>
+        </div>
+        <div class="book-pick-map">
+          <svg id="book-pick-svg" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a1a;">
+            <rect x="128" y="10" width="282" height="295" rx="2" fill="#2a2418" stroke="#f7cc49" stroke-width="1.5"/>
+            <rect x="128" y="10" width="26" height="295" fill="#1e1a10" stroke="#f7cc49" stroke-width="1"/>
+            <text x="141" y="100" fill="#f7cc49" font-size="6.5" text-anchor="middle" transform="rotate(-90,141,100)">SPILLATORI</text>
+            <rect x="154" y="10" width="80" height="40" rx="2" fill="#1a1510" stroke="#f7cc49" stroke-width="0.9"/>
+            <text x="194" y="27" fill="#f7cc49" font-size="7.5" font-weight="bold" text-anchor="middle">CASSE</text>
+            <text x="194" y="40" fill="#aaa" font-size="6" text-anchor="middle">automatiche</text>
+            <rect x="234" y="10" width="80" height="40" rx="2" fill="#12200f" stroke="#4CD964" stroke-width="1"/>
+            <text x="274" y="27" fill="#4CD964" font-size="7.5" font-weight="bold" text-anchor="middle">INGRESSO</text>
+            <text x="274" y="39" fill="#4CD964" font-size="6.5" text-anchor="middle">/ USCITA</text>
+            <polygon points="267,8 274,2 281,8" fill="#4CD964"/>
+            <rect x="314" y="10" width="96" height="80" rx="2" fill="#111" stroke="#777" stroke-width="1.2" stroke-dasharray="4,2"/>
+            <text x="362" y="46" fill="#888" font-size="8" font-weight="bold" text-anchor="middle">SCALE</text>
+            <line x1="322" y1="70" x2="402" y2="70" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="62" x2="402" y2="62" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="54" x2="402" y2="54" stroke="#555" stroke-width="0.7"/>
+            <rect x="8" y="10" width="118" height="215" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="110" fill="#444" font-size="8" text-anchor="middle">CUCINA</text>
+            <text x="67" y="122" fill="#444" font-size="8" text-anchor="middle">+ RETRO</text>
+            <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
+            <!-- Tavoli cliccabili -->
+            <g id="pick-T1" class="map-table-pick"><rect x="165" y="60" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T1</text><text x="186" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T2" class="map-table-pick"><rect x="251" y="60" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T2</text><text x="272" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T3" class="map-table-pick"><rect x="165" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T3</text><text x="186" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T4" class="map-table-pick"><rect x="251" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T4</text><text x="272" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T5" class="map-table-pick"><rect x="335" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T5</text><text x="356" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T6" class="map-table-pick"><circle cx="272" cy="193" r="26" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T6</text><text x="272" y="168" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">8 posti</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T7" class="map-table-pick"><rect x="158" y="183" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="179" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T7</text><text x="179" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T8" class="map-table-pick"><rect x="350" y="183" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="371" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T8</text><text x="371" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T9" class="map-table-pick"><rect x="165" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T9</text><text x="186" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T10" class="map-table-pick"><rect x="251" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T10</text><text x="272" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T11" class="map-table-pick"><rect x="335" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T11</text><text x="356" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+          </svg>
+        </div>
+        <div class="book-pick-or">oppure</div>
+        <div class="book-pick-auto" onclick="bookPickAuto()">
+          <div class="book-pick-auto-ico">🎲</div>
+          <div>
+            <div class="book-pick-auto-txt">È indifferente</div>
+            <div class="book-pick-auto-sub">Assegnaci il tavolo migliore disponibile</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: conferma + mappa tavolo -->
+    <div id="book-step3" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-confirmed-wrap">
+
+        <!-- Badge conferma -->
+        <div class="book-confirmed-badge">
+          <div class="book-confirmed-ico">✅</div>
+          <div>
+            <div class="book-confirmed-title">Prenotazione confermata!</div>
+            <div class="book-confirmed-sub" id="book-confirmed-detail">Stasera alle 21:00 — CAMON</div>
+          </div>
+        </div>
+
+        <!-- Pill tavolo assegnato -->
+        <div class="book-table-pill">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="10" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="10" x2="8" y2="6"/><line x1="16" y1="10" x2="16" y2="6"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
+          IL TUO TAVOLO: <span id="book-table-number">T1</span>
+        </div>
+
+        <!-- Mappa -->
+        <div class="book-map-label">TROVACI <span>QUI</span></div>
+        <div class="book-map-wrap">
+          <svg id="book-map-svg" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a1a;">
+
+            <!-- Sala principale -->
+            <rect x="128" y="10" width="282" height="295" rx="2" fill="#2a2418" stroke="#f7cc49" stroke-width="1.5"/>
+            <!-- Bar spillatori -->
+            <rect x="128" y="10" width="26" height="295" fill="#1e1a10" stroke="#f7cc49" stroke-width="1"/>
+            <text x="141" y="100" fill="#f7cc49" font-size="6.5" text-anchor="middle" transform="rotate(-90,141,100)">SPILLATORI</text>
+            <!-- CASSE -->
+            <rect x="154" y="10" width="80" height="40" rx="2" fill="#1a1510" stroke="#f7cc49" stroke-width="0.9"/>
+            <text x="194" y="27" fill="#f7cc49" font-size="7.5" font-weight="bold" text-anchor="middle">CASSE</text>
+            <text x="194" y="40" fill="#aaa" font-size="6" text-anchor="middle">automatiche</text>
+            <!-- INGRESSO/USCITA -->
+            <rect x="234" y="10" width="80" height="40" rx="2" fill="#12200f" stroke="#4CD964" stroke-width="1"/>
+            <text x="274" y="27" fill="#4CD964" font-size="7.5" font-weight="bold" text-anchor="middle">INGRESSO</text>
+            <text x="274" y="39" fill="#4CD964" font-size="6.5" text-anchor="middle">/ USCITA</text>
+            <polygon points="267,8 274,2 281,8" fill="#4CD964"/>
+            <!-- SCALE -->
+            <rect x="314" y="10" width="96" height="80" rx="2" fill="#111" stroke="#777" stroke-width="1.2" stroke-dasharray="4,2"/>
+            <text x="362" y="46" fill="#888" font-size="8" font-weight="bold" text-anchor="middle">SCALE</text>
+            <line x1="322" y1="70" x2="402" y2="70" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="62" x2="402" y2="62" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="54" x2="402" y2="54" stroke="#555" stroke-width="0.7"/>
+            <!-- Cucina -->
+            <rect x="8" y="10" width="118" height="215" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="110" fill="#444" font-size="8" text-anchor="middle">CUCINA</text>
+            <text x="67" y="122" fill="#444" font-size="8" text-anchor="middle">+ RETRO</text>
+            <!-- WC -->
+            <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
+
+            <!-- TAVOLI — id univoci per evidenziare, cliccabili per cambio tavolo -->
+            <g id="map-T1" style="cursor:pointer"><rect x="165" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="74" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T1</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T2" style="cursor:pointer"><rect x="251" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="74" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T2</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T3" style="cursor:pointer"><rect x="165" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T3</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T4" style="cursor:pointer"><rect x="251" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T4</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T5" style="cursor:pointer"><rect x="335" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="356" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T5</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T6" style="cursor:pointer"><circle cx="272" cy="193" r="26" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T6</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T7" style="cursor:pointer"><rect x="158" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="179" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T7</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T8" style="cursor:pointer"><rect x="350" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="371" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T8</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T9" style="cursor:pointer"><rect x="165" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T9</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T10" style="cursor:pointer"><rect x="251" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T10</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T11" style="cursor:pointer"><rect x="335" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="356" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T11</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+
+          </svg>
+        </div>
+        <button class="book-change-btn" onclick="bookOpenChangePicker()">🔄 Cambia tavolo</button>
+        <button class="book-back-btn" onclick="bookReset()">← Torna alla prenotazione</button>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================
+       PROFILO PAGE
+  ============================ -->
   <nav class="bottom-nav">
     <button class="nav-btn" id="nav-book" onclick="goTo('book')">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -4687,6 +5241,1551 @@
       <span class="nav-label">Profilo</span>
     </button>
   </nav>
+<script>
+  /* ===== PRENOTAZIONE ===== */
+  let bookType = null;
+
+  const bookTypes = {
+    shared: {
+      ico: '👥', name: 'TAVOLO CONDIVISO', desc: 'Matchato con altri avventori',
+      personeLbl: 'Quante persone porti? (anche solo tu)',
+      personeOpts: ['Solo io','2','3','4'],
+      showOccasione: false
+    },
+    private: {
+      ico: '🔒', name: 'TAVOLO PRIVATO', desc: 'Riservato al tuo gruppo',
+      personeLbl: 'Numero di persone',
+      personeOpts: ['2','3','4','5','6','7','8+'],
+      showOccasione: false
+    },
+    room: {
+      ico: '👑', name: 'STANZA PRIVATA', desc: 'Esperienza esclusiva · Premium',
+      personeLbl: 'Numero di persone',
+      personeOpts: ['2','3','4','5','6','8','10','12+'],
+      showOccasione: true
+    },
+    invite: {
+      ico: '💌', name: 'INVITO SEGRETO', desc: 'Proposta anonima a qualcuno',
+      personeLbl: '', personeOpts: [], showOccasione: false, isInvite: true
+    }
+  };
+
+  let inviteMode = 'user';      // 'user' | 'ig'
+  let inviteUser = null;        // utente CAMON selezionato
+
+  /* --- Database utenti demo per ricerca compagni --- */
+  const CAMON_USERS = [
+    { id:'u1',  name:'Marco Ferri',      gender:'M', username:'@marco.ferri' },
+    { id:'u2',  name:'Giulia Rossi',     gender:'F', username:'@giulia.r' },
+    { id:'u3',  name:'Luca Bianchi',     gender:'M', username:'@lucab' },
+    { id:'u4',  name:'Sara Conti',       gender:'F', username:'@sara_c' },
+    { id:'u5',  name:'Andrea Marino',    gender:'M', username:'@andream' },
+    { id:'u6',  name:'Chiara Esposito',  gender:'F', username:'@chiara.e' },
+    { id:'u7',  name:'Matteo Romano',    gender:'M', username:'@matteo_r' },
+    { id:'u8',  name:'Valentina Bruno',  gender:'F', username:'@vale.b' },
+    { id:'u9',  name:'Davide Costa',     gender:'M', username:'@davide.c' },
+    { id:'u10', name:'Francesca Ricci',  gender:'F', username:'@franci.r' },
+    { id:'u11', name:'Simone Greco',     gender:'M', username:'@simone_g' },
+    { id:'u12', name:'Elena Lombardi',   gender:'F', username:'@elena.l' },
+  ];
+
+  let companionSlots = []; // [{slotId, selectedUser}]
+
+  function bookSelectType(type) {
+    bookType = type;
+    const cfg = bookTypes[type];
+    document.getElementById('book-sum-ico').textContent   = cfg.ico;
+    document.getElementById('book-sum-name').textContent  = cfg.name;
+    document.getElementById('book-sum-desc').textContent  = cfg.desc;
+    document.getElementById('persone-lbl').textContent    = cfg.personeLbl;
+    // colora summary card in base al tipo
+    const sc = document.getElementById('book-summary-card');
+    const scColors = {
+      room:   ['rgba(247,204,73,0.35)','rgba(247,204,73,0.07)'],
+      shared: ['rgba(100,200,255,0.25)','rgba(100,200,255,0.06)'],
+      invite: ['rgba(244,114,182,0.3)','rgba(244,114,182,0.07)']
+    };
+    const scol = scColors[type] || ['rgba(255,255,255,0.12)','rgba(255,255,255,0.04)'];
+    sc.style.borderColor = scol[0];
+    sc.style.background  = scol[1];
+    // costruisci pill persone
+    companionSlots = [];
+    const grid = document.getElementById('persone-grid');
+    grid.innerHTML = '';
+    cfg.personeOpts.forEach((opt, i) => {
+      const p = document.createElement('div');
+      p.className = 'people-pill' + (i === 0 ? ' active' : '');
+      p.textContent = opt === 'Solo io' ? 'Solo io' : opt + (opt.endsWith('+') ? '' : ' pers.');
+      p.onclick = () => {
+        grid.querySelectorAll('.people-pill').forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        if (type === 'shared') bookUpdateCompanions(opt);
+      };
+      grid.appendChild(p);
+    });
+    // occasione solo per stanza privata
+    document.getElementById('bfield-occasione').style.display = cfg.showOccasione ? 'flex' : 'none';
+    // compagni solo per shared, nascosto di default (richiede > 1 pers)
+    document.getElementById('bfield-compagni').style.display = 'none';
+    // campi specifici per l'invito segreto
+    const isInvite = !!cfg.isInvite;
+    document.getElementById('bfield-persone').style.display = isInvite ? 'none' : 'flex';
+    document.getElementById('bfield-invite').style.display = isInvite ? 'flex' : 'none';
+    // nell'invito segreto nascondiamo data/ora e note (nome e tel rimossi dal form)
+    document.getElementById('bfield-datetime').style.display = isInvite ? 'none' : 'grid';
+    document.getElementById('bfield-note').style.display     = isInvite ? 'none' : 'flex';
+    const confirmBtn = document.querySelector('.book-confirm-btn');
+    if (confirmBtn) confirmBtn.textContent = isInvite ? 'Invia invito segreto' : 'Conferma prenotazione';
+    if (isInvite) inviteReset();
+    // mostra step 2
+    document.getElementById('book-step1').style.display = 'none';
+    document.getElementById('book-step2').style.display = 'flex';
+    document.querySelector('#book-step2 .book-scroll').scrollTop = 0;
+  }
+
+  function bookUpdateCompanions(opt) {
+    const bfield = document.getElementById('bfield-compagni');
+    const wrap   = document.getElementById('companions-wrap');
+    if (opt === 'Solo io') { bfield.style.display = 'none'; companionSlots = []; wrap.innerHTML = ''; return; }
+    const n = parseInt(opt) || 0;
+    if (!n || n < 2) { bfield.style.display = 'none'; return; }
+    bfield.style.display = 'flex';
+    const needed = n - 1; // slot per gli altri (l'utente è già 1)
+    // aggiusta il numero di slot
+    while (companionSlots.length < needed) {
+      const slotId = 'cslot-' + companionSlots.length;
+      companionSlots.push({ slotId, selectedUser: null });
+      const slotEl = document.createElement('div');
+      slotEl.className = 'companion-slot';
+      slotEl.id = slotId;
+      slotEl.innerHTML = companionSearchHTML(slotId);
+      wrap.appendChild(slotEl);
+      bindCompanionSlot(slotId);
+    }
+    while (companionSlots.length > needed) {
+      const removed = companionSlots.pop();
+      const el = document.getElementById(removed.slotId);
+      if (el) el.remove();
+    }
+  }
+
+  function companionSearchHTML(slotId) {
+    const idx = parseInt(slotId.split('-')[1]) + 1;
+    return '<div class="companion-search" id="' + slotId + '-search">'
+      + '<span class="companion-search-ico">🔍</span>'
+      + '<input type="text" placeholder="Cerca persona ' + idx + ' per nome…" autocomplete="off" id="' + slotId + '-input">'
+      + '<div class="companion-results" id="' + slotId + '-results" style="display:none"></div>'
+      + '</div>';
+  }
+
+  function bindCompanionSlot(slotId) {
+    const input = document.getElementById(slotId + '-input');
+    const results = document.getElementById(slotId + '-results');
+    if (!input) return;
+    input.addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      if (q.length < 1) { results.style.display = 'none'; return; }
+      const selectedIds = companionSlots.filter(s => s.selectedUser).map(s => s.selectedUser.id);
+      const matches = CAMON_USERS.filter(u => u.name.toLowerCase().includes(q) && !selectedIds.includes(u.id));
+      if (!matches.length) { results.innerHTML = '<div style="padding:12px 14px;font-family:Manrope,sans-serif;font-size:13px;color:rgba(255,255,255,0.3)">Nessun account trovato</div>'; results.style.display = 'block'; return; }
+      results.style.display = 'block';
+      results.innerHTML = matches.slice(0, 5).map(u =>
+        '<div class="companion-result-item" onclick="companionSelect(\'' + slotId + '\',\'' + u.id + '\')">'
+        + '<div class="companion-result-avatar">' + (u.gender === 'F' ? '👩' : '👨') + '</div>'
+        + '<div><div class="companion-result-name">' + u.name + '</div>'
+        + '<div class="companion-result-sub">' + u.username + ' · ' + (u.gender === 'F' ? 'Donna' : 'Uomo') + '</div></div>'
+        + '</div>'
+      ).join('');
+    });
+    input.addEventListener('focus', function() { if (this.value.trim()) this.dispatchEvent(new Event('input')); });
+    document.addEventListener('click', function(e) { if (!e.target.closest('#' + slotId)) results.style.display = 'none'; }, { once: false });
+  }
+
+  function companionSelect(slotId, userId) {
+    const user = CAMON_USERS.find(u => u.id === userId);
+    if (!user) return;
+    const slot = companionSlots.find(s => s.slotId === slotId);
+    if (slot) slot.selectedUser = user;
+    const slotEl = document.getElementById(slotId);
+    slotEl.innerHTML = '<div class="companion-chip">'
+      + '<div class="companion-chip-avatar">' + (user.gender === 'F' ? '👩' : '👨') + '</div>'
+      + '<div><div class="companion-chip-name">' + user.name + '</div>'
+      + '<div class="companion-chip-sub">' + user.username + ' · ' + (user.gender === 'F' ? 'Donna' : 'Uomo') + '</div></div>'
+      + '<button class="companion-chip-remove" onclick="companionRemove(\'' + slotId + '\')">×</button>'
+      + '</div>';
+  }
+
+  function companionRemove(slotId) {
+    const slot = companionSlots.find(s => s.slotId === slotId);
+    if (slot) slot.selectedUser = null;
+    const slotEl = document.getElementById(slotId);
+    const idx = companionSlots.findIndex(s => s.slotId === slotId);
+    slotEl.innerHTML = companionSearchHTML(slotId);
+    bindCompanionSlot(slotId);
+    // reindexa il placeholder
+    const input = document.getElementById(slotId + '-input');
+    if (input) input.placeholder = 'Cerca persona ' + (idx + 1) + ' per nome…';
+  }
+
+  /* --- Invito segreto: ricerca unica (CAMON + ripiego Instagram) --- */
+  // Suggerimenti Instagram demo: in un'app reale Instagram non espone una ricerca
+  // pubblica degli utenti, quindi qui peschiamo dai contatti già passati dal CAMON;
+  // la persona può comunque scrivere l'@ esatto a mano.
+  const IG_SUGGESTIONS = [
+    { name:'Maria Gallo',       handle:'@maria.gallo' },
+    { name:'Maria Conti',       handle:'@mary_conti' },
+    { name:'Mariano De Luca',   handle:'@mariano.dl' },
+    { name:'Marco Ferri',       handle:'@marco.ferri' },
+    { name:'Marta Vitale',      handle:'@marta.vitale' },
+    { name:'Giulia Sanna',      handle:'@giulia.sanna' },
+    { name:'Luca Moretti',      handle:'@luca_moretti' },
+    { name:'Sara Greco',        handle:'@sara.greco' },
+    { name:'Federico Russo',    handle:'@fede.russo' },
+    { name:'Alessia Romano',    handle:'@ale.romano' },
+    { name:'Davide Ferrari',    handle:'@dav.ferrari' },
+    { name:'Chiara Marini',     handle:'@chiara.marini' }
+  ];
+  let inviteIgHandle = '';   // @ Instagram scelto/scritto
+  let inviteDocBound = false; // listener "click fuori" registrato una sola volta
+
+  function inviteReset() {
+    inviteMode = 'user';
+    inviteUser = null;
+    inviteIgHandle = '';
+    inviteRenderSearch();
+  }
+
+  // passa tra ricerca CAMON e inserimento Instagram (senza toggle: da riga-indicazione)
+  function inviteSetMode(mode) {
+    inviteMode = mode;
+    inviteUser = null;
+    inviteIgHandle = '';
+    inviteRenderSearch();
+    const inp = document.getElementById('invite-input');
+    if (inp) inp.focus();
+  }
+
+  function inviteRenderSearch() {
+    const isIg = inviteMode === 'ig';
+    const slot = document.getElementById('invite-slot');
+    slot.innerHTML = '<div class="companion-search" id="invite-search">'
+      + '<span class="companion-search-ico">' + (isIg ? '@' : '🔍') + '</span>'
+      + '<input type="text" id="invite-input" autocomplete="off" placeholder="'
+        + (isIg ? 'Scrivi l\'@ esatto del profilo' : 'Cerca la persona per nome…') + '">'
+      + '<div class="companion-results" id="invite-results" style="display:none"></div>'
+      + '</div>';
+    const input = document.getElementById('invite-input');
+    const results = document.getElementById('invite-results');
+    input.addEventListener('input', function() { inviteSearchQuery(this.value); });
+    input.addEventListener('focus', function() { if (this.value.trim()) inviteSearchQuery(this.value); });
+    if (!inviteDocBound) {
+      document.addEventListener('click', function(e) {
+        const r = document.getElementById('invite-results');
+        if (r && !e.target.closest('#invite-search')) r.style.display = 'none';
+      });
+      inviteDocBound = true;
+    }
+    inviteRenderSwitch();
+    const hint = document.getElementById('invite-hint');
+    if (hint) hint.textContent = isIg
+      ? 'Lo contattiamo noi su Instagram con la tua proposta — resti anonimo finché non accetta.'
+      : 'Cerca chi è già su CAMON e invitalo direttamente in app.';
+  }
+
+  // riga-indicazione sotto la barra
+  function inviteRenderSwitch() {
+    const sw = document.getElementById('invite-switch');
+    if (!sw) return;
+    sw.style.display = 'flex';
+    if (inviteMode === 'user') {
+      sw.className = 'invite-switch ig';
+      sw.innerHTML = '<span class="invite-switch-ico">📷</span>'
+        + '<div><b>Non è su CAMON?</b> Invitalo su Instagram con il suo @ — lo contattiamo noi.</div>'
+        + '<span class="invite-switch-arrow">→</span>';
+      sw.onclick = function() { inviteSetMode('ig'); };
+    } else {
+      sw.className = 'invite-switch back';
+      sw.innerHTML = '<span class="invite-switch-ico">←</span><div>Cerca invece tra chi è già su CAMON</div>';
+      sw.onclick = function() { inviteSetMode('user'); };
+    }
+  }
+
+  function inviteSearchQuery(val) {
+    const results = document.getElementById('invite-results');
+    if (!results) return;
+    const q = (val || '').trim().toLowerCase();
+    if (inviteMode === 'user') {
+      if (q.length < 1) { results.style.display = 'none'; return; }
+      const matches = CAMON_USERS.filter(u => u.name.toLowerCase().includes(q));
+      if (!matches.length) {
+        results.innerHTML = '<div class="ig-empty">Nessuno su CAMON con questo nome. Invitalo su Instagram qui sotto 👇</div>';
+        results.style.display = 'block'; return;
+      }
+      results.style.display = 'block';
+      results.innerHTML = matches.slice(0, 5).map(u =>
+        '<div class="companion-result-item" onmousedown="inviteSelect(\'' + u.id + '\')">'
+        + '<div class="companion-result-avatar">' + (u.gender === 'F' ? '👩' : '👨') + '</div>'
+        + '<div><div class="companion-result-name">' + u.name + '</div>'
+        + '<div class="companion-result-sub">' + u.username + '</div></div>'
+        + '</div>'
+      ).join('');
+    } else {
+      const qh = q.replace(/^@/, '');
+      if (qh.length < 1) { results.style.display = 'none'; return; }
+      const matches = IG_SUGGESTIONS.filter(u =>
+        u.name.toLowerCase().includes(qh) || u.handle.toLowerCase().includes(qh));
+      if (!matches.length) { results.style.display = 'none'; return; } // scrive a mano
+      results.style.display = 'block';
+      results.innerHTML = '<div class="ig-results-head">Dai contatti CAMON</div>'
+        + matches.slice(0, 5).map(u =>
+        '<div class="companion-result-item" onmousedown="inviteIgPick(\'' + u.handle + '\')">'
+        + '<div class="companion-result-avatar">📷</div>'
+        + '<div><div class="companion-result-name">' + u.name + '</div>'
+        + '<div class="companion-result-sub">' + u.handle + '</div></div>'
+        + '</div>'
+      ).join('');
+    }
+  }
+
+  function inviteSelect(userId) {
+    const u = CAMON_USERS.find(x => x.id === userId);
+    if (!u) return;
+    inviteUser = u; inviteIgHandle = '';
+    document.getElementById('invite-slot').innerHTML = '<div class="companion-chip">'
+      + '<div class="companion-chip-avatar">' + (u.gender === 'F' ? '👩' : '👨') + '</div>'
+      + '<div><div class="companion-chip-name">' + u.name + '</div>'
+      + '<div class="companion-chip-sub">' + u.username + ' · su CAMON</div></div>'
+      + '<button class="companion-chip-remove" onclick="inviteRemove()">×</button>'
+      + '</div>';
+    document.getElementById('invite-switch').style.display = 'none';
+    const hint = document.getElementById('invite-hint'); if (hint) hint.textContent = '';
+  }
+
+  function inviteIgPick(handle) {
+    inviteIgHandle = handle; inviteUser = null;
+    document.getElementById('invite-slot').innerHTML = '<div class="companion-chip">'
+      + '<div class="companion-chip-avatar">📷</div>'
+      + '<div><div class="companion-chip-name">' + handle + '</div>'
+      + '<div class="companion-chip-sub">su Instagram</div></div>'
+      + '<button class="companion-chip-remove" onclick="inviteRemove()">×</button>'
+      + '</div>';
+    document.getElementById('invite-switch').style.display = 'none';
+    const hint = document.getElementById('invite-hint'); if (hint) hint.textContent = '';
+  }
+
+  function inviteRemove() {
+    inviteUser = null; inviteIgHandle = '';
+    inviteRenderSearch(); // resta nella modalità corrente
+  }
+
+  function bookGoBack() {
+    document.getElementById('book-step2').style.display = 'none';
+    document.getElementById('book-step1').style.display = 'flex';
+  }
+
+  var bookPendingData = null;
+  var bookPickedTable = null;
+
+  function camonConfirm(msg, onOk) {
+    var ov = document.createElement('div');
+    ov.className = 'camon-modal-overlay';
+    ov.innerHTML = '<div class="camon-modal"><div class="camon-modal-msg">' + msg + '</div><div class="camon-modal-btns"><button class="camon-modal-btn cancel">Annulla</button><button class="camon-modal-btn ok">Conferma</button></div></div>';
+    document.body.appendChild(ov);
+    ov.querySelector('.cancel').onclick = function() { ov.remove(); };
+    ov.querySelector('.ok').onclick = function() { ov.remove(); onOk(); };
+    ov.addEventListener('click', function(e) { if (e.target === ov) ov.remove(); });
+  }
+
+  function bookConfirm() {
+    const btn = document.querySelector('.book-confirm-btn');
+    if (bookType === 'invite') {
+      let target = null;
+      if (inviteUser) target = inviteUser.name;
+      else if (inviteIgHandle) target = inviteIgHandle;
+      else if (inviteMode === 'ig') {
+        const typed = (document.getElementById('invite-input') || {}).value;
+        if (typed && typed.trim()) target = typed.trim();
+      }
+      if (!target) {
+        alert(inviteMode === 'ig'
+          ? 'Scrivi il nome utente Instagram della persona.'
+          : 'Scegli la persona da invitare, oppure invitala su Instagram.');
+        return;
+      }
+      btn.textContent = '✓ Invito inviato! Ti avvisiamo se accetta';
+      btn.style.background = '#4CD964';
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = 'Invia invito segreto'; btn.style.background = '#f7cc49'; btn.disabled = false; }, 2600);
+      return;
+    }
+    const _nm = document.getElementById('edit-nome');
+    const nome = ((_nm ? _nm.value.trim() : '') || 'Tu');
+    const data = document.getElementById('book-data').value;
+    const ora  = document.getElementById('book-ora').value;
+    if (!data) { alert('Scegli una data.'); return; }
+    if (!ora)  { alert('Scegli un orario.'); return; }
+
+    var activePersonePill = document.querySelector('#persone-grid .people-pill.active');
+    var personeVal = activePersonePill ? activePersonePill.textContent.replace(' pers.','').replace('+','').trim() : '1';
+    var personeNum = personeVal === 'Solo io' ? 1 : (parseInt(personeVal) || 1);
+
+    var d = new Date(data + 'T12:00:00');
+    var giorni = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+    var mesi = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+    var dataFmt = giorni[d.getDay()] + ' ' + d.getDate() + ' ' + mesi[d.getMonth()];
+
+    bookPendingData = { nome: nome, data: data, ora: ora, dataFmt: dataFmt, personeNum: personeNum };
+    bookPickedTable = null;
+
+    if (bookType === 'shared') {
+      document.getElementById('book-step2').style.display = 'none';
+      bookPickAuto();
+      return;
+    }
+
+    bookSetupPickMap(personeNum);
+    document.getElementById('book-pick-sub').textContent = 'Tavoli disponibili per ' + personeNum + (personeNum === 1 ? ' persona' : ' persone');
+    document.getElementById('book-step2').style.display = 'none';
+    document.getElementById('book-step-pick').style.display = 'flex';
+  }
+
+  function bookTableFits(tableId, personeNum) {
+    var cap = tableCapacity[tableId] || 0;
+    if (cap < personeNum) return false;
+    if (cap > personeNum * 2 + 1) return false;
+    return true;
+  }
+
+  function bookSetupPickMap(personeNum) {
+    var allTables = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'];
+    allTables.forEach(function(t) {
+      var g = document.getElementById('pick-' + t);
+      if (!g) return;
+      g.classList.remove('selected', 'unavailable', 'available');
+      var available = !bookOccupied[t] && bookTableFits(t, personeNum);
+      if (!available) {
+        g.classList.add('unavailable');
+      } else {
+        g.classList.add('available');
+      }
+      var mainShape = g.querySelector('rect:not(.svg-hit)') || g.querySelector('circle:not(.svg-hit)');
+      var txt = g.querySelector('text');
+      if (available) {
+        mainShape.setAttribute('stroke', '#4CD964');
+        mainShape.setAttribute('stroke-width', '1.2');
+        mainShape.setAttribute('fill', '#1a3d1a');
+        if (txt) txt.setAttribute('fill', '#4CD964');
+      } else {
+        if (mainShape.tagName === 'rect') { mainShape.setAttribute('stroke', '#333'); mainShape.setAttribute('fill', '#1a1a1a'); }
+        else { mainShape.setAttribute('stroke', '#333'); mainShape.setAttribute('fill', '#1a1a1a'); }
+        if (txt) txt.setAttribute('fill', '#444');
+      }
+    });
+  }
+
+  function bookPickTable(tableId) {
+    if (!bookPendingData) return;
+    var personeNum = bookPendingData.personeNum;
+    if (bookOccupied[tableId] || !bookTableFits(tableId, personeNum)) return;
+
+    var cap = tableCapacity[tableId] || 0;
+    camonConfirm('Confermi ' + tableId + ' (' + cap + ' posti) per ' + personeNum + (personeNum === 1 ? ' persona?' : ' persone?'), function() {
+      bookPickedTable = tableId;
+      var allTables = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'];
+      allTables.forEach(function(t) {
+        var g = document.getElementById('pick-' + t);
+        if (!g) return;
+        g.classList.remove('selected');
+        if (g.classList.contains('unavailable')) return;
+        var mainShape = g.querySelector('rect:not(.svg-hit)') || g.querySelector('circle:not(.svg-hit)');
+        var txt = g.querySelector('text');
+        if (t === tableId) {
+          g.classList.add('selected');
+          if (mainShape) { mainShape.setAttribute('fill', '#3d3200'); mainShape.setAttribute('stroke', '#f7cc49'); mainShape.setAttribute('stroke-width', '1.2'); }
+          if (txt) txt.setAttribute('fill', '#f7cc49');
+        } else {
+          if (mainShape) { mainShape.setAttribute('fill', '#1a3d1a'); mainShape.setAttribute('stroke', '#4CD964'); }
+          if (txt) txt.setAttribute('fill', '#4CD964');
+        }
+      });
+      setTimeout(function() { bookFinalizeWithTable(tableId); }, 400);
+    });
+  }
+
+  function bookPickAuto() {
+    if (!bookPendingData) return;
+    var personeNum = bookPendingData.personeNum;
+    var priority = ['T7','T8','T3','T4','T5','T1','T2','T9','T10','T11','T6'];
+    var assigned = priority.find(function(t) {
+      return !bookOccupied[t] && bookTableFits(t, personeNum);
+    });
+    if (!assigned) {
+      var fallback = ['T6','T4','T2','T10','T3','T5','T7','T8','T9','T11','T1'];
+      assigned = fallback.find(function(t) {
+        return !bookOccupied[t] && (tableCapacity[t] || 0) >= personeNum;
+      });
+    }
+    if (!assigned) {
+      alert('Nessun tavolo disponibile per ' + personeNum + ' persone.');
+      return;
+    }
+    bookFinalizeWithTable(assigned);
+  }
+
+  function bookPickBack() {
+    document.getElementById('book-step-pick').style.display = 'none';
+    if (currentBooking) {
+      bookOccupied[currentBooking.table] = true;
+      bookHighlightTable(currentBooking.table);
+      document.getElementById('book-table-number').textContent = currentBooking.table;
+      document.getElementById('book-step3').style.display = 'flex';
+    } else {
+      document.getElementById('book-step2').style.display = 'flex';
+    }
+    bookPendingData = null;
+    bookPickedTable = null;
+  }
+
+  function bookFinalizeWithTable(assigned) {
+    if (!bookPendingData) return;
+    var p = bookPendingData;
+    bookOccupied[assigned] = true;
+
+    document.getElementById('book-confirmed-detail').textContent = p.nome + ' · ' + p.dataFmt + ' alle ' + p.ora + ' — CAMON';
+    document.getElementById('book-table-number').textContent = assigned;
+
+    var svg = document.getElementById('book-map-svg');
+    var old = svg.querySelector('.map-highlight');
+    if (old) old.parentNode.removeChild(old);
+
+    var centers = {
+      T1:{x:186,y:71}, T2:{x:272,y:71},
+      T3:{x:186,y:129}, T4:{x:272,y:129}, T5:{x:356,y:129},
+      T6:{x:272,y:193},
+      T7:{x:179,y:194}, T8:{x:371,y:194},
+      T9:{x:186,y:261}, T10:{x:272,y:261}, T11:{x:356,y:261}
+    };
+    var c = centers[assigned];
+    if (c) {
+      var ns = 'http://www.w3.org/2000/svg';
+      var g = document.createElementNS(ns, 'g');
+      g.setAttribute('class','map-highlight');
+      var pulse = document.createElementNS(ns, 'circle');
+      pulse.setAttribute('cx', c.x); pulse.setAttribute('cy', c.y); pulse.setAttribute('r', assigned==='T6'?34:26);
+      pulse.setAttribute('fill','rgba(247,204,73,0.25)'); pulse.setAttribute('stroke','#f7cc49'); pulse.setAttribute('stroke-width','2');
+      pulse.innerHTML = '<animate attributeName="r" values="'+(assigned==='T6'?'34;40;34':'26;32;26')+'" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite"/>';
+      var lbl = document.createElementNS(ns, 'text');
+      lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y - (assigned==='T6'?40:32));
+      lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','#f7cc49');
+      lbl.setAttribute('font-size','8'); lbl.setAttribute('font-weight','bold');
+      lbl.setAttribute('font-family','Bebas Neue, sans-serif'); lbl.setAttribute('letter-spacing','1');
+      lbl.textContent = '▼ SEI QUI';
+      g.appendChild(pulse); g.appendChild(lbl);
+      svg.appendChild(g);
+    }
+
+    var typeLabel = {shared:'Tavolo Condiviso', private:'Tavolo Privato', room:'Stanza Privata', invite:'Invito Segreto'};
+    currentBooking = { table: assigned, nome: p.nome, data: p.data, ora: p.ora, dataFmt: p.dataFmt, type: typeLabel[bookType] || bookType, persone: p.personeNum, bookType: bookType };
+
+    bookAddedGuests = companionSlots
+      .filter(function(s){ return s.selectedUser; })
+      .map(function(s){ return s.selectedUser.name; });
+
+    bookRenderFill(assigned);
+    bookHighlightTable(assigned);
+    document.getElementById('book-confirmed-detail').textContent = p.nome + ' · ' + p.dataFmt + ' alle ' + p.ora + ' — CAMON';
+    document.getElementById('book-table-number').textContent = assigned;
+    document.getElementById('book-step-pick').style.display = 'none';
+    document.getElementById('book-step3').style.display = 'flex';
+    bookPendingData = null;
+  }
+
+  // traccia tavoli occupati e prenotazione corrente
+  var bookOccupied = {};
+  var currentBooking = null;
+
+  function bookShowMap() {
+    // dalla vista attiva → apre la mappa (step3) con il tavolo evidenziato
+    if (!currentBooking) return;
+    bookHighlightTable(currentBooking.table);
+    document.getElementById('book-confirmed-detail').textContent = currentBooking.nome + ' · ' + currentBooking.dataFmt + ' alle ' + currentBooking.ora + ' — CAMON';
+    document.getElementById('book-table-number').textContent = currentBooking.table;
+    document.getElementById('book-active').style.display = 'none';
+    document.getElementById('book-step3').style.display = 'flex';
+  }
+
+  function bookHighlightTable(assigned) {
+    var svg = document.getElementById('book-map-svg');
+    // ripristina colori neutri su tutti i tavoli
+    ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'].forEach(function(t) {
+      var g = document.getElementById('map-' + t);
+      if (!g) return;
+      var isAssigned = (t === assigned);
+      var mainEl = g.querySelector('rect:not(.svg-hit)') || g.querySelector('circle:not(.svg-hit)');
+      if (mainEl) {
+        mainEl.setAttribute('fill', isAssigned ? '#3d3200' : '#252525');
+        mainEl.setAttribute('stroke', isAssigned ? '#f7cc49' : '#444');
+        mainEl.setAttribute('stroke-width', isAssigned ? '1.2' : '1');
+      }
+      g.querySelectorAll('circle:not(.svg-hit)').forEach(function(ch) {
+        if (ch === mainEl) return;
+        ch.setAttribute('fill', isAssigned ? '#2a2418' : '#1c1c1c');
+        ch.setAttribute('stroke', isAssigned ? '#f7cc49' : '#3a3a3a');
+      });
+      var txt = g.querySelector('text');
+      if (txt) txt.setAttribute('fill', isAssigned ? '#f7cc49' : '#777');
+      g.style.filter = isAssigned ? 'drop-shadow(0 0 8px rgba(247,204,73,0.5))' : 'none';
+    });
+    // rimuovi highlight precedente
+    var old = svg.querySelector('.map-highlight');
+    if (old) old.parentNode.removeChild(old);
+    var centers = {
+      T1:{x:186,y:71}, T2:{x:272,y:71},
+      T3:{x:186,y:129}, T4:{x:272,y:129}, T5:{x:356,y:129},
+      T6:{x:272,y:193},
+      T7:{x:179,y:194}, T8:{x:371,y:194},
+      T9:{x:186,y:261}, T10:{x:272,y:261}, T11:{x:356,y:261}
+    };
+    var c = centers[assigned];
+    if (!c) return;
+    var ns = 'http://www.w3.org/2000/svg';
+    var g = document.createElementNS(ns, 'g');
+    g.setAttribute('class','map-highlight');
+    var pulse = document.createElementNS(ns, 'circle');
+    var r = assigned === 'T6' ? 34 : 26;
+    pulse.setAttribute('cx', c.x); pulse.setAttribute('cy', c.y); pulse.setAttribute('r', r);
+    pulse.setAttribute('fill','rgba(247,204,73,0.25)'); pulse.setAttribute('stroke','#f7cc49'); pulse.setAttribute('stroke-width','2');
+    pulse.innerHTML = '<animate attributeName="r" values="'+r+';'+(r+6)+';'+r+'" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite"/>';
+    var lbl = document.createElementNS(ns, 'text');
+    lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y - r - 8);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','#f7cc49');
+    lbl.setAttribute('font-size','8'); lbl.setAttribute('font-weight','bold');
+    lbl.setAttribute('font-family','Bebas Neue, sans-serif'); lbl.setAttribute('letter-spacing','1');
+    lbl.textContent = '▼ SEI QUI';
+    g.appendChild(pulse); g.appendChild(lbl);
+    svg.appendChild(g);
+  }
+
+  // capacità per tavolo
+  var tableCapacity = { T1:6, T2:6, T3:4, T4:4, T5:4, T6:8, T7:3, T8:3, T9:6, T10:6, T11:6 };
+  // prenotazioni simulate già presenti (altri clienti)
+  var tableSimulated = { T1:2, T2:1, T3:1, T4:2, T5:0, T6:3, T7:1, T8:0, T9:2, T10:1, T11:1 };
+
+  // partecipanti aggiunti manualmente dall'utente
+  var bookAddedGuests = [];
+
+  function bookRenderFill(table) {
+    var box = document.getElementById('book-fill-box');
+    if (!currentBooking) { box.style.display = 'none'; return; }
+
+    var isShared = currentBooking.bookType === 'shared';
+    var cap = tableCapacity[table] || 6;
+    var sim = isShared ? (tableSimulated[table] || 0) : 0;       // altri anonimi (solo shared)
+    var myGroup = isShared ? 1 : (currentBooking.persone || 1);  // posti del gruppo utente
+    var added = bookAddedGuests.length;
+    var taken = sim + myGroup + added;
+    var isFull = taken >= cap;
+
+    box.style.display = 'flex';
+    box.className = 'book-fill-box' + (isFull ? ' full' : '');
+
+    // contatore
+    var countEl = document.getElementById('book-fill-count');
+    countEl.textContent = taken + ' / ' + cap + ' posti';
+    countEl.className = 'book-fill-count' + (isFull ? ' full' : '');
+
+    // cerchietti
+    var seatsEl = document.getElementById('book-fill-seats');
+    seatsEl.innerHTML = '';
+    // ordine: Tu → amici aggiunti → anonimi → Aggiungi → In attesa
+    var slots = [];
+    // 1. Tu
+    slots.push({ type: 'me' });
+    // 2. posti aggiuntivi del gruppo (es. prenotato per 3: +2 anonimi del gruppo)
+    for (var p = 1; p < myGroup; p++) slots.push({ type: 'group' });
+    // 3. amici aggiunti (con nome)
+    for (var g = 0; g < added; g++) slots.push({ type: 'guest', idx: g });
+    // 4. anonimi (solo shared)
+    for (var s = 0; s < sim; s++) slots.push({ type: 'anon' });
+    // riempi fino a cap con aggiungi (primo) + in attesa (resto)
+    var firstFreeAdded = false;
+    while (slots.length < cap) {
+      if (!firstFreeAdded && !isFull) { slots.push({ type: 'add' }); firstFreeAdded = true; }
+      else { slots.push({ type: isShared ? 'waiting' : 'empty' }); }
+    }
+
+    slots.forEach(function(sl) {
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;';
+      var seat = document.createElement('div');
+      var lbl = document.createElement('div');
+      lbl.className = 'book-fill-seat-lbl';
+
+      if (sl.type === 'anon' || sl.type === 'group') {
+        seat.className = 'book-fill-seat taken';
+        seat.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+        lbl.textContent = '';
+
+      } else if (sl.type === 'me') {
+        seat.className = 'book-fill-seat taken me';
+        seat.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+        lbl.textContent = 'Tu';
+        lbl.style.color = 'rgba(247,204,73,0.7)';
+
+      } else if (sl.type === 'guest') {
+        var gName = (bookAddedGuests[sl.idx] || '').split(' ')[0];
+        wrap.style.position = 'relative';
+        seat.className = 'book-fill-seat taken';
+        seat.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+        var removeBtn = document.createElement('div');
+        removeBtn.style.cssText = 'position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:#ff4444;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:9px;color:#fff;font-weight:700;line-height:1;border:1.5px solid #1a1a1a;';
+        removeBtn.textContent = '×';
+        (function(idx){ removeBtn.onclick = function(e){ e.stopPropagation(); bookRemoveGuest(idx); }; })(sl.idx);
+        wrap.appendChild(removeBtn);
+        lbl.textContent = gName;
+        lbl.style.color = 'rgba(255,255,255,0.75)';
+
+      } else if (sl.type === 'add') {
+        seat.className = 'book-fill-seat add-btn';
+        seat.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+        seat.onclick = bookAddGuest;
+        lbl.textContent = 'Aggiungi';
+        lbl.style.color = 'rgba(247,204,73,0.6)';
+
+      } else if (sl.type === 'waiting') {
+        seat.className = 'book-fill-seat waiting';
+        lbl.textContent = 'In attesa…';
+
+      } else {
+        seat.className = 'book-fill-seat waiting';
+        lbl.textContent = '';
+      }
+
+      wrap.appendChild(seat);
+      wrap.appendChild(lbl);
+      seatsEl.appendChild(wrap);
+    });
+
+    // nascondi legenda
+    var legendEl = document.getElementById('book-fill-legend');
+    if (legendEl) legendEl.innerHTML = '';
+
+    // barra
+    var pct = Math.round((taken / cap) * 100);
+    var bar = document.getElementById('book-fill-progress');
+    bar.style.width = pct + '%';
+    bar.className = 'book-fill-progress' + (isFull ? ' full' : '');
+
+    // completo
+    document.getElementById('book-fill-complete').style.display = isFull ? 'block' : 'none';
+  }
+
+  var _removeGuestIdx = null;
+
+  function bookShowInlineError(msg) {
+    var existing = document.getElementById('book-inline-error');
+    if (existing) existing.remove();
+    var el = document.createElement('div');
+    el.id = 'book-inline-error';
+    el.style.cssText = 'background:rgba(255,60,60,0.12);border:1px solid rgba(255,60,60,0.35);border-radius:14px;padding:14px 16px;font-family:Manrope,sans-serif;font-size:13px;color:#ff6b6b;line-height:1.4;margin-top:4px;';
+    el.textContent = msg;
+    var confirmBtn = document.querySelector('.book-confirm-btn');
+    if (confirmBtn) confirmBtn.parentNode.insertBefore(el, confirmBtn);
+    setTimeout(function(){ if(el.parentNode) el.remove(); }, 5000);
+  }
+
+  function bookRemoveGuest(idx) {
+    var name = (bookAddedGuests[idx] || '').split(' ')[0];
+    _removeGuestIdx = idx;
+    document.getElementById('remove-guest-txt').textContent = 'Vuoi rimuovere ' + name + ' dalla prenotazione?';
+    document.getElementById('remove-guest-overlay').style.display = 'block';
+    document.getElementById('remove-guest-modal').style.display = 'block';
+  }
+
+  function confirmRemoveGuest() {
+    if (_removeGuestIdx !== null) {
+      bookAddedGuests.splice(_removeGuestIdx, 1);
+      _removeGuestIdx = null;
+      bookRenderFill(currentBooking.table);
+    }
+    closeRemoveGuest();
+  }
+
+  function closeRemoveGuest() {
+    _removeGuestIdx = null;
+    document.getElementById('remove-guest-overlay').style.display = 'none';
+    document.getElementById('remove-guest-modal').style.display = 'none';
+  }
+
+  var bamCenters = {
+    T1:{x:186,y:71}, T2:{x:272,y:71},
+    T3:{x:186,y:129}, T4:{x:272,y:129}, T5:{x:356,y:129},
+    T6:{x:272,y:193},
+    T7:{x:179,y:194}, T8:{x:371,y:194},
+    T9:{x:186,y:261}, T10:{x:272,y:261}, T11:{x:356,y:261}
+  };
+
+  function bookUpdateMinimap(table) {
+    var c = bamCenters[table];
+    if (!c) return;
+    var r = (table === 'T6') ? 22 : 16;
+    // ripristina tutti i dot
+    Object.keys(bamCenters).forEach(function(t) {
+      var el = document.getElementById('bam-' + t);
+      if (el) el.setAttribute('fill', 'rgba(0,0,0,0.18)');
+    });
+    // evidenzia il tavolo assegnato
+    var dot = document.getElementById('bam-' + table);
+    if (dot) dot.setAttribute('fill', '#f7cc49');
+    // pulse
+    var pulse = document.getElementById('bam-active-pulse');
+    if (pulse) { pulse.setAttribute('cx', c.x); pulse.setAttribute('cy', c.y); pulse.setAttribute('r', r + 8); }
+    var adot = document.getElementById('bam-active-dot');
+    if (adot) { adot.setAttribute('cx', c.x); adot.setAttribute('cy', c.y); adot.setAttribute('r', 6); }
+    var lbl = document.getElementById('bam-active-lbl');
+    if (lbl) { lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y - r - 10); lbl.textContent = 'SEI QUI'; lbl.setAttribute('dy', '0'); }
+  }
+
+  function bookAddGuest() {
+    if (!currentBooking) return;
+    var table = currentBooking.table;
+    var cap = tableCapacity[table] || 6;
+    var taken = (tableSimulated[table] || 0) + bookAddedGuests.length + 1;
+    if (taken >= cap) return;
+    // apri bottom sheet
+    document.getElementById('add-guest-input').value = '';
+    document.getElementById('add-guest-results').style.display = 'none';
+    document.getElementById('add-guest-invite-btn').style.display = 'none';
+    document.getElementById('add-guest-overlay').style.display = 'block';
+    document.getElementById('add-guest-sheet').classList.remove('hidden');
+    setTimeout(function(){ document.getElementById('add-guest-input').focus(); }, 300);
+  }
+
+  function closeAddGuest() {
+    document.getElementById('add-guest-sheet').classList.add('hidden');
+    document.getElementById('add-guest-overlay').style.display = 'none';
+  }
+
+  function searchAddGuest(val) {
+    var q = val.trim().toLowerCase();
+    var resultsEl = document.getElementById('add-guest-results');
+    var inviteBtn = document.getElementById('add-guest-invite-btn');
+    if (q.length < 1) { resultsEl.style.display = 'none'; inviteBtn.style.display = 'none'; return; }
+    // escludi già aggiunti
+    var addedNames = bookAddedGuests.map(function(g){ return g.toLowerCase(); });
+    var matches = CAMON_USERS.filter(function(u){
+      return u.name.toLowerCase().includes(q) && !addedNames.includes(u.name.toLowerCase());
+    });
+    if (matches.length) {
+      resultsEl.style.display = 'block';
+      resultsEl.innerHTML = matches.slice(0,6).map(function(u){
+        return '<div class="add-guest-result" onclick="confirmAddGuest(\'' + u.id + '\')">'
+          + '<div class="add-guest-avatar">' + (u.gender==='F'?'👩':'👨') + '</div>'
+          + '<div><div class="add-guest-name">' + u.name + '</div>'
+          + '<div class="add-guest-sub">' + u.username + ' · su CAMON</div></div>'
+          + '</div>';
+      }).join('');
+      inviteBtn.style.display = 'none';
+    } else {
+      resultsEl.innerHTML = '<div style="padding:14px;font-family:Manrope,sans-serif;font-size:13px;color:rgba(255,255,255,0.35);text-align:center">Nessun utente trovato</div>';
+      resultsEl.style.display = 'block';
+      inviteBtn.style.display = 'flex';
+    }
+  }
+
+  function confirmAddGuest(userId) {
+    var u = CAMON_USERS.find(function(x){ return x.id === userId; });
+    if (!u) return;
+    bookAddedGuests.push(u.name);
+    closeAddGuest();
+    bookRenderFill(currentBooking.table);
+  }
+
+  function addGuestInvite() {
+    var name = document.getElementById('add-guest-input').value.trim();
+    closeAddGuest();
+    alert('📲 Link inviato a "' + (name||'questo contatto') + '" per scaricare CAMON!\nQuando si iscrive potrà aggiungersi al tuo tavolo.');
+  }
+
+  function bookOpenChangePicker() {
+    if (!currentBooking) return;
+    var personeNum = currentBooking.persone || 1;
+    bookPendingData = {
+      nome: currentBooking.nome,
+      data: currentBooking.data,
+      ora: currentBooking.ora,
+      dataFmt: currentBooking.dataFmt,
+      personeNum: personeNum
+    };
+    bookPickedTable = null;
+    bookOccupied[currentBooking.table] = false;
+    bookSetupPickMap(personeNum);
+    document.getElementById('book-pick-sub').textContent = 'Tavoli disponibili per ' + personeNum + (personeNum === 1 ? ' persona' : ' persone');
+    document.getElementById('book-step3').style.display = 'none';
+    document.getElementById('book-step-pick').style.display = 'flex';
+  }
+
+  function bookMapSwitch(newTable) {
+    if (!currentBooking) return;
+    if (newTable === currentBooking.table) return;
+    if (bookOccupied[newTable]) return;
+    var personeNum = currentBooking.persone || 1;
+    var cap = tableCapacity[newTable] || 0;
+    if (cap < personeNum) return;
+
+    camonConfirm('Cambiare tavolo da ' + currentBooking.table + ' a ' + newTable + '?', function() {
+      var oldTable = currentBooking.table;
+      bookOccupied[oldTable] = false;
+      bookOccupied[newTable] = true;
+      currentBooking.table = newTable;
+
+      bookHighlightTable(newTable);
+      bookRenderFill(newTable);
+      document.getElementById('book-table-number').textContent = newTable;
+      document.getElementById('ba-table').textContent = newTable;
+
+      var svg = document.getElementById('book-map-svg');
+      var old = svg.querySelector('.map-highlight');
+      if (old) old.parentNode.removeChild(old);
+      var centers = {
+        T1:{x:186,y:71}, T2:{x:272,y:71},
+        T3:{x:186,y:129}, T4:{x:272,y:129}, T5:{x:356,y:129},
+        T6:{x:272,y:193},
+        T7:{x:179,y:194}, T8:{x:371,y:194},
+        T9:{x:186,y:261}, T10:{x:272,y:261}, T11:{x:356,y:261}
+      };
+      var c = centers[newTable];
+      if (c) {
+        var ns = 'http://www.w3.org/2000/svg';
+        var g = document.createElementNS(ns, 'g');
+        g.setAttribute('class','map-highlight');
+        var pulse = document.createElementNS(ns, 'circle');
+        pulse.setAttribute('cx', c.x); pulse.setAttribute('cy', c.y); pulse.setAttribute('r', newTable==='T6'?34:26);
+        pulse.setAttribute('fill','rgba(247,204,73,0.25)'); pulse.setAttribute('stroke','#f7cc49'); pulse.setAttribute('stroke-width','2');
+        pulse.innerHTML = '<animate attributeName="r" values="'+(newTable==='T6'?'34;40;34':'26;32;26')+'" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite"/>';
+        var lbl = document.createElementNS(ns, 'text');
+        lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y - (newTable==='T6'?40:32));
+        lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','#f7cc49');
+        lbl.setAttribute('font-size','8'); lbl.setAttribute('font-weight','bold');
+        lbl.setAttribute('font-family','Bebas Neue, sans-serif'); lbl.setAttribute('letter-spacing','1');
+        lbl.textContent = '▼ SEI QUI';
+        g.appendChild(pulse); g.appendChild(lbl);
+        svg.appendChild(g);
+      }
+    });
+  }
+
+  function bookNewBooking() {
+    bookAddedGuests = [];
+    document.getElementById('book-active').style.display = 'none';
+    document.getElementById('book-step1').style.display = 'flex';
+  }
+
+  function bookCancelConfirm() {
+    camonConfirm('Sei sicuro di voler annullare la prenotazione?', function() {
+      bookAddedGuests = [];
+      currentBooking = null;
+      document.getElementById('book-active').style.display = 'none';
+      document.getElementById('book-step3').style.display = 'none';
+      document.getElementById('book-step-pick').style.display = 'none';
+      document.getElementById('book-step1').style.display = 'flex';
+    });
+  }
+
+  function bookReset() {
+    document.getElementById('book-step3').style.display = 'none';
+    if (currentBooking) {
+      // torna alla vista prenotazione attiva
+      document.getElementById('ba-table').textContent = currentBooking.table;
+      document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
+      document.getElementById('ba-type').textContent = currentBooking.type;
+      document.getElementById('ba-nome').textContent = currentBooking.nome;
+      document.getElementById('book-active').style.display = 'flex';
+      bookRenderFill(currentBooking.table);
+      bookUpdateMinimap(currentBooking.table);
+    } else {
+      document.getElementById('book-step1').style.display = 'flex';
+    }
+  }
+
+  /* ===== MENU FILTER ===== */
+  let menuMacro = 'drink';
+
+  function setMacro(btn, macro) {
+    menuMacro = macro;
+    document.querySelectorAll('.macro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // mostra la fila di sotto-filtri giusta
+    document.getElementById('cats-drink').style.display = macro === 'drink' ? 'flex' : 'none';
+    document.getElementById('cats-cibo').style.display  = macro === 'cibo'  ? 'flex' : 'none';
+    // resetta il sotto-filtro attivo su "Tutti"
+    const row = document.getElementById('cats-' + macro);
+    row.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    row.querySelector('.cat-btn').classList.add('active');
+    applyMenuFilter('tutti');
+    // riporta lo scroll in cima
+    const sa = document.querySelector('#page-menu .scroll-area');
+    if (sa) sa.scrollTop = 0;
+  }
+
+  function filterCat(btn, cat) {
+    const row = btn.closest('.cat-row');
+    row.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyMenuFilter(cat);
+  }
+
+  let menuCat = 'tutti';
+  let menuQuery = '';
+
+  function applyMenuFilter(cat) {
+    if (cat !== undefined) menuCat = cat;
+    const q = menuQuery.trim().toLowerCase();
+    let visibili = 0;
+
+    document.querySelectorAll('.drink-card').forEach(card => {
+      const okMacro = card.dataset.macro === menuMacro;
+      /* durante una ricerca la categoria non filtra: si cerca in tutta la sezione */
+      const okCat = q ? true : (menuCat === 'tutti' || card.dataset.cat === menuCat);
+      let okQuery = true;
+      if (q) {
+        const nome = (card.querySelector('.drink-name') || {}).textContent || '';
+        okQuery = nome.toLowerCase().indexOf(q) !== -1;
+      }
+      /* prodotti segnati "finito" su Supabase: nascosti */
+      const disponibile = card.dataset.available !== 'false';
+      const mostra = okMacro && okCat && okQuery && disponibile;
+      card.style.display = mostra ? '' : 'none';
+      if (mostra) visibili++;
+    });
+
+    // le intestazioni delle sotto-sezioni (es. Vegano / Senza Glutine) si vedono
+    // solo nel loro filtro, e mai durante una ricerca
+    document.querySelectorAll('.menu-subhead').forEach(h => {
+      h.style.display = (h.dataset.cat === menuCat && !q) ? '' : 'none';
+    });
+
+    const vuoto = document.getElementById('menu-empty');
+    if (vuoto) vuoto.style.display = visibili ? 'none' : 'block';
+
+    return visibili;
+  }
+
+  /* quante corrispondenze ci sono nell'altra sezione (drink <-> cibo) */
+  function menuCountIn(macro) {
+    const q = menuQuery.trim().toLowerCase();
+    if (!q) return 0;
+    let n = 0;
+    document.querySelectorAll('.drink-card').forEach(card => {
+      if (card.dataset.macro !== macro) return;
+      const nome = (card.querySelector('.drink-name') || {}).textContent || '';
+      if (nome.toLowerCase().indexOf(q) !== -1) n++;
+    });
+    return n;
+  }
+
+  /* ricerca nel menu */
+  (function () {
+    const wrap  = document.getElementById('menu-search');
+    const input = document.getElementById('menu-search-input');
+    const clear = document.getElementById('menu-search-clear');
+    if (!wrap || !input || !clear) return;
+
+    function cerca() {
+      const trovati = applyMenuFilter();
+      /* se qui non c'e' nulla ma l'altra sezione ha risultati, ci si sposta */
+      if (menuQuery.trim() && trovati === 0) {
+        const altra = (menuMacro === 'drink') ? 'cibo' : 'drink';
+        if (menuCountIn(altra) > 0) {
+          setMacro(document.getElementById('macro-' + altra), altra);
+        }
+      }
+    }
+
+    input.addEventListener('input', function () {
+      menuQuery = input.value;
+      wrap.classList.toggle('has-text', menuQuery.length > 0);
+      cerca();
+    });
+
+    clear.addEventListener('click', function () {
+      input.value = '';
+      menuQuery = '';
+      wrap.classList.remove('has-text');
+      applyMenuFilter();
+      input.focus();
+    });
+  })();
+
+  /* ===== WALLET / CARTA ===== */
+  let cardBalance = 0;
+  let cardTx = [];
+  let rechargeAmount = 20;   // default suggerito
+  const RECHARGE_MIN = 10;   // ricarica minima da app
+
+  function fmtEuro(n) {
+    return '€ ' + Number(n).toFixed(2).replace('.', ',');
+  }
+
+  function walletLoad() {
+    try {
+      const b = localStorage.getItem('camon_balance');
+      const t = localStorage.getItem('camon_tx');
+      if (b !== null) cardBalance = parseFloat(b);
+      if (t !== null) cardTx = JSON.parse(t);
+    } catch (e) {}
+    // primo avvio: semina un piccolo storico dimostrativo
+    if (localStorage.getItem('camon_balance') === null) {
+      cardBalance = 12.00;
+      cardTx = [
+        { type:'out', label:'Spritz + Tagliere misto', amount:8.00, date:'Ieri, 22:14' },
+        { type:'in',  label:'Ricarica',                amount:20.00, date:'Ieri, 21:50' }
+      ];
+      walletSave();
+    }
+  }
+
+  function walletSave() {
+    try {
+      localStorage.setItem('camon_balance', cardBalance.toFixed(2));
+      localStorage.setItem('camon_tx', JSON.stringify(cardTx));
+    } catch (e) {}
+  }
+
+  /* ===== BRACCIALETTI ===== */
+  let bands = []; // { code, active }
+
+  function bandsLoad() {
+    try {
+      const b = localStorage.getItem('camon_bands');
+      bands = b ? JSON.parse(b) : [];
+    } catch (e) { bands = []; }
+  }
+  function bandsSave() {
+    try { localStorage.setItem('camon_bands', JSON.stringify(bands)); } catch (e) {}
+  }
+  function bandLink() {
+    const input = document.getElementById('band-code-input');
+    const code = (input.value || '').trim().toUpperCase();
+    if (code.length < 4) { alert('Inserisci un codice valido (almeno 4 caratteri), lo trovi stampato sul braccialetto.'); return; }
+    if (bands.some(b => b.code === code)) { alert('Questo braccialetto è già collegato al tuo conto.'); return; }
+    // un solo braccialetto attivo per volta: il nuovo diventa attivo, gli altri si disattivano
+    bands.forEach(b => b.active = false);
+    bands.push({ code, active: true });
+    bandsSave();
+    input.value = '';
+    bandRender();
+  }
+  function bandActivate(code) {
+    bands.forEach(b => b.active = (b.code === code));
+    bandsSave();
+    bandRender();
+  }
+  function bandRemove(code) {
+    camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', function() {
+      bands = bands.filter(b => b.code !== code);
+      bandsSave();
+      bandRender();
+    });
+  }
+  function bandRender() {
+    const list = document.getElementById('band-list');
+    if (!list) return;
+    if (!bands.length) {
+      list.innerHTML = '<div class="band-empty">Nessun braccialetto collegato.<br>Inserisci un codice qui sopra per aggiungerne uno.</div>';
+      return;
+    }
+    const viz = `<span class="band-viz"><svg viewBox="0 0 46 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="23" cy="25" rx="15" ry="12.5" stroke="currentColor" stroke-width="6"/>
+        <rect x="15" y="4.5" width="16" height="9" rx="2.5" fill="currentColor"/>
+        <circle cx="19.5" cy="9" r="1" fill="#111" fill-opacity="0.55"/>
+        <circle cx="23" cy="9" r="1" fill="#111" fill-opacity="0.55"/>
+        <circle cx="26.5" cy="9" r="1" fill="#111" fill-opacity="0.55"/>
+      </svg></span>`;
+    list.innerHTML = bands.map(b => `
+      <div class="band-item${b.active ? ' active' : ''}">
+        ${viz}
+        <div class="band-info">
+          <div class="band-code">${b.code}</div>
+          <div class="band-status ${b.active ? 'on' : 'off'}"><span class="dot"></span>${b.active ? 'Attivo' : 'Bloccato'}</div>
+        </div>
+        ${b.active ? '' : `<button class="band-act" onclick="bandActivate('${b.code}')">Attiva</button>`}
+        <button class="band-del" onclick="bandRemove('${b.code}')" aria-label="Rimuovi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
+  function bandActiveCode() {
+    const b = bands.find(x => x.active);
+    return b ? b.code : null;
+  }
+
+  /* ===== SPINA SELF-SERVICE (demo) ===== */
+  const SPINA_PRODUCTS = {
+    'IPA':    { pricePerMl: 0.01, label: 'Spina 1 · IPA del Birrificio', priceLabel: '€10,00 / litro', fillColor: 'linear-gradient(180deg,#FFC433,#E89010)' },
+    'Mojito': { pricePerMl: 0.015, label: 'Spina 2 · Mojito Classico', priceLabel: '€15,00 / litro', fillColor: 'linear-gradient(180deg,#4CD964,#2A9D4E)' },
+  };
+  let spinaProduct = 'IPA';
+  let spinaMl = 0, spinaCost = 0, spinaTimer = null, spinaReady = false;
+
+  function spinaSelectProduct(product) {
+    if (spinaTimer) return; // non cambiare mentre stai spillando
+    spinaProduct = product;
+    document.querySelectorAll('.spina-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('spina-tab-' + product.toLowerCase()).classList.add('active');
+    const p = SPINA_PRODUCTS[product];
+    document.getElementById('spina-tap-name').innerHTML = p.label.replace(' · ', ' · <b>').replace(/(<b>.*)$/, '$1</b>');
+    document.getElementById('spina-tap-price').textContent = p.priceLabel;
+    document.getElementById('spina-fill').style.background = p.fillColor;
+    spinaMl = 0; spinaCost = 0; spinaRenderGlass();
+  }
+
+  function spinaInit() {
+    spinaStopPour();
+    spinaMl = 0; spinaCost = 0;
+    spinaRenderGlass();
+    const bandEl = document.getElementById('spina-band');
+    const btn = document.getElementById('spina-pour-btn');
+    const code = bandActiveCode();
+    if (!code) {
+      bandEl.className = 'spina-band warn';
+      bandEl.textContent = '⚠ Nessun braccialetto attivo — attivane uno nella Carta';
+      btn.disabled = true; spinaReady = false;
+    } else if (cardBalance <= 0) {
+      bandEl.className = 'spina-band warn';
+      bandEl.textContent = '⚠ Saldo esaurito — ricarica la carta';
+      btn.disabled = true; spinaReady = false;
+    } else {
+      bandEl.className = 'spina-band ok';
+      bandEl.textContent = '● Braccialetto ' + code + ' attivo';
+      btn.disabled = false; spinaReady = true;
+    }
+    document.getElementById('spina-saldo').textContent = 'Saldo: ' + fmtEuro(cardBalance);
+  }
+  function spinaRenderGlass() {
+    // mostra il bicchiere in loop: ogni 500ml ricomincia visivamente
+    const DISPLAY_ML = 500;
+    const pct = Math.min(100, (spinaMl % DISPLAY_ML || (spinaMl > 0 && spinaMl % DISPLAY_ML === 0 ? DISPLAY_ML : 0)) / DISPLAY_ML * 100);
+    document.getElementById('spina-fill').style.height = pct + '%';
+    const foam = document.getElementById('spina-foam');
+    foam.style.bottom = pct + '%'; foam.style.height = (pct > 0 ? 10 : 0) + 'px'; foam.style.opacity = pct > 0 ? 1 : 0;
+    document.getElementById('spina-ml').textContent = Math.round(spinaMl);
+    document.getElementById('spina-cost').textContent = spinaCost.toFixed(2).replace('.', ',');
+  }
+  function spinaStartPour() {
+    if (!spinaReady || spinaTimer) return;
+    const pricePerMl = SPINA_PRODUCTS[spinaProduct].pricePerMl;
+    spinaMl = 0; spinaCost = 0; spinaRenderGlass();
+    document.getElementById('spina-pour-btn').classList.add('pouring');
+    document.querySelector('.spina-pour-lbl').textContent = 'STO SPILLANDO…';
+    spinaTimer = setInterval(() => {
+      const maxByBalance = cardBalance / pricePerMl;
+      const next = Math.min(spinaMl + 16, maxByBalance);
+      spinaMl = next;
+      spinaCost = spinaMl * pricePerMl;
+      spinaRenderGlass();
+      if (spinaMl >= maxByBalance - 0.1) {
+        spinaStopPour(); // saldo finito
+      }
+    }, 60);
+  }
+  function spinaStopPour() {
+    if (spinaTimer) { clearInterval(spinaTimer); spinaTimer = null; }
+    const btn = document.getElementById('spina-pour-btn');
+    if (btn) btn.classList.remove('pouring');
+    const lbl = document.querySelector('.spina-pour-lbl');
+    if (lbl) lbl.textContent = 'TIENI PREMUTO PER SPILLARE';
+    spinaCommit();
+  }
+  function spinaCommit() {
+    if (spinaCost <= 0) return;
+    const cost = Math.round(spinaCost * 100) / 100;
+    const ml = Math.round(spinaMl);
+    const product = spinaProduct;
+    cardBalance = Math.max(0, cardBalance - cost);
+    // accorpa solo se stesso prodotto e ultima spillata < 30 secondi fa
+    const MERGE_TIMEOUT_MS = 30000;
+    const now = Date.now();
+    const last = cardTx[0];
+    if (last && last.spina && last.product === product && (now - (last.ts || 0)) < MERGE_TIMEOUT_MS) {
+      last.ml += ml;
+      last.amount = Math.round((last.amount + cost) * 100) / 100;
+      last.label = 'Spina · ' + product + ' (' + last.ml + ' ml)';
+      last.date = nowLabel();
+      last.ts = now;
+    } else {
+      cardTx.unshift({ type:'out', spina:true, product, ml, label:'Spina · ' + product + ' (' + ml + ' ml)', amount:cost, date:nowLabel(), ts:now });
+    }
+    walletSave();
+    renderWallet();
+    document.getElementById('spina-saldo').textContent = 'Saldo: ' + fmtEuro(cardBalance);
+    spinaCost = 0; // evita doppio addebito
+    if (cardBalance <= 0) spinaInit();
+  }
+
+  function renderWallet() {
+    const mb = document.getElementById('menu-balance');
+    const cb = document.getElementById('card-balance');
+    if (mb) mb.textContent = fmtEuro(cardBalance);
+    if (cb) cb.textContent = fmtEuro(cardBalance);
+    // nome titolare dal profilo, se compilato
+    const nm = document.getElementById('edit-nome');
+    const cg = document.getElementById('edit-cognome');
+    const holder = document.getElementById('card-holder');
+    if (holder) {
+      const full = ((nm && nm.value.trim()) + ' ' + (cg && cg.value.trim() || '')).trim();
+      holder.textContent = full ? full.toUpperCase() : 'Carta CAMON';
+    }
+    // storico
+    const h = document.getElementById('wallet-history');
+    if (h) {
+      if (!cardTx.length) {
+        h.innerHTML = '<div class="wallet-hist-empty">Nessun movimento ancora.</div>';
+      } else {
+        h.innerHTML = cardTx.map(tx => {
+          const inc = tx.type === 'in';
+          const ico = inc ? '↑' : '↓';
+          const sign = inc ? '+' : '−';
+          return '<div class="wallet-tx">'
+            + '<div class="wallet-tx-left">'
+            +   '<div class="wallet-tx-ico ' + tx.type + '">' + ico + '</div>'
+            +   '<div><div class="wallet-tx-lbl">' + tx.label + '</div>'
+            +   '<div class="wallet-tx-date">' + tx.date + '</div></div>'
+            + '</div>'
+            + '<div class="wallet-tx-amt ' + tx.type + '">' + sign + ' ' + fmtEuro(tx.amount).replace('€ ','€') + '</div>'
+            + '</div>';
+        }).join('');
+      }
+    }
+  }
+
+  function selectAmount(el, amt) {
+    rechargeAmount = amt;
+    document.querySelectorAll('.amt-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('recharge-input').value = '';
+  }
+
+  function clearAmtChips() {
+    rechargeAmount = 0;
+    document.querySelectorAll('.amt-chip').forEach(c => c.classList.remove('active'));
+  }
+
+  function nowLabel() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return 'Oggi, ' + hh + ':' + mm;
+  }
+
+  function doRecharge() {
+    const input = document.getElementById('recharge-input');
+    let amt = rechargeAmount;
+    if (input.value) amt = parseFloat(input.value.replace(',', '.'));
+    if (!amt || amt <= 0) { alert('Scegli o inserisci un importo valido.'); return; }
+    if (amt < RECHARGE_MIN) { alert('La ricarica minima da app è €' + RECHARGE_MIN + '. Per importi inferiori puoi ricaricare al banco.'); return; }
+    if (amt > 500) { amt = 500; }
+    cardBalance += amt;
+    cardTx.unshift({ type:'in', label:'Ricarica', amount:amt, date:nowLabel() });
+    walletSave();
+    renderWallet();
+    // reset selezione
+    clearAmtChips();
+    input.value = '';
+    // feedback sul pulsante
+    const btn = document.querySelector('.wallet-recharge-btn');
+    const old = btn.textContent;
+    btn.textContent = '✓ Ricaricato ' + fmtEuro(amt).replace('€ ','€') + '!';
+    btn.style.background = '#4CD964';
+    setTimeout(() => { btn.textContent = old; btn.style.background = '#f7cc49'; }, 1600);
+  }
+
+  walletLoad();
+  renderWallet();
+  bandsLoad();
+  bandRender();
+  homeUpdateStatus();
+  homeUpdateTile();
+  // mostra il bollino shot nella home al caricamento iniziale
+  (function(){ const f = document.getElementById('story-fab-wrap'); if (f) f.classList.remove('hidden'); })();
+  pwaBannerInit();
+
+  // ===== IMMAGINI REALISTICHE CIBO & DRINK =====
+  (function() {
+    const imgMap = {
+      // COCKTAIL
+      'SPRITZ':               'spritz',
+      'MOJITO':               'mojito',
+      'GIN TONIC':            'gin-tonic',
+      'NEGRONI':              'negroni',
+      'MOSCOW MULE':          'moscow-mule',
+      'SEX ON THE BEACH':     'tropical-cocktail',
+      'TEQUILA SUNRISE':      'tequila-sunrise',
+      'MARGARITA':            'margarita',
+      'HUGO':                 'cocktail',
+      // SHOT
+      'TEQUILA':              'tequila',
+      'AFTER SHOCK':          'shot-glass',
+      'JÄGERMEISTER':         'jagermeister',
+      // BIRRA
+      'LAGER · MEDIA':        'beer',
+      'LAGER · GRANDE':       'beer-pint',
+      'IPA · MEDIA':          'craft-beer',
+      'IPA · GRANDE':         'ipa-beer',
+      // VINO
+      'PROSECCO':             'prosecco',
+      'PROSECCO 20cl':        'sparkling-wine',
+      'PINOT GRIGIO':         'white-wine',
+      'ROSSO DELLA CASA':     'red-wine',
+      // ANALCOLICI
+      'VIRGIN MOJITO':        'lemonade',
+      'SOFT DRINK':           'cola',
+      'ACQUA':                'water',
+      // CIBO - FRITTI
+      'PATATINE':             'french-fries',
+      'PATATINE CHEDDAR & BACON': 'loaded-fries',
+      'PATATINE GF':          'french-fries',
+      'ALETTE DI POLLO':      'chicken-wings',
+      'ALETTE DI POLLO GF':   'chicken-wings',
+      'NUGGETS DI POLLO':     'chicken-nuggets',
+      'MOZZARELLA STICK':     'mozzarella-sticks',
+      'JALAPEÑO POPPERS':     'jalapeno-food',
+      'ONION RINGS':          'onion-rings',
+      'ARANCINI':             'arancini',
+      // BURGER & PIADINE
+      'CHEESEBURGER':         'cheeseburger',
+      'DOUBLE BACON':         'bacon-burger',
+      'CHICKEN BURGER':       'chicken-burger',
+      'VEGGIE BURGER':        'veggie-burger',
+      'BURGER SENZA GLUTINE': 'hamburger',
+      'PIADINA CLASSICA':     'flatbread',
+      'HOT DOG':              'hot-dog',
+      // DA CONDIVIDERE
+      'CAMON BOX':            'food-platter',
+      'NACHOS & GUACAMOLE':   'nachos',
+      'TAGLIERE MISTO':       'charcuterie',
+      // PRIMI
+      'LASAGNA':              'lasagna',
+      'MAC & CHEESE':         'mac-cheese',
+      'PASTA DEL GIORNO':     'pasta',
+      // DOLCI
+      'BROWNIE':              'brownie',
+      'BROWNIE VEGANO':       'brownie',
+      'TIRAMISÙ':             'tiramisu'
+    };
+
+    document.querySelectorAll('.drink-card .drink-emoji').forEach(function(el) {
+      const card = el.closest('.drink-card');
+      if (!card) return;
+      const nameEl = card.querySelector('.drink-name');
+      if (!nameEl) return;
+      const key = imgMap[nameEl.textContent.trim()];
+      if (!key) return;
+      const seed = Math.floor(Math.random() * 200) + 1;
+      const img = document.createElement('img');
+      img.src = 'https://loremflickr.com/160/160/' + key + '?lock=' + seed;
+      img.alt = nameEl.textContent;
+      const fallback = el.textContent.trim();
+      img.onerror = function() {
+        el.textContent = fallback;
+        el.style.fontSize = '30px';
+      };
+      el.textContent = '';
+      el.style.fontSize = '0';
+      el.style.marginBottom = '6px';
+      el.appendChild(img);
+    });
+  })();
+
+  // ===== RIMOZIONE SFONDO AI (browser-side) =====
+  (async function() {
+    try {
+      const cdnBase = 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/';
+      const { removeBackground } = await import(cdnBase + 'bundle.browser.mjs');
+      const config = { publicPath: cdnBase, debug: false };
+
+      const imgs = [...document.querySelectorAll('.drink-card .drink-emoji img')];
+      for (const img of imgs) {
+        // Aspetta che l'immagine sia caricata
+        if (!img.complete || img.naturalWidth === 0) {
+          await new Promise(function(res) { img.onload = res; img.onerror = res; });
+        }
+        const cacheKey = 'bgrem_' + img.src;
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) { img.src = cached; continue; }
+        try {
+          img.style.opacity = '0.5';
+          const blob = await removeBackground(img.src, config);
+          const url = URL.createObjectURL(blob);
+          sessionStorage.setItem(cacheKey, url);
+          img.src = url;
+          img.style.opacity = '1';
+        } catch(e) { img.style.opacity = '1'; }
+      }
+    } catch(e) { /* libreria non disponibile, le foto rimangono */ }
+  })();
+
+  // eventi pulsante "tieni premuto per spillare"
+  (function () {
+    const btn = document.getElementById('spina-pour-btn');
+    if (!btn) return;
+    const start = (e) => { e.preventDefault(); spinaStartPour(); };
+    const stop  = (e) => { e.preventDefault(); spinaStopPour(); };
+    btn.addEventListener('pointerdown', start);
+    btn.addEventListener('pointerup', stop);
+    btn.addEventListener('pointerleave', stop);
+    btn.addEventListener('pointercancel', stop);
+  })();
+
+  /* ===== SVG: hit-area + tap delegation per tavoli su iOS ===== */
+  (function () {
+    var ns = 'http://www.w3.org/2000/svg';
+    var hitBoxes = {
+      T1:{x:163,y:50,w:46,h:42}, T2:{x:249,y:50,w:46,h:42},
+      T3:{x:155,y:112,w:62,h:30}, T4:{x:241,y:112,w:62,h:30}, T5:{x:325,y:112,w:62,h:30},
+      T6:{x:240,y:158,w:64,h:70},
+      T7:{x:152,y:173,w:48,h:32}, T8:{x:344,y:173,w:48,h:32},
+      T9:{x:163,y:240,w:46,h:42}, T10:{x:249,y:240,w:46,h:42}, T11:{x:333,y:240,w:46,h:42}
+    };
+    function addHitAreas(prefix) {
+      Object.keys(hitBoxes).forEach(function(t) {
+        var g = document.getElementById(prefix + t);
+        if (!g || g.querySelector('.svg-hit')) return;
+        var b = hitBoxes[t];
+        var r = document.createElementNS(ns, 'rect');
+        r.setAttribute('class','svg-hit');
+        r.setAttribute('x', b.x); r.setAttribute('y', b.y);
+        r.setAttribute('width', b.w); r.setAttribute('height', b.h);
+        r.setAttribute('fill', 'transparent'); r.setAttribute('stroke', 'none');
+        g.insertBefore(r, g.firstChild);
+      });
+    }
+    addHitAreas('pick-');
+    addHitAreas('map-');
+
+    function findTable(el, prefix) {
+      while (el && el.tagName !== 'svg') {
+        if (el.id && el.id.indexOf(prefix) === 0) return el.id.replace(prefix, '');
+        el = el.parentNode;
+      }
+      return null;
+    }
+    var pickSvg = document.getElementById('book-pick-svg');
+    if (pickSvg) pickSvg.addEventListener('click', function(e) {
+      var t = findTable(e.target, 'pick-');
+      if (t) bookPickTable(t);
+    });
+    var mapSvg = document.getElementById('book-map-svg');
+    if (mapSvg) mapSvg.addEventListener('click', function(e) {
+      var t = findTable(e.target, 'map-');
+      if (t) bookMapSwitch(t);
+    });
+  })();
+</script>
+
+<script>
+</script>
 <script>
   /* ===== SHOT QUEST (stile Picolo) ===== */
   // {0} e {1} = giocatori distinti scelti a caso. Servono almeno 2 giocatori.
@@ -6815,7 +8914,10 @@
     el.classList.add('active');
     /* Il pulsante acceso segue la pagina: offerte e le schede info
        restano sotto Home, che e' da dove ci si arriva. */
-    var nav = (page === 'offerte' || page.indexOf('info-') === 0) ? 'home'
+    /* Come nell'app: carta e offerte stanno sotto Menu, i giochi con
+       pagina propria sotto Giochi, le schede info sotto Home. */
+    var nav = (page === 'carta' || page === 'offerte') ? 'menu'
+            : (page.indexOf('info-') === 0) ? 'home'
             : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
             : page;
     document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -6834,6 +8936,37 @@
           sc.scrollTop = gamesScrollTop;
           if (typeof updateGamesBg === 'function') updateGamesBg();
         });
+      }
+    }
+    /* Entrando nel menu: prezzi e disponibilita' dal database, piu'
+       il saldo della carta. */
+    if (page === 'menu') {
+      if (typeof camonSyncMenu === 'function') camonSyncMenu();
+      if (typeof renderWallet === 'function') renderWallet();
+    }
+    if (page === 'carta' && typeof renderWallet === 'function') renderWallet();
+
+    /* Prenotazione: si riparte dal primo passo, a meno che non ci sia
+       gia' un tavolo prenotato, nel qual caso si mostra il riepilogo. */
+    if (page === 'book') {
+      ['book-step2','book-step3','book-step-pick'].forEach(function (id) {
+        var s = document.getElementById(id);
+        if (s) s.style.display = 'none';
+      });
+      var attiva = document.getElementById('book-active');
+      var passo1 = document.getElementById('book-step1');
+      if (typeof currentBooking !== 'undefined' && currentBooking) {
+        document.getElementById('ba-table').textContent = currentBooking.table;
+        document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
+        document.getElementById('ba-type').textContent = currentBooking.type;
+        document.getElementById('ba-nome').textContent = currentBooking.nome;
+        if (attiva) attiva.style.display = 'flex';
+        if (passo1) passo1.style.display = 'none';
+        if (typeof bookRenderFill === 'function') bookRenderFill(currentBooking.table);
+        if (typeof bookUpdateMinimap === 'function') bookUpdateMinimap(currentBooking.table);
+      } else {
+        if (attiva) attiva.style.display = 'none';
+        if (passo1) passo1.style.display = 'flex';
       }
     }
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
