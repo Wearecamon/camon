@@ -3255,7 +3255,9 @@
     visibility: visible !important;
     pointer-events: auto !important;
   }
-  .page.active { display: block !important; }
+  /* Ogni pagina copre almeno lo schermo: se il contenuto e' corto, il
+     suo fondo arriva comunque in basso invece di tagliarsi a meta'. */
+  .page.active { display: block !important; min-height: 100dvh; }
 
   /* L'area che prima scorreva da sola ora scorre insieme al documento.
      Il respiro sopra e sotto viene solo dai valori veri di env(). */
@@ -3284,10 +3286,15 @@
     height: 100dvh !important;
     overflow: hidden !important;
   }
-  /* Le pagine dei singoli giochi occupano anche loro tutto lo schermo. */
-  .page.game-detail.active {
-    position: relative !important;
-    min-height: 100dvh;
+  /* Le pagine dei singoli giochi si posizionano al proprio interno. */
+  .page.game-detail.active { position: relative !important; }
+
+  /* Il profilo centra i suoi contenuti con flex:1: senza una colonna a
+     tutta altezza restava alto quanto il testo e sotto si vedeva il
+     taglio netto del fondo. */
+  #page-profile.active {
+    display: flex !important;
+    flex-direction: column;
   }
 
   /* Contrassegno di versione: serve solo a capire se il telefono sta
