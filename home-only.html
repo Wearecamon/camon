@@ -3274,6 +3274,22 @@
      tutta larghezza e il testo prende il respiro in fondo. */
   .info-page-content { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 118px) !important; }
 
+  /* La pagina giochi e' fatta apposta per occupare tutto lo schermo:
+     le slide scattano una a una dentro il suo scroller. Nel flusso
+     normale non erediterebbe piu' un'altezza, quindi gliela diamo. */
+  #page-games.active {
+    display: flex !important;
+    flex-direction: column;
+    position: relative !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  /* Le pagine dei singoli giochi occupano anche loro tutto lo schermo. */
+  .page.game-detail.active {
+    position: relative !important;
+    min-height: 100dvh;
+  }
+
   /* Contrassegno di versione: serve solo a capire se il telefono sta
      mostrando il file aggiornato o una copia vecchia in cache. */
   .prova-versione {
@@ -3296,7 +3312,7 @@
 </head>
 <body>
 <div class="prova-riga-rossa"></div>
-<div class="prova-versione">v3 · barra sotto</div>
+<div class="prova-versione">v4 · giochi</div>
   <div class="page active" id="page-home">
     <div class="scroll-area">
 
@@ -3632,6 +3648,769 @@
   </div>
 
 
+  <div class="page" id="page-games">
+    <div class="games-bg" id="games-bg"></div>
+    <div class="games-toggle">
+      <button id="gt-fixed" class="games-toggle-btn active" onclick="gamesSwitch('fixed')">Fissi</button>
+      <button id="gt-rotation" class="games-toggle-btn" onclick="gamesSwitch('rotation')">Rotazione</button>
+    </div>
+    <div class="games-scroll" id="games-scroll" onscroll="updateGamesBg()"></div>
+  </div>
+  <script type="text/html" id="tpl-shotquest">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 27.5.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Livello_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 402 874" style="enable-background:new 0 0 402 874;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFFFFF;}
+	.st1{fill:#E6AF0E;}
+	.st2{fill:none;stroke:#FFFFFF;stroke-width:2.763;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;}
+	.st3{clip-path:url(#SVGID_00000121240870736505794270000011929494633004492191_);}
+	.st4{fill:none;stroke:#E6AF0E;stroke-width:3.8682;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;}
+	.st5{clip-path:url(#SVGID_00000093892048996349491290000015260755688714779789_);}
+	.st6{fill:none;stroke:#E6AF0E;stroke-width:3;stroke-linecap:round;}
+	.st7{fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;}
+	.st8{fill:none;stroke:#E6AF0E;stroke-width:2;stroke-linecap:round;}
+	.st9{fill-rule:evenodd;clip-rule:evenodd;fill:#E6AF0E;}
+</style>
+<g>
+	<g>
+		<path class="st0" d="M97.3,397.7H85.1V394c0-1.8-0.2-2.9-0.5-3.3s-0.8-0.7-1.6-0.7c-0.8,0-1.4,0.3-1.8,1c-0.4,0.6-0.6,1.6-0.6,2.9
+			c0,1.7,0.2,3,0.7,3.8c0.4,0.9,1.7,1.9,3.7,3.1c5.9,3.5,9.5,6.3,11.1,8.6s2.3,5.8,2.3,10.8c0,3.6-0.4,6.3-1.3,8
+			c-0.8,1.7-2.5,3.1-4.9,4.3c-2.4,1.1-5.2,1.7-8.4,1.7c-3.5,0-6.5-0.7-9-2c-2.5-1.3-4.1-3-4.9-5.1c-0.8-2.1-1.2-5-1.2-8.8v-3.3H81
+			v6.2c0,1.9,0.2,3.1,0.5,3.7c0.4,0.5,1,0.8,1.8,0.8s1.5-0.3,1.9-1c0.4-0.7,0.7-1.7,0.7-3.1c0-3-0.4-4.9-1.2-5.8
+			c-0.8-0.9-2.9-2.4-6.2-4.6c-3.3-2.2-5.4-3.7-6.5-4.7c-1.1-1-1.9-2.3-2.7-4.1c-0.7-1.7-1-3.9-1-6.6c0-3.9,0.5-6.7,1.5-8.5
+			c1-1.8,2.6-3.2,4.8-4.2c2.2-1,4.9-1.5,8-1.5c3.4,0,6.3,0.6,8.7,1.7c2.4,1.1,4,2.5,4.8,4.2c0.8,1.7,1.2,4.5,1.2,8.5V397.7z
+			 M132.8,382.4V433h-13.2v-21.2h-3.9V433h-13.2v-50.6h13.2v18.1h3.9v-18.1H132.8z M168.2,412c0,5.1-0.1,8.7-0.4,10.8
+			c-0.2,2.1-1,4-2.2,5.8c-1.2,1.8-2.9,3.1-5.1,4c-2.1,0.9-4.6,1.4-7.5,1.4c-2.7,0-5.1-0.4-7.3-1.3c-2.1-0.9-3.9-2.2-5.2-4
+			c-1.3-1.8-2.1-3.7-2.3-5.8c-0.2-2.1-0.4-5.7-0.4-10.9v-8.7c0-5.1,0.1-8.7,0.3-10.8c0.2-2.1,1-4.1,2.2-5.8c1.3-1.8,3-3.1,5.1-4
+			c2.1-0.9,4.6-1.4,7.5-1.4c2.7,0,5.1,0.4,7.3,1.3c2.2,0.9,3.9,2.2,5.2,4c1.3,1.8,2.1,3.7,2.3,5.8c0.2,2.1,0.4,5.7,0.4,10.9V412z
+			 M155,395.4c0-2.4-0.1-3.9-0.4-4.5c-0.2-0.7-0.8-1-1.6-1c-0.7,0-1.2,0.3-1.6,0.8c-0.4,0.5-0.5,2.1-0.5,4.7V419
+			c0,2.9,0.1,4.8,0.3,5.4c0.2,0.7,0.8,1,1.7,1c0.9,0,1.5-0.4,1.7-1.2c0.2-0.8,0.4-2.7,0.4-5.7V395.4z M199.6,382.4v10.1h-7.8V433
+			h-13.2v-40.5h-7.8v-10.1H199.6z"/>
+		<path class="st1" d="M73.5,493v6.1h-9.9c-2.4,0-4.1-0.2-5.1-0.6c-1-0.4-1.6-0.9-2-1.6c-0.3-0.7-0.5-2-0.5-3.9
+			c-3-0.1-5.5-0.9-7.7-2.3c-2.1-1.5-3.6-3.4-4.2-5.6c-0.7-2.3-1-5.7-1-10.2v-15.7c0-3.4,0.2-6.1,0.6-7.8c0.4-1.8,1.3-3.5,2.5-5.1
+			c1.3-1.6,2.9-2.8,4.9-3.6c2-0.8,4.2-1.2,6.7-1.2c2.9,0,5.6,0.5,7.8,1.5c2.3,1,4,2.3,5.2,3.8c1.1,1.5,1.9,3.1,2.2,4.8
+			c0.4,1.6,0.5,4.1,0.5,7.4v16.4c0,4.5-0.2,7.6-0.7,9.2c-0.4,1.6-1.3,2.9-2.5,3.8c-1.2,0.9-2.9,1.7-4.9,2.2c0.1,1.1,0.3,1.8,0.7,2.1
+			c0.4,0.3,1.4,0.4,2.9,0.4H73.5z M60.3,455.4c0-2.4-0.1-3.9-0.4-4.5c-0.2-0.7-0.8-1-1.6-1c-0.7,0-1.2,0.3-1.6,0.8
+			c-0.4,0.5-0.5,2.1-0.5,4.7V479c0,2.9,0.1,4.8,0.3,5.4c0.2,0.7,0.8,1,1.7,1c0.9,0,1.5-0.4,1.7-1.2c0.2-0.8,0.4-2.7,0.4-5.7V455.4z
+			 M108.3,442.4v33.8c0,3.8-0.1,6.5-0.4,8.1c-0.2,1.5-1,3.1-2.2,4.8c-1.2,1.6-2.9,2.9-4.9,3.7c-2,0.8-4.4,1.2-7.1,1.2
+			c-3,0-5.7-0.5-8-1.5c-2.3-1-4-2.3-5.2-3.9c-1.1-1.6-1.8-3.3-2-5.1c-0.2-1.8-0.3-5.5-0.3-11.2v-29.9h13.2v37.9
+			c0,2.2,0.1,3.6,0.3,4.2c0.2,0.6,0.7,0.9,1.5,0.9c0.8,0,1.4-0.3,1.6-1c0.2-0.7,0.4-2.3,0.4-4.8v-37.3H108.3z M113.4,442.4h21.9
+			v10.1h-8.8v9.6h8.2v9.6h-8.2v11.1h9.7V493h-22.8V442.4z M167.9,457.7h-12.2V454c0-1.8-0.2-2.9-0.5-3.3c-0.3-0.5-0.8-0.7-1.6-0.7
+			c-0.8,0-1.4,0.3-1.8,1c-0.4,0.6-0.6,1.6-0.6,2.9c0,1.7,0.2,3,0.7,3.8c0.4,0.9,1.7,1.9,3.7,3.1c5.9,3.5,9.5,6.3,11.1,8.6
+			c1.5,2.2,2.3,5.8,2.3,10.8c0,3.6-0.4,6.3-1.3,8c-0.8,1.7-2.5,3.1-4.9,4.3c-2.4,1.1-5.2,1.7-8.4,1.7c-3.5,0-6.5-0.7-9-2
+			c-2.5-1.3-4.1-3-4.9-5.1c-0.8-2.1-1.2-5-1.2-8.8v-3.3h12.2v6.2c0,1.9,0.2,3.1,0.5,3.7c0.4,0.5,1,0.8,1.8,0.8s1.5-0.3,1.9-1
+			c0.4-0.7,0.7-1.7,0.7-3.1c0-3-0.4-4.9-1.2-5.8c-0.8-0.9-2.9-2.4-6.2-4.6c-3.3-2.2-5.4-3.7-6.5-4.7c-1.1-1-1.9-2.3-2.7-4.1
+			c-0.7-1.7-1-3.9-1-6.6c0-3.9,0.5-6.7,1.5-8.5c1-1.8,2.6-3.2,4.8-4.2c2.2-1,4.9-1.5,8-1.5c3.4,0,6.3,0.6,8.7,1.7
+			c2.4,1.1,4,2.5,4.8,4.2c0.8,1.7,1.2,4.5,1.2,8.5V457.7z M199.6,442.4v10.1h-7.8V493h-13.2v-40.5h-7.8v-10.1H199.6z"/>
+		<path class="st2 gsq-arrow" d="M268.5,410.8c-36.4-5.4-61.8-32.5-61.6-58.7c0-2.6,0.1-5.4,0.3-8.2 M207.3,343.8c0.5-4.5,1.5-8.9,4.3-12.3
+			c2.5-3.2,7.1-6.2,11.3-5.5c7.8,1.2,9.7,11.5,4.2,16.8C222.2,347.4,212.4,348,207.3,343.8z M207.3,343.8c-0.1-0.1-0.2-0.2-0.3-0.3
+			c-25-22.3-9-58.3,15.5-70.5"/>
+		<path class="st2 gsq-arrow" d="M246.2,413.8c6.7-0.5,15.8-1.4,22.3-3c0.7-0.2-2.2-5.1-2.4-5.4c-3.4-4.8-7.4-8.9-11.5-13.1"/>
+		<g>
+			<defs>
+				
+					<rect id="SVGID_1_" x="252.6" y="417.6" transform="matrix(0.5688 -0.8225 0.8225 0.5688 -256.1747 457.115)" width="110.5" height="110.5"/>
+			</defs>
+			<clipPath id="SVGID_00000026122007205191244390000001973974024794287762_">
+				<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+			</clipPath>
+			<g style="clip-path:url(#SVGID_00000026122007205191244390000001973974024794287762_);">
+				<path class="st4 gsq-face" d="M348.3,460.2c-5.2-16.7-22.2-27-37.7-27.8c-26.7-1.5-48.9,25.4-44.4,47.6c5,24.4,27.5,35,43.8,32.8
+					c21.2-2.8,40.2-18.3,38.9-40.5"/>
+				<path class="st4 gsq-face" d="M290.8,457.8c4.3,1,8.7,1.5,12.9,2.8c-1.2-5-2.7-9.9-4.1-14.9"/>
+				<path class="st4 gsq-face" d="M327.1,481.5c-2.4-3.7-4.5-7.6-7.1-11.1c5.1-0.6,10.3-0.9,15.4-1.4"/>
+				<path class="st4 gsq-face" d="M316.3,486.1c-2.1,4.8-5.7,9.9-10.7,12.1c-7.6,3.4-17.5-2.6-19.3-10.4c-1.6-7.2,2.7-12.3,5.9-18.2
+					c8.1,5.2,16.6,9.8,24.6,15.1"/>
+			</g>
+		</g>
+		<g>
+			<defs>
+				
+					<rect id="SVGID_00000154411401133291406040000013810800016775824527_" x="182" y="135.6" transform="matrix(0.9607 -0.2778 0.2778 0.9607 -46.5211 76.7232)" width="131" height="134"/>
+			</defs>
+			<clipPath id="SVGID_00000036243637407641169270000003327501279576168365_">
+				<use xlink:href="#SVGID_00000154411401133291406040000013810800016775824527_"  style="overflow:visible;"/>
+			</clipPath>
+			<g style="clip-path:url(#SVGID_00000036243637407641169270000003327501279576168365_);">
+				<path class="st6 gsq-lamp" d="M254.6,245.3c1.5-1,7.3-4.9,9-5.4c1.6-0.5,2.8,2,0.9,2.5c-1.9,0.4-11.9,1-12.1,0c-0.2-1,9.1-5.7,10.9-6.1
+					c1.8-0.4,1.9,3.4,0,4c-1.9,0.6-11.5,0.3-11.4-0.6c0.2-0.9,12.2-4.6,12.3-4.7c0.2-0.2-9,4.1-11.4,3.6c-2.4-0.5-0.6-4.4-3-6.7
+					c-2.5-2.3-8.4-3.6-11.8-6.8c-3.4-3.2-7.2-8.1-8.9-12.6c-1.7-4.5-2-10.5-1.4-14.6c0.5-4.1,2.2-7.4,4.7-10.1
+					c2.5-2.8,6.8-5.4,10.6-6.5c3.8-1.1,8.2-1.5,12-0.2c3.8,1.3,7.8,4.3,10.7,7.9c2.9,3.6,5.6,9.1,6.5,13.6c0.9,4.5,0.2,9-1.3,13.5
+					c-1.5,4.5-6.6,10.2-7.6,13.3c-1,3.1,1.1,4.6,1.4,5.6 M254.2,245.6c1.6-1,7.8-5.9,9.6-6.4c1.8-0.5,3,3,1.1,3.6
+					c-1.9,0.6-12,1.2-12.2,0c-0.2-1.1,9.3-6.5,11-6.8c1.7-0.4,1.4,3.9-0.6,4.6c-2,0.6-11.4,0.2-11.2-0.8c0.2-1,12.6-4.7,12.7-5
+					c0-0.3-9.9,3.6-12.4,3.1c-2.5-0.5-0.1-3.7-2.5-6c-2.4-2.2-8.1-4.2-11.7-7.5c-3.5-3.2-7.7-7.5-9.4-11.9c-1.7-4.4-1.7-10.5-1-14.7
+					c0.7-4.2,2.6-7.7,5.2-10.5c2.6-2.8,6.6-5.3,10.2-6.3c3.7-1,8-0.8,11.8,0.4c3.8,1.2,8.4,3.5,11.2,6.9c2.8,3.5,4.8,9.2,5.5,13.8
+					c0.7,4.5-0.1,9.1-1.4,13.5c-1.3,4.4-5.3,9.4-6.3,12.7c-1,3.2,0.1,5.7,0.3,6.8L254.2,245.6z"/>
+				<path class="st7 gsq-lamp" d="M259.3,236.5c-0.6-2-2.2-7.8-4.3-11.2c-2.1-3.4-6.6-6.7-8.2-9.1c-1.6-2.5-2.1-4.6-1.5-5.7
+					c0.6-1,3.8-1.5,5.3-0.5c1.5,0.9,3.5,5,3.9,6.1c0.3,1.1-1.1,1.2-1.9,0.5c-0.8-0.7-2.5-2.5-2.9-4.7c-0.4-2.2-0.2-7.4,0.7-8.7
+					c0.9-1.4,3.7-1,4.8,0.6c1.1,1.6,1.5,4,1.7,9c0.2,5-0.7,17.2-0.5,21.2c0.2,4,1.6,2.4,1.9,2.9 M258.7,237
+					c-0.5-1.9-1.2-7.9-3.3-11.2c-2.1-3.4-7.5-6.3-9.2-8.9c-1.7-2.6-1.8-5.5-1.1-6.6c0.6-1.1,3.4-1.2,4.9-0.2c1.5,1,3.7,5.2,4.1,6.3
+					c0.4,1.2-1,1.4-1.7,0.7c-0.7-0.7-2.1-2.9-2.3-5.2c-0.2-2.3,0.1-7.1,1-8.5c0.9-1.3,3.2-1.1,4.1,0.4c1,1.5,1.3,3.7,1.6,8.7
+					c0.3,5-0.3,17.4,0,21.5c0.3,4.1,1.4,2.6,1.7,3.1L258.7,237z"/>
+				<path class="st7 gsq-lamp" d="M273.4,192.1c1.6-1.3,8.5-6.5,10.1-7.7 M273.9,192.3c1.5-1.2,7.5-5.8,9-7.1L273.9,192.3z"/>
+				<path class="st0 gsq-lamp" d="M253.1,177.3l-1,0l2,0L253.1,177.3z M253.4,155.5l1,0l-2,0L253.4,155.5z M252.6,177.1c0,0.6,0.5,1,1,1
+					c0.6,0,1-0.4,1-1L252.6,177.1z M254.3,155.9c0-0.6-0.5-1-1-1c-0.6,0-1,0.5-1,1L254.3,155.9z M253.1,177.3l1,0
+					c0-1.8,0.1-6.3,0.2-10.9c0.1-4.5,0.2-9.1,0.2-10.9l-1,0l-1,0c0,1.8-0.1,6.3-0.2,10.9c-0.1,4.5-0.2,9.1-0.2,10.9L253.1,177.3z
+					 M253.4,155.5l-1,0l-0.3,21.8l1,0l1,0l0.3-21.8L253.4,155.5z M253.6,177.1l1,0c0-3.6-0.2-17.6-0.3-21.1l-1,0l-1,0
+					c0.1,3.5,0.3,17.5,0.3,21.1L253.6,177.1z"/>
+				<path class="st7 gsq-lamp" d="M226,187.4c-1.4-0.5-7-2.5-8.3-3.2 M226.4,187.7c-1.4-0.8-7.2-3.4-8.6-4L226.4,187.7z"/>
+				<path class="st0 gsq-lamp" d="M223.6,210.9l0.2,1l-0.3-2L223.6,210.9z M209.7,212.8l-0.1-1l0.3,2L209.7,212.8z M224.3,211.4
+					c0.5-0.1,0.9-0.6,0.9-1.1c-0.1-0.5-0.6-0.9-1.1-0.9L224.3,211.4z M209.1,211.4c-0.5,0.1-0.9,0.6-0.8,1.2s0.6,0.9,1.2,0.8
+					L209.1,211.4z M223.6,210.9l-0.2-1c-2.4,0.3-11.6,1.7-13.9,2l0.1,1l0.1,1c2.3-0.3,11.6-1.6,14-2L223.6,210.9z M209.7,212.8
+					l0.1,1l13.9-2l-0.1-1l-0.1-1l-13.9,2L209.7,212.8z M224.2,210.4l-0.1-1c-2.4,0.3-12.5,1.5-15,1.9l0.2,1l0.2,1
+					c2.4-0.4,12.4-1.6,14.8-1.9L224.2,210.4z"/>
+				<path class="st1 gsq-questl" d="M194.2,186c0,0,0-0.1-0.1-0.3c-0.1-0.2-0.1-0.4-0.2-0.7c0-0.3,0-0.6,0.2-1c0.1-0.3,0.3-0.7,0.6-0.9
+					c0.2-0.3,0.5-0.5,0.8-0.8c0.3-0.2,0.5-0.5,0.8-0.7c0.3-0.2,0.6-0.4,0.8-0.5c0.3-0.1,0.5-0.3,0.8-0.4s0.6-0.2,0.9-0.2
+					c0.3,0,0.7,0,1,0c0.3,0.1,0.7,0.2,1,0.4c0.4,0.2,0.7,0.5,1,0.8c0.3,0.3,0.6,0.7,0.9,1.2c0.3,0.5,0.6,1,0.8,1.5
+					c0.2,0.6,0.5,1.1,0.7,1.7c0.2,0.6,0.4,1.2,0.5,1.9c0.1,0.6,0.3,1.3,0.4,2c0.1,0.7,0.3,1.4,0.4,2c0.1,0.6,0.2,1.1,0.3,1.5
+					c0.1,0.4,0.1,0.7,0.2,1c0.1,0.2,0.1,0.5,0.2,0.9c0.1,0.4,0.1,0.6,0.2,0.6c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1,0,0.2
+					c0,0.1,0,0.1-0.1,0.2c0,0.1-0.1,0.1-0.1,0.1c0,0-0.1,0.1-0.2,0.1c-0.1,0-0.1,0-0.2,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.1,0-0.2-0.1
+					c0,0-0.1-0.1-0.1-0.1c0,0-0.1-0.1-0.1-0.2c0-0.1,0-0.1,0-0.2c0-0.1,0-0.1,0-0.2c0-0.1,0-0.1,0.1-0.2c0,0,0.1-0.1,0.1-0.1
+					c0,0,0.1-0.1,0.2-0.1c0.1,0,0.1,0,0.2,0c0.1,0,0.1,0,0.2,0c0.1,0,0.1,0.1,0.2,0.1c0,0,0.1,0.1,0.1,0.1c0,0.1,0.1,0.1,0.1,0.2
+					c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1,0,0.2c0,0.1-0.1,0.1-0.1,0.1c0,0-0.1,0.1-0.1,0.1c-0.1,0-0.1,0-0.2,0.1c-0.1,0-0.1,0-0.2,0
+					s-0.1,0-0.2-0.1c-0.1,0-0.1-0.1-0.1-0.1c0,0-0.1-0.1-0.1-0.1s-0.1-0.3-0.2-0.8c-0.1-0.5-0.2-0.9-0.2-1.1c0-0.2-0.1-0.6-0.1-1
+					c-0.1-0.4-0.2-0.9-0.3-1.5c-0.1-0.6-0.2-1.2-0.4-1.9s-0.3-1.3-0.5-1.9c-0.2-0.6-0.3-1.2-0.5-1.7c-0.2-0.6-0.4-1.1-0.7-1.5
+					c-0.2-0.5-0.5-0.9-0.8-1.3c-0.3-0.4-0.6-0.7-0.8-0.9c-0.3-0.2-0.5-0.4-0.7-0.6c-0.2-0.1-0.5-0.2-0.9-0.3c-0.4,0-0.8,0-1.2,0.2
+					c-0.4,0.1-0.7,0.3-1,0.5c-0.2,0.2-0.5,0.4-0.7,0.6c-0.2,0.2-0.5,0.5-0.7,0.8c-0.3,0.3-0.4,0.6-0.3,0.8c0.1,0.2,0.1,0.3,0.1,0.4
+					c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1-0.1,0.2c0,0.1-0.1,0.1-0.1,0.2c0,0-0.1,0.1-0.1,0.1c0,0-0.1,0.1-0.2,0.1
+					c-0.1,0-0.1,0-0.2,0.1c-0.1,0-0.1,0-0.2,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.1,0-0.2-0.1c-0.1,0-0.1-0.1-0.1-0.1
+					C194.3,186.2,194.2,186.2,194.2,186C194.2,186.1,194.2,186,194.2,186z"/>
+				<path class="st1 gsq-questl" d="M207.5,198.5l-0.9,0.4l0.6,1.3l1-1L207.5,198.5z M208.3,198.1l-0.3-1l0,0L208.3,198.1z M209.5,198.7l1-0.1
+					l0,0L209.5,198.7z M209.7,199.3l1,0.2l0,0L209.7,199.3z M207,200.1l-0.8,0.7l0,0L207,200.1z M206.8,199.2l-1-0.2l0,0
+					L206.8,199.2z M207.4,198.1l0.9-0.4l-0.2-0.4l-0.4-0.1L207.4,198.1z M207.6,197.2c-0.5,0.2-0.7,0.8-0.5,1.3
+					c0.2,0.5,0.8,0.8,1.3,0.5L207.6,197.2z M208.6,197.7l0.3-1h0L208.6,197.7z M209.8,198.6l0.9-0.5l0,0L209.8,198.6z M209.5,199.4
+					l1,0.2l0,0L209.5,199.4z M209.6,200.1l-0.7-0.7l0,0L209.6,200.1z M208.4,200.5l0.1-1l0,0L208.4,200.5z M207.5,200l-0.4,0.9l0,0
+					L207.5,200z M207.4,198.4l-0.9-0.5l0,0L207.4,198.4z M208.1,197.7l-0.3-1l0,0l0,0L208.1,197.7z M207.5,197.4
+					c-0.4,0.4-0.3,1.1,0.1,1.4c0.4,0.4,1,0.3,1.4-0.1L207.5,197.4z M207.5,198.5l0.7,0.7c0.1-0.1,0.1-0.1,0.1-0.1c0,0,0.1,0,0.2-0.1
+					l-0.3-1l-0.3-1c-0.5,0.1-0.9,0.4-1.2,0.7L207.5,198.5z M208.3,198.1l0.3,1c0.1,0,0.3-0.1,0.5-0.1c0.1,0,0.2,0,0.2,0c0,0,0,0,0,0
+					c0,0-0.1,0-0.2-0.1l0.5-0.9l0.5-0.9c-0.3-0.1-0.6-0.1-0.7-0.2c-0.2,0-0.3,0-0.5,0c-0.3,0-0.6,0.1-0.8,0.2L208.3,198.1z
+					 M209.5,198l-0.5,0.9c-0.1-0.1-0.3-0.2-0.3-0.3c-0.1-0.1-0.1-0.2-0.1-0.3c0-0.1,0-0.1,0-0.1c0,0,0,0,0,0c0,0,0,0,0,0.1
+					c0,0,0,0.1,0,0.1c0,0.1,0,0.1,0,0.2c0,0.1,0,0.2,0,0.3l1-0.1l1-0.1c0,0.1,0,0.2,0,0.1c0,0,0,0,0-0.1c0,0,0-0.1,0-0.1
+					c0-0.1,0.1-0.3,0-0.5c0-0.3-0.2-0.7-0.6-0.9L209.5,198z M209.5,198.7l-1,0.1c0,0.2,0.1,0.3,0.1,0.5c0,0,0,0.1,0.1,0.1
+					c0,0,0,0,0,0.1c0,0,0,0,0-0.1c0-0.1,0-0.2,0-0.2l1,0.2l1,0.2c0-0.2,0-0.4,0-0.6c0-0.2-0.1-0.3-0.1-0.4c0,0,0-0.1,0-0.1
+					c0,0,0,0,0,0c0,0,0,0.1,0,0.1L209.5,198.7z M209.7,199.3l-1-0.2c0,0.1,0,0.2-0.1,0.3c0,0.1-0.1,0.1-0.1,0.1c0,0,0,0,0,0l0.6,0.8
+					l0.6,0.8c0.3-0.2,0.5-0.6,0.6-0.8c0.1-0.3,0.2-0.5,0.3-0.7L209.7,199.3z M209.1,200.3l-0.6-0.8c0,0-0.1,0.1-0.2,0.1
+					c0,0-0.1,0-0.1,0c0,0,0,0,0,0c0,0,0,0,0,0c0,0,0,0,0,0l-0.1,1l-0.1,1c0.6,0.1,1.3-0.2,1.8-0.6L209.1,200.3z M208.1,200.6l0.1-1
+					c0,0,0,0-0.1,0c0,0-0.1,0-0.2-0.1c-0.1,0-0.1-0.1-0.2-0.1c0,0-0.1,0,0,0l-0.8,0.7l-0.8,0.7c0.2,0.2,0.5,0.4,0.8,0.6
+					c0.3,0.1,0.6,0.3,1,0.3L208.1,200.6z M207,200.1l0.8-0.7c0,0,0,0,0,0.1c0,0,0,0,0,0c0,0,0,0,0,0c0,0,0,0,0-0.1l-1-0.2l-1-0.2
+					c-0.1,0.5-0.1,1.2,0.4,1.7L207,200.1z M206.8,199.2l1,0.2c0,0,0,0,0,0c0-0.1,0.1-0.1,0.1-0.2c0.1-0.1,0.1-0.2,0.2-0.3
+					c0-0.1,0.1-0.2,0.2-0.3l-0.9-0.4l-0.9-0.4c0,0,0,0-0.1,0.1c0,0.1-0.1,0.2-0.2,0.3c-0.1,0.1-0.2,0.2-0.2,0.4
+					c-0.1,0.1-0.2,0.3-0.2,0.5L206.8,199.2z M207.4,198.2l0.9,0.4c0-0.1,0.1-0.2,0.1-0.3c0-0.1,0-0.4-0.1-0.6
+					c-0.1-0.3-0.4-0.5-0.6-0.5c-0.2-0.1-0.4,0-0.5,0c-0.1,0-0.2,0.1-0.3,0.1c-0.1,0-0.2,0.1-0.3,0.2c-0.1,0.1-0.3,0.4-0.3,0.8
+					c0.1,0.6,0.5,0.8,0.7,0.8L207.4,198.2l0.2-1c0.1,0,0.6,0.2,0.7,0.8c0,0.2,0,0.4-0.1,0.6s-0.1,0.2-0.2,0.3
+					c-0.1,0.1-0.2,0.2-0.2,0.2c-0.1,0-0.1,0.1-0.2,0.1c-0.1,0-0.2,0-0.4,0c-0.2-0.1-0.5-0.2-0.6-0.5c-0.1-0.2-0.1-0.5-0.1-0.6
+					c0-0.1,0.1-0.2,0.1-0.2L207.4,198.2z M207.4,198.1l-0.9,0.4l0.2,0.4l0.9-0.4l0.9-0.4l-0.2-0.4L207.4,198.1z M208,198.1l0.4,0.9
+					c0.3-0.1,0.5-0.3,0.5-0.4c0-0.1,0.1-0.1,0.1-0.1c0,0,0,0,0,0c0,0,0,0,0,0c0,0,0,0,0,0c0,0,0,0,0,0c0,0-0.1,0.1-0.2,0.1
+					c-0.1,0-0.2,0.1-0.3,0.1c-0.1,0-0.2,0-0.2,0l0.3-1l0.3-1c-0.3-0.1-0.6-0.1-0.9,0.1c-0.3,0.1-0.4,0.3-0.5,0.4
+					c0,0-0.1,0.1-0.1,0.1c0,0,0,0,0,0c0,0,0.1-0.1,0.3-0.2L208,198.1z M208.6,197.7l-0.3,1c0,0,0,0,0.1,0.1c0.1,0,0.2,0.1,0.3,0.2
+					c0.1,0.1,0.2,0.1,0.3,0.2c0,0,0.1,0,0.1,0.1c0,0,0,0,0-0.1l0.8-0.5l0.8-0.5c-0.1-0.2-0.3-0.4-0.4-0.5c-0.1-0.1-0.3-0.2-0.4-0.3
+					c-0.2-0.1-0.3-0.2-0.5-0.3c-0.1-0.1-0.3-0.2-0.5-0.2L208.6,197.7z M209.8,198.6l-0.9,0.5c0-0.1-0.1-0.2-0.1-0.3
+					c0-0.1,0-0.2,0-0.3c0-0.1,0-0.1,0-0.1c0,0,0,0,0,0c0,0,0,0,0,0.1c0,0-0.1,0.1-0.1,0.1c0,0.1-0.1,0.1-0.1,0.2
+					c0,0.1-0.1,0.2-0.1,0.4l1,0.2l1,0.2c0,0.2-0.1,0.2-0.1,0.2c0,0,0,0,0,0c0,0,0.1-0.1,0.1-0.1c0.1-0.1,0.2-0.3,0.2-0.5
+					c0.1-0.3,0-0.6-0.1-0.9L209.8,198.6z M209.5,199.4l-1-0.2c0,0.3,0,0.5,0,0.6c0,0.1,0,0.1,0,0.2c0,0,0,0.1,0,0.1c0,0,0,0,0,0
+					c0,0,0-0.1,0-0.1c0-0.1,0-0.1,0.1-0.2c0-0.1,0.1-0.2,0.2-0.3l0.7,0.7l0.7,0.7c0.2-0.3,0.3-0.6,0.4-0.8c0-0.2,0-0.4-0.1-0.5
+					c0-0.2,0-0.1,0-0.2c0,0,0,0.1,0,0.2L209.5,199.4z M209.6,200.1l-0.7-0.7c0,0,0.1-0.1,0.1-0.1c0,0,0,0,0,0c0,0-0.1,0-0.2,0.1
+					c-0.1,0-0.1,0-0.2,0.1c-0.1,0-0.1,0,0,0l-0.1,1l-0.1,1c0.4,0,0.8-0.1,1.1-0.2c0.2-0.1,0.3-0.1,0.5-0.2c0.1-0.1,0.3-0.2,0.5-0.3
+					L209.6,200.1z M208.4,200.5l0.1-1c0.1,0,0.2,0,0.1,0s0,0-0.1-0.1c0,0-0.1-0.1-0.1-0.1c0,0-0.1-0.1-0.1-0.1
+					c-0.1-0.1-0.2-0.2-0.4-0.3l-0.4,0.9l-0.4,0.9c-0.1,0-0.1-0.1-0.1,0c0,0,0.1,0,0.1,0.1c0,0,0.1,0.1,0.1,0.1
+					c0.1,0.1,0.2,0.2,0.4,0.3c0.2,0.1,0.4,0.2,0.7,0.2L208.4,200.5z M207.5,200l0.4-0.9c-0.3-0.1-0.6-0.1-0.8,0
+					c-0.2,0.1-0.3,0.1-0.3,0.1c0,0,0,0,0,0c0,0,0.2-0.1,0.4,0c0.1,0,0.3,0.1,0.4,0.2c0.1,0.1,0.2,0.2,0.3,0.3
+					c0.1,0.2,0.1,0.3,0.1,0.4l-1,0l-1,0c0,0.1,0,0.3,0.1,0.5c0.1,0.1,0.2,0.3,0.3,0.4c0.2,0.1,0.3,0.2,0.5,0.2c0.3,0,0.5,0,0.5-0.1
+					c0.1,0,0.1-0.1,0.2-0.1c0.1,0,0,0,0,0c-0.1,0-0.3,0.1-0.5,0L207.5,200z M207,200l1,0c0,0.1,0,0.1,0-0.1c0-0.1,0.1-0.2,0.1-0.4
+					c0.1-0.3,0.2-0.6,0.2-0.7l-0.9-0.5l-0.9-0.5c-0.1,0.3-0.3,0.7-0.4,1c-0.1,0.2-0.1,0.4-0.1,0.5c0,0.1-0.1,0.3-0.1,0.5L207,200z
+					 M207.4,198.4l0.9,0.5c0,0,0,0,0-0.1c0,0,0,0,0.1-0.1c0,0,0.1,0,0.1-0.1c0,0,0,0,0,0c0,0,0,0,0,0l-0.3-1l-0.3-0.9
+					c-0.2,0.1-0.4,0.2-0.6,0.4c-0.2,0.2-0.5,0.4-0.6,0.8L207.4,198.4z M208.1,197.7l0.3,1c-0.2,0.1-0.5,0.1-0.7-0.1
+					c-0.2-0.1-0.3-0.3-0.4-0.3c-0.1-0.1-0.1-0.2-0.1-0.2c0,0,0-0.1,0-0.1c0,0,0,0,0-0.1c0,0,0,0,0-0.1c0,0,0-0.1,0-0.1
+					c0,0,0.1-0.2,0.2-0.3l0.7,0.7l0.7,0.7c0.1-0.1,0.2-0.3,0.2-0.3c0-0.1,0-0.1,0-0.2c0-0.1,0-0.1,0-0.2c0-0.1,0-0.2,0-0.3
+					c0-0.1,0-0.3-0.2-0.5c-0.1-0.1-0.2-0.3-0.4-0.4c-0.3-0.1-0.6-0.1-0.8-0.1L208.1,197.7z"/>
+				<path class="st1 gsq-quest" d="M259.3,142.7c0,0,0.1-0.3,0.2-0.8s0.4-1.1,0.8-1.7c0.5-0.6,1-1.1,1.6-1.5c0.6-0.4,1.2-0.7,1.9-1
+					c0.6-0.3,1.3-0.5,1.9-0.6c0.7-0.2,1.3-0.3,1.8-0.4s1.1-0.1,1.6-0.1c0.5,0,1.1,0.1,1.7,0.3s1.2,0.4,1.8,0.8
+					c0.5,0.3,1.1,0.8,1.6,1.4c0.5,0.6,0.9,1.4,1.3,2.2c0.3,0.8,0.6,1.7,0.8,2.7c0.2,1,0.3,2.1,0.4,3.2c0,1.1,0,2.3-0.1,3.5
+					c-0.1,1.2-0.2,2.3-0.4,3.5c-0.2,1.2-0.4,2.4-0.6,3.7c-0.2,1.3-0.5,2.5-0.7,3.6c-0.2,1.1-0.4,2-0.5,2.7c-0.1,0.7-0.2,1.3-0.2,1.8
+					c0,0.5-0.1,1-0.2,1.7c-0.1,0.6-0.1,1-0.1,1.2c0,0.1,0,0.3,0,0.4c0,0.1-0.1,0.3-0.2,0.4c-0.1,0.1-0.2,0.2-0.3,0.3
+					c-0.1,0.1-0.2,0.1-0.4,0.2c-0.1,0-0.3,0.1-0.4,0.1c-0.1,0-0.3,0-0.4-0.1c-0.1,0-0.2-0.1-0.4-0.2c-0.1-0.1-0.2-0.2-0.3-0.3
+					c-0.1-0.1-0.1-0.2-0.2-0.4c0-0.1-0.1-0.3,0-0.4c0-0.1,0-0.3,0.1-0.4c0-0.1,0.1-0.2,0.2-0.3c0.1-0.1,0.2-0.2,0.3-0.3
+					c0.1-0.1,0.2-0.1,0.4-0.1c0.1,0,0.3,0,0.4,0c0.1,0,0.3,0.1,0.4,0.1c0.1,0.1,0.2,0.1,0.3,0.2c0.1,0.1,0.2,0.2,0.2,0.3
+					c0.1,0.1,0.1,0.3,0.1,0.4c0,0.1,0,0.3,0,0.4c0,0.1-0.1,0.3-0.1,0.4c-0.1,0.1-0.1,0.2-0.2,0.3c-0.1,0.1-0.2,0.2-0.3,0.2
+					c-0.1,0.1-0.3,0.1-0.4,0.1c-0.1,0-0.3,0-0.4,0c-0.1,0-0.3-0.1-0.4-0.2s-0.2-0.2-0.3-0.3c-0.1-0.1-0.2-0.2-0.2-0.4
+					c0-0.1-0.1-0.2-0.1-0.2s0.1-0.5,0.2-1.5c0.1-1,0.3-1.7,0.4-2.1c0.1-0.4,0.3-1,0.4-1.7c0.2-0.7,0.3-1.6,0.5-2.7
+					c0.2-1.1,0.4-2.3,0.6-3.6c0.2-1.3,0.4-2.5,0.5-3.6c0.1-1.1,0.2-2.2,0.2-3.3c0-1.1,0-2.1-0.2-3.1c-0.1-1-0.3-1.9-0.6-2.6
+					c-0.3-0.8-0.6-1.6-1.2-2.6c-0.5-0.9-1.1-1.6-1.7-1.9c-0.6-0.3-1.3-0.5-2-0.5c-0.7,0-1.4,0.1-1.9,0.2c-0.5,0.2-1.1,0.3-1.5,0.5
+					c-0.5,0.2-1,0.5-1.6,0.8c-0.6,0.3-1,0.8-1.1,1.2c-0.1,0.5-0.2,0.8-0.2,0.9c0,0.1-0.1,0.2-0.2,0.3c-0.1,0.1-0.1,0.2-0.2,0.3
+					c-0.1,0.1-0.2,0.2-0.3,0.2c-0.1,0.1-0.2,0.1-0.3,0.1c-0.1,0-0.2,0.1-0.4,0.1c-0.1,0-0.3,0-0.4,0c-0.1,0-0.2-0.1-0.4-0.1
+					c-0.1-0.1-0.2-0.1-0.3-0.2c-0.1-0.1-0.2-0.2-0.3-0.3c-0.1-0.1-0.1-0.2-0.2-0.3c-0.1-0.1-0.1-0.2-0.1-0.4c0-0.1,0-0.3,0-0.4
+					C259.3,142.8,259.3,142.7,259.3,142.7z"/>
+				<path class="st8 gsq-quest" d="M275.4,173.3c0.4-0.1,1.2-0.2,1.6,0.1c0.4,0.2,0.5,0.8,0.5,1.3c0.1,0.5,0.2,1.2-0.1,1.7
+					c-0.3,0.5-1.1,1.2-1.5,1.3c-0.4,0.2-0.6-0.3-1.1-0.4c-0.5-0.1-1.7,0.3-2,0c-0.3-0.3-0.2-1.4,0-2c0.2-0.6,0.6-1.3,1-1.6
+					c0.4-0.3,1.5-0.4,1.6-0.5s-0.7-0.2-0.8-0.2 M275.4,173c0.5-0.1,0.9,0.2,1.2,0.5c0.3,0.2,0.7,0.5,0.8,1c0.1,0.4,0,1.2-0.2,1.7
+					c-0.2,0.5-0.8,1.1-1.2,1.3c-0.4,0.2-1,0-1.4-0.2c-0.4-0.1-1-0.4-1.3-0.7c-0.3-0.3-0.7-0.7-0.7-1.1c0-0.4,0.4-1.1,0.8-1.5
+					c0.4-0.4,1.2-0.9,1.6-1.1c0.3-0.2,0.4-0.1,0.4,0L275.4,173z"/>
+				<path class="st1 gsq-excl" d="M286.1,203.5l-0.2-1l0.3,2L286.1,203.5z M288.1,203.5l-0.3,0.9l0,0L288.1,203.5z M289.1,205.8l0.9,0.4l0,0
+					L289.1,205.8z M288.1,207.4l-0.6-0.8l0,0L288.1,207.4z M286.7,207.9l-0.2,1l0,0L286.7,207.9z M285,206.6l0.6-0.8l0,0L285,206.6z
+					 M284.1,205.7l-1,0.2l0,0L284.1,205.7z M286.7,203.4l0.1,1l0.4,0l0.3-0.3L286.7,203.4z M287.6,202.3c-0.5-0.1-1.1,0.2-1.2,0.7
+					c-0.1,0.5,0.2,1.1,0.7,1.2L287.6,202.3z M289.3,204.5l0.8-0.6l0,0L289.3,204.5z M288.5,206.9l0.4,0.9l0,0L288.5,206.9z
+					 M286.9,207.2l0.1,1h0L286.9,207.2z M284.8,207.4l0.5-0.9l0,0L284.8,207.4z M284.2,205.8l1,0.1v0L284.2,205.8z M286.1,203.3
+					l-0.5-0.9l0,0L286.1,203.3z M287.6,202.9l0.2-1l0,0L287.6,202.9z M287.5,204.4c0.4,0.4,1,0.3,1.4-0.1c0.4-0.4,0.3-1-0.1-1.4
+					L287.5,204.4z M286.1,203.5l0.2,1c0.2,0,0.5-0.1,0.8-0.1c0.3,0,0.6,0,0.7,0.1l0.3-0.9l0.3-0.9c-0.4-0.1-0.9-0.2-1.3-0.2
+					c-0.4,0-0.8,0-1.1,0.1L286.1,203.5z M288.1,203.5l-0.3,1c0.1,0,0.3,0.1,0.4,0.2c0.1,0.1,0.1,0.1,0.2,0.1c0,0,0,0.1,0,0.1
+					l0.9-0.4l0.9-0.4c-0.2-0.4-0.5-0.7-0.8-0.9c-0.3-0.2-0.7-0.5-1.1-0.6L288.1,203.5z M289.3,204.5l-0.9,0.4c0-0.1,0-0.1,0,0
+					c0,0.1,0,0.1-0.1,0.2c0,0.1-0.1,0.2-0.1,0.3l0.9,0.4l0.9,0.4c0.1-0.2,0.2-0.5,0.3-0.9c0.1-0.3,0.1-0.8-0.1-1.2L289.3,204.5z
+					 M289.1,205.8l-0.9-0.4c-0.1,0.2-0.2,0.5-0.3,0.7c-0.1,0.3-0.3,0.4-0.3,0.5l0.6,0.8l0.6,0.8c0.3-0.3,0.6-0.7,0.8-1
+					c0.2-0.3,0.3-0.7,0.4-1L289.1,205.8z M288.1,207.4l-0.6-0.8c-0.3,0.2-0.5,0.3-0.6,0.2l-0.2,1l-0.2,1c1,0.2,1.8-0.2,2.4-0.6
+					L288.1,207.4z M286.7,207.9l0.2-1c0,0,0,0-0.1-0.1c-0.1-0.1-0.2-0.1-0.3-0.3c-0.1-0.1-0.3-0.2-0.4-0.3c-0.1-0.1-0.3-0.2-0.4-0.3
+					l-0.6,0.8l-0.6,0.8c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.1,0.3,0.3,0.5,0.4c0.3,0.2,0.8,0.6,1.3,0.7L286.7,207.9z M285,206.6l0.6-0.8
+					c-0.1-0.1-0.2-0.2-0.3-0.3c-0.1-0.1-0.2-0.1-0.2-0.2c-0.1-0.1,0-0.1,0,0l-1,0.2l-1,0.2c0.1,0.5,0.4,0.8,0.6,1
+					c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.1,0.2,0.1,0.3,0.2L285,206.6z M284.1,205.7l1-0.2c0-0.1,0-0.3,0.2-0.5l-0.7-0.7l-0.7-0.7
+					c-0.6,0.7-0.8,1.6-0.6,2.2L284.1,205.7z M284.5,204.3l0.7,0.7c0.1-0.1,0.4-0.4,0.9-0.6c0.4-0.3,0.8-0.5,0.9-0.5l-0.4-0.9
+					l-0.4-0.9c-0.3,0.1-0.7,0.4-1.2,0.7c-0.4,0.3-0.9,0.6-1.3,1L284.5,204.3z M286.6,202.9l0.4,0.9c0,0-0.4,0.2-0.8-0.1
+					c-0.4-0.3-0.4-0.7-0.4-0.7c0,0,0-0.1,0-0.1c0,0,0,0,0,0c0,0,0,0,0,0c0,0,0-0.1,0.1-0.2l0.8,0.6l0.8,0.6c0.1-0.2,0.2-0.4,0.2-0.5
+					c0-0.1,0.1-0.3,0.1-0.5c0-0.1,0-0.6-0.5-0.9c-0.5-0.4-1-0.2-1.2-0.1L286.6,202.9z M286.7,203.4l-0.1-1l-0.7,0.1l0.1,1l0.1,1
+					l0.7-0.1L286.7,203.4z M287.4,203.3l-0.2,1c0.1,0,0.4,0.1,0.7,0.3c0.3,0.2,0.6,0.4,0.7,0.5l0.8-0.6l0.8-0.6
+					c-0.3-0.4-0.8-0.7-1.2-0.9c-0.4-0.2-0.9-0.5-1.3-0.6L287.4,203.3z M289.3,204.5l-0.8,0.6c0.1,0.1,0.2,0.3,0.2,0.4
+					c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1,0,0l1,0.3l1,0.3c0.1-0.4,0.1-0.9,0-1.3c-0.1-0.4-0.3-0.8-0.6-1.2L289.3,204.5z M289.7,206
+					l-1-0.3c0-0.1,0.1-0.1,0.1-0.1c0,0,0,0-0.1,0.1c-0.2,0.1-0.4,0.2-0.6,0.3l0.4,0.9l0.4,0.9c0.2-0.1,0.6-0.2,0.8-0.4
+					c0.3-0.2,0.7-0.5,0.9-1L289.7,206z M288.5,206.9l-0.4-0.9c-0.3,0.1-0.7,0.2-1.3,0.3l0.1,1l0.1,1c0.6-0.1,1.3-0.2,1.9-0.4
+					L288.5,206.9z M286.9,207.2l-0.1-1c-0.2,0-0.4,0.1-0.6,0.1c-0.2,0-0.4,0.1-0.6,0.1c-0.2,0-0.3,0-0.4,0c-0.1,0-0.1,0,0,0
+					l-0.5,0.9l-0.5,0.9c0.3,0.2,0.6,0.2,0.9,0.2c0.2,0,0.5,0,0.7,0c0.2,0,0.5-0.1,0.6-0.1c0.2,0,0.4-0.1,0.5-0.1L286.9,207.2z
+					 M284.8,207.4l0.5-0.9c0.1,0,0.1,0.1,0.1,0.1c0,0,0-0.1-0.1-0.2c-0.1-0.2-0.1-0.4-0.1-0.5l-1-0.1l-1-0.1c0,0.4,0,0.8,0.1,1.2
+					c0.1,0.4,0.4,1,0.9,1.3L284.8,207.4z M284.2,205.8l1,0.1c0,0,0-0.1,0.1-0.3c0.1-0.2,0.2-0.4,0.4-0.6l-0.8-0.6l-0.8-0.6
+					c-0.2,0.2-0.4,0.5-0.5,0.8c-0.2,0.3-0.4,0.7-0.4,1.2L284.2,205.8z M285,204.4l0.8,0.6c0.3-0.4,0.6-0.7,0.9-0.8l-0.5-0.9
+					l-0.5-0.9c-0.6,0.3-1.1,0.9-1.5,1.3L285,204.4z M286.1,203.3l0.5,0.9c0.1-0.1,0.3-0.2,0.5-0.2c0.1,0,0.2,0,0.2,0
+					c0.1,0,0.1,0,0,0l0.2-1l0.2-1c-0.4-0.1-0.8,0-1.1,0.1c-0.3,0.1-0.7,0.2-1,0.4L286.1,203.3z M287.6,202.9l-0.2,1
+					c-0.2,0-0.3-0.1-0.3-0.1c0,0,0,0,0,0.1c0,0,0.1,0.1,0.1,0.2c0,0,0,0.1,0.1,0.1c0,0,0,0,0,0.1c0,0,0,0,0.1,0.1
+					c0,0,0.1,0.1,0.1,0.1l0.7-0.7l0.7-0.7c0.1,0.1,0.1,0.1,0.1,0.1c0,0,0,0,0,0.1c0,0,0,0,0,0c0,0,0,0,0-0.1c0-0.1-0.1-0.2-0.2-0.3
+					c-0.1-0.1-0.2-0.3-0.3-0.4c-0.1-0.1-0.4-0.3-0.8-0.4L287.6,202.9z"/>
+				<path class="st9 gsq-excl" d="M289.9,199.7l4.7-26l1.7-3.1l1.6-0.8l1.4,0l-1.1,3.4l-9.4,26.1"/>
+				<path class="st8 gsq-excl" d="M289,199.9c1-4.3,4.4-21.6,6-26.4c1.6-4.8,4.2-6.7,3.4-2.4c-0.9,4.3-7,23.5-8.5,28.3 M289.2,199.2
+					c0.9-4.3,3.7-20.3,5.3-24.9c1.6-4.6,5-6.8,4.2-2.7c-0.8,4.2-7.7,23-9.2,27.7L289.2,199.2z"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>
+  </script>
+
+  <!-- Modale regole gioco -->
+  <div class="game-modal-overlay" id="game-modal-overlay" onclick="if(event.target===this)closeGameModal()">
+    <div class="game-modal">
+      <div class="game-modal-grab"></div>
+      <div class="game-modal-emoji" id="gm-emoji">🎲</div>
+      <div class="game-modal-name" id="gm-name">Gioco</div>
+      <div class="game-modal-meta" id="gm-meta"></div>
+      <div class="game-modal-rules" id="gm-rules"></div>
+      <div class="game-modal-kit" id="gm-kit" style="display:none"><span class="gmk-ico">📍</span><span>Ritira il kit alla <b>finestra giochi</b> mostrando questa schermata. Gratuito con consumazione.</span></div>
+      <button class="game-modal-btn" onclick="closeGameModal()">Ho capito</button>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       PRENOTAZIONI PAGE
+  ============================ -->
+  <div class="page game-detail" id="page-shotquest">
+    <div class="gd-header">
+      <button class="back-btn" onclick="sqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">SHOT <span>QUEST</span></div>
+    </div>
+
+    <div class="sq-setup" id="sq-setup">
+      <div class="sq-setup-card">
+        <div class="sq-tag">Chi gioca?</div>
+        <div class="sq-setup-title">Aggiungi i giocatori</div>
+        <form class="sq-add-row" onsubmit="sqAddFromInput(event)">
+          <input class="sq-name-input" id="sq-name-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
+          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </form>
+        <div class="sq-players" id="sq-players-list"></div>
+        <div class="sq-empty-hint" id="sq-empty-hint">Aggiungi almeno 2 giocatori per iniziare</div>
+      </div>
+      <button class="sq-start-btn" id="sq-start-btn" onclick="sqStart()" disabled>Inizia il gioco</button>
+    </div>
+
+    <div class="sq-modes" id="sq-modes" style="display:none">
+      <div class="sq-modes-head">
+        <div class="sq-modes-tag">Scegli la modalità</div>
+        <div class="sq-modes-title">Come si gioca?</div>
+      </div>
+      <div class="sq-modes-list" id="sq-modes-list"></div>
+      <button class="sq-modes-back" onclick="sqSetupReset()">← Cambia giocatori</button>
+    </div>
+
+    <div class="sq-area" id="sq-area" style="display:none" onclick="sqNextPrompt()">
+      <div class="sq-prompt-cat" id="sq-prompt-cat">SFIDA</div>
+      <div class="sq-prompt" id="sq-prompt">—</div>
+      <div class="sq-tap-hint">Tocca lo schermo per continuare</div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       SHOT IQ — TRIVIAL ALCOLICO
+  ============================ -->
+  <div class="page game-detail" id="page-shotiq">
+    <div class="gd-header">
+      <button class="back-btn" onclick="siqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">TRI<span>VIAL</span> 🧠</div>
+      <button class="siq-reset-btn" id="siq-reset-btn" onclick="siqResetConfirm()" style="display:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Ricomincia
+      </button>
+    </div>
+
+    <!-- 1. setup giocatori -->
+    <div class="sq-setup" id="siq-players-screen">
+      <div class="sq-setup-card">
+        <div class="sq-tag">Chi gioca?</div>
+        <div class="sq-setup-title">Aggiungi i giocatori</div>
+        <form class="sq-add-row" onsubmit="siqAddPlayer(event)">
+          <input class="sq-name-input" id="siq-player-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
+          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06302B" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </form>
+        <div class="sq-players" id="siq-players-list"></div>
+        <div class="sq-empty-hint" id="siq-players-hint">Aggiungi almeno 2 giocatori per iniziare</div>
+      </div>
+      <button class="siq-custom-btn" id="siq-players-btn" onclick="siqPlayersNext()" disabled>Continua →</button>
+    </div>
+
+    <!-- 2. scelta argomenti (multi-select, spicchi) -->
+    <div class="siq-modes" id="siq-modes" style="display:none">
+      <div class="sq-modes-head">
+        <div class="sq-modes-tag">Trivial · Ruota</div>
+        <div class="sq-modes-title">Scegli le 6 categorie</div>
+      </div>
+      <div class="siq-rule"><span>🎡</span> Scegli 6 argomenti: sono gli spicchi della ruota. Giri, rispondi e ogni 3 risposte esatte scatta la domanda bonus per conquistare un triangolino. Chi li completa tutti e 6 vince!</div>
+      <div class="siq-multi-list" id="siq-multi-list"></div>
+      <button class="sq-modes-back siq-ai-link" onclick="siqOpenCustom()">✏️ Oppure un argomento libero (AI) →</button>
+      <button class="siq-custom-btn" id="siq-multi-btn" onclick="siqPrimaryAction()" disabled>Inizia</button>
+      <button class="sq-modes-back" onclick="siqBackToPlayers()">← Cambia giocatori</button>
+    </div>
+
+    <!-- argomento libero (AI) -->
+    <div class="siq-custom" id="siq-custom" style="display:none">
+      <div class="sq-modes-head">
+        <div class="sq-modes-tag">Argomento libero</div>
+        <div class="sq-modes-title">Su cosa vuoi giocare?</div>
+      </div>
+      <div class="siq-custom-sub">Scrivi qualsiasi tema: l'AI prepara 10 domande su misura.</div>
+      <form class="siq-custom-form" onsubmit="siqGenerate(event)">
+        <input class="siq-custom-input" id="siq-custom-input" type="text" maxlength="40" placeholder="Es. Basket, Anni '90, Anime…" autocomplete="off">
+        <button type="submit" class="siq-custom-btn" id="siq-custom-btn">Genera domande</button>
+      </form>
+      <div class="siq-custom-examples">
+        <button onclick="siqExample('Basket NBA')">🏀 Basket NBA</button>
+        <button onclick="siqExample('Formula 1')">🏎️ Formula 1</button>
+        <button onclick="siqExample('Harry Potter')">⚡ Harry Potter</button>
+        <button onclick="siqExample('Cucina italiana')">🍝 Cucina italiana</button>
+      </div>
+      <div class="siq-custom-status" id="siq-custom-status" style="display:none"></div>
+      <button class="sq-modes-back" onclick="siqShowModes()">← Torna agli argomenti</button>
+    </div>
+
+    <!-- 3. area di gioco (ruota + board spicchi) -->
+    <div class="siq-area-game" id="siq-area" style="display:none">
+      <!-- board spicchi giocatori -->
+      <div class="siq-board" id="siq-board"></div>
+
+      <!-- turno corrente -->
+      <div class="siq-turn" id="siq-turn">Tocca a —</div>
+
+      <!-- STAGE A: ruota da girare -->
+      <div class="siq-wheel-stage" id="siq-wheel-stage">
+        <div class="siq-wheel-wrap">
+          <div class="siq-wheel-ptr"></div>
+          <div class="siq-wheel" id="siq-wheel"></div>
+          <div class="siq-wheel-hub" id="siq-wheel-hub">🎯</div>
+        </div>
+        <div class="siq-streak" id="siq-streak"></div>
+        <button class="siq-spin-btn" id="siq-spin-btn" onclick="siqSpin()">GIRA LA RUOTA</button>
+        <div class="siq-spin-hint">Rispondi giusto e tiri ancora, sbagli e bevi. Ogni 3 risposte esatte scatta la 🌟 DOMANDA BONUS: scegli la categoria e vinci il triangolino!</div>
+      </div>
+
+      <!-- STAGE B: domanda bonus (scelta categoria) -->
+      <div class="siq-crownpick" id="siq-crownpick" style="display:none">
+        <div class="siq-crownpick-title">🌟 DOMANDA BONUS! Scegli il triangolino da conquistare</div>
+        <div class="siq-crownpick-list" id="siq-crownpick-list"></div>
+      </div>
+
+      <!-- STAGE C: carta domanda -->
+      <div class="siq-question-stage" id="siq-question-stage" style="display:none">
+        <div class="siq-game-card">
+          <div class="sq-prompt-cat" id="siq-cat">CULTURA</div>
+          <div class="siq-question" id="siq-question">—</div>
+          <div class="siq-answer" id="siq-answer" style="display:none">
+            <div class="siq-answer-lbl">Risposta</div>
+            <div class="siq-answer-val" id="siq-answer-val">—</div>
+          </div>
+        </div>
+        <div class="siq-controls" id="siq-controls">
+          <button class="siq-reveal-btn" id="siq-reveal-btn" onclick="siqReveal()">Mostra la risposta</button>
+          <div class="siq-judge" id="siq-judge" style="display:none">
+            <button class="siq-judge-ok" onclick="siqJudge(true)">✓ Giusto</button>
+            <button class="siq-judge-no" onclick="siqJudge(false)">✗ Sbagliato</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- messaggio esito (tra uno stage e l'altro) -->
+      <div class="siq-roll-msg" id="siq-roll-msg" style="display:none"></div>
+    </div>
+
+    <!-- 4. vittoria -->
+    <div class="siq-win" id="siq-win" style="display:none">
+      <div class="siq-win-trophy">🏆</div>
+      <div class="siq-win-lbl">Vince</div>
+      <div class="siq-win-name" id="siq-win-name">—</div>
+      <div class="siq-win-rank" id="siq-win-rank"></div>
+      <button class="siq-custom-btn" onclick="siqSetupReset()">Nuova partita</button>
+    </div>
+
+    <!-- modale di conferma (modifica setup / reset partita) -->
+    <div class="siq-modal" id="siq-modal" style="display:none">
+      <div class="siq-modal-card">
+        <div class="siq-modal-title" id="siq-modal-title">Sei sicuro?</div>
+        <div class="siq-modal-text" id="siq-modal-text">—</div>
+        <div class="siq-modal-actions">
+          <button class="siq-modal-cancel" onclick="siqModalCancel()">Annulla</button>
+          <button class="siq-modal-ok" id="siq-modal-ok" onclick="siqModalOk()">Procedi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       OBBLIGO O VERITÀ
+  ============================ -->
+  <div class="page game-detail" id="page-obbligo" style="background:#3A0A1E">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">OBBLIGO <span style="color:#F9A8D4">O VERITÀ</span></div>
+    </div>
+    <div class="ot-area">
+      <div class="ot-intro">📱 Telefono al centro del tavolo: gira! Il <b style="color:#2DD4BF">tappo</b> indica chi <b>fa la domanda</b>, il <b style="color:#FDBA74">collo della bottiglia</b> chi <b>risponde / esegue</b>. Girano separati: qualsiasi coppia è possibile.</div>
+
+      <div class="ot-spinner-wrap">
+        <div class="ot-disc">
+          <!-- bottiglia (il collo indica chi RISPONDE) -->
+          <div class="ot-bottle" id="ot-bottle">
+            <svg viewBox="0 0 60 216" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="otGlass" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#6B3310"/>
+                  <stop offset="0.42" stop-color="#C87B36"/>
+                  <stop offset="0.58" stop-color="#E6AB63"/>
+                  <stop offset="1" stop-color="#5C2B0D"/>
+                </linearGradient>
+              </defs>
+              <path d="M24 22 L24 16 Q24 13 27 13 L33 13 Q36 13 36 16 L36 22 Q36 34 39 44 Q47 60 47 92 L47 196 Q47 208 35 208 L25 208 Q13 208 13 196 L13 92 Q13 60 21 44 Q24 34 24 22 Z" fill="url(#otGlass)" stroke="rgba(0,0,0,0.3)" stroke-width="1.4"/>
+              <ellipse cx="30" cy="15" rx="6" ry="2.4" fill="#241017"/>
+              <rect x="17" y="120" width="26" height="54" rx="5" fill="#F4ECD8"/>
+              <rect x="17" y="120" width="26" height="15" rx="5" fill="#B23A2E"/>
+              <circle cx="30" cy="153" r="8.5" fill="none" stroke="#B23A2E" stroke-width="2.2"/>
+              <path d="M21 66 Q18 130 22 192" stroke="rgba(255,255,255,0.4)" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <!-- tappo staccato (indica chi FA LA DOMANDA) -->
+          <div class="ot-cap" id="ot-cap">
+            <svg viewBox="0 0 44 44" width="36" height="36">
+              <circle cx="22" cy="22" r="15" fill="none" stroke="#2DD4BF" stroke-width="5" stroke-dasharray="3.4 2.6"/>
+              <circle cx="22" cy="22" r="12.5" fill="#2DD4BF"/>
+              <circle cx="22" cy="22" r="7" fill="#0C6E60"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <button class="ot-spin-btn" id="ot-spin-btn" onclick="obbligoSpin()">GIRA</button>
+      <div class="ot-legend">
+        <span class="ot-legend-item"><i class="a"></i> tappo: <b>domanda</b></span>
+        <span class="ot-legend-item"><i class="c"></i> bottiglia: <b>risponde</b></span>
+      </div>
+
+      <div class="ot-suggest">
+        <div class="ot-suggest-hint">Se sai già cosa chiedere, chiedilo tu. Altrimenti fatti dare un'idea:</div>
+        <div class="ot-suggest-btns">
+          <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
+          <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
+        </div>
+        <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
+          <div class="ot-cat" id="ot-cat">VERITÀ</div>
+          <div class="ot-prompt" id="ot-prompt">—</div>
+          <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       HEADS UP! — NOME IN FRONTE
+  ============================ -->
+  <div class="page game-detail" id="page-headsup" style="background:#0A2540">
+    <div class="gd-header">
+      <button class="back-btn" onclick="headsBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">HEADS <span style="color:#5DA9FF">UP!</span> 🤳</div>
+    </div>
+
+    <!-- 1. scelta modalità -->
+    <div class="hu-modes" id="hu-modes">
+      <div class="hu-how">
+        <div class="hu-how-title">🤳 Come si gioca</div>
+        <div class="hu-how-step"><span>1</span><p>Un giocatore tiene il telefono <b>sulla fronte</b>, schermo verso gli altri, <b>senza guardarlo</b>.</p></div>
+        <div class="hu-how-step"><span>2</span><p>Sullo schermo compare una parola: gli altri gliela fanno <b>indovinare</b> con indizi, mimo o descrizioni (senza dirla!).</p></div>
+        <div class="hu-how-step"><span>3</span><p>Appena indovina, <b>tocca lo schermo</b> per far uscire la parola dopo — senza staccare il telefono dalla fronte.</p></div>
+      </div>
+      <div class="hu-start-label">Come vuoi le parole? 👇</div>
+      <button class="hu-mode-card" onclick="huOpenWrite()">
+        <span class="hu-mode-emoji">✍️</span>
+        <span class="hu-mode-info"><span class="hu-mode-name">Scrivi tu</span><span class="hu-mode-desc">Qualcuno scrive il nome / personaggio da indovinare</span></span>
+        <span class="hu-mode-arrow">→</span>
+      </button>
+      <div class="hu-cats-label">🎲 Oppure scegli una categoria a caso</div>
+      <div class="hu-cats" id="hu-cats"></div>
+    </div>
+
+    <!-- 2. scrivi la parola -->
+    <div class="hu-write" id="hu-write" style="display:none">
+      <div class="hu-write-title">Cosa deve indovinare?</div>
+      <div class="hu-write-sub">Scrivi un personaggio, un film, un amico… poi passa il telefono a chi indovina e mettilo sulla fronte.</div>
+      <form onsubmit="huShowFromInput(event)">
+        <input class="hu-input" id="hu-input" type="text" maxlength="40" placeholder="Es. Cristiano Ronaldo" autocomplete="off">
+        <button type="submit" class="hu-go-btn">Mostra in fronte →</button>
+      </form>
+      <button class="hu-back-link" onclick="huShowModes()">← Indietro</button>
+    </div>
+
+    <!-- 3. parola gigante in fronte (tocca lo schermo per la prossima) -->
+    <div class="hu-stage" id="hu-stage" style="display:none" onclick="huNext()">
+      <div class="hu-stage-head">
+        <button class="hu-stage-back" onclick="event.stopPropagation(); headsBack()" aria-label="Indietro"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="hu-stage-logo">HEADS <span>UP!</span> 🤳</span>
+      </div>
+      <div class="hu-cat-tag" id="hu-cat-tag"></div>
+      <div class="hu-word" id="hu-word">—</div>
+      <div class="hu-stage-bottom">
+        <div class="hu-stage-hint">👆 Indovinato? Tocca lo schermo per la prossima parola</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       IL CANTASTORIE
+  ============================ -->
+  <div class="page game-detail" id="page-cantastorie" style="background:#2E2A05">
+    <div class="gd-header">
+      <button class="back-btn" onclick="csBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">IL <span style="color:#F5D06B">CANTASTORIE</span> 📖</div>
+    </div>
+
+    <!-- setup giocatori -->
+    <div class="sq-setup" id="cs-setup">
+      <div class="cs-how">
+        <div class="cs-how-title">📖 Come si gioca</div>
+        <div class="cs-how-step"><span>1</span><p>Si costruisce <b>una storia insieme</b>, una frase a testa, a turno.</p></div>
+        <div class="cs-how-step"><span>2</span><p>Ad ogni turno l'app ti dà un <b>prompt</b> (un inizio o un colpo di scena) da <b>infilare</b> nella tua frase.</p></div>
+        <div class="cs-how-step"><span>3</span><p>Chi si <b>blocca</b>, ripete o perde il filo <b>beve</b> 🍺. E se la frase non convince e gli altri la <b>bocciano a maggioranza</b>, chi l'ha detta beve.</p></div>
+      </div>
+      <div class="sq-setup-card">
+        <div class="sq-tag">Chi gioca?</div>
+        <div class="sq-setup-title">Aggiungi i giocatori</div>
+        <form class="sq-add-row" onsubmit="csAddPlayer(event)">
+          <input class="sq-name-input" id="cs-player-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
+          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E2A05" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </form>
+        <div class="sq-players" id="cs-players-list"></div>
+        <div class="sq-empty-hint" id="cs-empty-hint">Aggiungi almeno 2 giocatori per iniziare</div>
+      </div>
+      <div class="cs-opt-label">🎭 Tema della storia</div>
+      <div class="cs-chips" id="cs-themes"></div>
+      <div class="cs-opt-label">⏱ Tempo per turno</div>
+      <div class="cs-chips" id="cs-timer-opts"></div>
+      <button class="sq-start-btn" id="cs-start-btn" onclick="csStart()" disabled>Inizia la storia</button>
+    </div>
+
+    <!-- gioco -->
+    <div class="cs-play" id="cs-play" style="display:none">
+      <!-- passa il telefono al prossimo -->
+      <div class="cs-ready" id="cs-ready">
+        <div class="cs-ready-hint" id="cs-ready-hint">Passa il telefono a</div>
+        <div class="cs-ready-name" id="cs-ready-name">—</div>
+        <button class="cs-next cs-begin" onclick="csBeginTurn()">Inizia il turno →</button>
+      </div>
+
+      <!-- turno in corso -->
+      <div class="cs-round" id="cs-round" style="display:none">
+        <div class="cs-turn" id="cs-turn">Tocca a —</div>
+        <div class="cs-timer" id="cs-timer" style="display:none">
+          <div class="cs-timer-bar"><div class="cs-timer-fill" id="cs-timer-fill"></div></div>
+          <div class="cs-timer-num" id="cs-timer-num">20</div>
+        </div>
+        <div class="cs-card">
+          <div class="cs-cat" id="cs-cat">APERTURA</div>
+          <div class="cs-prompt" id="cs-prompt">—</div>
+        </div>
+        <div class="cs-fail">🍺 Ti blocchi, ripeti, perdi il filo, o la frase viene bocciata a maggioranza? Bevi un sorso e la storia continua.</div>
+        <div class="cs-actions">
+          <button class="cs-new" onclick="csNewStory()">↻ Nuova storia</button>
+          <button class="cs-next" onclick="csNext()">Continua →</button>
+        </div>
+      </div>
+
+      <!-- banner tempo scaduto -->
+      <div class="cs-banner" id="cs-banner" style="display:none">
+        <div class="cs-banner-emoji">🍺</div>
+        <div class="cs-banner-title">TEMPO SCADUTO!</div>
+        <div class="cs-banner-sub"><span id="cs-banner-name">—</span> beve un sorso</div>
+        <div class="cs-banner-actions">
+          <button class="cs-banner-btn primary" onclick="csNext()">Ho bevuto · continua →</button>
+          <button class="cs-banner-btn" onclick="csNewStory()">↻ Inizia una nuova storia</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       A RAFFICA — categoria + lettera
+  ============================ -->
+  <div class="page game-detail" id="page-raffica" style="background:#2A1840">
+    <div class="gd-header">
+      <button class="back-btn" onclick="raBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">A <span style="color:#C4A0FF">RAFFICA</span> ⚡</div>
+    </div>
+
+    <!-- setup -->
+    <div class="sq-setup" id="ra-setup">
+      <div class="cs-how" style="background:rgba(196,160,255,0.08); border-color:rgba(196,160,255,0.28);">
+        <div class="cs-how-title">⚡ Come si gioca</div>
+        <div class="cs-how-step"><span style="background:#C4A0FF; color:#2A1840;">1</span><p>L'app dà una <b>categoria</b> e una <b>lettera</b> (es. Animali · M).</p></div>
+        <div class="cs-how-step"><span style="background:#C4A0FF; color:#2A1840;">2</span><p>A turno, veloci, ognuno dice una parola di quella categoria che inizia con quella lettera — <b>senza ripetere</b>.</p></div>
+        <div class="cs-how-step"><span style="background:#C4A0FF; color:#2A1840;">3</span><p>Chi si <b>blocca</b>, ripete o sbaglia: <b>tocca il suo nome</b> → beve e prende un punto, poi si riparte.</p></div>
+      </div>
+      <div class="sq-setup-card">
+        <div class="sq-tag">Chi gioca?</div>
+        <div class="sq-setup-title">Aggiungi i giocatori</div>
+        <form class="sq-add-row" onsubmit="raAddPlayer(event)">
+          <input class="sq-name-input" id="ra-player-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
+          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1840" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </form>
+        <div class="sq-players" id="ra-players-list"></div>
+        <div class="sq-empty-hint" id="ra-empty-hint">Aggiungi almeno 2 giocatori per iniziare</div>
+      </div>
+      <button class="sq-start-btn" id="ra-start-btn" onclick="raStart()" disabled>Inizia a giocare</button>
+    </div>
+
+    <!-- gioco -->
+    <div class="ra-play" id="ra-play" style="display:none">
+      <div class="ra-starter" id="ra-starter">Inizia —</div>
+      <div class="ra-challenge">
+        <div class="ra-cat" id="ra-cat">🐾 ANIMALI</div>
+        <div class="ra-letter">lettera <span id="ra-letter">M</span></div>
+      </div>
+      <div class="ra-instr" id="ra-instr">A turno una parola della categoria con questa lettera. Vietato ripetere!</div>
+      <button class="ra-new" onclick="raNewChallenge()">🎲 Nuova sfida</button>
+      <div class="ra-score-label">Chi sbaglia? Toccalo: beve e +1 punto 🍺</div>
+      <div class="ra-players" id="ra-score-list"></div>
+      <button class="ra-reset" onclick="raResetScores()">Azzera punti</button>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       KINGS
+  ============================ -->
+  <div class="page game-detail" id="page-kings" style="background:#0B3F3C">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">KINGS <span style="color:#5DD6C8">👑</span></div>
+    </div>
+    <div class="kings-area" onclick="kingsDraw()">
+      <div class="kings-card-wrap">
+        <div class="kings-card" id="kings-card">
+          <div class="kings-card-front">
+            <div class="kings-back-brand">
+              <div class="kings-back-logo">CAMON</div>
+              <div class="kings-back-sub">KINGS</div>
+            </div>
+          </div>
+          <div class="kings-card-back" id="kings-back">
+            <div class="pc-corner pc-tl"><span class="pc-rank" id="kings-tl-rank">K</span><span class="pc-suit" id="kings-tl-suit">♠</span></div>
+            <div class="pc-center" id="kings-center">👑</div>
+            <div class="pc-corner pc-br"><span class="pc-rank" id="kings-br-rank">K</span><span class="pc-suit" id="kings-br-suit">♠</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="kings-rule" id="kings-rule">KINGS — IL RE COMANDA</div>
+      <div class="kings-rule-desc" id="kings-desc">Il re fa una regola per il resto del gioco. Chi la rompe beve.</div>
+      <div class="kings-tap-hint">Tocca lo schermo per pescare</div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       BEER PONG
+  ============================ -->
+  <div class="page game-detail" id="page-beerpong" style="background:#180A2E">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">BEER <span>PONG</span></div>
+    </div>
+    <div class="game-guide">
+      <div class="gg-icon">🏓</div>
+      <div class="gg-title">BEER <span>PONG</span></div>
+      <div class="gg-intro">Il classico gioco da tavolo americano. Due squadre, lancia la pallina nei bicchieri dell'avversario: chi centra fa bere gli altri.</div>
+
+      <div class="gg-steps">
+        <div class="gg-step"><div class="gg-step-num">1</div><div class="gg-step-txt">Vai al bancone giochi<span>Mostra questa schermata allo staff</span></div></div>
+        <div class="gg-step"><div class="gg-step-num">2</div><div class="gg-step-txt">Ritira il kit Beer Pong<span>Tavolo dedicato, set di bicchieri e palline</span></div></div>
+        <div class="gg-step"><div class="gg-step-num">3</div><div class="gg-step-txt">Riempi i bicchieri alla spina<span>Usa la tua carta CAMON al self-service</span></div></div>
+        <div class="gg-step"><div class="gg-step-num">4</div><div class="gg-step-txt">Gioca e divertiti!<span>A fine partita riporta il kit al bancone</span></div></div>
+      </div>
+
+      <div class="gg-note"><span class="gg-note-ico">💡</span><div>L'attrezzatura è gratuita con consumazione. Chiedi al personale: ti sistemano al primo tavolo libero.</div></div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       FLIP CUP
+  ============================ -->
+  <div class="page game-detail" id="page-flipcup" style="background:#2A0A0A">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">FLIP <span>CUP</span></div>
+    </div>
+    <div class="game-guide">
+      <div class="gg-icon">🥤</div>
+      <div class="gg-title">FLIP <span>CUP</span></div>
+      <div class="gg-intro">Gioco di squadra a staffetta: bevi, poggia il bicchiere sul bordo del tavolo e rigiralo con un colpetto. Appena è capovolto tocca al compagno. Vince la squadra che finisce prima.</div>
+
+      <div class="gg-steps">
+        <div class="gg-step"><div class="gg-step-num">1</div><div class="gg-step-txt">Vai al bancone giochi<span>Mostra questa schermata allo staff</span></div></div>
+        <div class="gg-step"><div class="gg-step-num">2</div><div class="gg-step-txt">Ritira il set Flip Cup<span>Bicchieri per le due squadre + tavolo dedicato</span></div></div>
+        <div class="gg-step"><div class="gg-step-num">3</div><div class="gg-step-txt">Forma le squadre e riempi alla spina<span>Usa la tua carta CAMON al self-service</span></div></div>
+        <div class="gg-step"><div class="gg-step-num">4</div><div class="gg-step-txt">Via alla staffetta!<span>A fine partita riporta il set al bancone</span></div></div>
+      </div>
+
+      <div class="gg-note"><span class="gg-note-ico">💡</span><div>L'attrezzatura è gratuita con consumazione. Chiedi al personale: ti sistemano al primo tavolo libero.</div></div>
+    </div>
+  </div>
+
+
+  <!-- ============================
+       STORIA = SHOT GRATIS
+  ============================ -->
   <nav class="bottom-nav">
     <button class="nav-btn" id="nav-book" onclick="goTo('book')">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -3656,6 +4435,2111 @@
     </button>
   </nav>
 <script>
+  /* ===== SHOT QUEST (stile Picolo) ===== */
+  // {0} e {1} = giocatori distinti scelti a caso. Servono almeno 2 giocatori.
+  // m = modalità in cui la carta può uscire: soft / hot / estremo (classico = tutte)
+  const sqPrompts = [
+    { cat:'Bevi',      t:'{0}, bevi 2 sorsi 🍺', m:['soft'] },
+    { cat:'Bevi',      t:'{0}, fai un sorso per ogni vocale del tuo nome', m:['soft'] },
+    { cat:'Scegli',    t:'{0}, scegli qualcuno che beve 3 sorsi', m:['hot'] },
+    { cat:'Sfida',     t:'{0} e {1}: braccio di ferro. Chi perde fa uno shot 🥃', m:['estremo'] },
+    { cat:'Duello',    t:'{0} e {1}, sasso-carta-forbice. Chi perde beve', m:['estremo'] },
+    { cat:'Mai',       t:'{0} dice una cosa che non ha mai fatto. Chi l\'ha fatta beve', m:['hot'] },
+    { cat:'Verità',    t:'{0}, rispondi sincero a una domanda di {1}… o bevi', m:['hot'] },
+    { cat:'Categoria', t:'{0} dice una marca di birra, poi si va in cerchio. Chi sbaglia beve', m:['soft'] },
+    { cat:'Brindisi',  t:'{0}, fai un brindisi con {1} 🍻', m:['soft'] },
+    { cat:'Spine',     t:'{0}, vai alle spine self-service e versa da bere a {1} 🍺', m:['soft'] },
+    { cat:'Regola',    t:'{0} inventa una regola valida fino alla prossima carta. Chi la rompe beve', m:['hot'] },
+    { cat:'Tutti',     t:'Tutti brindano insieme! L\'ultimo a bere fa un sorso extra', m:['soft'] },
+    { cat:'Indovina',  t:'{1} descrive un cocktail, {0} indovina… o beve', m:['hot'] },
+    { cat:'Storia',    t:'{0}, racconta la cosa più imbarazzante della serata o bevi 2 sorsi', m:['hot'] },
+    { cat:'Pollice',   t:'{0}, quando vuoi appoggia il pollice sul tavolo. L\'ultimo a copiarti beve', m:['soft'] },
+    { cat:'Shot',      t:'{0}, è il tuo momento: shot! 🥃', m:['estremo'] },
+    { cat:'Doppio',    t:'{0} e {1} bevono insieme. Cin cin!', m:['soft','estremo'] },
+    { cat:'Statua',    t:'{0} resta immobile fino alla prossima carta. Se si muove, beve', m:['soft'] },
+    { cat:'Capo',      t:'{0} è il capo: per 3 carte può far bere chi vuole', m:['estremo'] },
+    { cat:'Karaoke',   t:'{0}, canta il ritornello di una canzone o bevi 2 sorsi 🎤', m:['hot'] }
+  ];
+  // modalità di gioco (stile Picolo): ognuna filtra le carte
+  const sqModes = [
+    { key:'classico', emoji:'🎉', name:'Classico',  desc:'Mix completo di tutte le carte' },
+    { key:'soft',     emoji:'😎', name:'Soft',      desc:'Leggero: sorsi, brindisi, niente shot' },
+    { key:'hot',      emoji:'🔥', name:'Hot',       desc:'Piccante: verità, sfide, racconti spinti' },
+    { key:'estremo',  emoji:'💀', name:'Estremo',   desc:'Solo shot, duelli e carte toste' }
+  ];
+  let sqActivePrompts = sqPrompts;
+  // gradienti colorati che ruotano a ogni carta (stile Picolo, look CAMON)
+  const sqGradients = [
+    'linear-gradient(160deg,#f7cc49,#C2410C)',
+    'linear-gradient(160deg,#7C3AED,#4C1D95)',
+    'linear-gradient(160deg,#0D9488,#065F46)',
+    'linear-gradient(160deg,#DB2777,#9D174D)',
+    'linear-gradient(160deg,#2563EB,#1E3A8A)',
+    'linear-gradient(160deg,#DC2626,#7F1D1D)',
+    'linear-gradient(160deg,#EA580C,#9A3412)',
+    'linear-gradient(160deg,#0891B2,#155E75)'
+  ];
+  let sqGradIndex = -1, sqLastPrompt = -1;
+  let sqPlayers = []; // { name }
+  // rosa giocatori CONDIVISA tra tutti i giochi: i nomi restano da un gioco all'altro
+  let rosterNames = [];
+  let sqScreen = 'setup'; // schermata Shot Quest: 'setup' | 'modes' | 'area' — per il tasto indietro
+
+  // --- setup giocatori (stile Picolo: un campo, lista di chip) ---
+  const sqAvatarColors = ['#f7cc49','#7C3AED','#0D9488','#DB2777','#2563EB','#DC2626','#EA580C','#0891B2','#16A34A','#9333EA'];
+  let sqSetupNames = rosterNames; // stessa rosa condivisa (alias)
+
+  // lettere greche stile confraternita, assegnate a ogni giocatore
+  const sqGreek = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Π','Σ','Φ','Ψ','Ω'];
+  function sqCharacter(i) {
+    return sqGreek[i % sqGreek.length];
+  }
+
+  function sqAddFromInput(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('sq-name-input');
+    const name = input.value.trim();
+    if (!name) return;
+    if (sqSetupNames.length >= 20) return; // massimo 20 giocatori
+    sqSetupNames.push(name);
+    input.value = '';
+    input.focus();
+    sqRenderSetup();
+  }
+  function sqRemovePlayer(btn) {
+    const idx = +btn.closest('.sq-player-chip').dataset.idx;
+    sqSetupNames.splice(idx, 1);
+    sqRenderSetup();
+  }
+  function sqRenderSetup() {
+    const list = document.getElementById('sq-players-list');
+    list.innerHTML = sqSetupNames.map((name, i) => {
+      const color = sqAvatarColors[i % sqAvatarColors.length];
+      return `<div class="sq-player-chip" data-idx="${i}">
+        <span class="sq-avatar" style="background:${color}">${sqCharacter(i)}</span>
+        <span class="sq-chip-name">${name}</span>
+        <button class="sq-chip-del" onclick="sqRemovePlayer(this)" aria-label="Rimuovi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+    const enough = sqSetupNames.length >= 2;
+    document.getElementById('sq-start-btn').disabled = !enough;
+    document.getElementById('sq-empty-hint').classList.toggle('hidden', enough);
+  }
+  function sqSetupReset() {
+    // NON azzera i nomi: la rosa resta condivisa tra i giochi
+    sqScreen = 'setup';
+    document.getElementById('sq-name-input').value = '';
+    sqRenderSetup();
+    document.getElementById('sq-setup').style.display = '';
+    document.getElementById('sq-modes').style.display = 'none';
+    document.getElementById('sq-area').style.display = 'none';
+    document.getElementById('page-shotquest').style.background = '';
+  }
+  // dopo i giocatori → schermata scelta modalità
+  function sqStart() {
+    if (sqSetupNames.length < 2) return;
+    sqScreen = 'modes';
+    sqPlayers = sqSetupNames.map(name => ({ name }));
+    sqRenderModes();
+    document.getElementById('sq-setup').style.display = 'none';
+    document.getElementById('sq-modes').style.display = '';
+    document.getElementById('sq-area').style.display = 'none';
+    document.getElementById('page-shotquest').style.background = '';
+  }
+  // tasto INDIETRO dell'header: torna indietro di un passo (area → modalità → giocatori → esci)
+  function sqBack() {
+    if (sqScreen === 'area') {
+      sqScreen = 'modes';
+      document.getElementById('sq-area').style.display = 'none';
+      document.getElementById('sq-modes').style.display = '';
+      document.getElementById('page-shotquest').style.background = '';
+    } else if (sqScreen === 'modes') {
+      sqSetupReset();
+    } else {
+      goTo('games');
+    }
+  }
+  function sqRenderModes() {
+    const wrap = document.getElementById('sq-modes-list');
+    wrap.innerHTML = sqModes.map(function(m) {
+      const count = m.key === 'classico' ? sqPrompts.length : sqPrompts.filter(function(p){ return p.m.indexOf(m.key) >= 0; }).length;
+      return '<button class="sq-mode-card" onclick="sqSelectMode(\'' + m.key + '\')">'
+        + '<span class="sq-mode-emoji">' + m.emoji + '</span>'
+        + '<span class="sq-mode-info"><span class="sq-mode-name">' + m.name + '</span>'
+        + '<span class="sq-mode-desc">' + m.desc + '</span></span>'
+        + '<span class="sq-mode-count">' + count + ' carte</span>'
+        + '</button>';
+    }).join('');
+  }
+  function sqSelectMode(key) {
+    sqScreen = 'area';
+    sqActivePrompts = key === 'classico' ? sqPrompts : sqPrompts.filter(function(p){ return p.m.indexOf(key) >= 0; });
+    if (!sqActivePrompts.length) sqActivePrompts = sqPrompts;
+    sqGradIndex = -1; sqLastPrompt = -1;
+    document.getElementById('sq-modes').style.display = 'none';
+    document.getElementById('sq-area').style.display = '';
+    sqNextPrompt();
+  }
+  function sqPick(exclude) {
+    let i;
+    do { i = Math.floor(Math.random() * sqPlayers.length); } while (i === exclude && sqPlayers.length > 1);
+    return i;
+  }
+  function sqNextPrompt() {
+    // evita di ripetere subito lo stesso prompt
+    let pi;
+    do { pi = Math.floor(Math.random() * sqActivePrompts.length); } while (pi === sqLastPrompt && sqActivePrompts.length > 1);
+    sqLastPrompt = pi;
+    const p = sqActivePrompts[pi];
+    const i0 = sqPick(-1);
+    const i1 = sqPick(i0);
+    const text = p.t
+      .replace('{0}', sqPlayers[i0].name)
+      .replace('{1}', sqPlayers[i1].name);
+    // sfondo colorato che cambia — applicato a tutta la pagina (header incluso)
+    sqGradIndex = (sqGradIndex + 1) % sqGradients.length;
+    document.getElementById('page-shotquest').style.background = sqGradients[sqGradIndex];
+    document.getElementById('sq-prompt-cat').textContent = p.cat;
+    const promptEl = document.getElementById('sq-prompt');
+    promptEl.textContent = text;
+    // ri-triggera l'animazione di entrata
+    promptEl.style.animation = 'none';
+    void promptEl.offsetWidth;
+    promptEl.style.animation = '';
+  }
+
+  /* ===== SHOT IQ — TRIVIAL ALCOLICO ===== */
+  const siqCategories = [
+    { key:'cultura', emoji:'🧠', name:'Cultura Generale', desc:'Domande miste classiche da quiz', c:'#3B82F6', q:[
+      { q:'Qual è il fiume più lungo del mondo?', a:'Il Nilo (o il Rio delle Amazzoni)' },
+      { q:'In che anno è caduto il Muro di Berlino?', a:'1989' },
+      { q:'Quanti sono i continenti?', a:'7' },
+      { q:'Qual è l\'elemento chimico con simbolo "Au"?', a:'L\'oro' },
+      { q:'Chi ha dipinto la Gioconda?', a:'Leonardo da Vinci' },
+      { q:'Qual è la capitale dell\'Australia?', a:'Canberra (non Sydney!)' },
+      { q:'Quante ossa ha il corpo umano adulto?', a:'206' },
+      { q:'In che anno è affondato il Titanic?', a:'1912' },
+      { q:'Qual è il pianeta più grande del Sistema Solare?', a:'Giove' },
+      { q:'Quante facce ha un dado classico?', a:'6' },
+      { q:'Chi ha scritto la Divina Commedia?', a:'Dante Alighieri' },
+      { q:'Qual è il mare più salato del mondo?', a:'Il Mar Morto' },
+      { q:'Quante corde ha una chitarra classica?', a:'6' },
+      { q:'Qual è la formula chimica dell\'acqua?', a:'H₂O' },
+      { q:'Chi ha scritto "I Promessi Sposi"?', a:'Alessandro Manzoni' },
+      { q:'Quanti minuti ci sono in un\'ora?', a:'60' },
+      { q:'Qual è la lingua con più madrelingua al mondo?', a:'Il cinese mandarino' },
+      { q:'Quante zampe ha un insetto?', a:'6' },
+      { q:'Chi ha formulato la teoria della relatività?', a:'Albert Einstein' },
+      { q:'Qual è il numero romano per 50?', a:'L' },
+      { q:'Quanti colori ha l\'arcobaleno?', a:'7' },
+      { q:'Come si chiama il medico degli animali?', a:'Il veterinario' },
+      { q:'Qual è la capitale d\'Italia?', a:'Roma' },
+      { q:'Quante settimane ci sono in un anno?', a:'52' },
+      { q:'A chi si attribuisce l\'invenzione della lampadina?', a:'Thomas Edison' },
+      { q:'Qual è il simbolo chimico del ferro?', a:'Fe' },
+      { q:'Quanti lati ha un esagono?', a:'6' },
+      { q:'Qual è l\'animale terrestre più grande?', a:'L\'elefante africano' },
+      { q:'Come si chiama la paura dei ragni?', a:'Aracnofobia' },
+      { q:'Quanti gradi misura un angolo retto?', a:'90°' },
+      { q:'Qual è la moneta del Giappone?', a:'Lo yen' },
+      { q:'Chi ha affrescato la Cappella Sistina?', a:'Michelangelo' },
+      { q:'Qual è il pianeta più vicino al Sole?', a:'Mercurio' },
+      { q:'Quanti anni ci sono in un secolo?', a:'100' },
+      { q:'Come si chiama il verso del cavallo?', a:'Il nitrito' },
+      { q:'Qual è la capitale della Germania?', a:'Berlino' },
+      { q:'Quante carte ha un mazzo francese (senza jolly)?', a:'52' },
+      { q:'Qual è il gas che respiriamo per vivere?', a:'L\'ossigeno' },
+      { q:'Chi ha scritto "Le avventure di Pinocchio"?', a:'Carlo Collodi' },
+      { q:'Qual è il numero primo più piccolo?', a:'2' },
+      { q:'Quanti giorni ha febbraio in un anno bisestile?', a:'29' },
+      { q:'Qual è la capitale dell\'Inghilterra?', a:'Londra' },
+      { q:'Come si chiama la scienza che studia il clima e il tempo?', a:'La meteorologia' },
+      { q:'Quante corna ha un rinoceronte indiano?', a:'1' },
+      { q:'Qual è il simbolo chimico dell\'argento?', a:'Ag' },
+      { q:'Chi ha inventato il telefono (attribuito)?', a:'Alexander Graham Bell' }
+    ]},
+    { key:'musica', emoji:'🎵', name:'Musica & Spettacolo', desc:'Canzoni, film, serie TV, celebrità', c:'#EC4899', q:[
+      { q:'Quale band ha scritto "Bohemian Rhapsody"?', a:'I Queen' },
+      { q:'Come si chiama il maghetto creato da J.K. Rowling?', a:'Harry Potter' },
+      { q:'Chi canta "Shape of You"?', a:'Ed Sheeran' },
+      { q:'In che serie TV compare il personaggio Walter White?', a:'Breaking Bad' },
+      { q:'Quale cantante è soprannominata "Queen B"?', a:'Beyoncé' },
+      { q:'Chi ha diretto il film "Pulp Fiction"?', a:'Quentin Tarantino' },
+      { q:'Come si chiama il regno di "Frozen"?', a:'Arendelle' },
+      { q:'Quale artista ha cantato "Thriller"?', a:'Michael Jackson' },
+      { q:'In che città è ambientata "Friends"?', a:'New York' },
+      { q:'Quale band ha vinto Sanremo 2021 e poi l\'Eurovision?', a:'I Måneskin (con "Zitti e buoni")' },
+      { q:'Chi interpreta Jack in "Titanic"?', a:'Leonardo DiCaprio' },
+      { q:'Chi canta "Rolling in the Deep"?', a:'Adele' },
+      { q:'Qual è la band di Mick Jagger?', a:'I Rolling Stones' },
+      { q:'Quale artista è soprannominato "The Boss"?', a:'Bruce Springsteen' },
+      { q:'Chi rappa in "Lose Yourself"?', a:'Eminem' },
+      { q:'Chi ha scritto e cantato "Imagine"?', a:'John Lennon' },
+      { q:'Quale gruppo ha inciso "Wonderwall"?', a:'Gli Oasis' },
+      { q:'Chi canta "Bad Guy"?', a:'Billie Eilish' },
+      { q:'Come si chiama il festival musicale italiano più famoso?', a:'Sanremo' },
+      { q:'Chi è il frontman dei Måneskin?', a:'Damiano David' },
+      { q:'Quale cantante è la "Regina del Pop"?', a:'Madonna' },
+      { q:'Chi canta "Blinding Lights"?', a:'The Weeknd' },
+      { q:'Quale band ha fatto "Hotel California"?', a:'Gli Eagles' },
+      { q:'Chi canta "Someone Like You"?', a:'Adele' },
+      { q:'Quale band inglese ha fatto "Viva la Vida"?', a:'I Coldplay' },
+      { q:'Chi è il "King of Pop"?', a:'Michael Jackson' },
+      { q:'Chi canta "Poker Face"?', a:'Lady Gaga' },
+      { q:'Chi ha cantato "Nel blu dipinto di blu" (Volare)?', a:'Domenico Modugno' },
+      { q:'Chi ha scritto "La canzone del sole"?', a:'Lucio Battisti' },
+      { q:'Chi canta "Shallow" in "A Star is Born"?', a:'Lady Gaga (e Bradley Cooper)' },
+      { q:'Quale band ha fatto "Smells Like Teen Spirit"?', a:'I Nirvana' },
+      { q:'Chi canta "Umbrella" e "Diamonds"?', a:'Rihanna' },
+      { q:'Chi ha scritto e cantato "Purple Rain"?', a:'Prince' },
+      { q:'Quale gruppo K-pop è famoso per "Dynamite"?', a:'I BTS' },
+      { q:'Chi duetta con Daddy Yankee in "Despacito"?', a:'Luis Fonsi' },
+      { q:'Quale cantante italiano ha fatto "Rolls Royce" a Sanremo?', a:'Achille Lauro' },
+      { q:'In che serie TV c\'è la famiglia Soprano?', a:'I Soprano (The Sopranos)' },
+      { q:'Come si chiama il talent musicale con le "sedie che girano"?', a:'The Voice' },
+      { q:'Chi ha cantato "I Will Always Love You" (1992)?', a:'Whitney Houston' },
+      { q:'Quale band ha fatto "Sweet Child O\' Mine"?', a:'I Guns N\' Roses' },
+      { q:'Chi è la cantante di "Vogue" e "Like a Prayer"?', a:'Madonna' },
+      { q:'Quale DJ ha fatto "Wake Me Up"?', a:'Avicii' },
+      { q:'Chi canta "Perfect" ed "Shape of You"?', a:'Ed Sheeran' },
+      { q:'Quale gruppo italiano ha cantato "Albachiara"? (autore)', a:'Vasco Rossi' },
+      { q:'Chi è la protagonista femminile di "Grease"?', a:'Olivia Newton-John (Sandy)' }
+    ]},
+    { key:'sport', emoji:'⚽', name:'Sport', desc:'Calcio, olimpiadi, record e curiosità', c:'#22C55E', q:[
+      { q:'Ogni quanti anni si tengono le Olimpiadi estive?', a:'Ogni 4 anni' },
+      { q:'Quanti giocatori ha una squadra di calcio in campo?', a:'11' },
+      { q:'In che sport si usa il termine "ace"?', a:'Tennis (e pallavolo)' },
+      { q:'Quale nazione ha vinto più Mondiali di calcio?', a:'Il Brasile (5)' },
+      { q:'Quanti punti vale un canestro da 3 nel basket?', a:'3' },
+      { q:'In quale città si è corsa la prima maratona olimpica moderna?', a:'Atene (1896)' },
+      { q:'Chi è soprannominato "Il Re" nel calcio brasiliano?', a:'Pelé' },
+      { q:'Quanti set servono per vincere una partita di tennis (uomini, Slam)?', a:'3 su 5' },
+      { q:'In che sport eccelle Usain Bolt?', a:'Atletica (velocità, 100m)' },
+      { q:'Quanto dura un tempo regolamentare di calcio?', a:'45 minuti' },
+      { q:'In quale torneo si vince "Wimbledon"?', a:'Tennis' },
+      { q:'Quanti anelli ha il simbolo olimpico?', a:'5' },
+      { q:'In quale sport si segna un "touchdown"?', a:'Football americano' },
+      { q:'Quanti giocatori in campo per squadra nel basket?', a:'5' },
+      { q:'In che sport gareggiava Valentino Rossi?', a:'Motociclismo (MotoGP)' },
+      { q:'Quanti punti vale una meta nel rugby?', a:'5' },
+      { q:'In quale città si sono tenute le Olimpiadi del 2021?', a:'Tokyo' },
+      { q:'Quante buche ha un percorso di golf regolamentare?', a:'18' },
+      { q:'Quale nazionale ha vinto i Mondiali di calcio 2006?', a:'L\'Italia' },
+      { q:'Chi ha vinto i Mondiali di calcio 2022?', a:'L\'Argentina' },
+      { q:'In quale sport eccelleva Michael Jordan?', a:'Basket' },
+      { q:'Quanto è lunga una maratona?', a:'42,195 km' },
+      { q:'Quale squadra spagnola è detta dei "blancos"?', a:'Il Real Madrid' },
+      { q:'In che sport c\'è il "Tour de France"?', a:'Ciclismo' },
+      { q:'Di che colore è la maglia del leader al Giro d\'Italia?', a:'Rosa' },
+      { q:'Chi era il pugile chiamato "The Greatest"?', a:'Muhammad Ali' },
+      { q:'Quale sport si gioca sul ghiaccio con dischetto e bastoni?', a:'Hockey su ghiaccio' },
+      { q:'Quanti giocatori in campo per squadra nella pallavolo?', a:'6' },
+      { q:'Quale pilota di F1 ha 7 titoli come Schumacher?', a:'Lewis Hamilton' },
+      { q:'In quale sport si disputa la "Ryder Cup"?', a:'Golf' },
+      { q:'Quanti quarti ha una partita di basket NBA?', a:'4' },
+      { q:'Chi ha vinto più Palloni d\'Oro tra Messi e Ronaldo?', a:'Messi' },
+      { q:'In quale sport si usa racchetta e volano?', a:'Badminton' },
+      { q:'Quale squadra di calcio gioca allo stadio "Bernabéu"?', a:'Il Real Madrid' },
+      { q:'Quanti set al massimo in una partita di tennis maschile Slam?', a:'5' },
+      { q:'Chi detiene il record mondiale dei 100 metri?', a:'Usain Bolt' },
+      { q:'Quale nazione ha ospitato i Mondiali di calcio 2022?', a:'Il Qatar' },
+      { q:'In che sport si fa il "grande slam" con 4 tornei?', a:'Tennis' },
+      { q:'Quale squadra italiana è soprannominata "i bianconeri"?', a:'La Juventus' },
+      { q:'Quanti giocatori in campo per squadra nel calcio a 5?', a:'5' },
+      { q:'Chi è il calciatore portoghese soprannominato "CR7"?', a:'Cristiano Ronaldo' },
+      { q:'In quale sport c\'è il "grand slam" di Roland Garros?', a:'Tennis' },
+      { q:'Quale città ospita la corsa automobilistica di Monaco (F1)?', a:'Montecarlo' },
+      { q:'Chi ha vinto più medaglie d\'oro olimpiche di sempre?', a:'Michael Phelps (nuoto)' }
+    ]},
+    { key:'hot', emoji:'🔥', name:'Hot / Piccante', desc:'Domande spinte, stile festa adulta', c:'#EF4444', q:[
+      { q:'Qual è il nome scientifico del "bacio alla francese"?', a:'Bacio con la lingua (limonare)' },
+      { q:'In che film del 2015 si parla di "cinquanta sfumature"?', a:'Cinquanta sfumature di grigio' },
+      { q:'Qual è l\'afrodisiaco più famoso che si mangia crudo?', a:'Le ostriche' },
+      { q:'Come si chiama la festa di addio al celibato in inglese?', a:'Bachelor party (o stag night)' },
+      { q:'Quale ormone è detto "dell\'amore" o del legame?', a:'L\'ossitocina' },
+      { q:'In quale città si trova il famoso quartiere a luci rosse "De Wallen"?', a:'Amsterdam' },
+      { q:'Quanti cuori ha la carta che simboleggia l\'amore?', a:'Cuori (il seme rosso)' },
+      { q:'Qual è il giorno degli innamorati?', a:'14 febbraio (San Valentino)' },
+      { q:'Come si chiama il dio greco dell\'amore?', a:'Eros (Cupido per i romani)' },
+      { q:'Quale cocktail ha lo stesso nome di una posizione... di yoga?', a:'(Tranello!) Nessuno — bevi tu 😏' },
+      { q:'Quale festa degli innamorati si celebra il 14 febbraio?', a:'San Valentino' },
+      { q:'Quale fiore rosso si regala per amore?', a:'La rosa' },
+      { q:'Qual è l\'organo più esteso del corpo umano?', a:'La pelle' },
+      { q:'Come si dice "appuntamento romantico" in inglese?', a:'Date' },
+      { q:'Quale colore è associato alla passione?', a:'Il rosso' },
+      { q:'In quale città italiana c\'è il balcone di Giulietta?', a:'Verona' },
+      { q:'Come si chiama il viaggio dopo il matrimonio?', a:'La luna di miele' },
+      { q:'Qual è la pietra tradizionale dell\'anello di fidanzamento?', a:'Il diamante' },
+      { q:'Quale bevanda frizzante si stappa per brindare all\'amore?', a:'Lo champagne' },
+      { q:'Come si chiama lo sparire di colpo dopo un appuntamento?', a:'Ghosting' },
+      { q:'In quale film Patrick Swayze balla "Dirty Dancing"?', a:'Dirty Dancing' },
+      { q:'Come si dice "ti amo" in spagnolo?', a:'Te quiero (te amo)' },
+      { q:'Sotto quale pianta ci si bacia a Natale?', a:'Il vischio' },
+      { q:'Quale app di dating è famosa per lo "swipe"?', a:'Tinder' },
+      { q:'Qual è il ballo di coppia latino più sensuale?', a:'Il tango' },
+      { q:'Come si chiama in slang italiano il bacio appassionato?', a:'Limonare (pomiciare)' },
+      { q:'Quale dio romano dell\'amore ha arco e frecce?', a:'Cupido' },
+      { q:'Come si chiamano gli sposi appena sposati?', a:'Sposini (novelli sposi)' },
+      { q:'Quale spezia rossa e costosa è considerata afrodisiaca?', a:'Lo zafferano' },
+      { q:'In quale film Rose e Jack si amano su una nave?', a:'Titanic' },
+      { q:'Quale film racconta "365 lettere d\'amore"?', a:'Le pagine della nostra vita (The Notebook)' },
+      { q:'Come si chiama un incontro romantico "al buio"?', a:'Appuntamento al buio (blind date)' },
+      { q:'Qual è il simbolo universale dell\'amore?', a:'Il cuore ❤️' },
+      { q:'Quale frutto è simbolo di tentazione nella Bibbia?', a:'La mela' },
+      { q:'Cosa si accende per rendere "hot" una cena romantica?', a:'Le candele' },
+      { q:'In quale nazione è nata l\'espressione "bacio alla francese"?', a:'In Francia' },
+      { q:'Come si chiama chi flirta con tutti?', a:'Un rubacuori (cascamorto)' },
+      { q:'Quale festa fa spogliare tutti gli invitati in spiaggia d\'estate?', a:'(Tranello!) Nessuna — bevi tu 😏' },
+      { q:'Quale profumo di fiore è considerato romantico per eccellenza?', a:'La rosa (o la lavanda)' },
+      { q:'In che mese cade San Valentino?', a:'Febbraio' },
+      { q:'Come si chiama la prima notte da sposati?', a:'La prima notte di nozze' },
+      { q:'Quale cocktail ha un nome... piccante da spiaggia?', a:'Sex on the Beach' },
+      { q:'Quale animale è simbolo di fedeltà in amore (in coppia per la vita)?', a:'Il cigno' },
+      { q:'Come si chiama la cotta improvvisa a prima vista?', a:'Colpo di fulmine' },
+      { q:'Quale ormone del "buonumore" si libera baciando?', a:'La dopamina (e l\'ossitocina)' }
+    ]},
+    { key:'scienza', emoji:'🔬', name:'Scienza', desc:'Fisica, chimica, natura e spazio', c:'#14B8A6', q:[
+      { q:'Qual è il gas più abbondante nell\'atmosfera terrestre?', a:'L\'azoto (78%)' },
+      { q:'Quante zampe ha un ragno?', a:'8' },
+      { q:'Qual è la velocità della luce (circa)?', a:'300.000 km/s' },
+      { q:'Come si chiama la forza che ci tiene a terra?', a:'La gravità' },
+      { q:'Qual è l\'organo che pompa il sangue?', a:'Il cuore' },
+      { q:'Di che gas hanno bisogno le piante per la fotosintesi?', a:'Anidride carbonica (CO₂)' },
+      { q:'Qual è il metallo liquido a temperatura ambiente?', a:'Il mercurio' },
+      { q:'Quanti pianeti ci sono nel Sistema Solare?', a:'8' },
+      { q:'Qual è l\'elemento più leggero della tavola periodica?', a:'L\'idrogeno' },
+      { q:'Come si chiama il cambiamento da liquido a gas?', a:'Evaporazione' },
+      { q:'Quanti cromosomi ha l\'essere umano?', a:'46 (23 coppie)' },
+      { q:'Qual è il simbolo chimico dell\'ossigeno?', a:'O' },
+      { q:'Quale pianeta è detto "il pianeta rosso"?', a:'Marte' },
+      { q:'Qual è l\'osso più lungo del corpo umano?', a:'Il femore' },
+      { q:'Come si chiama l\'acqua allo stato solido?', a:'Il ghiaccio' },
+      { q:'Quale scienziato formulò la legge di gravità con la mela?', a:'Isaac Newton' },
+      { q:'Quanti sono i principali stati della materia?', a:'3 (solido, liquido, gassoso)' },
+      { q:'Come si chiama il satellite naturale della Terra?', a:'La Luna' },
+      { q:'Quale vitamina produciamo grazie al sole?', a:'La vitamina D' },
+      { q:'Quale animale è il mammifero più grande del mondo?', a:'La balena blu' },
+      { q:'Qual è il simbolo chimico del sodio?', a:'Na' },
+      { q:'Quanti denti permanenti ha un adulto?', a:'32' },
+      { q:'A quanti gradi bolle l\'acqua a livello del mare?', a:'100°C' },
+      { q:'Quale gruppo sanguigno è "donatore universale"?', a:'0 negativo' },
+      { q:'Quale pianeta è famoso per i suoi anelli?', a:'Saturno' },
+      { q:'Quale organo filtra il sangue e produce urina?', a:'I reni' },
+      { q:'Come si chiama la particella con carica negativa?', a:'L\'elettrone' },
+      { q:'Come si chiama il passaggio da gas a liquido?', a:'Condensazione' },
+      { q:'Quanti cuori ha un polpo?', a:'3' },
+      { q:'Qual è il metallo usato nei cavi elettrici per conduttività?', a:'Il rame' },
+      { q:'Come si chiama la cellula riproduttiva femminile?', a:'L\'ovulo' },
+      { q:'Quale forza attira i metalli come il ferro?', a:'Il magnetismo' },
+      { q:'Qual è l\'unità di misura della corrente elettrica?', a:'L\'ampere' },
+      { q:'Di che colore è il sangue ricco di ossigeno?', a:'Rosso' },
+      { q:'Come si chiama lo studio degli astri e delle stelle?', a:'L\'astronomia' },
+      { q:'Quale gas usano le piante nella fotosintesi (di giorno)?', a:'L\'anidride carbonica' },
+      { q:'Qual è la stella più vicina alla Terra?', a:'Il Sole' },
+      { q:'Come si chiama l\'insieme delle specie viventi (bio...)?', a:'La biodiversità' },
+      { q:'Qual è il simbolo chimico del carbonio?', a:'C' },
+      { q:'Quale organo permette la respirazione?', a:'I polmoni' },
+      { q:'Come si chiama il dinosauro carnivoro con le braccine corte?', a:'Il Tyrannosaurus Rex' },
+      { q:'Quale scienziata vinse due premi Nobel (fisica e chimica)?', a:'Marie Curie' },
+      { q:'Come si chiama la galassia in cui viviamo?', a:'La Via Lattea' },
+      { q:'Quanti litri di sangue ha in media un adulto?', a:'Circa 5 litri' }
+    ]},
+    { key:'geografia', emoji:'🌍', name:'Geografia', desc:'Capitali, stati, monti e mari', c:'#F59E0B', q:[
+      { q:'Qual è la capitale del Giappone?', a:'Tokyo' },
+      { q:'Qual è il deserto più grande del mondo?', a:'L\'Antartide (o il Sahara, tra quelli caldi)' },
+      { q:'In quale continente si trova l\'Egitto?', a:'Africa' },
+      { q:'Qual è la montagna più alta del mondo?', a:'L\'Everest' },
+      { q:'Qual è lo stato più piccolo del mondo?', a:'La Città del Vaticano' },
+      { q:'Quale oceano è il più grande?', a:'L\'Oceano Pacifico' },
+      { q:'Qual è la capitale della Spagna?', a:'Madrid' },
+      { q:'In che nazione si trova la Torre Eiffel?', a:'Francia' },
+      { q:'Qual è il fiume che attraversa Roma?', a:'Il Tevere' },
+      { q:'Quanti stati compongono gli USA?', a:'50' },
+      { q:'Qual è la capitale della Francia?', a:'Parigi' },
+      { q:'In quale continente si trova il Brasile?', a:'Sud America' },
+      { q:'Qual è il fiume più lungo d\'Italia?', a:'Il Po' },
+      { q:'Qual è la capitale del Regno Unito?', a:'Londra' },
+      { q:'Qual è l\'isola più grande d\'Italia?', a:'La Sicilia' },
+      { q:'Qual è la capitale degli Stati Uniti?', a:'Washington D.C.' },
+      { q:'Quale catena montuosa divide l\'Italia dal resto d\'Europa?', a:'Le Alpi' },
+      { q:'Qual è il lago più grande d\'Italia?', a:'Il Lago di Garda' },
+      { q:'Qual è la capitale della Russia?', a:'Mosca' },
+      { q:'Quale mare bagna Venezia?', a:'Il Mar Adriatico' },
+      { q:'Qual è la capitale della Grecia?', a:'Atene' },
+      { q:'Quale vulcano sovrasta Napoli?', a:'Il Vesuvio' },
+      { q:'In quale nazione si trova il Machu Picchu?', a:'In Perù' },
+      { q:'Qual è la capitale del Portogallo?', a:'Lisbona' },
+      { q:'Quale grande deserto si trova nel nord Africa?', a:'Il Sahara' },
+      { q:'Come si chiama lo stretto tra la Calabria e la Sicilia?', a:'Lo Stretto di Messina' },
+      { q:'Qual è la capitale della Cina?', a:'Pechino' },
+      { q:'Qual è la montagna più alta delle Alpi?', a:'Il Monte Bianco' },
+      { q:'In quale nazione si trova la Grande Muraglia?', a:'In Cina' },
+      { q:'Qual è la capitale del Canada?', a:'Ottawa' },
+      { q:'Quale regione italiana ha per capoluogo Milano?', a:'La Lombardia' },
+      { q:'Qual è la capitale dell\'Egitto?', a:'Il Cairo' },
+      { q:'Quale città è famosa per i canali e le gondole?', a:'Venezia' },
+      { q:'Qual è il paese più esteso del mondo?', a:'La Russia' },
+      { q:'Qual è la capitale della Germania?', a:'Berlino' },
+      { q:'In quale nazione si trova la città di Petra?', a:'In Giordania' },
+      { q:'Qual è il paese più popoloso del mondo?', a:'L\'India' },
+      { q:'Quale oceano bagna la costa est degli Stati Uniti?', a:'L\'Oceano Atlantico' },
+      { q:'Qual è la capitale della Svizzera?', a:'Berna' },
+      { q:'In quale continente si trova il deserto del Kalahari?', a:'In Africa' },
+      { q:'Qual è il fiume che attraversa Parigi?', a:'La Senna' },
+      { q:'Quale isola è la più grande del mondo?', a:'La Groenlandia' },
+      { q:'Qual è la capitale dei Paesi Bassi?', a:'Amsterdam' },
+      { q:'In quale nazione si trova la Torre di Pisa?', a:'In Italia' }
+    ]},
+    { key:'storia', emoji:'🏛️', name:'Storia', desc:'Eventi, personaggi ed epoche', c:'#A855F7', q:[
+      { q:'In che anno è finita la Seconda Guerra Mondiale?', a:'1945' },
+      { q:'Chi è stato il primo uomo a mettere piede sulla Luna?', a:'Neil Armstrong' },
+      { q:'Quale impero costruì il Colosseo?', a:'L\'Impero Romano' },
+      { q:'Chi era il condottiero che attraversò le Alpi con gli elefanti?', a:'Annibale' },
+      { q:'In che anno è stata scoperta l\'America da Colombo?', a:'1492' },
+      { q:'Chi ha guidato la Francia come imperatore agli inizi del 1800?', a:'Napoleone Bonaparte' },
+      { q:'Come si chiamava la nave di Cristoforo Colombo (una delle tre)?', a:'Santa Maria (o Niña/Pinta)' },
+      { q:'Quale muro divideva Berlino fino al 1989?', a:'Il Muro di Berlino' },
+      { q:'Chi ha unificato l\'Italia col celebre sbarco dei Mille?', a:'Giuseppe Garibaldi' },
+      { q:'In che secolo è vissuto Leonardo da Vinci?', a:'Tra 400 e 500 (XV-XVI secolo)' },
+      { q:'In che anno iniziò la Prima Guerra Mondiale?', a:'1914' },
+      { q:'Quale faraone egizio ha un celebre tesoro (tomba 1922)?', a:'Tutankhamon' },
+      { q:'Quale civiltà costruì le piramidi di Giza?', a:'Gli antichi Egizi' },
+      { q:'In che anno l\'uomo è sbarcato sulla Luna?', a:'1969' },
+      { q:'Chi era il dittatore italiano del fascismo?', a:'Benito Mussolini' },
+      { q:'Quale regina d\'Egitto amò Cesare e Marco Antonio?', a:'Cleopatra' },
+      { q:'In che anno cadde l\'Impero Romano d\'Occidente?', a:'476 d.C.' },
+      { q:'Quale re di Francia fu ghigliottinato nella Rivoluzione?', a:'Luigi XVI' },
+      { q:'In che anno l\'Italia divenne una repubblica?', a:'1946' },
+      { q:'Quale condottiero macedone conquistò gran parte dell\'Asia?', a:'Alessandro Magno' },
+      { q:'In quale anno scoppiò la Rivoluzione francese?', a:'1789' },
+      { q:'Chi era il presidente USA durante la Guerra di Secessione?', a:'Abraham Lincoln' },
+      { q:'In che anno finì la Prima Guerra Mondiale?', a:'1918' },
+      { q:'Chi guidò l\'India con la lotta non violenta?', a:'Gandhi' },
+      { q:'Quale impero fu governato dai sultani con capitale Istanbul?', a:'L\'Impero Ottomano' },
+      { q:'In che anno scoppiò la Seconda Guerra Mondiale?', a:'1939' },
+      { q:'Quale città fu sepolta dall\'eruzione del Vesuvio nel 79 d.C.?', a:'Pompei' },
+      { q:'Chi era il re guerriero degli Unni?', a:'Attila' },
+      { q:'Quale nave portò i Padri Pellegrini in America?', a:'La Mayflower' },
+      { q:'Chi fu il primo imperatore romano?', a:'Augusto (Ottaviano)' },
+      { q:'Chi guidò la Rivoluzione russa del 1917?', a:'Lenin' },
+      { q:'Chi era la regina del Regno Unito fino al 2022?', a:'Elisabetta II' },
+      { q:'Quale trattato pose fine alla Prima Guerra Mondiale?', a:'Il Trattato di Versailles' },
+      { q:'In quale città medievale si tenevano i tornei dei cavalieri?', a:'(In molte) — es. nei castelli medievali' },
+      { q:'Chi scrisse "Il Principe", trattato politico del Rinascimento?', a:'Niccolò Machiavelli' },
+      { q:'Quale esploratore veneziano viaggiò fino in Cina?', a:'Marco Polo' },
+      { q:'Chi era il condottiero romano assassinato alle Idi di marzo?', a:'Giulio Cesare' },
+      { q:'Quale civiltà precolombiana viveva in Messico con templi a piramide?', a:'Gli Aztechi (o i Maya)' },
+      { q:'In che anno crollò il Muro di Berlino?', a:'1989' },
+      { q:'Chi proclamò l\'Unità d\'Italia nel 1861 (primo re)?', a:'Vittorio Emanuele II' },
+      { q:'Quale peste colpì l\'Europa nel Trecento?', a:'La peste nera (1348)' },
+      { q:'Chi guidò la marcia su Roma nel 1922?', a:'Benito Mussolini' },
+      { q:'Quale antica città greca era rivale di Atene?', a:'Sparta' },
+      { q:'In quale anno affondò il Titanic?', a:'1912' }
+    ]},
+    { key:'cinema', emoji:'🎬', name:'Cinema & TV', desc:'Film, registi, serie e attori', c:'#6366F1', q:[
+      { q:'In quale saga compare "Dart Fener" (Darth Vader)?', a:'Star Wars' },
+      { q:'Chi ha diretto "Titanic" e "Avatar"?', a:'James Cameron' },
+      { q:'Come si chiama il maggiordomo di Batman?', a:'Alfred' },
+      { q:'In che film un\'orca... anzi, uno squalo terrorizza una spiaggia?', a:'Lo squalo (Jaws)' },
+      { q:'Qual è il nome del topo più famoso della Disney?', a:'Topolino (Mickey Mouse)' },
+      { q:'In quale serie ci sono i draghi e il "Trono di Spade"?', a:'Game of Thrones' },
+      { q:'Chi interpreta Iron Man nei film Marvel?', a:'Robert Downey Jr.' },
+      { q:'Come si chiama il pesciolino protagonista del film Pixar?', a:'Nemo' },
+      { q:'In "Il Signore degli Anelli", chi porta l\'Anello a Mordor?', a:'Frodo' },
+      { q:'Qual è il film d\'animazione con Simba e Mufasa?', a:'Il Re Leone' },
+      { q:'Chi ha diretto "Il Padrino"?', a:'Francis Ford Coppola' },
+      { q:'In quale film Tom Hanks dice "La vita è come una scatola di cioccolatini"?', a:'Forrest Gump' },
+      { q:'Come si chiama il protagonista di "Matrix"?', a:'Neo' },
+      { q:'Quale attore interpreta Jack Sparrow?', a:'Johnny Depp' },
+      { q:'In quale serie ci sono il "Sottosopra" e Undici?', a:'Stranger Things' },
+      { q:'Come si chiama il clown di "IT"?', a:'Pennywise' },
+      { q:'In quale saga si dice "Che la Forza sia con te"?', a:'Star Wars' },
+      { q:'Quale attrice interpreta Hermione in Harry Potter?', a:'Emma Watson' },
+      { q:'Quale serie coreana ha giochi d\'infanzia mortali (2021)?', a:'Squid Game' },
+      { q:'Chi ha diretto "Inception" e "Interstellar"?', a:'Christopher Nolan' },
+      { q:'In quale film DiCaprio ha vinto l\'Oscar (2016)?', a:'Revenant - Redivivo' },
+      { q:'Come si chiama la principessa di "Frozen" coi poteri di ghiaccio?', a:'Elsa' },
+      { q:'Quale serie TV è ambientata al Seattle Grace Hospital?', a:'Grey\'s Anatomy' },
+      { q:'Chi interpreta il Joker nel film del 2019?', a:'Joaquin Phoenix' },
+      { q:'Come si chiama l\'orco verde della DreamWorks?', a:'Shrek' },
+      { q:'Quale serie ha il detective Sherlock (BBC)?', a:'Sherlock' },
+      { q:'Chi ha diretto "Pulp Fiction" e "Kill Bill"?', a:'Quentin Tarantino' },
+      { q:'Come si chiama la famiglia gialla dei cartoni animati?', a:'I Simpson' },
+      { q:'Quale film Pixar parla di emozioni dentro la testa?', a:'Inside Out' },
+      { q:'Chi interpreta Wolverine negli X-Men?', a:'Hugh Jackman' },
+      { q:'Come si chiama il pupazzo di neve di "Frozen"?', a:'Olaf' },
+      { q:'Quale film coreano vinse l\'Oscar come miglior film 2020?', a:'Parasite' },
+      { q:'Chi interpreta Massimo Decimo Meridio ne "Il Gladiatore"?', a:'Russell Crowe' },
+      { q:'Come si chiama la scuola di magia di Harry Potter?', a:'Hogwarts' },
+      { q:'Quale anime giapponese ha per protagonista Goku?', a:'Dragon Ball' },
+      { q:'Chi ha diretto "E.T. l\'extra-terrestre" e "Jurassic Park"?', a:'Steven Spielberg' },
+      { q:'Come si chiama il supereroe "uomo pipistrello"?', a:'Batman' },
+      { q:'In quale serie ci sono i Peaky Blinders di Birmingham?', a:'Peaky Blinders' },
+      { q:'Quale film ha per protagonista un pesce pagliaccio che cerca il figlio?', a:'Alla ricerca di Nemo' },
+      { q:'Chi interpreta Neo in "Matrix"?', a:'Keanu Reeves' },
+      { q:'Quale serie racconta la corona britannica (Netflix)?', a:'The Crown' },
+      { q:'Come si chiama il robottino giallo e nero di Star Wars?', a:'C-3PO (o R2-D2)' },
+      { q:'Quale film d\'animazione italiano-Pixar è ambientato in Liguria?', a:'Luca' },
+      { q:'Chi è il regista di "Titanic" e "Avatar"?', a:'James Cameron' }
+    ]}
+  ];
+  let siqActive = null;     // (retro-compat, non usato in modalità spicchi)
+  let siqQueue = [];        // pool di domande mischiate {q,a,cat}
+  let siqIndex = 0;
+  let siqRevealed = false;
+
+  // ===== meccanica a spicchi =====
+  const SIQ_PAWNS = ['🔴','🔵','🟢','🟡','🟣','🟠','⚫','🟤'];
+  let siqPlayers = [];      // { name, wedges:[catKey,...] }
+  let siqTurn = 0;          // indice giocatore di turno
+  let siqSelected = [];     // categorie scelte (oggetti categoria) — restano da una sessione all'altra
+  let siqCurrentCat = null; // categoria della domanda corrente
+  let siqScreen = 'players';// schermata corrente: 'players' | 'modes' | 'area' | 'win' — per riprendere al rientro
+  let siqGameLive = false;  // esiste una partita in corso (riprendibile)
+  let siqDirty = false;     // il setup è stato modificato → la partita andrà ricominciata
+  let siqModalCb = null;    // callback della modale di conferma
+  let siqStage = 'spin';    // sotto-stadio dentro la partita: 'spin' | 'question' | 'bonuspick'
+  let siqCurrentItem = null;// domanda estratta attualmente in mostra (per non perderla al rientro)
+
+  // ---- modale di conferma riutilizzabile ----
+  function siqAsk(title, text, okLabel, cb) {
+    siqModalCb = cb;
+    document.getElementById('siq-modal-title').textContent = title;
+    document.getElementById('siq-modal-text').innerHTML = text;
+    document.getElementById('siq-modal-ok').textContent = okLabel || 'Procedi';
+    document.getElementById('siq-modal').style.display = 'flex';
+  }
+  function siqModalCancel() {
+    document.getElementById('siq-modal').style.display = 'none';
+    siqModalCb = null;
+  }
+  function siqModalOk() {
+    const cb = siqModalCb;
+    document.getElementById('siq-modal').style.display = 'none';
+    siqModalCb = null;
+    if (cb) cb();
+  }
+  // se c'è una partita in corso non ancora "sporcata", chiede conferma prima di modificare il setup
+  function siqGuardEdit(applyFn) {
+    if (siqGameLive && !siqDirty) {
+      siqAsk('Modificare il setup?',
+        'C\'è una <b>partita in corso</b>. Se cambi giocatori o categorie dovrai <b>ricominciare da capo</b> e perderai i triangolini e i punteggi conquistati finora.',
+        'Sì, ricomincio',
+        function(){ siqDirty = true; applyFn(); });
+    } else {
+      applyFn();
+    }
+  }
+
+  function siqEsc(s) {
+    return String(s).replace(/[&<>"]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+
+  // ====== CONFIG BACKEND AI (da collegare nel weekend) ======
+  // Punta alla funzione serverless che chiama Claude Haiku 4.5.
+  // Esempio: 'https://camon.vercel.app/api/shotiq'
+  const SIQ_API_URL = ''; // ← inserire qui l'URL del backend quando è pronto
+  // ==========================================================
+
+  function siqHideAll() {
+    ['siq-players-screen','siq-modes','siq-custom','siq-area','siq-win'].forEach(function(id){
+      document.getElementById(id).style.display = 'none';
+    });
+  }
+  // allinea i giocatori del Trivial alla rosa condivisa, preservando i punteggi già in gioco
+  function siqSyncFromRoster() {
+    siqPlayers = rosterNames.map(function(n){
+      var ex = siqPlayers.find(function(p){ return p.name === n; });
+      return ex || { name: n, wedges: [], correct: 0 };
+    });
+  }
+
+  // INGRESSO nel gioco (da goTo): riprende dove avevi lasciato invece di ripartire da zero
+  function siqEnter() {
+    document.getElementById('page-shotiq').style.background = '';
+    if (siqScreen === 'area' && siqPlayers.length >= 2 && siqSelected.length >= 1) {
+      // riprendi la partita esattamente dov'eri (ruota, domanda o scelta bonus)
+      siqHideAll();
+      document.getElementById('siq-area').style.display = 'flex';
+      siqBuildWheel();
+      siqRestoreStage();
+      siqUpdateHeaderBtn();
+    } else if (siqScreen === 'win') {
+      siqHideAll();
+      document.getElementById('siq-win').style.display = 'flex';
+      siqUpdateHeaderBtn();
+    } else if (siqScreen === 'modes' && rosterNames.length >= 2) {
+      siqShowModes();
+    } else {
+      siqShowPlayers();
+    }
+  }
+
+  // freccia INDIETRO dell'header: torna indietro di UN passo nel flusso
+  // gioco → categorie → giocatori → (esci ai giochi). Mantiene sempre nomi e categorie.
+  function siqBack() {
+    if (siqScreen === 'area' || siqScreen === 'win') { siqShowModes(); }
+    else if (siqScreen === 'modes') { siqShowPlayers(); }
+    else { goTo('games'); } // 'players' → esce dal gioco
+  }
+
+  // schermata setup giocatori (prende i nomi dalla rosa condivisa)
+  function siqShowPlayers() {
+    siqScreen = 'players';
+    siqSyncFromRoster();
+    siqRenderPlayers();
+    siqHideAll();
+    document.getElementById('siq-players-screen').style.display = '';
+    document.getElementById('siq-player-input').value = '';
+    document.getElementById('page-shotiq').style.background = '';
+    siqUpdateHeaderBtn();
+  }
+
+  // "Nuova partita": azzera punteggi ma mantiene nomi e categorie scelte
+  function siqSetupReset() {
+    siqActive = null; siqRevealed = false; siqTurn = 0;
+    siqGameLive = false; siqDirty = false;
+    siqPlayers.forEach(function(p){ p.wedges = []; p.correct = 0; });
+    siqShowPlayers();
+  }
+
+  /* --- setup giocatori --- */
+  function siqAddPlayer(ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    const input = document.getElementById('siq-player-input');
+    const name = input.value.trim();
+    if (!name) return;
+    siqGuardEdit(function(){
+      rosterNames.push(name);            // aggiunge alla rosa condivisa
+      siqPlayers.push({ name: name, wedges: [], correct: 0 });
+      siqRenderPlayers();
+    });
+    input.value = ''; input.focus();
+  }
+  function siqRenderPlayers() {
+    const list = document.getElementById('siq-players-list');
+    list.innerHTML = siqPlayers.map(function(p, i){
+      return '<div class="sq-player-chip">'
+        + '<span class="sq-avatar" style="background:rgba(45,212,191,0.18)">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
+        + '<span class="sq-chip-name">' + siqEsc(p.name) + '</span>'
+        + '<button class="sq-chip-del" onclick="siqRemovePlayer(' + i + ')" aria-label="Rimuovi">'
+        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+        + '</button></div>';
+    }).join('');
+    const enough = siqPlayers.length >= 2;
+    document.getElementById('siq-players-btn').disabled = !enough;
+    document.getElementById('siq-players-hint').classList.toggle('hidden', enough);
+  }
+  function siqRemovePlayer(i) {
+    siqGuardEdit(function(){
+      const removed = siqPlayers[i];
+      siqPlayers.splice(i, 1);
+      // rimuove lo stesso nome dalla rosa condivisa
+      if (removed) {
+        const ri = rosterNames.indexOf(removed.name);
+        if (ri >= 0) rosterNames.splice(ri, 1);
+      }
+      siqRenderPlayers();
+    });
+  }
+  function siqPlayersNext() {
+    if (siqPlayers.length < 2) return;
+    siqShowModes();
+  }
+  function siqBackToPlayers() {
+    siqShowPlayers();
+  }
+
+  /* --- scelta argomenti (multi-select) --- */
+  function siqShowModes() {
+    siqScreen = 'modes';
+    // tieni solo categorie predefinite (scarta eventuale categoria AI temporanea)
+    siqSelected = siqSelected.filter(function(c){ return siqCategories.indexOf(c) >= 0; });
+    siqRenderMulti();
+    siqHideAll();
+    document.getElementById('siq-modes').style.display = '';
+    document.getElementById('page-shotiq').style.background = '';
+    siqUpdateHeaderBtn();
+  }
+  function siqRenderMulti() {
+    const wrap = document.getElementById('siq-multi-list');
+    wrap.innerHTML = siqCategories.map(function(c) {
+      const on = siqSelected.indexOf(c) >= 0;
+      return '<button class="siq-multi-card' + (on ? ' on' : '') + '" onclick="siqToggleCat(\'' + c.key + '\')">'
+        + '<span class="siq-multi-emoji">' + c.emoji + '</span>'
+        + '<span class="siq-multi-info"><span class="siq-multi-name" style="color:' + c.c + '">' + c.name + '</span>'
+        + '<span class="siq-multi-desc">' + c.desc + '</span></span>'
+        + '<span class="siq-multi-check">' + (on ? '✓' : '') + '</span>'
+        + '</button>';
+    }).join('');
+    siqUpdateMultiBtn();
+  }
+  const SIQ_PICK_COUNT = 6; // spicchi fissi: come nel Trivial classico
+  function siqToggleCat(key) {
+    const cat = siqCategories.find(function(c){ return c.key === key; });
+    if (!cat) return;
+    const already = siqSelected.indexOf(cat) >= 0;
+    if (!already && siqSelected.length >= SIQ_PICK_COUNT) return; // massimo 6, ignora oltre
+    siqGuardEdit(function(){
+      const i = siqSelected.indexOf(cat);
+      if (i >= 0) siqSelected.splice(i, 1);
+      else siqSelected.push(cat);
+      siqRenderMulti();
+    });
+  }
+  function siqUpdateMultiBtn() {
+    const btn = document.getElementById('siq-multi-btn');
+    const n = siqSelected.length;
+    const canResume = siqGameLive && !siqDirty && n === SIQ_PICK_COUNT;
+    btn.disabled = n !== SIQ_PICK_COUNT;
+    btn.textContent = canResume ? '▶ Riprendi la partita'
+      : (n === SIQ_PICK_COUNT ? ('Inizia · ' + n + ' spicchi') : ('Scegli ' + n + '/' + SIQ_PICK_COUNT + ' argomenti'));
+  }
+  function siqOpenCustom() {
+    siqHideAll();
+    document.getElementById('siq-custom').style.display = '';
+    document.getElementById('siq-custom-status').style.display = 'none';
+    document.getElementById('siq-custom-input').value = '';
+    setTimeout(function(){ document.getElementById('siq-custom-input').focus(); }, 100);
+  }
+  function siqExample(topic) {
+    document.getElementById('siq-custom-input').value = topic;
+    siqGenerate();
+  }
+  async function siqGenerate(ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    const topic = document.getElementById('siq-custom-input').value.trim();
+    const statusEl = document.getElementById('siq-custom-status');
+    const btn = document.getElementById('siq-custom-btn');
+    if (!topic) { document.getElementById('siq-custom-input').focus(); return; }
+
+    if (!SIQ_API_URL) {
+      statusEl.style.display = 'block';
+      statusEl.className = 'siq-custom-status error';
+      statusEl.textContent = '⚙️ Funzione AI non ancora attiva. Verrà collegata a breve! Per ora usa gli argomenti predefiniti.';
+      return;
+    }
+
+    btn.disabled = true;
+    statusEl.style.display = 'block';
+    statusEl.className = 'siq-custom-status loading';
+    statusEl.textContent = '🧠 Sto preparando 10 domande su "' + topic + '"…';
+
+    try {
+      const res = await fetch(SIQ_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: topic })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const questions = (data && data.questions) || [];
+      if (!questions.length) throw new Error('vuoto');
+      btn.disabled = false;
+      // argomento AI = un singolo spicchio (partita veloce)
+      const aiCat = { key: 'ai', emoji: '✏️', name: topic.toUpperCase(), c: '#2DD4BF', q: questions };
+      siqSelected = [aiCat];
+      siqStartGame();
+    } catch (e) {
+      btn.disabled = false;
+      statusEl.className = 'siq-custom-status error';
+      statusEl.textContent = '😕 Non sono riuscito a generare le domande. Riprova tra poco o scegli un altro argomento.';
+    }
+  }
+
+  /* --- partita a RUOTA (stile Trivia Crack) --- */
+  let siqPools = {};        // { catKey: { queue:[...], idx:0 } } — pool per categoria, non ripete
+  let siqSegments = [];     // spicchi della ruota: {type:'cat',cat}
+  let siqWheelRot = 0;      // rotazione cumulativa della ruota (gradi)
+  let siqBusy = false;      // blocca doppi tap durante lo spin
+  let siqBonus = false;     // la domanda corrente è una DOMANDA BONUS (dà il triangolino)
+
+  // costruisce un pool mischiato per ogni categoria scelta (così le domande non si ripetono)
+  function siqBuildPools() {
+    siqPools = {};
+    siqSelected.forEach(function(cat){
+      var q = cat.q.slice().sort(function(){ return Math.random() - 0.5; });
+      siqPools[cat.key] = { queue: q, idx: 0 };
+    });
+  }
+  // pesca la prossima domanda di una categoria, rimescolando quando finisce
+  function siqDraw(cat) {
+    var pool = siqPools[cat.key];
+    if (!pool) { pool = siqPools[cat.key] = { queue: cat.q.slice(), idx: 0 }; }
+    if (pool.idx >= pool.queue.length) {
+      pool.queue.sort(function(){ return Math.random() - 0.5; });
+      pool.idx = 0;
+    }
+    return pool.queue[pool.idx++];
+  }
+
+  const SIQ_BONUS_EVERY = 3; // risposte esatte necessarie per sbloccare la domanda bonus
+
+  // mostra il pulsante "Ricomincia" nell'header solo durante la partita
+  function siqUpdateHeaderBtn() {
+    const b = document.getElementById('siq-reset-btn');
+    if (b) b.style.display = (siqScreen === 'area') ? '' : 'none';
+  }
+
+  // pulsante primario della schermata categorie: riprende la partita o ne inizia una nuova
+  function siqPrimaryAction() {
+    if (siqSelected.length !== SIQ_PICK_COUNT) return;
+    if (siqGameLive && !siqDirty) siqResumeArea();
+    else siqStartGame();
+  }
+  // riprende la partita in corso SENZA azzerare nulla (torna allo stesso identico punto)
+  function siqResumeArea() {
+    siqScreen = 'area';
+    siqHideAll();
+    document.getElementById('siq-area').style.display = 'flex';
+    siqBuildWheel();
+    siqRestoreStage();
+    siqUpdateHeaderBtn();
+  }
+  // chiede conferma e ricomincia la partita da capo (stessi giocatori e categorie)
+  function siqResetConfirm() {
+    siqAsk('Ricominciare la partita?',
+      'Tutti i <b>triangolini</b> e i <b>punteggi</b> verranno azzerati. Giocatori e categorie restano gli stessi.',
+      'Sì, ricomincia',
+      function(){ siqStartGame(); });
+  }
+
+  function siqStartGame() {
+    if (siqSelected.length < 1) return;
+    siqScreen = 'area';
+    siqGameLive = true; siqDirty = false;
+    siqBuildPools();
+    siqTurn = 0; siqRevealed = false; siqBusy = false; siqWheelRot = 0;
+    siqPlayers.forEach(function(p){ p.wedges = []; p.correct = 0; });
+    // spicchi ruota: solo le categorie scelte (il bonus arriva col conteggio delle 3 giuste)
+    siqSegments = siqSelected.map(function(cat){ return { type:'cat', cat:cat }; });
+    siqHideAll();
+    document.getElementById('siq-area').style.display = 'flex';
+    siqBuildWheel();
+    siqShowSpin();
+    siqUpdateHeaderBtn();
+  }
+
+  // disegna la ruota (gradiente conico + emoji per spicchio) — segmenti fissi per la partita
+  function siqBuildWheel() {
+    const wheel = document.getElementById('siq-wheel');
+    const N = siqSegments.length;
+    const seg = 360 / N;
+    var stops = [];
+    var emojis = '';
+    siqSegments.forEach(function(s, i){
+      stops.push(s.cat.c + ' ' + (i*seg) + 'deg ' + ((i+1)*seg) + 'deg');
+      var a = (i + 0.5) * seg; // centro spicchio (gradi da ore 12, orario)
+      emojis += '<span class="siq-wheel-emoji" style="transform:rotate(' + a + 'deg)">' + s.cat.emoji + '</span>';
+    });
+    wheel.style.background = 'conic-gradient(from 0deg,' + stops.join(',') + ')';
+    wheel.innerHTML = emojis;
+    wheel.style.transition = 'none';
+    wheel.style.transform = 'rotate(0deg)';
+    void wheel.offsetWidth; // reset
+    wheel.style.transition = '';
+    siqWheelRot = 0;
+  }
+
+  function siqRenderBoard() {
+    const board = document.getElementById('siq-board');
+    board.innerHTML = siqPlayers.map(function(p, i){
+      const wedges = siqSelected.map(function(cat){
+        const won = p.wedges.indexOf(cat.key) >= 0;
+        return '<span class="siq-wedge' + (won ? ' won' : '') + '" style="color:' + cat.c + ';opacity:' + (won ? '1' : '0.16') + '">▲</span>';
+      }).join('');
+      return '<div class="siq-board-row">'
+        + '<div class="siq-board-name' + (i === siqTurn ? ' current' : '') + '">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + ' ' + siqEsc(p.name) + '</div>'
+        + '<div class="siq-board-wedges">' + wedges + '</div>'
+        + '<div class="siq-board-count">' + p.wedges.length + '/' + siqSelected.length + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // STAGE ruota: mostra la ruota e il pulsante GIRA per il giocatore di turno
+  function siqShowSpin() {
+    siqRevealed = false; siqBusy = false; siqBonus = false; siqStage = 'spin'; siqCurrentItem = null;
+    document.getElementById('page-shotiq').style.background = '';
+    document.getElementById('siq-turn').innerHTML = 'Tocca a <span>' + siqEsc(siqPlayers[siqTurn].name) + '</span>';
+    document.getElementById('siq-wheel-stage').style.display = 'flex';
+    document.getElementById('siq-crownpick').style.display = 'none';
+    document.getElementById('siq-question-stage').style.display = 'none';
+    document.getElementById('siq-roll-msg').style.display = 'none';
+    document.getElementById('siq-spin-btn').disabled = false;
+    siqRenderStreak();
+    siqRenderBoard();
+  }
+  // pallini di progresso verso la domanda bonus (X/3)
+  function siqRenderStreak() {
+    const el = document.getElementById('siq-streak');
+    if (!el) return;
+    const done = siqPlayers[siqTurn].correct % SIQ_BONUS_EVERY;
+    var dots = '';
+    for (var k = 0; k < SIQ_BONUS_EVERY; k++) {
+      dots += '<span class="siq-streak-dot' + (k < done ? ' on' : '') + '"></span>';
+    }
+    el.innerHTML = dots + '<span>' + done + '/' + SIQ_BONUS_EVERY + ' al bonus 🌟</span>';
+  }
+
+  // gira la ruota e determina lo spicchio d'arrivo
+  function siqSpin() {
+    if (siqBusy) return;
+    siqBusy = true;
+    document.getElementById('siq-spin-btn').disabled = true;
+    const N = siqSegments.length;
+    const seg = 360 / N;
+    const target = Math.floor(Math.random() * N);
+    const spins = 4 + Math.floor(Math.random() * 3); // 4–6 giri pieni
+    // porta il centro dello spicchio target sotto il puntatore (ore 12)
+    const desiredMod = (360 - (target + 0.5) * seg) % 360;
+    const curMod = ((siqWheelRot % 360) + 360) % 360;
+    const delta = spins * 360 + (((desiredMod - curMod) % 360) + 360) % 360;
+    siqWheelRot += delta;
+    const wheel = document.getElementById('siq-wheel');
+    wheel.style.transform = 'rotate(' + siqWheelRot + 'deg)';
+    setTimeout(function(){ siqAfterSpin(target); }, 4200);
+  }
+
+  function siqAfterSpin(idx) {
+    const s = siqSegments[idx];
+    siqCurrentCat = s.cat; siqBonus = false;
+    siqAskQuestion(s.cat);
+  }
+
+  // DOMANDA BONUS: il giocatore sceglie quale triangolino provare a conquistare (tra quelli che gli mancano)
+  function siqShowBonusPick() {
+    const p = siqPlayers[siqTurn];
+    const missing = siqSelected.filter(function(cat){ return p.wedges.indexOf(cat.key) < 0; });
+    if (missing.length === 0) { siqShowSpin(); return; } // ha già tutto (non dovrebbe capitare)
+    siqStage = 'bonuspick';
+    document.getElementById('siq-wheel-stage').style.display = 'none';
+    document.getElementById('siq-roll-msg').style.display = 'none';
+    const list = document.getElementById('siq-crownpick-list');
+    list.innerHTML = missing.map(function(cat){
+      return '<button class="siq-crownpick-btn" style="border-color:' + cat.c + '" onclick="siqBonusChoose(\'' + cat.key + '\')">'
+        + '<span class="siq-cp-emoji">' + cat.emoji + '</span>'
+        + '<span class="siq-cp-name" style="color:' + cat.c + '">' + cat.name + '</span>'
+        + '<span class="siq-cp-tri" style="color:' + cat.c + '">▲</span>'
+        + '</button>';
+    }).join('');
+    document.getElementById('siq-crownpick').style.display = 'block';
+  }
+  function siqBonusChoose(key) {
+    const cat = siqSelected.find(function(c){ return c.key === key; });
+    if (!cat) return;
+    siqCurrentCat = cat; siqBonus = true;
+    document.getElementById('siq-crownpick').style.display = 'none';
+    siqAskQuestion(cat);
+  }
+
+  // estrae una NUOVA domanda e la mostra
+  function siqAskQuestion(cat) {
+    siqRevealed = false;
+    siqCurrentItem = siqDraw(cat);
+    siqStage = 'question';
+    siqRenderQuestion(true);
+  }
+  // mostra la domanda corrente (siqCurrentItem) rispettando lo stato "rivelata o no"
+  // usata sia da siqAskQuestion sia dal rientro nella partita (per non perdere la domanda)
+  function siqRenderQuestion(animate) {
+    const cat = siqCurrentCat;
+    const item = siqCurrentItem;
+    if (!cat || !item) { siqShowSpin(); return; }
+    document.getElementById('page-shotiq').style.background = 'linear-gradient(160deg,' + cat.c + ',' + siqShade(cat.c) + ')';
+    document.getElementById('siq-cat').textContent = (siqBonus ? '🌟 BONUS · ' : '') + cat.emoji + ' ' + cat.name;
+    const qEl = document.getElementById('siq-question');
+    qEl.textContent = item.q;
+    document.getElementById('siq-answer-val').textContent = item.a;
+    // se la risposta era già stata rivelata prima di uscire, la rimostra col giudizio
+    document.getElementById('siq-answer').style.display = siqRevealed ? '' : 'none';
+    document.getElementById('siq-reveal-btn').style.display = siqRevealed ? 'none' : '';
+    document.getElementById('siq-judge').style.display = siqRevealed ? 'flex' : 'none';
+    document.getElementById('siq-roll-msg').style.display = 'none';
+    document.getElementById('siq-wheel-stage').style.display = 'none';
+    document.getElementById('siq-crownpick').style.display = 'none';
+    document.getElementById('siq-question-stage').style.display = 'flex';
+    if (animate) { qEl.style.animation = 'none'; void qEl.offsetWidth; qEl.style.animation = ''; }
+    siqBusy = false;
+    siqRenderBoard();
+  }
+  // ripristina il sotto-stadio corretto al rientro nella partita
+  function siqRestoreStage() {
+    if (siqStage === 'question' && siqCurrentItem) siqRenderQuestion(false);
+    else if (siqStage === 'bonuspick') siqShowBonusPick();
+    else siqShowSpin();
+  }
+
+  function siqReveal() {
+    siqRevealed = true;
+    document.getElementById('siq-answer').style.display = '';
+    document.getElementById('siq-reveal-btn').style.display = 'none';
+    document.getElementById('siq-judge').style.display = 'flex';
+  }
+
+  function siqJudge(correct) {
+    document.getElementById('siq-judge').style.display = 'none';
+    document.getElementById('siq-question-stage').style.display = 'none';
+    const msg = document.getElementById('siq-roll-msg');
+    msg.style.display = 'block';
+    const p = siqPlayers[siqTurn];
+    const cat = siqCurrentCat;
+
+    if (!correct) {
+      // sbagliata (normale o bonus) → beve e passa il turno; il progresso cala di 1 (non si azzera)
+      p.correct = Math.max(0, p.correct - 1);
+      msg.innerHTML = '🍺 ' + siqEsc(p.name) + ' sbaglia e beve un sorso';
+      setTimeout(siqNextTurn, 1650);
+      return;
+    }
+
+    if (siqBonus) {
+      // DOMANDA BONUS giusta → conquista il triangolino scelto
+      if (p.wedges.indexOf(cat.key) < 0) p.wedges.push(cat.key);
+      msg.innerHTML = '🔺 ' + siqEsc(p.name) + ' conquista il triangolino ' + cat.name + '!';
+      siqRenderBoard();
+      if (p.wedges.length >= siqSelected.length) { setTimeout(siqWin, 1200); return; }
+      // continua a giocare: gira di nuovo
+      setTimeout(siqShowSpin, 1650);
+      return;
+    }
+
+    // domanda normale giusta → +1 alla streak, poi tira ancora (o scatta il bonus)
+    p.correct++;
+    if (p.correct % SIQ_BONUS_EVERY === 0) {
+      msg.innerHTML = '🌟 ' + siqEsc(p.name) + ': 3 risposte esatte! DOMANDA BONUS';
+      setTimeout(siqShowBonusPick, 1650);
+    } else {
+      msg.innerHTML = '✅ Giusto ' + siqEsc(p.name) + '! Tira ancora';
+      setTimeout(siqShowSpin, 1500);
+    }
+  }
+
+  function siqNextTurn() {
+    siqTurn = (siqTurn + 1) % siqPlayers.length;
+    siqShowSpin();
+  }
+
+  function siqWin() {
+    siqScreen = 'win';
+    siqGameLive = false; siqDirty = false;
+    siqUpdateHeaderBtn();
+    const ranked = siqPlayers
+      .map(function(p){ return { name: p.name, n: p.wedges.length }; })
+      .sort(function(a, b){ return b.n - a.n; });
+    siqHideAll();
+    document.getElementById('siq-win').style.display = 'flex';
+    document.getElementById('siq-win-name').textContent = ranked[0].name;
+    const rest = ranked.slice(1).map(function(r, idx){
+      return (idx + 2) + '° ' + siqEsc(r.name) + ' · ' + r.n + ' spicchi';
+    }).join('<br>');
+    document.getElementById('siq-win-rank').innerHTML = rest ? 'Classifica<br>' + rest : '';
+    document.getElementById('page-shotiq').style.background = '';
+  }
+  // scurisce un colore hex per il gradiente di sfondo
+  function siqShade(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.round(((n >> 16) & 255) * 0.5);
+    const g = Math.round(((n >> 8) & 255) * 0.5);
+    const b = Math.round((n & 255) * 0.5);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  /* ===== OBBLIGO O VERITÀ ===== */
+  const otTruths = [
+    'Qual è la cosa più imbarazzante che hai fatto da ubriaco/a?',
+    'Chi al tavolo ti sei guardato/a un po\' troppo a lungo stasera?',
+    'Qual è stato il tuo peggior appuntamento di sempre?',
+    'L\'ultima bugia che hai detto a qualcuno presente qui?',
+    'Hai mai finto di essere sobrio/a coi tuoi? Racconta.',
+    'Chi tra i presenti rivedresti volentieri… da solo/a?',
+    'Qual è il messaggio più imbarazzante nel tuo telefono?',
+    'Quanto hai speso davvero nell\'ultima serata fuori?',
+    'Qual è la tua peggiore abitudine quando bevi?',
+    'Una cotta segreta che non hai mai confessato a nessuno?',
+    'Qual è l\'ultima cosa che hai cercato su internet?',
+    'L\'esame o la materia che ti ha fatto quasi piangere?',
+    'Hai mai dato buca con una scusa inventata? Quale?',
+    'Chi al tavolo porteresti in vacanza e chi mai?',
+    'Il complimento più falso che hai fatto stasera?',
+    'La canzone che canti solo quando sei da solo/a?',
+    'Qual è la cosa più infantile che fai ancora?',
+    'Chi è stato il tuo primo bacio e com\'è andata?'
+  ];
+  const otDares = [
+    'Fai un brindisi drammatico in piedi, come in un film.',
+    'Manda "ciao bello/a 😏" al terzo contatto della tua chat.',
+    'Imita qualcuno al tavolo: gli altri devono indovinare chi.',
+    'Parla con un accento straniero fino al tuo prossimo turno.',
+    'Ordina al banco facendo finta di essere una star del cinema.',
+    'Fai 10 secondi di balletto senza musica.',
+    'Lascia che il vicino di destra scriva una tua storia (innocua).',
+    'Bevi un sorso col mignolo alzato e gli occhi chiusi.',
+    'Racconta una barzelletta: se nessuno ride, bevi.',
+    'Scambia un accessorio con il giocatore alla tua sinistra.',
+    'Selfie di gruppo con la faccia più assurda possibile.',
+    'Parla solo in rima fino al prossimo giro.',
+    'Chiama tutti "capo" per i prossimi 3 minuti.',
+    'Mima il tuo drink preferito finché non lo indovinano.',
+    'Fai i complimenti più esagerati a chi ti sta di fronte.',
+    'Fai un karaoke di 10 secondi della prima canzone che ti viene.',
+    'Dai un soprannome a ogni giocatore al tavolo, ora.',
+    'Lascia decidere al tavolo il tuo prossimo drink.'
+  ];
+  let otLastTruth = -1, otLastDare = -1, otKind = 'truth';
+  let otRotBottle = 0, otRotCap = 0, otSpinning = false;
+
+  // ingresso/reset: nasconde l'eventuale suggerimento
+  function obbligoReset() {
+    otSpinning = false;
+    const card = document.getElementById('ot-suggest-card');
+    if (card) card.style.display = 'none';
+    const btn = document.getElementById('ot-spin-btn');
+    if (btn) { btn.disabled = false; btn.textContent = 'GIRA'; }
+  }
+
+  // gira bottiglia e tappo SEPARATAMENTE: il collo indica chi risponde, il tappo chi fa la domanda
+  function obbligoSpin() {
+    if (otSpinning) return;
+    otSpinning = true;
+    const btn = document.getElementById('ot-spin-btn');
+    btn.disabled = true;
+    // arrivi casuali, con almeno ~40° di distanza così non indicano la stessa persona
+    const bottleTarget = Math.floor(Math.random() * 360);
+    const capTarget = (bottleTarget + 40 + Math.floor(Math.random() * 280)) % 360;
+    otRotBottle += (5 + Math.floor(Math.random() * 4)) * 360 + (((bottleTarget - (otRotBottle % 360)) % 360) + 360) % 360;
+    otRotCap    += (6 + Math.floor(Math.random() * 4)) * 360 + (((capTarget - (otRotCap % 360)) % 360) + 360) % 360;
+    document.getElementById('ot-bottle').style.transform = 'rotate(' + otRotBottle + 'deg)';
+    document.getElementById('ot-cap').style.transform = 'rotate(' + otRotCap + 'deg)';
+    setTimeout(function(){
+      otSpinning = false;
+      btn.disabled = false;
+      btn.textContent = 'GIRA DI NUOVO';
+    }, 3800);
+  }
+
+  // suggerimento OPZIONALE: estrae una verità o un obbligo di esempio
+  function obbligoSuggest(kind) {
+    otKind = kind;
+    const arr = kind === 'truth' ? otTruths : otDares;
+    let last = kind === 'truth' ? otLastTruth : otLastDare;
+    let i;
+    do { i = Math.floor(Math.random() * arr.length); } while (i === last && arr.length > 1);
+    if (kind === 'truth') otLastTruth = i; else otLastDare = i;
+    const cat = document.getElementById('ot-cat');
+    cat.textContent = kind === 'truth' ? 'VERITÀ' : 'OBBLIGO';
+    cat.className = 'ot-cat ' + kind;
+    const prompt = document.getElementById('ot-prompt');
+    prompt.textContent = arr[i];
+    const card = document.getElementById('ot-suggest-card');
+    card.style.display = 'block';
+    card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+  }
+
+  function obbligoRedraw() {
+    obbligoSuggest(otKind);
+  }
+
+  /* ===== HEADS UP! — NOME IN FRONTE ===== */
+  const huCats = [
+    { key:'personaggi', emoji:'🎭', name:'Personaggi', words:[
+      'Napoleone','Albert Einstein','Cleopatra','Leonardo da Vinci','Giulio Cesare','Marilyn Monroe','Charlie Chaplin','Steve Jobs','Barack Obama','Elon Musk','Papa Francesco','Che Guevara','Gandhi','Alberto Angela','Chiara Ferragni','Roberto Benigni','Sophia Loren','Leonardo DiCaprio','Brad Pitt','Angelina Jolie','Johnny Depp','Will Smith','Totò','Madre Teresa','Cristoforo Colombo'
+    ]},
+    { key:'film', emoji:'🎬', name:'Film & Serie', words:[
+      'Titanic','Il Padrino','Harry Potter','Matrix','Star Wars','Il Signore degli Anelli','Jurassic Park','Avatar','Il Re Leone','Frozen','Squid Game','Breaking Bad','Gomorra','La Casa di Carta','Stranger Things','Game of Thrones','Pulp Fiction','Forrest Gump','Il Gladiatore','Shrek','Toy Story','Joker','Spider-Man','Batman','Inception'
+    ]},
+    { key:'calcio', emoji:'⚽', name:'Calciatori', words:[
+      'Messi','Cristiano Ronaldo','Maradona','Pelé','Del Piero','Totti','Roberto Baggio','Buffon','Ibrahimovic','Mbappé','Neymar','Haaland','Benzema','Modric','Zidane','Ronaldinho','Kaká','Chiellini','Bonucci','Insigne','Lautaro Martínez','Vlahovic','Leao','Pogba','Salah'
+    ]},
+    { key:'cantanti', emoji:'🎤', name:'Cantanti', words:[
+      'Vasco Rossi','Laura Pausini','Eros Ramazzotti','Tiziano Ferro','Måneskin','Ultimo','Blanco','Mahmood','Marco Mengoni','Elodie','Beyoncé','Michael Jackson','Freddie Mercury','Madonna','Lady Gaga','Ed Sheeran','Eminem','Rihanna','Adele','Bruno Mars','Sfera Ebbasta','Jovanotti','Zucchero','Mina','The Weeknd'
+    ]},
+    { key:'animali', emoji:'🐾', name:'Animali', words:[
+      'Leone','Elefante','Pinguino','Delfino','Giraffa','Canguro','Coccodrillo','Squalo','Tigre','Panda','Gorilla','Serpente','Aquila','Pipistrello','Ippopotamo','Rinoceronte','Fenicottero','Polpo','Koala','Scimmia','Cavallo','Lupo','Orso','Volpe','Riccio'
+    ]}
+  ];
+  let huPools = {};          // { catKey: {queue,idx} }
+  let huScreen = 'modes';    // 'modes' | 'write' | 'stage'
+  let huMode = 'write';      // 'write' oppure la key della categoria
+  let huActiveCatName = '';
+
+  function huHideAll() {
+    ['hu-modes','hu-write','hu-stage'].forEach(function(id){
+      document.getElementById(id).style.display = 'none';
+    });
+  }
+  // ingresso nel gioco
+  function headsEnter() {
+    huShowModes();
+  }
+  function huShowModes() {
+    huScreen = 'modes';
+    huRenderCats();
+    huHideAll();
+    document.getElementById('hu-modes').style.display = 'flex';
+  }
+  function huRenderCats() {
+    document.getElementById('hu-cats').innerHTML = huCats.map(function(c){
+      return '<button class="hu-cat-card" onclick="huSelectCat(\'' + c.key + '\')">'
+        + '<span class="hu-cat-emoji">' + c.emoji + '</span>'
+        + '<span class="hu-cat-name">' + c.name + '</span>'
+        + '<span class="hu-cat-n">' + c.words.length + ' parole</span>'
+        + '</button>';
+    }).join('');
+  }
+  function huOpenWrite() {
+    huScreen = 'write';
+    huMode = 'write';
+    huHideAll();
+    document.getElementById('hu-write').style.display = 'flex';
+    document.getElementById('hu-input').value = '';
+    setTimeout(function(){ document.getElementById('hu-input').focus(); }, 120);
+  }
+  function huShowFromInput(ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    const val = document.getElementById('hu-input').value.trim();
+    if (!val) { document.getElementById('hu-input').focus(); return; }
+    huMode = 'write';
+    huShowWord(val, '✍️ Indovina');
+  }
+  function huSelectCat(key) {
+    const cat = huCats.find(function(c){ return c.key === key; });
+    if (!cat) return;
+    huMode = key;
+    huActiveCatName = cat.emoji + ' ' + cat.name;
+    huShowWord(huDraw(cat), huActiveCatName);
+  }
+  function huDraw(cat) {
+    var pool = huPools[cat.key];
+    if (!pool) { pool = huPools[cat.key] = { queue: cat.words.slice().sort(function(){ return Math.random()-0.5; }), idx:0 }; }
+    if (pool.idx >= pool.queue.length) { pool.queue.sort(function(){ return Math.random()-0.5; }); pool.idx = 0; }
+    return pool.queue[pool.idx++];
+  }
+  function huShowWord(text, tag) {
+    huScreen = 'stage';
+    huHideAll();
+    document.getElementById('hu-stage').style.display = 'flex';
+    huLayoutStage();
+    document.getElementById('hu-cat-tag').textContent = tag || '';
+    const word = document.getElementById('hu-word');
+    word.innerHTML = '<span id="hu-word-inner" style="display:inline-block;max-width:100%">' + huEscape(text) + '</span>';
+    requestAnimationFrame(function(){ requestAnimationFrame(huFit); });
+  }
+  // adatta l'overlay orizzontale alle dimensioni REALI della cornice dell'app (non della finestra intera)
+  function huLayoutStage() {
+    const stage = document.getElementById('hu-stage');
+    const frame = document.getElementById('page-headsup');
+    if (!stage || !frame) return;
+    const w = frame.clientWidth, h = frame.clientHeight;
+    stage.style.left = w + 'px';   // parte dal bordo destro della cornice
+    stage.style.width = h + 'px';  // dopo la rotazione: larghezza = altezza cornice
+    stage.style.height = w + 'px'; // dopo la rotazione: altezza = larghezza cornice
+  }
+  function huNext() {
+    if (huMode === 'write') { huOpenWrite(); return; }  // scrivi: nuova parola a mano
+    const cat = huCats.find(function(c){ return c.key === huMode; });
+    if (cat) huShowWord(huDraw(cat), huActiveCatName);
+  }
+  function headsBack() {
+    if (huScreen === 'stage') {
+      if (huMode === 'write') huOpenWrite(); else huShowModes();
+    } else if (huScreen === 'write') {
+      huShowModes();
+    } else {
+      goTo('games');
+    }
+  }
+  // adatta la dimensione del testo per riempire lo schermo (leggibile da lontano)
+  function huFit() {
+    const box = document.getElementById('hu-word');
+    const span = document.getElementById('hu-word-inner');
+    if (!box || !span) return;
+    const availW = box.clientWidth - 6;
+    const availH = box.clientHeight - 6;
+    let size = Math.min(availH, 280);
+    span.style.fontSize = size + 'px';
+    let guard = 0;
+    while (guard++ < 120 && size > 22 && (span.scrollWidth > availW || span.scrollHeight > availH)) {
+      size -= 6;
+      span.style.fontSize = size + 'px';
+    }
+  }
+  function huEscape(s) {
+    return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; });
+  }
+  window.addEventListener('resize', function(){ if (huScreen === 'stage') { huLayoutStage(); huFit(); } });
+
+  /* ===== IL CANTASTORIE ===== */
+  const csOpeners = [
+    'C\'era una volta, in un posto assurdo…',
+    'Tutto è cominciato una notte di tempesta…',
+    'Nessuno ci crederà, ma è successo davvero…',
+    'Era un martedì qualunque, finché…',
+    'In un regno lontano lontano…',
+    'La festa era appena iniziata quando…',
+    'Il protagonista si svegliò e capì che…',
+    'Doveva essere una giornata normale, invece…',
+    'Su un pianeta ormai dimenticato…',
+    'Dietro quella porta chiusa da anni…',
+    'Il telefono squillò alle 3 di notte…',
+    'Appena salì sull\'aereo, si accorse che…',
+    'Il vecchio faro nascondeva un segreto…',
+    'Tutto per colpa di un gatto…',
+    'L\'ultima cosa che ricordava era…'
+  ];
+  const csTwists = [
+    'Introduci un personaggio misterioso.',
+    'Fai succedere un disastro improvviso.',
+    'Aggiungi un colpo di scena clamoroso.',
+    'Un personaggio rivela un segreto.',
+    'Qualcuno tradisce qualcun altro.',
+    'Compare un animale che parla.',
+    'La scena si sposta in un altro luogo.',
+    'Fai apparire un oggetto magico.',
+    'Un personaggio si innamora… della persona sbagliata.',
+    'Arriva un nemico inaspettato.',
+    'La tua frase deve contenere la parola "banana".',
+    'La tua frase deve finire con una domanda.',
+    'Un personaggio sparisce nel nulla.',
+    'Cambia di colpo il genere della storia.',
+    'Fai dire una bugia enorme a un personaggio.',
+    'Introduci un viaggio nel tempo.',
+    'Qualcuno trova un tesoro.',
+    'Piove qualcosa di strano dal cielo.',
+    'Un personaggio scopre di avere un potere.',
+    'La tua frase deve contenere un numero.',
+    'Compare un ex che nessuno voleva rivedere.',
+    'Un personaggio dice una frase in un\'altra lingua.',
+    'Fai suonare un allarme.',
+    'Qualcuno propone un piano folle.',
+    'Un personaggio cambia idea all\'improvviso.',
+    'Entra in scena un (finto) supereroe.',
+    'Rivela che due personaggi sono parenti.',
+    'La tua frase deve far ridere tutti.',
+    'Tutto era solo un sogno? Continua…',
+    'Aggiungi un finale… ma non è finita.'
+  ];
+  // temi: "Mista" riusa le liste generiche qui sopra
+  const csThemes = [
+    { key:'mista', emoji:'🎲', name:'Mista', openers:csOpeners, twists:csTwists },
+    { key:'horror', emoji:'👻', name:'Horror', openers:[
+      'A mezzanotte, la vecchia casa scricchiolò…',
+      'Il cimitero era silenzioso, troppo silenzioso…',
+      'Trovarono la porta della cantina aperta…',
+      'Da giorni qualcuno bussava alla finestra… al terzo piano.',
+      'La bambola sul comò aveva cambiato posizione.',
+      'L\'ultimo messaggio diceva soltanto: "sono dietro di te".',
+      'Le luci si spensero e si sentì un respiro.',
+      'Nel bosco, le foto mostravano un volto in più.'
+    ], twists:[
+      'Fai comparire qualcosa nell\'oscurità.',
+      'Un rumore arriva da dove non dovrebbe.',
+      'Un personaggio non si riflette nello specchio.',
+      'Scopri che qualcuno era morto da tempo.',
+      'Aggiungi un urlo improvviso.',
+      'La via d\'uscita è appena sparita.',
+      'Un personaggio riceve una chiamata… da se stesso.',
+      'Compare una scritta col sangue.',
+      'Qualcosa afferra una caviglia.',
+      'Il telefono è allo 0% ma squilla lo stesso.',
+      'Un personaggio ride… ma non era lui.',
+      'La stanza è identica a quella di prima. Di nuovo.',
+      'Un\'ombra si stacca dal muro.',
+      'Il finale: da lì non è mai uscito nessuno.'
+    ]},
+    { key:'comico', emoji:'😂', name:'Comica', openers:[
+      'Tutto iniziò con un rutto al momento sbagliato…',
+      'Non doveva finire con i pantaloni in testa, eppure…',
+      'Il piano era perfetto. Poi arrivò il tacchino…',
+      'Nessuno sa spiegare la mucca in ascensore.',
+      'Il matrimonio andava benissimo, finché la torta…',
+      'Doveva essere una dieta seria…',
+      'Il primo appuntamento partì con una scivolata epica.',
+      'Aveva giurato di non ballare mai più. Poi…'
+    ], twists:[
+      'Fai inciampare qualcuno nel modo più assurdo.',
+      'Un personaggio dice la bugia più patetica del mondo.',
+      'Entra in scena un animale dispettoso.',
+      'Qualcuno confonde due persone in modo imbarazzante.',
+      'Parte una musica nel momento sbagliato.',
+      'Un piano geniale fallisce miseramente.',
+      'Un personaggio parla con la bocca piena: nessuno capisce.',
+      'Compare un costume ridicolo.',
+      'Qualcuno manda un messaggio alla persona sbagliata.',
+      'Una torta finisce in faccia a qualcuno.',
+      'Un personaggio finge di saper ballare.',
+      'Arriva la suocera nel momento peggiore.',
+      'Tutti fingono che non sia successo niente.',
+      'Il finale: si prendono un applauso immeritato.'
+    ]},
+    { key:'fantasy', emoji:'🐉', name:'Fantasy', openers:[
+      'Nel regno di Eldoria, i draghi tornarono a volare…',
+      'La profezia parlava di un eroe improbabile…',
+      'La spada nella roccia iniziò a brillare…',
+      'Oltre la nebbia si nascondeva una città d\'oro…',
+      'Il vecchio mago aprì il libro proibito…',
+      'L\'elfo e il nano si odiavano, finché…',
+      'La porta tra i mondi si spalancò…',
+      'Un contadino trovò un anello che sussurrava…'
+    ], twists:[
+      'Compare una creatura magica.',
+      'Un personaggio scopre di essere il prescelto.',
+      'Fai lanciare un incantesimo… che va storto.',
+      'Appare un drago affamato.',
+      'Qualcuno rivela un potere nascosto.',
+      'La mappa conduce a una trappola.',
+      'Un\'antica maledizione si risveglia.',
+      'Entra in scena un\'oscura strega.',
+      'Un oggetto magico cambia padrone.',
+      'Due regni si dichiarano guerra.',
+      'Un tradimento tra compagni d\'avventura.',
+      'Si apre un portale inaspettato.',
+      'Un eroe cade… ma non è la fine.',
+      'Il finale: il vero nemico era tra loro.'
+    ]}
+  ];
+  let csOpenerPool = { q:[], i:0, src:csOpeners }, csTwistPool = { q:[], i:0, src:csTwists };
+  let csTurn = 0;
+  let csScreen = 'setup';
+  let csTheme = 'mista';
+  let csTimerSec = 20;        // 0 = timer spento
+  let csTimerId = null, csTimerLeft = 0;
+
+  function csDraw(pool) {
+    if (pool.i >= pool.q.length) { pool.q = pool.src.slice().sort(function(){ return Math.random()-0.5; }); pool.i = 0; }
+    return pool.q[pool.i++];
+  }
+  function csEnter() { csShowSetup(); }
+  function csShowSetup() {
+    csScreen = 'setup';
+    csStopTimer();
+    csRenderPlayers();
+    csRenderThemes();
+    csRenderTimerOpts();
+    document.getElementById('cs-setup').style.display = 'flex';
+    document.getElementById('cs-play').style.display = 'none';
+    const inp = document.getElementById('cs-player-input'); if (inp) inp.value = '';
+  }
+  function csRenderThemes() {
+    document.getElementById('cs-themes').innerHTML = csThemes.map(function(t){
+      return '<button class="cs-chip' + (t.key === csTheme ? ' on' : '') + '" onclick="csPickTheme(\'' + t.key + '\')">' + t.emoji + ' ' + t.name + '</button>';
+    }).join('');
+  }
+  function csPickTheme(k) { csTheme = k; csRenderThemes(); }
+  function csRenderTimerOpts() {
+    const opts = [{v:0,l:'Off'},{v:20,l:'20s'},{v:30,l:'30s'}];
+    document.getElementById('cs-timer-opts').innerHTML = opts.map(function(o){
+      return '<button class="cs-chip' + (o.v === csTimerSec ? ' on' : '') + '" onclick="csPickTimer(' + o.v + ')">' + o.l + '</button>';
+    }).join('');
+  }
+  function csPickTimer(v) { csTimerSec = v; csRenderTimerOpts(); }
+  function csRenderPlayers() {
+    const list = document.getElementById('cs-players-list');
+    list.innerHTML = rosterNames.map(function(n, i){
+      return '<div class="sq-player-chip">'
+        + '<span class="sq-avatar" style="background:rgba(245,208,107,0.2)">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
+        + '<span class="sq-chip-name">' + huEscape(n) + '</span>'
+        + '<button class="sq-chip-del" onclick="csRemovePlayer(' + i + ')" aria-label="Rimuovi">'
+        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+        + '</button></div>';
+    }).join('');
+    const enough = rosterNames.length >= 2;
+    document.getElementById('cs-start-btn').disabled = !enough;
+    document.getElementById('cs-empty-hint').classList.toggle('hidden', enough);
+  }
+  function csAddPlayer(ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    const inp = document.getElementById('cs-player-input');
+    const n = inp.value.trim();
+    if (!n) return;
+    rosterNames.push(n);
+    inp.value = ''; inp.focus();
+    csRenderPlayers();
+  }
+  function csRemovePlayer(i) {
+    rosterNames.splice(i, 1);
+    csRenderPlayers();
+  }
+  let csPendingOpener = true;
+  function csStart() {
+    if (rosterNames.length < 2) return;
+    csScreen = 'play';
+    csTurn = 0;
+    // costruisce i mazzi in base al tema scelto
+    const theme = csThemes.find(function(t){ return t.key === csTheme; }) || csThemes[0];
+    csOpenerPool = { q: theme.openers.slice().sort(function(){ return Math.random()-0.5; }), i:0, src: theme.openers };
+    csTwistPool  = { q: theme.twists.slice().sort(function(){ return Math.random()-0.5; }), i:0, src: theme.twists };
+    document.getElementById('cs-setup').style.display = 'none';
+    document.getElementById('cs-play').style.display = 'flex';
+    csShowReady(true);
+  }
+  // schermata "passa il telefono": nessun timer finché il prossimo non inizia
+  function csShowReady(isOpener) {
+    csPendingOpener = isOpener;
+    csStopTimer();
+    document.getElementById('cs-banner').style.display = 'none';
+    document.getElementById('cs-round').style.display = 'none';
+    document.getElementById('cs-ready').style.display = 'flex';
+    document.getElementById('cs-ready-hint').textContent = isOpener ? 'Inizia la storia · tocca a' : 'Passa il telefono a';
+    document.getElementById('cs-ready-name').textContent = rosterNames[csTurn % rosterNames.length] || '—';
+  }
+  // il giocatore (che ora ha il telefono) fa partire il suo turno e il suo timer
+  function csBeginTurn() {
+    document.getElementById('cs-ready').style.display = 'none';
+    document.getElementById('cs-banner').style.display = 'none';
+    document.getElementById('cs-round').style.display = 'flex';
+    csShowPrompt(csPendingOpener);
+  }
+  function csShowPrompt(isOpener) {
+    const cat = document.getElementById('cs-cat');
+    const prompt = document.getElementById('cs-prompt');
+    if (isOpener) { cat.textContent = '📖 Apertura · inizia tu'; prompt.textContent = csDraw(csOpenerPool); }
+    else { cat.textContent = '✨ La svolta · continua la storia'; prompt.textContent = csDraw(csTwistPool); }
+    document.getElementById('cs-turn').innerHTML = 'Tocca a <span>' + huEscape(rosterNames[csTurn % rosterNames.length] || '—') + '</span>';
+    prompt.style.animation = 'none'; void prompt.offsetWidth; prompt.style.animation = '';
+    csStartTimer();
+  }
+  function csNext() {
+    csStopTimer();
+    if (rosterNames.length) csTurn = (csTurn + 1) % rosterNames.length;
+    csShowReady(false);
+  }
+  function csNewStory() {
+    csStopTimer();
+    csShowReady(true);
+  }
+  function csBack() {
+    csStopTimer();
+    if (csScreen === 'play') csShowSetup();
+    else goTo('games');
+  }
+  /* --- timer per turno --- */
+  function csStartTimer() {
+    csStopTimer();
+    const wrap = document.getElementById('cs-timer');
+    if (csTimerSec <= 0) { wrap.style.display = 'none'; return; }
+    const fill = document.getElementById('cs-timer-fill');
+    const num = document.getElementById('cs-timer-num');
+    wrap.style.display = 'flex';
+    wrap.classList.remove('expired');
+    csTimerLeft = csTimerSec;
+    num.textContent = csTimerLeft;
+    // barra: da piena a vuota in csTimerSec secondi
+    fill.style.transition = 'none'; fill.style.width = '100%';
+    void fill.offsetWidth;
+    fill.style.transition = 'width ' + csTimerSec + 's linear'; fill.style.width = '0%';
+    csTimerId = setInterval(function(){
+      // se hai lasciato la pagina (es. barra in basso), ferma il timer
+      const pg = document.getElementById('page-cantastorie');
+      if (!pg || !pg.classList.contains('active')) { csStopTimer(); return; }
+      csTimerLeft--;
+      num.textContent = Math.max(0, csTimerLeft);
+      if (csTimerLeft <= 0) { csStopTimer(); csTimerExpire(); }
+    }, 1000);
+  }
+  function csTimerExpire() {
+    const wrap = document.getElementById('cs-timer');
+    wrap.classList.add('expired');
+    document.getElementById('cs-timer-num').textContent = '0';
+    document.getElementById('cs-banner-name').textContent = rosterNames[csTurn % rosterNames.length] || 'Chi era di turno';
+    document.getElementById('cs-banner').style.display = 'flex';
+  }
+  function csStopTimer() {
+    if (csTimerId) { clearInterval(csTimerId); csTimerId = null; }
+  }
+
+  /* ===== A RAFFICA — categoria + lettera ===== */
+  const raCats = [
+    { e:'🐾', n:'Animali' }, { e:'🏙️', n:'Città' }, { e:'🌍', n:'Nazioni' },
+    { e:'🍕', n:'Cibi e piatti' }, { e:'🍎', n:'Frutta e verdura' }, { e:'⚽', n:'Calciatori' },
+    { e:'🎬', n:'Film' }, { e:'🎤', n:'Cantanti' }, { e:'👤', n:'Nomi propri' },
+    { e:'🧑‍🔧', n:'Mestieri' }, { e:'🏷️', n:'Marche' }, { e:'🏀', n:'Sport' },
+    { e:'🚗', n:'Auto e moto' }, { e:'📺', n:'Serie TV e cartoni' }, { e:'🎸', n:'Gruppi musicali' },
+    { e:'🌿', n:'Piante e fiori' }, { e:'🧳', n:'Oggetti di casa' }, { e:'🦸', n:'Personaggi famosi' }
+  ];
+  const raLetters = 'ABCDEFGILMNOPRSTV'.split('');
+  let raPlayers = [];          // { name, score }
+  let raStarter = 0;
+  let raLastCat = -1;
+  let raScreen = 'setup';
+
+  function raEnter() { raShowSetup(); }
+  function raShowSetup() {
+    raScreen = 'setup';
+    raRenderSetup();
+    document.getElementById('ra-setup').style.display = 'flex';
+    document.getElementById('ra-play').style.display = 'none';
+    const inp = document.getElementById('ra-player-input'); if (inp) inp.value = '';
+  }
+  function raRenderSetup() {
+    const list = document.getElementById('ra-players-list');
+    list.innerHTML = rosterNames.map(function(n, i){
+      return '<div class="sq-player-chip">'
+        + '<span class="sq-avatar" style="background:rgba(196,160,255,0.22)">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
+        + '<span class="sq-chip-name">' + huEscape(n) + '</span>'
+        + '<button class="sq-chip-del" onclick="raRemovePlayer(' + i + ')" aria-label="Rimuovi">'
+        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+        + '</button></div>';
+    }).join('');
+    const enough = rosterNames.length >= 2;
+    document.getElementById('ra-start-btn').disabled = !enough;
+    document.getElementById('ra-empty-hint').classList.toggle('hidden', enough);
+  }
+  function raAddPlayer(ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    const inp = document.getElementById('ra-player-input');
+    const n = inp.value.trim();
+    if (!n) return;
+    rosterNames.push(n);
+    inp.value = ''; inp.focus();
+    raRenderSetup();
+  }
+  function raRemovePlayer(i) {
+    rosterNames.splice(i, 1);
+    raRenderSetup();
+  }
+  function raStart() {
+    if (rosterNames.length < 2) return;
+    raScreen = 'play';
+    raPlayers = rosterNames.map(function(n){ return { name:n, score:0 }; });
+    raStarter = 0;
+    raLastCat = -1;
+    document.getElementById('ra-setup').style.display = 'none';
+    document.getElementById('ra-play').style.display = 'flex';
+    raNewChallenge();
+    raRenderScores();
+  }
+  function raNewChallenge() {
+    // categoria diversa dall'ultima
+    let ci;
+    do { ci = Math.floor(Math.random() * raCats.length); } while (ci === raLastCat && raCats.length > 1);
+    raLastCat = ci;
+    const cat = raCats[ci];
+    const letter = raLetters[Math.floor(Math.random() * raLetters.length)];
+    document.getElementById('ra-cat').textContent = cat.e + ' ' + cat.n.toUpperCase();
+    document.getElementById('ra-letter').textContent = letter;
+    document.getElementById('ra-instr').textContent = 'A turno: un ' + '“' + cat.n + '” che inizia per ' + letter + '. Vietato ripetere!';
+    // ruota chi inizia
+    if (raPlayers.length) {
+      document.getElementById('ra-starter').innerHTML = 'Inizia <span>' + huEscape(raPlayers[raStarter % raPlayers.length].name) + '</span> →';
+      raStarter = (raStarter + 1) % raPlayers.length;
+    }
+  }
+  function raRenderScores() {
+    document.getElementById('ra-score-list').innerHTML = raPlayers.map(function(p, i){
+      return '<button class="ra-score-row" onclick="raFail(' + i + ')">'
+        + '<span class="ra-score-avatar">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
+        + '<span class="ra-score-name">' + huEscape(p.name) + '</span>'
+        + '<span class="ra-score-pts">' + (p.score > 0 ? '<b>' + p.score + '</b> ' : '') + '🍺</span>'
+        + '</button>';
+    }).join('');
+  }
+  function raFail(i) {
+    if (!raPlayers[i]) return;
+    raPlayers[i].score++;
+    raRenderScores();
+    raNewChallenge();  // chi sbaglia beve, +1 punto, e riparte
+  }
+  function raResetScores() {
+    raPlayers.forEach(function(p){ p.score = 0; });
+    raRenderScores();
+  }
+  function raBack() {
+    if (raScreen === 'play') raShowSetup();
+    else goTo('games');
+  }
+
+  /* ===== STORIA = SHOT GRATIS ===== */
+  const STORY_IG = 'camon.torino';        // handle del locale
+  const STORY_RESET_HOUR = 8;             // il bonus si azzera ogni mattina alle 8:00 (1 a serata)
+  const STORY_CODE_MS = 15 * 60 * 1000;   // il codice resta valido 15 min per il ritiro
+  let storyTimer = null;
+
+  function storyHasProfile() { return profileCreated; }
+  function storyProfileId() { return localStorage.getItem('camon_profile_id') || 'anon'; }
+  // chiavi legate al profilo: così il bonus non si aggira aprendo un altro profilo
+  function storyKeyLast() { return 'camon_story_last_' + storyProfileId(); }
+  function storyKeyCode() { return 'camon_story_code_' + storyProfileId(); }
+  function storyLast() { return parseInt(localStorage.getItem(storyKeyLast()) || '0', 10); }
+
+  // prossimo azzeramento: le 8:00 successive al momento del riscatto
+  function storyNextReset(fromMs) {
+    const d = new Date(fromMs);
+    const reset = new Date(d.getFullYear(), d.getMonth(), d.getDate(), STORY_RESET_HOUR, 0, 0, 0);
+    if (fromMs >= reset.getTime()) reset.setDate(reset.getDate() + 1); // già passate le 8 → domani
+    return reset.getTime();
+  }
+
+  function storyOpenIG() {
+    // apre il profilo del locale; da lì l'utente fa la storia taggando il CAMON
+    window.open('https://instagram.com/' + STORY_IG, '_blank');
+  }
+
+  // genera il codice della serata (parte il limite fino alle 8:00 e la finestra di ritiro)
+  function storyClaim() {
+    if (!storyHasProfile()) { storyRender(); return; } // sicurezza: serve il profilo
+    const now = Date.now();
+    localStorage.setItem(storyKeyLast(), String(now));
+    // codice deterministico (giorno + profilo), comodo da verificare allo staff
+    const d = new Date(now);
+    const seed = '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate() + storyProfileId();
+    let code = 0;
+    for (let i = 0; i < seed.length; i++) code = (code * 31 + seed.charCodeAt(i)) % 10000;
+    localStorage.setItem(storyKeyCode(), 'CMN-' + String(code).padStart(4, '0'));
+    storyRender();
+  }
+
+  function storyStopTimer() {
+    if (storyTimer) { clearInterval(storyTimer); storyTimer = null; }
+  }
+
+  function fmtHMS(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
+    const p = n => String(n).padStart(2, '0');
+    return (h > 0 ? p(h) + ':' : '') + p(m) + ':' + p(ss);
+  }
+
+  function storyRender() {
+    storyStopTimer();
+    const action = document.getElementById('story-action');
+    if (!action) return;
+
+    // senza profilo non si riscatta: il bonus è legato all'account
+    if (!storyHasProfile()) {
+      action.innerHTML =
+        '<div class="story-cool">'
+        + '<div class="story-cool-ico">🔒</div>'
+        + '<div class="story-cool-title">Accedi per il tuo shot omaggio</div>'
+        + '<div class="story-cool-sub">Il bonus è legato al tuo profilo CAMON — bastano pochi secondi.</div>'
+        + '<button class="story-btn go" onclick="goTo(\'profile\')" style="margin-top:14px">Vai al profilo</button>'
+        + '</div>';
+      return;
+    }
+
+    const now = Date.now();
+    const last = storyLast();
+    const sinceClaim = now - last;
+
+    if (last && sinceClaim < STORY_CODE_MS) {
+      // appena richiesto: mostra il codice con la finestra di ritiro
+      const code = localStorage.getItem(storyKeyCode()) || 'CMN-0000';
+      action.innerHTML =
+        '<div class="story-code-card">'
+        + '<div class="story-code-lbl">Il tuo codice di oggi</div>'
+        + '<div class="story-code-val">' + code + '</div>'
+        + '<div class="story-code-timer">Valido ancora <b id="story-code-left">' + fmtHMS(STORY_CODE_MS - sinceClaim) + '</b></div>'
+        + '<div class="story-code-note">📲 Mostra questo codice allo staff <b>con la storia ancora pubblicata</b>. La controllano dal vivo prima di versare.</div>'
+        + '</div>';
+      storyTimer = setInterval(function () {
+        const left = STORY_CODE_MS - (Date.now() - last);
+        const el = document.getElementById('story-code-left');
+        if (left <= 0) { storyRender(); return; }
+        if (el) el.textContent = fmtHMS(left);
+      }, 1000);
+      return;
+    }
+
+    const resetAt = storyNextReset(last);
+    if (last && now < resetAt) {
+      // già usato in questa serata: countdown all'azzeramento delle 8:00
+      action.innerHTML =
+        '<div class="story-cool">'
+        + '<div class="story-cool-ico">⏳</div>'
+        + '<div class="story-cool-title">Bonus di stasera già usato</div>'
+        + '<div class="story-cool-timer" id="story-cool-left">' + fmtHMS(resetAt - now) + '</div>'
+        + '<div class="story-cool-sub">Si azzera alle 8:00 — una storia a serata.</div>'
+        + '</div>';
+      storyTimer = setInterval(function () {
+        const left = resetAt - Date.now();
+        const el = document.getElementById('story-cool-left');
+        if (left <= 0) { storyRender(); return; }
+        if (el) el.textContent = fmtHMS(left);
+      }, 1000);
+      return;
+    }
+
+    // disponibile
+    action.innerHTML =
+      '<button class="story-btn ig" onclick="storyOpenIG()">📸 Apri Instagram e tagga il CAMON</button>'
+      + '<button class="story-btn go" onclick="storyClaim()">Ho pubblicato la storia → genera il codice</button>';
+  }
+
+  /* ===== KINGS ===== */
+  const kingsCards = [
+    { val:'A', suit:'♠', rule:'ACE — WATERFALL', desc:'Tutti bevono in sequenza. Non puoi smettere finché chi ti precede non smette.' },
+    { val:'2', suit:'♥', rule:'2 — SEI TU', desc:'Scegli qualcuno che beve.' },
+    { val:'3', suit:'♦', rule:'3 — SON IO', desc:'Devi bere tu.' },
+    { val:'4', suit:'♣', rule:'4 — TOCCA AL PIANO', desc:'Tutti le ragazze bevono.' },
+    { val:'5', suit:'♠', rule:'5 — I MASCHI', desc:'Tutti i ragazzi bevono.' },
+    { val:'6', suit:'♥', rule:'6 — HEAVEN', desc:'Tutti alzano la mano. L\'ultimo beve.' },
+    { val:'7', suit:'♦', rule:'7 — PUNTA AL CIELO', desc:'Ultimo a puntare il dito in su beve.' },
+    { val:'8', suit:'♣', rule:'8 — MATE', desc:'Scegli un compagno: beve ogni volta che bevi tu.' },
+    { val:'9', suit:'♠', rule:'9 — RIMA', desc:'Di\' una parola. Il giro fa rime. Chi sbaglia beve.' },
+    { val:'10', suit:'♥', rule:'10 — CATEGORIE', desc:'Di\' una categoria. Il giro nomina cose. Chi sbaglia beve.' },
+    { val:'J', suit:'♦', rule:'JACK — REGOLA', desc:'Crea una regola per il resto del gioco!' },
+    { val:'Q', suit:'♣', rule:'QUEEN — DOMANDA', desc:'Fai una domanda a qualcuno. Chi risponde beve.' },
+    { val:'K', suit:'♠', rule:'KING — RE COMANDA', desc:'Versa nel calice reale. Ultimo re lo beve tutto.' },
+  ];
+  let kingsFlipped = false;
+  // figure centrali per le carte (J/Q/K/A); le numeriche mostrano il seme grande
+  const kingsFaces = { J:'🤵', Q:'👸', K:'🤴' };
+
+  function kingsRenderCard(c) {
+    const suits = ['♠','♥','♦','♣'];
+    const suit = c.suit || suits[Math.floor(Math.random() * suits.length)];
+    const isRed = (suit === '♥' || suit === '♦');
+    const back = document.getElementById('kings-back');
+    back.classList.remove('pc-red', 'pc-black');
+    back.classList.add(isRed ? 'pc-red' : 'pc-black');
+    // indici angoli
+    document.getElementById('kings-tl-rank').textContent = c.val;
+    document.getElementById('kings-tl-suit').textContent = suit;
+    document.getElementById('kings-br-rank').textContent = c.val;
+    document.getElementById('kings-br-suit').textContent = suit;
+    // centro: figura per J/Q/K, altrimenti il seme grande
+    const center = document.getElementById('kings-center');
+    if (kingsFaces[c.val]) {
+      center.textContent = kingsFaces[c.val];
+      center.classList.add('face');
+    } else {
+      center.textContent = suit;
+      center.classList.remove('face');
+    }
+  }
+
+  function kingsFlip() {
+    const card = document.getElementById('kings-card');
+    if (!kingsFlipped) {
+      card.classList.add('flipped');
+      kingsFlipped = true;
+    }
+  }
+
+  function kingsDraw() {
+    const card = document.getElementById('kings-card');
+    // se una carta è già rivelata, gira prima sul dorso, poi scopri la nuova
+    card.classList.remove('flipped');
+    kingsFlipped = false;
+    setTimeout(() => {
+      const c = kingsCards[Math.floor(Math.random() * kingsCards.length)];
+      kingsRenderCard(c);
+      document.getElementById('kings-rule').textContent = c.rule;
+      document.getElementById('kings-desc').textContent = c.desc;
+      // scopre automaticamente la carta pescata
+      card.classList.add('flipped');
+      kingsFlipped = true;
+    }, 280);
+  }
+
+  /* ===== CATALOGO GIOCHI (fissi / rotazione) ===== */
+  const GAMES = [
+    // ---- FISSI ----
+    { sec:'fixed', emoji:'🎯', name:'ShotQuest', type:'app', players:'2+', c:'#3A2E00', sub:'Sfide e domande a sorpresa', page:'shotquest' },
+    { sec:'fixed', emoji:'🧠', name:'Trivial', type:'app', players:'2+', c:'#0A2E2A', sub:'Quiz alcolico: sbagli, bevi', page:'shotiq' },
+    { sec:'fixed', emoji:'👑', name:'Kings', type:'app', players:'3+', c:'#0B3F3C', sub:'Il re dei giochi da bar', page:'kings' },
+    { sec:'fixed', emoji:'🎲', name:'Obbligo o Verità', type:'app', players:'2+', c:'#3A0A1E', sub:'Sfida o confessa, o bevi', page:'obbligo' },
+    { sec:'fixed', emoji:'🤳', name:'Heads Up!', type:'app', players:'3+', c:'#0A2540', page:'headsup', sub:'Indovina la parola sulla fronte', rules:'Tieni il telefono sulla fronte: gli altri ti danno indizi per farti indovinare la parola. Ogni parola persa = un sorso.' },
+    { sec:'rotation', emoji:'🎡', name:'Roulette Alcolica', type:'app', players:'2+', c:'#3A0A2A', sub:'Gira e scopri chi beve', rules:'Gira la ruota sullo schermo: dove si ferma decide chi beve e quanto. Veloce e senza materiale.' },
+    { sec:'rotation', emoji:'⚡', name:'A Raffica', type:'app', players:'3+', c:'#2A1840', page:'raffica', sub:'Categoria + lettera: chi sbaglia beve', rules:'L\'app dà una categoria e una lettera. A turno dici una parola di quella categoria che inizia con quella lettera, senza ripetere. Chi si blocca o sbaglia beve e prende un punto, poi si riparte.' },
+    { sec:'fixed', emoji:'📖', name:'Il Cantastorie', type:'app', players:'3+', c:'#2E2A05', page:'cantastorie', sub:'Una storia, una frase a testa', rules:'Si costruisce una storia una frase a testa, seguendo i prompt dell\'app. Chi si blocca, ripete o perde il filo, beve.' },
+    { sec:'rotation', emoji:'🕵️', name:'Assassino / Lupus', type:'app', players:'5+', c:'#1E1040', sub:'Ruoli segreti, gruppo numeroso', rules:'L\'app assegna i ruoli in segreto (assassino e cittadini). A ogni "eliminato" il giocatore fuori beve. Funziona benissimo in gruppo.' },
+    { sec:'fixed', emoji:'🏓', name:'Beer Pong', type:'kit', players:'2-4', c:'#2A0800', sub:'Centra i bicchieri avversari', page:'beerpong' },
+    { sec:'rotation', emoji:'🥤', name:'Flip Cup', type:'kit', players:'4+', c:'#2A0A0A', sub:'Staffetta a squadre, pura velocità', page:'flipcup' },
+    // ---- ROTAZIONE ----
+    { sec:'rotation', emoji:'🃏', name:'UNO Alcolico', type:'kit', players:'2-6', c:'#3A0A0A', featured:true, sub:'Il classico, versione drink', rules:'UNO classico + regole drink: chi pesca beve i sorsi pari alle carte prese, chi dimentica di dire "UNO" beve.' },
+    { sec:'rotation', emoji:'🖤', name:'Carte Contro l\'Umanità', type:'kit', players:'4+', c:'#1A1A1F', featured:true, sub:'Politicamente scorretto', rules:'Completa la frase con la carta più assurda. Chi perde la mano beve; il giudice di turno decide.' },
+    { sec:'rotation', emoji:'🐱', name:'Exploding Kittens', type:'kit', players:'2-5', c:'#3A1A00', featured:true, sub:'Evita il gattino esplosivo', rules:'Pesca carte ed evita il gattino esplosivo. Chi "esplode" ed è eliminato, beve.' },
+    { sec:'rotation', emoji:'😂', name:'What Do You Meme?', type:'kit', players:'3+', c:'#2E2A00', featured:true, sub:'La didascalia più assurda vince', rules:'Abbina la didascalia più divertente all\'immagine. Chi perde il round beve.' },
+    { sec:'rotation', emoji:'🪿', name:'Gioco dell\'Oca Alcolico', type:'kit', players:'2-6', c:'#0A2E14', sub:'Tabellone con caselle "bevi"', rules:'Tabellone con caselle "bevi". Tiri il dado e segui la regola della casella su cui atterri.' },
+    { sec:'rotation', emoji:'🐎', name:'Corsa dei Cavalli', type:'kit', players:'2+', c:'#2E1A08', sub:'Punta sul tuo seme', rules:'I 4 assi corrono lungo il mazzo. Punta su un seme: se il tuo cavallo perde, bevi.' },
+    { sec:'rotation', emoji:'🎲', name:'Bluff Alcolico', type:'kit', players:'3+', c:'#0A2E3A', sub:'Dadi nascosti e tanto bluff', rules:'Dadi nascosti: dichiari e bluffi sui valori. Chi viene smascherato (o bluffa male) beve.' },
+    { sec:'rotation', emoji:'✋', name:'Card Slap', type:'kit', players:'2+', c:'#3A0A2E', sub:'Il più veloce sul mazzo', rules:'Carte scoperte a turno; quando esce un Jack tutti schiaffeggiano il mazzo. L\'ultimo a reagire beve.' },
+    { sec:'rotation', emoji:'💩', name:'Merda', type:'kit', players:'3+', c:'#2A1A0A', sub:'Non restare con le carte', rules:'Svuota le carte il più in fretta possibile. L\'ultimo rimasto (la "merda") beve a fine round.' },
+    { sec:'rotation', emoji:'🎩', name:'Gioco del Cappello', type:'kit', players:'4+', c:'#2A1045', sub:'Mima e fai indovinare', rules:'Pesca un bigliettino dal cappello e fallo indovinare (mima/descrivi). Se non ci riesci in tempo, bevi.' },
+    { sec:'rotation', emoji:'☸️', name:'Ruota della Sfortuna', type:'app', players:'2+', c:'#3A0A14', sub:'Penitenze e sorsi a sorpresa', rules:'Gira la ruota: penitenze e sorsi a sorpresa. Variante più "cattiva" della roulette.' },
+    { sec:'rotation', emoji:'🧙', name:'L\'Oscuro Signore', type:'kit', players:'3+', c:'#16082E', sub:'Gioco di ruolo a carte', rules:'Gioco di ruolo a carte: l\'Oscuro Signore comanda e i servi eseguono. Chi sbaglia o tradisce l\'ordine, beve.' },
+    { sec:'rotation', emoji:'🔫', name:'Roulette Russa', type:'app', players:'2+', c:'#20242A', sub:'Sei shot, uno è il colpo', rules:'Sei shot, uno è il "colpo". L\'app sceglie a turno chi tocca: chi becca il colpo beve lo shot forte. (Versione solo app.)' },
+  ];
+
+  let gamesCat = 'fixed';
+  let gamesScrollTop = 0; // memorizza la posizione per tornare sullo stesso gioco
+
+  // converte un hex #RRGGBB in rgba con alpha
+  function hexA(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+
+  let gamesColors = []; // colori dei giochi nella categoria attiva, in ordine
+
+  function gameSlideHTML(g, i, isFirst) {
+    // ShotQuest: slide grafica dall'SVG (nessun testo/badge), cliccabile su tutta la slide
+    if (g.page === 'shotquest') {
+      const tpl = document.getElementById('tpl-shotquest');
+      return '<div class="game-slide game-slide-svg" style="background:transparent" onclick="openGame(' + i + ')">'
+        + (tpl ? tpl.textContent : '')
+        + '</div>';
+    }
+    const badgeTxt = g.type === 'app' ? '📱 Gioca in app' : '🎴 Kit · ritira allo staff';
+    const ctaTxt = g.page ? 'Gioca ora' : 'Come si gioca';
+    const featured = g.featured ? '<span class="game-badge" style="background:#f7cc49;color:#111;margin-left:8px">Questo mese</span>' : '';
+    const hint = isFirst
+      ? '<div class="scroll-hint"><span>scorri</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>'
+      : '';
+    return '<div class="game-slide" style="background:transparent" onclick="openGame(' + i + ')">'
+      + '<div class="slide-deco" style="opacity:0.16">' + g.emoji + '</div>'
+      + '<div><span class="game-badge" style="background:rgba(255,255,255,0.14);color:#fff">' + badgeTxt + '</span>' + featured + '</div>'
+      + '<span class="game-slide-icon">' + g.emoji + '</span>'
+      + '<div class="game-slide-title" style="color:#fff">' + g.name + '</div>'
+      + '<div class="game-slide-sub" style="color:rgba(255,255,255,0.62)">' + g.sub + ' · 👥 ' + g.players + '</div>'
+      + '<div class="game-slide-cta" style="background:#f7cc49;border-color:transparent;color:#111">' + ctaTxt + ' →</div>'
+      + hint
+      + '</div>';
+  }
+
+  let gamesRenderedCat = null; // categoria attualmente costruita nel DOM
+
+  function gamesRender() {
+    const scroll = document.getElementById('games-scroll');
+    if (!scroll) return;
+    document.getElementById('gt-fixed').classList.toggle('active', gamesCat === 'fixed');
+    document.getElementById('gt-rotation').classList.toggle('active', gamesCat === 'rotation');
+    // se le slide di questa categoria ci sono già, NON ricostruirle:
+    // ricostruire azzererebbe lo scroll (e lo snap) — così resti sullo stesso gioco
+    if (gamesRenderedCat === gamesCat && scroll.children.length) {
+      updateGamesBg();
+      return;
+    }
+    const list = GAMES.map((g, i) => ({ g, i })).filter(x => x.g.sec === gamesCat);
+    gamesColors = list.map(x => x.g.c);
+    scroll.innerHTML = list.map((x, idx) => gameSlideHTML(x.g, x.i, idx === 0)).join('');
+    gamesRenderedCat = gamesCat;
+    updateGamesBg();
+  }
+
+  // interpola due hex e restituisce una tinta piena (solo durante lo scroll i due colori si mescolano)
+  function lerpHex(c1, c2, t) {
+    const a = parseInt(c1.slice(1), 16), b = parseInt(c2.slice(1), 16);
+    const r = Math.round(((a >> 16 & 255)) + (((b >> 16 & 255)) - ((a >> 16 & 255))) * t);
+    const gr = Math.round(((a >> 8 & 255)) + (((b >> 8 & 255)) - ((a >> 8 & 255))) * t);
+    const bl = Math.round(((a & 255)) + (((b & 255)) - ((a & 255))) * t);
+    return 'rgb(' + r + ',' + gr + ',' + bl + ')';
+  }
+
+  function updateGamesBg() {
+    const scroll = document.getElementById('games-scroll');
+    const bg = document.getElementById('games-bg');
+    if (!scroll || !bg || !gamesColors.length) return;
+    const h = scroll.clientHeight || 1;
+    const pos = scroll.scrollTop / h;
+    const idx = Math.min(Math.floor(pos), gamesColors.length - 1);
+    const next = Math.min(idx + 1, gamesColors.length - 1);
+    const frac = pos - Math.floor(pos);
+    // a riposo (frac=0) è il colore esatto del gioco → tinta piatta; durante lo scroll sfuma verso il successivo
+    bg.style.background = lerpHex(gamesColors[idx], gamesColors[next], frac);
+  }
+
+  function gamesSwitch(cat) {
+    gamesCat = cat;
+    gamesScrollTop = 0; // cambio categoria: riparti dall'alto
+    gamesRender();
+    document.getElementById('games-scroll').scrollTop = 0;
+    updateGamesBg();
+  }
+
+  function openGame(i) {
+    const g = GAMES[i];
+    if (!g) return;
+    if (g.page) {
+      // ricorda dove sei nella lista, così al ritorno resti su questo gioco
+      const sc = document.getElementById('games-scroll');
+      if (sc) gamesScrollTop = sc.scrollTop;
+      goTo(g.page);
+      return;
+    }  // gioco con pagina dedicata
+    // altrimenti apri la modale regole
+    document.getElementById('gm-emoji').textContent = g.emoji;
+    document.getElementById('gm-name').textContent = g.name;
+    document.getElementById('gm-meta').innerHTML =
+      (g.type === 'app' ? '<span class="game-card-badge gcb-app">📱 In app</span>' : '<span class="game-card-badge gcb-kit">🎴 Kit</span>')
+      + '<span class="game-card-players">👥 ' + g.players + ' giocatori</span>';
+    document.getElementById('gm-rules').textContent = g.rules || '';
+    document.getElementById('gm-kit').style.display = (g.type === 'kit') ? 'flex' : 'none';
+    document.getElementById('game-modal-overlay').classList.add('open');
+  }
+
+  function closeGameModal() {
+    document.getElementById('game-modal-overlay').classList.remove('open');
+  }
+
+  /* ===== BEER PONG ===== */
+  let bpCount = 0;
+
+  function bpHit(el) {
+    if (!el.classList.contains('hit')) {
+      el.classList.add('hit');
+      el.textContent = '✕';
+      bpCount++;
+      document.getElementById('bp-score').textContent = bpCount;
+    }
+  }
+
+  function bpReset() {
+    bpCount = 0;
+    document.getElementById('bp-score').textContent = '0';
+    document.querySelectorAll('.bp-cup').forEach(c => {
+      c.classList.remove('hit');
+      c.textContent = '🥤';
+    });
+  }
+
+  /* ===== FLIP CUP ===== */
+  let fcA = 0, fcB = 0;
+
+  function fcFlip(el, team) {
+    if (!el.classList.contains('done')) {
+      el.classList.add('done');
+      el.textContent = '✓';
+      if (team === 'a') fcA++;
+      else fcB++;
+      checkFcWin();
+    }
+  }
+
+  function checkFcWin() {
+    const totalA = document.querySelectorAll('#fc-team-a .fc-cup').length;
+    const totalB = document.querySelectorAll('#fc-team-b .fc-cup').length;
+    const status = document.getElementById('fc-status');
+    const sub = document.getElementById('fc-sub');
+    if (fcA === totalA) {
+      status.textContent = '🏆 TEAM A VINCE!';
+      sub.textContent = 'Ottimo team work!';
+    } else if (fcB === totalB) {
+      status.textContent = '🏆 TEAM B VINCE!';
+      sub.textContent = 'Ottimo team work!';
+    } else {
+      status.textContent = `A: ${fcA}/${totalA}  ·  B: ${fcB}/${totalB}`;
+      sub.textContent = 'Tocca un bicchiere quando lo rigiri';
+    }
+  }
+
+  function fcReset() {
+    fcA = 0; fcB = 0;
+    document.querySelectorAll('.fc-cup').forEach(c => {
+      c.classList.remove('done');
+      c.textContent = '🥤';
+    });
+    document.getElementById('fc-status').textContent = 'PRONTO A GIOCARE';
+    document.getElementById('fc-sub').textContent = 'Tocca un bicchiere quando lo rigiri';
+  }
+
+
+</script>
+<script>
   /* Router minimo: cambia solo la pagina attiva.
      Niente barra in fondo, niente bollini, niente stato dell'account:
      servono per capire, passo dopo passo, cosa fa ricomparire la
@@ -3667,6 +6551,10 @@
 
   var storico = ['home'];
 
+  /* Giochi con una pagina propria: aperti dalla lista, tengono acceso
+     il pulsante Giochi nella barra. */
+  var gamePages = ['shotquest','shotiq','kings','beerpong','flipcup','obbligo'];
+
   function mostra(page) {
     var el = document.getElementById('page-' + page);
     if (!el) return false;
@@ -3674,11 +6562,30 @@
     el.classList.add('active');
     /* Il pulsante acceso segue la pagina: offerte e le schede info
        restano sotto Home, che e' da dove ci si arriva. */
-    var nav = (page === 'offerte' || page.indexOf('info-') === 0) ? 'home' : page;
+    var nav = (page === 'offerte' || page.indexOf('info-') === 0) ? 'home'
+            : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
+            : page;
     document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
     var btn = document.getElementById('nav-' + nav);
     if (btn) btn.classList.add('active');
     window.scrollTo(0, 0);
+
+    /* La lista giochi si costruisce da sola e ricorda dove eri:
+       al ritorno da un gioco resti sulla stessa slide. */
+    if (page === 'games' && typeof gamesRender === 'function') {
+      gamesRender();
+      var sc = document.getElementById('games-scroll');
+      if (sc) {
+        sc.scrollTop = gamesScrollTop;
+        requestAnimationFrame(function () {
+          sc.scrollTop = gamesScrollTop;
+          if (typeof updateGamesBg === 'function') updateGamesBg();
+        });
+      }
+    }
+    if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
+    if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
+    if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     return true;
   }
 
