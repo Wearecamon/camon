@@ -3225,7 +3225,7 @@
 
 
   /* ============================================================
-     SOLO HOME · impostazione della pagina di prova
+     PASSO 2 · home cliccabile, ancora senza barra in fondo
      Il documento scorre normalmente: niente shell fissa, niente
      altezze calcolate, niente tabella di misure per modello.
      Lo sfondo arriva ai bordi, il contenuto sta dentro env().
@@ -3239,16 +3239,18 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  /* La pagina non e' piu' un riquadro sovrapposto: e' il documento. */
+  /* Le pagine non sono piu' riquadri sovrapposti: si mostra solo
+     quella attiva, nel flusso normale del documento. */
   .page {
     position: static !important;
-    display: block !important;
+    display: none !important;
     height: auto !important;
     opacity: 1 !important;
     transform: none !important;
     visibility: visible !important;
     pointer-events: auto !important;
   }
+  .page.active { display: block !important; }
 
   /* L'area che prima scorreva da sola ora scorre insieme al documento.
      Il respiro sopra e sotto viene solo dai valori veri di env(). */
@@ -3260,8 +3262,12 @@
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px) !important;
   }
 
-  /* Centratura su schermi larghi, senza incastrare l'altezza. */
+  /* Centratura su schermi larghi, senza vincolare l'altezza. */
   .page > .scroll-area { max-width: 430px; margin: 0 auto; }
+
+  /* Le pagine info non hanno .scroll-area: l'immagine in cima resta a
+     tutta larghezza e il testo prende il respiro in fondo. */
+  .info-page-content { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px) !important; }
 
   /* Riga rossa a tutta altezza: se tocca sopra e sotto, l'app
      occupa davvero tutto lo schermo. */
@@ -3451,11 +3457,190 @@
 
     </div>
   </div>
+  <div class="page" id="page-offerte">
+    <div class="page-header" style="flex-shrink:0">
+      <button class="page-back-btn" onclick="goTo('menu')" style="background:rgba(255,255,255,0.07);border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="page-title">LE <span>OFFERTE</span></div>
+    </div>
+
+    <!-- Riservato agli iscritti -->
+    <div class="offers-gate" id="offerte-locked" style="display:none">
+      <div class="offers-gate-ico">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="offers-gate-title">SOLO PER<br><span>CHI È ISCRITTO</span></div>
+      <div class="offers-gate-txt">
+        Happy hour, tornei e promo del locale sono riservati agli utenti registrati.
+        Crea il tuo account: ci vuole un minuto ed è gratis.
+      </div>
+      <div class="offers-gate-perks">
+        <span>🍻 Happy hour</span>
+        <span>🏆 Tornei</span>
+        <span>🎁 Sconto prima ricarica</span>
+      </div>
+      <button class="offers-gate-btn" onclick="goTo('profile'); profShowAuth('signup')">Crea il tuo account</button>
+      <div class="offers-gate-alt">Hai già un account? <b onclick="goTo('profile'); profShowAuth('login')">Accedi</b></div>
+    </div>
+
+    <div class="scroll-area" id="offerte-list" style="padding:16px 16px 96px; display:flex; flex-direction:column; gap:12px;">
+
+      <div class="offer-full-card">
+        <div class="offer-full-top amber">
+          <div class="offer-badge">HAPPY HOUR</div>
+          <div class="offer-full-emoji">🍺</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Birre a €3</div>
+          <div class="offer-full-desc">Tutte le birre alla spina a prezzo fisso, ogni giorno della settimana. Avvicinati a uno spillatore, passa la tessera e versati quel che vuoi. Nessun limite di quantità durante l'orario.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">🕕 18:00 – 20:00</span>
+            <span class="offer-meta-chip">📅 Ogni giorno</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-full-card">
+        <div class="offer-full-top purple">
+          <div class="offer-badge">OGNI MARTEDÌ</div>
+          <div class="offer-full-emoji">🏆</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Torneo Beer Pong</div>
+          <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta. Premi per i vincitori e drink omaggio per tutti i finalisti.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">🕘 Dalle 21:00</span>
+            <span class="offer-meta-chip">🎟 Ingresso libero</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-full-card">
+        <div class="offer-full-top green">
+          <div class="offer-badge">BUNDLE</div>
+          <div class="offer-full-emoji">🎯</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Drink + Gioco</div>
+          <div class="offer-full-desc">Una birra alla spina e un posto riservato al tavolo giochi a prezzo combinato. Ideale per chi arriva in piccolo gruppo e vuole iniziare subito a giocare senza pensieri.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">💰 Prezzo speciale</span>
+            <span class="offer-meta-chip">👥 Per gruppi</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-full-card">
+        <div class="offer-full-top red">
+          <div class="offer-badge">PROFILO</div>
+          <div class="offer-full-emoji">👤</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Sconto Profilo</div>
+          <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni uno sconto riservato sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">🎁 Solo prima ricarica</span>
+            <span class="offer-meta-chip">🔒 Utenti registrati</span>
+          </div>
+        </div>
+        <button class="offer-cta-btn" onclick="goTo('profile')">Completa il profilo</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="page" id="page-info-social">
+    <div class="info-page-hero" style="background: linear-gradient(135deg, #1a0a00 0%, #3d1f00 40%, #5c3200 70%, #2a1500 100%);">
+      <div class="info-page-hero-overlay"></div>
+      <button class="info-page-back" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <div class="info-page-content">
+      <div class="info-page-tag">Il concept</div>
+      <div class="info-page-title">TAVOLI<br><span>SOCIALI</span></div>
+      <div class="info-page-body">
+        <p>Al CAMON non sei obbligato a venire con qualcuno. Puoi venire da solo, con un amico, con tre — e scegliere di <strong>farti abbinare ad altri avventori</strong> al tuo stesso tavolo.</p>
+        <p>Quando prenoti, ti chiediamo una cosa sola: vuoi un tavolo <strong>privato</strong> solo per te e i tuoi amici, o vuoi un tavolo <strong>aperto</strong> dove ti mettiamo insieme ad altri? Se scegli aperto, pensiamo noi al mix.</p>
+        <p>L'idea viene da una semplice constatazione: i bar migliori della tua vita sono stati quelli in cui hai parlato con qualcuno che non conoscevi. Una partita a beer pong rompe il ghiaccio meglio di qualsiasi aperitivo.</p>
+        <p><strong>Niente app di dating, niente awkwardness</strong> — solo un tavolo, qualche drink e un gioco a fare da mediatore.</p>
+      </div>
+      <button class="info-page-cta" onclick="goTo('book')">Prenota il tuo tavolo</button>
+    </div>
+  </div>
+
+  <!-- INFO: GIOCHI ALCOLICI -->
+  <div class="page" id="page-info-games">
+    <div class="info-page-hero" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a1040 40%, #2d1a5c 70%, #150a30 100%);">
+      <div class="info-page-hero-overlay"></div>
+      <button class="info-page-back" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <div class="info-page-content">
+      <div class="info-page-tag">Il cuore del locale</div>
+      <div class="info-page-title">GIOCHI<br><span>ALCOLICI</span></div>
+      <div class="info-page-body">
+        <p>Hai presente quei film americani ambientati nei college — le frat house, i tornei di beer pong nel cortile, il rumore dei bicchieri, la gente che urla? <strong>Quello è il feeling che vogliamo portare a Torino.</strong></p>
+        <p>Al CAMON trovi tavoli dedicati a <strong>Beer Pong</strong>, <strong>Flip Cup</strong>, <strong>Kings</strong> e <strong>Shot Quest</strong> — giochi che non richiedono di conoscersi prima per divertirsi insieme.</p>
+        <p>Non è una gara di chi beve di più. È un pretesto per <strong>competere, ridere, provocarsi</strong> — e alla fine brindare comunque insieme, che tu abbia vinto o perso.</p>
+        <p>Ogni gioco ha le sue regole spiegate nell'app. Se è la prima volta, non preoccuparti: ti spieghiamo tutto al tavolo.</p>
+      </div>
+      <button class="info-page-cta" onclick="goTo('games')">Scopri i giochi</button>
+    </div>
+  </div>
+
+  <!-- INFO: SPINE SELF-SERVICE -->
+  <div class="page" id="page-info-spina">
+    <div class="info-page-hero" style="background: linear-gradient(135deg, #001a0d 0%, #003320 40%, #004d2e 70%, #001a10 100%);">
+      <div class="info-page-hero-overlay"></div>
+      <button class="info-page-back" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <div class="info-page-content">
+      <div class="info-page-tag">Il sistema</div>
+      <div class="info-page-title">SPINE<br><span>SELF&#8209;SERVICE</span></div>
+      <div class="info-page-body">
+        <p>Al CAMON le bevande funzionano diversamente. C'è una <strong>parete di spillatori</strong> — una fila di rubinetti con birre diverse — e puoi servirti da solo, quando vuoi, quante volte vuoi.</p>
+        <p>Il sistema è semplice: <strong>ricarichi la tua tessera</strong> dall'app (o alla cassa), avvicini la card al lettore dello spillatore che hai scelto, e via. Il credito scala automaticamente in base ai millilitri erogati.</p>
+        <p>Nessuna attesa al bancone. Nessun cameriere da chiamare. <strong>Tu controlli il tuo consumo</strong>, in tempo reale, direttamente dall'app.</p>
+        <p>Questo ci permette di tenere i prezzi più bassi e di darti un'esperienza più libera — bevi al tuo ritmo, non quello del locale.</p>
+      </div>
+      <button class="info-page-cta" onclick="goTo('carta')">Ricarica la tessera</button>
+    </div>
+  </div>
+
 
 <script>
-  /* La home vera ha link verso le altre pagine, che qui non esistono:
-     lo stub evita errori se si tocca una scheda. */
-  function goTo() {}
+  /* Router minimo: cambia solo la pagina attiva.
+     Niente barra in fondo, niente bollini, niente stato dell'account:
+     servono per capire, passo dopo passo, cosa fa ricomparire la
+     fascia in cima. Le destinazioni non ancora presenti (menu, carta,
+     prenota, profilo, giochi) riportano alla home. */
+  var storico = ['home'];
+
+  function mostra(page) {
+    var el = document.getElementById('page-' + page);
+    if (!el) return false;
+    document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+    el.classList.add('active');
+    window.scrollTo(0, 0);
+    return true;
+  }
+
+  function goTo(page) {
+    if (!mostra(page)) { mostra('home'); storico = ['home']; return; }
+    storico.push(page);
+  }
+
+  function goBack() {
+    storico.pop();
+    mostra(storico[storico.length - 1] || 'home');
+  }
 </script>
 </body>
 </html>
