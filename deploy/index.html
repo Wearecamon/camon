@@ -3304,9 +3304,64 @@
     flex-direction: column;
   }
 
+  /* ============================================================
+     SOLO IN VERTICALE
+     iOS non permette di bloccare davvero la rotazione da web: la
+     richiesta via JS funziona su Android, altrove si puo' solo
+     coprire l'app quando il telefono e' coricato. La soglia di
+     altezza tiene fuori i monitor, che sono larghi ma alti.
+     ============================================================ */
+  #ruota-schermo {
+    display: none;
+    position: fixed; inset: 0; z-index: 100000;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 14px; padding: 24px; text-align: center;
+    background: #0a0a0a;
+  }
+  #ruota-schermo .ruota-ico {
+    font-size: 44px;
+    animation: ruotaCenno 1.8s ease-in-out infinite;
+  }
+  #ruota-schermo .ruota-testo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px; letter-spacing: 1px; color: #f7cc49;
+  }
+  #ruota-schermo .ruota-sub {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; color: rgba(255,255,255,0.55); max-width: 260px;
+  }
+
+  /* Si accende solo su schermo tattile coricato: la soglia di altezza
+     e il tipo di puntatore tengono fuori i monitor. */
+  @media (orientation: landscape) and (max-height: 560px) and (pointer: coarse) {
+    #ruota-schermo { display: flex; }
+    html, body { overflow: hidden !important; }
+  }
+  @keyframes ruotaCenno {
+    0%, 100% { transform: rotate(0deg); }
+    50%      { transform: rotate(-90deg); }
+  }
+
+  /* Mentre il tour di benvenuto e' aperto la pagina non si muove:
+     le sue posizioni sono calcolate sul viewport e uno scorrimento
+     le manderebbe fuori schermo, lasciando il velo senza pulsanti. */
+  #onboard-overlay { touch-action: none; }
+  html.onboard-attivo, body.onboard-attivo {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
+
 </style>
 </head>
 <body>
+  <!-- Coperchio mostrato solo se il telefono viene coricato -->
+  <div id="ruota-schermo">
+    <div class="ruota-ico">📱</div>
+    <div class="ruota-testo">GIRA IL TELEFONO</div>
+    <div class="ruota-sub">CAMON si usa in verticale.</div>
+  </div>
+
   <div class="pwa-banner" id="pwa-banner">
     <div class="pwa-banner-ico">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
@@ -9860,6 +9915,8 @@
 
   let onboardIdx = 0;
 
+  let onboardAperto = false;
+
   function onboardShow(idx) {
     const step = onboardSteps[idx];
     const el = document.querySelector(step.selector);
@@ -9873,20 +9930,28 @@
     hl.style.width  = (rect.width + pad * 2) + 'px';
     hl.style.height = (rect.height + pad * 2) + 'px';
 
+    /* Il fumetto va sempre tenuto dentro lo schermo: se il calcolo lo
+       manda fuori, i pulsanti Salta/Avanti diventano inarrivabili e il
+       velo resta li' a bloccare tutto. Si limita col conto, non
+       misurando dopo: il fumetto ha una transizione e una misura presa
+       subito restituirebbe la posizione intermedia. */
     const tip = document.getElementById('onboard-tooltip');
-    const tipH = 180;
-    if (step.pos === 'bottom') {
-      tip.style.top    = (rect.bottom + pad + 14) + 'px';
-      tip.style.bottom = 'auto';
-    } else {
-      tip.style.bottom = (window.innerHeight - rect.top + pad + 14) + 'px';
-      tip.style.top    = 'auto';
-    }
+    const margine = 12;
+    const altezzaTip = tip.offsetHeight || 200;
+    let alto = step.pos === 'bottom'
+      ? rect.bottom + pad + 14
+      : rect.top - pad - 14 - altezzaTip;
+    const massimo = window.innerHeight - altezzaTip - margine;
+    if (alto > massimo) alto = massimo;
+    if (alto < margine) alto = margine;
+    tip.style.top    = alto + 'px';
+    tip.style.bottom = 'auto';
 
     document.getElementById('onboard-counter').textContent = (idx + 1) + ' / ' + onboardSteps.length;
     document.getElementById('onboard-title').textContent   = step.title;
     document.getElementById('onboard-text').textContent    = step.text;
     document.getElementById('onboard-next').textContent    = idx === onboardSteps.length - 1 ? 'Inizia' : 'Avanti';
+
   }
 
   function onboardNext() {
@@ -9896,18 +9961,54 @@
   }
 
   function onboardEnd() {
+    onboardAperto = false;
     document.getElementById('onboard-overlay').style.display = 'none';
+    document.body.classList.remove('onboard-attivo');
+    document.documentElement.classList.remove('onboard-attivo');
     localStorage.setItem('camon_onboard_done', '1');
   }
 
   function onboardStart() {
     if (localStorage.getItem('camon_onboard_done')) return;
     onboardIdx = 0;
+    onboardAperto = true;
+    /* Si riparte dall'alto: il primo passo indica il logo, che dopo
+       uno scorrimento sarebbe gia' uscito dallo schermo. */
+    window.scrollTo(0, 0);
+    document.body.classList.add('onboard-attivo');
+    document.documentElement.classList.add('onboard-attivo');
     document.getElementById('onboard-overlay').style.display = 'block';
-    setTimeout(() => onboardShow(0), 400);
+    setTimeout(function () { onboardShow(0); }, 400);
   }
 
+  /* Se qualcosa muove comunque la pagina (tastiera, barra del browser,
+     rotazione), i riquadri vengono ricalcolati invece di restare
+     appesi a coordinate vecchie. */
+  ['scroll', 'resize', 'orientationchange'].forEach(function (ev) {
+    window.addEventListener(ev, function () {
+      if (onboardAperto) onboardShow(onboardIdx);
+    }, { passive: true });
+  });
+
+  /* Via d'uscita sempre disponibile: un tocco sullo sfondo scuro
+     chiude il tour, cosi' non si puo' restare intrappolati. */
+  document.getElementById('onboard-overlay').addEventListener('click', function (e) {
+    if (e.target === this) onboardEnd();
+  });
+
   window.addEventListener('load', onboardStart);
+
+  /* ===== SOLO IN VERTICALE =====
+     Dove il browser lo consente (Android, app installata) si chiede
+     il blocco vero della rotazione. Su iOS l'API non esiste e la
+     chiamata fallisce senza conseguenze: li' resta il coperchio CSS. */
+  (function () {
+    try {
+      if (screen.orientation && typeof screen.orientation.lock === 'function') {
+        screen.orientation.lock('portrait').catch(function () {});
+      }
+    } catch (e) { /* non supportato: se ne occupa il CSS */ }
+  })();
 
 
 </script>
