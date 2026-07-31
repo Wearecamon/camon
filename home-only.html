@@ -3322,12 +3322,12 @@
     flex-direction: column;
   }
 
-  /* La foto del profilo resta a tutto schermo: si abbassano solo i due
-     tasti tondi in cima, che partendo a 16px finivano sotto l'orologio
-     e non si riuscivano a premere. */
+  /* La foto del profilo resta a tutto schermo, senza fasce nere sopra:
+     scendono solo i due tasti tondi, che partendo a 16px finivano sotto
+     l'orologio. Quel tanto che basta per liberarli, non di piu'. */
   .prof-edit-fab,
   .prof-tondo-alto {
-    top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(6px + env(safe-area-inset-top, 0px)) !important;
   }
 
   /* ============================================================
