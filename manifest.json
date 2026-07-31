@@ -2,7 +2,7 @@
   "name": "CAMON",
   "short_name": "CAMON",
   "start_url": ".",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#0a0a0a",
   "theme_color": "#f7cc49",
   "icons": [
