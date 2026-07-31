@@ -3312,7 +3312,7 @@
 </head>
 <body>
 <div class="prova-riga-rossa"></div>
-<div class="prova-versione">v4 · giochi</div>
+<div class="prova-versione">v5 · profilo</div>
   <div class="page active" id="page-home">
     <div class="scroll-area">
 
@@ -4411,6 +4411,252 @@
   <!-- ============================
        STORIA = SHOT GRATIS
   ============================ -->
+  <div class="page" id="page-profile">
+
+    <!-- STATO VUOTO: nessun account ancora -->
+    <div id="prof-empty-section" class="prof-empty">
+      <div class="prof-empty-banner">
+        <span class="prof-empty-banner-ico">⚠️</span>
+        <div>Non hai ancora un profilo CAMON: <b>iscriviti o accedi</b> per usarlo.</div>
+      </div>
+      <div class="prof-empty-ico">🍹</div>
+      <div class="prof-empty-title">ENTRA IN <span>CAMON</span></div>
+      <div class="prof-empty-sub">Il profilo ti serve per i tavoli sociali, i tornei e i bonus — come lo shot omaggio. Bastano un paio di minuti.</div>
+      <div class="prof-empty-actions">
+        <button class="prof-empty-btn primary" onclick="profShowAuth('signup')">Iscriviti</button>
+        <button class="prof-empty-btn ghost" onclick="profShowAuth('login')">Ho già un account · Accedi</button>
+      </div>
+    </div>
+
+    <!-- AUTENTICAZIONE: iscriviti / accedi -->
+    <div id="prof-auth-section" class="prof-auth" style="display:none">
+      <button class="prof-auth-back" onclick="profShowEmpty()" aria-label="Indietro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="prof-auth-inner">
+        <div class="prof-auth-ico">🍹</div>
+        <div class="prof-auth-title" id="auth-title">Iscriviti</div>
+        <div class="prof-auth-sub" id="auth-sub">Crea il tuo account CAMON</div>
+
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="auth-email" placeholder="nome@email.com" autocomplete="email" oninput="authClearErr('auth-email-err')">
+          <div class="auth-err" id="auth-email-err"></div>
+        </div>
+        <div class="auth-field" id="auth-phone-field">
+          <label>Numero di telefono</label>
+          <input type="tel" id="auth-phone" placeholder="+39 333 000 0000" autocomplete="tel" maxlength="18" oninput="authClearErr('auth-phone-err')">
+          <div class="auth-err" id="auth-phone-err"></div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input type="password" id="auth-pass" placeholder="Almeno 6 caratteri" autocomplete="current-password" oninput="authClearErr('auth-pass-err')">
+          <div class="auth-err" id="auth-pass-err"></div>
+        </div>
+
+        <button class="prof-auth-btn" id="auth-submit" onclick="authSubmit()">Continua</button>
+        <div class="prof-auth-switch" id="auth-switch"></div>
+      </div>
+    </div>
+
+    <!-- VERIFICA OTP -->
+    <div id="prof-otp-section" class="prof-auth" style="display:none">
+      <button class="prof-auth-back" onclick="profShowAuth('signup')" aria-label="Indietro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="prof-auth-inner">
+        <div class="prof-auth-ico">📲</div>
+        <div class="prof-auth-title">Verifica il numero</div>
+        <div class="prof-auth-sub">Inserisci il codice inviato via SMS a <b id="otp-dest">+39 …</b></div>
+        <input class="otp-input" id="otp-input" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="one-time-code" oninput="authClearErr('otp-err')">
+        <div class="auth-err" id="otp-err" style="text-align:center"></div>
+        <div class="otp-demo" id="otp-demo"></div>
+        <button class="prof-auth-btn" onclick="otpVerify()">Verifica e continua</button>
+        <div class="prof-auth-switch">Non l'hai ricevuto? <b onclick="otpResend()">Invia di nuovo</b></div>
+      </div>
+    </div>
+
+    <!-- ANTEPRIMA (default) -->
+    <div id="prof-preview-section" style="flex:1;display:block;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+
+      <!-- FOTO + NOME sovrapposto -->
+      <div style="position:relative;width:100%;height:68vh;min-height:340px;background:#111;overflow:hidden">
+        <div id="prev-photo-empty" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0.15">
+          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M3 20c0-4 4-7 9-7s9 3 9 7"/></svg>
+        </div>
+        <img id="prev-photo-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+        <!-- gradient -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:280px;background:linear-gradient(transparent,#111);pointer-events:none"></div>
+        <!-- nome + eta -->
+        <div style="position:absolute;bottom:20px;left:22px;width:fit-content;text-align:right">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#fff;line-height:0.9;letter-spacing:1px;text-transform:uppercase" id="prev-firstname">NOME</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#f7cc49;line-height:0.9;letter-spacing:1px;text-transform:uppercase" id="prev-lastname"></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#fff;line-height:0.95;letter-spacing:1px" id="prev-age"></div>
+        </div>
+        <!-- FAB modifica -->
+        <button class="prof-edit-fab" onclick="profShowEdit()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+
+      <!-- INFO sotto la foto — Tinder/Hinge style -->
+      <div class="prof-info">
+
+        <!-- VITALS: pill con icone -->
+        <div class="prof-vitals">
+          <span class="vital" id="vital-sesso">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+            <span id="prev-sesso"></span>
+          </span>
+          <span class="vital" id="vital-lavoro" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            <span id="prev-lavoro"></span>
+          </span>
+          <span class="vital" id="vital-studio" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <span id="prev-studio"></span>
+          </span>
+          <span class="vital accent" id="vital-erasmus" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="prev-erasmus">In Erasmus</span>
+          </span>
+        </div>
+
+        <!-- BIO — protagonista -->
+        <div class="prof-card prof-bio-card" id="prev-bio-card" style="display:none">
+          <div class="prof-bio-txt" id="prev-bio"></div>
+        </div>
+
+        <!-- CERCA STASERA (intento) -->
+        <div class="prof-card">
+          <div class="prof-card-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="#f7cc49"/></svg>
+            Cerca stasera
+          </div>
+          <div class="tinder-chips" id="prev-stasera"></div>
+        </div>
+
+        <!-- INTERESSI -->
+        <div class="prof-card">
+          <div class="prof-card-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            Interessi
+          </div>
+          <div class="tinder-chips" id="prev-interessi"></div>
+        </div>
+
+        <!-- LINGUE -->
+        <div class="prof-card" id="prev-lingue-wrap" style="display:none">
+          <div class="prof-card-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Lingue parlate
+          </div>
+          <div class="tinder-chips" id="prev-lingue"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FORM MODIFICA (nascosto) -->
+    <div id="prof-edit-section" style="flex:1;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:96px">
+      <div class="prof-photo-wrap" style="position:relative" onclick="document.getElementById('prof-file').click()">
+        <button onclick="event.stopPropagation();profShowPreview()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <img class="prof-photo-img" id="prof-photo-img" src="" alt="">
+        <div class="prof-photo-placeholder" id="prof-photo-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M3 20c0-4 4-7 9-7s9 3 9 7"/></svg>
+          <span>Aggiungi foto *</span>
+        </div>
+        <button class="prof-photo-edit" id="prof-photo-edit" style="display:none" onclick="event.stopPropagation();document.getElementById('prof-file').click()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <input type="file" id="prof-file" accept="image/*" style="display:none" onchange="profLoadPhoto(this)">
+      </div>
+
+      <div class="prof-basic">
+        <input class="prof-name-input" id="edit-nome" type="text" placeholder="Nome *" maxlength="20">
+        <input class="prof-name-input" id="edit-cognome" type="text" placeholder="Cognome" maxlength="20" style="color:#f7cc49">
+        <input class="prof-age-input" id="edit-age" type="number" placeholder="età" min="18" max="99">
+      </div>
+
+      <div class="prof-section">
+        <div class="prof-section-label">Sesso *</div>
+        <div class="prof-chips" id="chips-sesso">
+          <div class="prof-chip" onclick="selectChip(this,'sesso')">Uomo</div>
+          <div class="prof-chip" onclick="selectChip(this,'sesso')">Donna</div>
+          <div class="prof-chip" onclick="selectChip(this,'sesso')">Altro</div>
+        </div>
+      </div>
+
+      <div class="prof-section" style="margin-top:18px">
+        <div class="prof-section-label">Cosa cerchi stasera? *</div>
+        <div class="prof-chips" id="chips-stasera">
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">💡 Shot Quest</div>
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">👑 Kings</div>
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">🏓 Beer Pong</div>
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">🥤 Flip Cup</div>
+          <div class="prof-chip" onclick="toggleChip(this)">💃 Ballare</div>
+          <div class="prof-chip" onclick="toggleChip(this)">💬 Chiacchierare</div>
+        </div>
+      </div>
+
+      <div class="prof-section" style="margin-top:18px">
+        <div class="prof-section-label">Interessi *</div>
+        <div class="prof-chips" id="chips-interessi">
+          <div class="prof-chip" onclick="toggleChip(this)">🎵 Musica</div>
+          <div class="prof-chip" onclick="toggleChip(this)">⚽ Sport</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎬 Cinema</div>
+          <div class="prof-chip" onclick="toggleChip(this)">✈️ Viaggi</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🍕 Cucina</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎮 Gaming</div>
+          <div class="prof-chip" onclick="toggleChip(this)">📚 Lettura</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎨 Arte</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🍺 Birra artigianale</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎭 Teatro</div>
+        </div>
+      </div>
+
+      <div class="prof-optional-title"><span>Facoltativo</span></div>
+      <div class="prof-field-sm">
+        <div class="prof-bio-field-head">
+          <label>Bio</label>
+          <span class="prof-bio-count" id="bio-counter">0 / 240</span>
+        </div>
+        <textarea id="edit-bio" maxlength="240" placeholder="Racconta qualcosa di te: cosa ti piace fare, perché sei qui stasera, che tipo cerchi di incontrare..." oninput="profBioCount(this)"></textarea>
+      </div>
+      <div class="prof-field-sm"><label>Titolo di studio</label>
+        <select id="edit-studio">
+          <option value="" disabled selected>Seleziona</option>
+          <option>Licenza media</option><option>Diploma</option>
+          <option>Laurea triennale</option><option>Laurea magistrale</option><option>Dottorato</option>
+        </select>
+      </div>
+      <div class="prof-field-sm"><label>Lavoro / Occupazione</label><input id="edit-lavoro" type="text" placeholder="Es. Studente, Designer..."></div>
+      <div class="prof-section" style="margin-top:4px;padding-bottom:4px">
+        <div class="prof-section-label">Erasmus?</div>
+        <div class="prof-chips" id="chips-erasmus">
+          <div class="prof-chip" onclick="selectChip(this,'erasmus')">Sì 🌍</div>
+          <div class="prof-chip" onclick="selectChip(this,'erasmus')">No</div>
+        </div>
+      </div>
+      <div class="prof-field-sm" style="margin-top:14px"><label>Lingue parlate</label><input id="edit-lingue" type="text" placeholder="Es. Italiano, Inglese..."></div>
+      <button class="prof-save" style="margin:20px 20px 0;width:calc(100% - 40px)" onclick="profSave()">Salva profilo</button>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  <!-- ============================
+       SHOT QUEST
+  ============================ -->
+  <!-- INFO: TAVOLI SOCIALI -->
+  <!-- ═══════════ PAGINA OFFERTE ═══════════ -->
   <nav class="bottom-nav">
     <button class="nav-btn" id="nav-book" onclick="goTo('book')">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -6583,6 +6829,7 @@
         });
       }
     }
+    if (page === 'profile' && typeof profEnter === 'function') profEnter();
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
@@ -6598,6 +6845,619 @@
     storico.pop();
     mostra(storico[storico.length - 1] || 'home');
   }
+</script>
+<script>
+  /* stato di accesso: lo usano profilo, storia e la colla Supabase */
+  let profileCreated = false;
+  /* ===== PROFILE TABS ===== */
+  function profHasProfile() { return profileCreated; }
+
+  // mostra/nasconde il bollino carta vs FAB salva mentre si modifica il profilo
+  function profSetEditFab(editing) {
+    /* I bollini flottanti (carta, salva) non sono ancora in questa prova:
+       se mancano si prosegue senza toccarli. */
+    const cardFab = document.getElementById('card-fab');
+    const card = cardFab && cardFab.parentElement;
+    const save = document.getElementById('profile-save-fab-wrap');
+    if (card) card.classList.toggle('hidden', !!editing);
+    if (save) save.classList.toggle('hidden', !editing);
+  }
+
+  // scelta della schermata giusta entrando nel profilo
+  function profEnter() {
+    if (profHasProfile()) profShowPreview();
+    else profShowEmpty();
+  }
+
+  function profShowEmpty() {
+    document.getElementById('prof-empty-section').style.display = 'flex';
+    document.getElementById('prof-auth-section').style.display = 'none';
+    document.getElementById('prof-otp-section').style.display = 'none';
+    document.getElementById('prof-preview-section').style.display = 'none';
+    document.getElementById('prof-edit-section').style.display = 'none';
+    profSetEditFab(false);
+  }
+
+  function profShowEdit() {
+    document.getElementById('prof-empty-section').style.display = 'none';
+    document.getElementById('prof-auth-section').style.display = 'none';
+    document.getElementById('prof-otp-section').style.display = 'none';
+    document.getElementById('prof-preview-section').style.display = 'none';
+    document.getElementById('prof-edit-section').style.display = 'block';
+    profBioCount(document.getElementById('edit-bio'));
+    profSetEditFab(true);
+  }
+
+  function profShowPreview() {
+    // se non c'è ancora un profilo, l'indietro riporta allo stato "crea profilo"
+    if (!profHasProfile()) { profShowEmpty(); return; }
+    profBuildPreview();
+    document.getElementById('prof-empty-section').style.display = 'none';
+    document.getElementById('prof-auth-section').style.display = 'none';
+    document.getElementById('prof-otp-section').style.display = 'none';
+    document.getElementById('prof-edit-section').style.display = 'none';
+    document.getElementById('prof-preview-section').style.display = 'block';
+    profSetEditFab(false);
+  }
+
+  /* --- Iscriviti / Accedi --- */
+  let authMode = 'signup'; // 'signup' | 'login'
+
+  function profShowAuth(mode) {
+    authMode = mode;
+    document.getElementById('prof-empty-section').style.display = 'none';
+    document.getElementById('prof-otp-section').style.display = 'none';
+    document.getElementById('prof-preview-section').style.display = 'none';
+    document.getElementById('prof-edit-section').style.display = 'none';
+    document.getElementById('prof-auth-section').style.display = 'flex';
+    profSetEditFab(false);
+    authRender();
+  }
+
+  function authRender() {
+    const isSignup = authMode === 'signup';
+    document.getElementById('auth-title').textContent = isSignup ? 'Iscriviti' : 'Bentornato';
+    document.getElementById('auth-sub').textContent = isSignup ? 'Crea il tuo account CAMON' : 'Accedi al tuo account';
+    document.getElementById('auth-phone-field').style.display = isSignup ? 'flex' : 'none';
+    document.getElementById('auth-submit').textContent = isSignup ? 'Continua' : 'Accedi';
+    document.getElementById('auth-switch').innerHTML = isSignup
+      ? 'Hai già un account? <b onclick="profShowAuth(\'login\')">Accedi</b>'
+      : 'Non hai un account? <b onclick="profShowAuth(\'signup\')">Iscriviti</b>';
+    ['auth-email-err', 'auth-phone-err', 'auth-pass-err'].forEach(authClearErr);
+  }
+
+  function authClearErr(id) { const e = document.getElementById(id); if (e) e.textContent = ''; }
+  function authSetErr(id, msg) { const e = document.getElementById(id); if (e) e.textContent = msg; }
+
+  // valida un cellulare italiano: inizia con 3, 9-10 cifre (accetta +39 / 0039)
+  function authPhoneNormalize(raw) {
+    let d = (raw || '').replace(/\D/g, '');
+    if (d.indexOf('0039') === 0) d = d.slice(4);
+    else if (d.indexOf('39') === 0 && d.length > 10) d = d.slice(2);
+    return d;
+  }
+  function authPhoneValid(raw) { return /^3\d{8,9}$/.test(authPhoneNormalize(raw)); }
+
+  async function authSubmit() {
+    const email = document.getElementById('auth-email').value.trim();
+    const pass = document.getElementById('auth-pass').value;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    let ok = true;
+    if (!emailOk) { authSetErr('auth-email-err', 'Inserisci un\'email valida'); ok = false; }
+    let phone = '';
+    if (authMode === 'signup') {
+      phone = document.getElementById('auth-phone').value.trim();
+      if (!authPhoneValid(phone)) { authSetErr('auth-phone-err', 'Inserisci un numero di cellulare valido (es. 333 1234567)'); ok = false; }
+    }
+    if (pass.length < 6) { authSetErr('auth-pass-err', 'La password deve avere almeno 6 caratteri'); ok = false; }
+    if (!ok) return;
+
+    // Senza connessione a Supabase (es. offline): torna al comportamento demo
+    if (!window.sb) {
+      if (authMode === 'signup') { otpStart(phone); }
+      else { profileCreated = true; profShowPreview(); alert('Bentornato! 🎉'); }
+      return;
+    }
+
+    const btn = document.getElementById('auth-submit');
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Attendi…';
+    try {
+      if (authMode === 'signup') {
+        const { data, error } = await window.sb.auth.signUp({
+          email, password: pass,
+          options: { data: { phone: authPhoneNormalize(phone) } }
+        });
+        if (error) throw error;
+        if (data.session) {
+          // login immediato (conferma email disattivata) → completa il profilo
+          profileCreated = true;
+          camonSyncAuthUI();
+          profShowEdit();
+          const nm = document.getElementById('edit-nome'); if (nm) nm.focus();
+        } else {
+          // serve la conferma via email prima di poter accedere
+          alert('Ti abbiamo inviato un\'email di conferma a ' + email + '.\nAprila, clicca il link, poi torna qui e premi Accedi.');
+          profShowAuth('login');
+        }
+      } else {
+        const { error } = await window.sb.auth.signInWithPassword({ email, password: pass });
+        if (error) throw error;
+        profileCreated = true;
+        camonSyncAuthUI();
+        await camonLoadProfile();
+        profEnter();
+      }
+    } catch (e) {
+      authSetErr('auth-pass-err', camonAuthErr((e && e.message) || ''));
+    } finally {
+      btn.disabled = false; btn.textContent = original;
+    }
+  }
+
+  /* --- Verifica OTP (mockup: senza backend non parte un vero SMS) --- */
+  let otpCode = '', otpDest = '';
+
+  function profShowOtp() {
+    document.getElementById('prof-empty-section').style.display = 'none';
+    document.getElementById('prof-auth-section').style.display = 'none';
+    document.getElementById('prof-preview-section').style.display = 'none';
+    document.getElementById('prof-edit-section').style.display = 'none';
+    document.getElementById('prof-otp-section').style.display = 'flex';
+    profSetEditFab(false);
+  }
+
+  function otpStart(phone) {
+    otpDest = phone;
+    otpCode = String(Math.floor(1000 + Math.random() * 9000)); // codice a 4 cifre
+    document.getElementById('otp-dest').textContent = phone;
+    document.getElementById('otp-input').value = '';
+    authClearErr('otp-err');
+    // in un'app reale il codice arriva via SMS; in demo lo mostriamo qui
+    document.getElementById('otp-demo').innerHTML = 'Demo (senza SMS reale): il tuo codice è <b>' + otpCode + '</b>';
+    profShowOtp();
+  }
+
+  function otpVerify() {
+    const v = document.getElementById('otp-input').value.trim();
+    if (v !== otpCode) { authSetErr('otp-err', 'Codice non corretto, riprova.'); return; }
+    // numero verificato → completa il profilo
+    const nm = document.getElementById('edit-nome');
+    profShowEdit();
+    if (nm) nm.focus();
+  }
+
+  function otpResend() { otpStart(otpDest); }
+
+  function profBuildPreview() {
+    const srcImg = document.getElementById('prof-photo-img');
+    const prevImg = document.getElementById('prev-photo-img');
+    const prevEmpty = document.getElementById('prev-photo-empty');
+    if (srcImg && srcImg.src && srcImg.src !== window.location.href) {
+      prevImg.src = srcImg.src; prevImg.style.display = 'block'; prevEmpty.style.display = 'none';
+    } else { prevImg.style.display = 'none'; prevEmpty.style.display = 'flex'; }
+    const nome = document.getElementById('edit-nome').value.trim() || 'NOME';
+    const cognome = document.getElementById('edit-cognome').value.trim() || '';
+    const eta = document.getElementById('edit-age').value || '';
+    const sessoEl = document.querySelector('#chips-sesso .prof-chip.active');
+    document.getElementById('prev-firstname').textContent = nome.toUpperCase();
+    document.getElementById('prev-lastname').textContent = cognome.toUpperCase();
+    document.getElementById('prev-age').textContent = eta;
+    // auto-scala il font se il nome è troppo lungo
+    const containerW = (document.getElementById('prof-preview-section').offsetWidth || 390) - 44;
+    const maxLen = Math.max(nome.length, cognome.length, 2);
+    const fs = Math.max(32, Math.min(76, Math.floor(containerW / (maxLen * 0.62))));
+    document.getElementById('prev-firstname').style.fontSize = fs + 'px';
+    document.getElementById('prev-lastname').style.fontSize = fs + 'px';
+    document.getElementById('prev-age').style.fontSize = fs + 'px';
+    document.getElementById('vital-sesso').style.display = sessoEl ? 'inline-flex' : 'none';
+    if (sessoEl) document.getElementById('prev-sesso').textContent = sessoEl.textContent;
+    const bio = document.getElementById('edit-bio').value.trim();
+    document.getElementById('prev-bio-card').style.display = bio ? 'block' : 'none';
+    if (bio) document.getElementById('prev-bio').textContent = bio;
+    const staseraDiv = document.getElementById('prev-stasera');
+    staseraDiv.innerHTML = '';
+    document.querySelectorAll('#chips-stasera .prof-chip.active').forEach(c => {
+      const ch = document.createElement('div'); ch.className = 'tinder-chip'; ch.textContent = c.textContent; staseraDiv.appendChild(ch);
+    });
+    const interessiDiv = document.getElementById('prev-interessi');
+    interessiDiv.innerHTML = '';
+    document.querySelectorAll('#chips-interessi .prof-chip.active').forEach(c => {
+      const ch = document.createElement('div'); ch.className = 'tinder-chip n'; ch.textContent = c.textContent; interessiDiv.appendChild(ch);
+    });
+    const lavoro = document.getElementById('edit-lavoro').value.trim();
+    const studio = document.getElementById('edit-studio').value;
+    const erasmusEl = document.querySelector('#chips-erasmus .prof-chip.active');
+    document.getElementById('vital-lavoro').style.display = lavoro ? 'inline-flex' : 'none';
+    if (lavoro) document.getElementById('prev-lavoro').textContent = lavoro;
+    document.getElementById('vital-studio').style.display = studio ? 'inline-flex' : 'none';
+    if (studio) document.getElementById('prev-studio').textContent = studio;
+    const inErasmus = erasmusEl && erasmusEl.textContent.trim().indexOf('Sì') === 0;
+    document.getElementById('vital-erasmus').style.display = inErasmus ? 'inline-flex' : 'none';
+    // info items shown individually
+    const lingue = document.getElementById('edit-lingue').value.trim();
+    const lingueWrap = document.getElementById('prev-lingue-wrap');
+    lingueWrap.style.display = lingue ? 'block' : 'none';
+    if (lingue) {
+      const ld = document.getElementById('prev-lingue'); ld.innerHTML = '';
+      lingue.split(/[,;]+/).forEach(function(l){ if(l.trim()){const ch=document.createElement('div');ch.className='tinder-chip n';ch.textContent=l.trim();ld.appendChild(ch);} });
+    }
+  }
+  /* ===== PROFILO ===== */
+  function profLoadPhoto(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('prof-photo-img');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      document.getElementById('prof-photo-placeholder').style.display = 'none';
+      document.getElementById('prof-photo-edit').style.display = 'flex';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function profBioCount(el) {
+    const max = el.maxLength > 0 ? el.maxLength : 240;
+    const n = el.value.length;
+    const c = document.getElementById('bio-counter');
+    c.textContent = n + ' / ' + max;
+    c.classList.toggle('full', n >= max);
+  }
+
+  function selectChip(el, group) {
+    document.querySelectorAll('#chips-' + group + ' .prof-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function toggleChip(el) {
+    el.classList.toggle('active');
+  }
+
+  async function profSave() {
+    const foto = document.getElementById('prof-photo-img').style.display === 'block';
+    const nome = document.querySelector('.prof-name-input').value.trim();
+    const sesso = document.querySelector('#chips-sesso .prof-chip.active');
+    const stasera = document.querySelectorAll('.game-chip.active, .prof-chips .prof-chip.active');
+    if (!foto) { alert('Aggiungi una foto per continuare'); return; }
+    if (!nome) { alert('Inserisci il tuo nome'); return; }
+    if (!sesso) { alert('Seleziona il sesso'); return; }
+    // profilo creato in questa sessione: sblocca anteprima e bonus (es. shot omaggio)
+    profileCreated = true;
+    if (!localStorage.getItem('camon_profile_id')) {
+      localStorage.setItem('camon_profile_id', 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+    }
+    // salva sul database (se collegato); se fallisce, il profilo resta comunque in sessione
+    if (window.sb) {
+      try { await camonSaveProfile(); }
+      catch (e) { console.warn('Salvataggio profilo non riuscito:', e); }
+    }
+    profShowPreview(); alert('Profilo salvato! Buona serata 🎉');
+  }
+
+  /* ===== ONBOARDING JS ===== */
+  const onboardSteps = [
+    {
+      selector: '.home-logo',
+      title: 'Seguici su Twitch',
+      text: 'Qui trovi le nostre dirette — eventi, tornei e serate live dal locale.',
+      pos: 'bottom'
+    },
+    {
+      selector: '#nav-games',
+      title: 'Giochi alcolici',
+      text: 'Tutti i giochi disponibili stasera con le regole incluse. Beer pong, Kings, Flip Cup e altro.',
+      pos: 'top'
+    },
+    {
+      selector: '#nav-book',
+      title: 'Prenota',
+      text: 'Prenota il tuo tavolo — anche social, se vuoi essere abbinato a gente nuova.',
+      pos: 'top'
+    },
+    {
+      selector: '#nav-menu',
+      title: 'Menu & Offerte',
+      text: 'Drink e cibo del locale. Da qui apri anche le offerte: happy hour, tornei e promo.',
+      pos: 'top'
+    },
+    {
+      selector: '#card-fab',
+      title: 'La tua carta',
+      text: 'Ricarica la tessera e paga le spine self-service. La trovi sempre qui, in ogni pagina.',
+      pos: 'top'
+    },
+    {
+      selector: '#nav-profile',
+      title: 'Il tuo profilo',
+      text: 'Crea il tuo profilo — ti serve per i tavoli sociali e per partecipare ai tornei.',
+      pos: 'top'
+    }
+  ];
+
+  let onboardIdx = 0;
+
+  function onboardShow(idx) {
+    const step = onboardSteps[idx];
+    const el = document.querySelector(step.selector);
+    if (!el) { onboardNext(); return; }
+
+    const rect = el.getBoundingClientRect();
+    const pad = 8;
+    const hl = document.getElementById('onboard-highlight');
+    hl.style.left   = (rect.left - pad) + 'px';
+    hl.style.top    = (rect.top - pad) + 'px';
+    hl.style.width  = (rect.width + pad * 2) + 'px';
+    hl.style.height = (rect.height + pad * 2) + 'px';
+
+    const tip = document.getElementById('onboard-tooltip');
+    const tipH = 180;
+    if (step.pos === 'bottom') {
+      tip.style.top    = (rect.bottom + pad + 14) + 'px';
+      tip.style.bottom = 'auto';
+    } else {
+      tip.style.bottom = (window.innerHeight - rect.top + pad + 14) + 'px';
+      tip.style.top    = 'auto';
+    }
+
+    document.getElementById('onboard-counter').textContent = (idx + 1) + ' / ' + onboardSteps.length;
+    document.getElementById('onboard-title').textContent   = step.title;
+    document.getElementById('onboard-text').textContent    = step.text;
+    document.getElementById('onboard-next').textContent    = idx === onboardSteps.length - 1 ? 'Inizia' : 'Avanti';
+  }
+
+  function onboardNext() {
+    onboardIdx++;
+    if (onboardIdx >= onboardSteps.length) { onboardEnd(); return; }
+    onboardShow(onboardIdx);
+  }
+
+  function onboardEnd() {
+    document.getElementById('onboard-overlay').style.display = 'none';
+    localStorage.setItem('camon_onboard_done', '1');
+  }
+
+  function onboardStart() {
+    if (localStorage.getItem('camon_onboard_done')) return;
+    onboardIdx = 0;
+    document.getElementById('onboard-overlay').style.display = 'block';
+    setTimeout(() => onboardShow(0), 400);
+  }
+
+  window.addEventListener('load', onboardStart);
+
+
+</script>
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://vbwttxfkyvbrmykwodqi.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_7iZyVXYEmYL6Ne1nf5R9Cg_gTgrMKWv';
+
+  window.sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+
+  // avvisa il codice "classico" che il client è pronto
+  if (typeof window.camonAuthInit === 'function') window.camonAuthInit();
+  else window.addEventListener('camon-init-ready', function () { window.camonAuthInit(); }, { once: true });
+</script>
+<script>
+  /* Traduce i messaggi d'errore di Supabase in italiano leggibile */
+  function camonAuthErr(msg) {
+    const m = (msg || '').toLowerCase();
+    if (m.includes('invalid login credentials')) return 'Email o password non corretti.';
+    if (m.includes('already registered') || m.includes('already been registered')) return 'Esiste già un account con questa email. Prova ad accedere.';
+    if (m.includes('email not confirmed')) return 'Devi prima confermare l\'email: controlla la posta.';
+    if (m.includes('password')) return 'Password non valida (minimo 6 caratteri).';
+    if (m.includes('rate limit') || m.includes('too many')) return 'Troppi tentativi, riprova tra poco.';
+    if (m.includes('network') || m.includes('failed to fetch')) return 'Connessione assente: riprova.';
+    return msg || 'Errore, riprova.';
+  }
+
+  /* Mostra/nasconde il tasto "Esci" secondo lo stato di login */
+  function camonSyncAuthUI() {
+    const row = document.getElementById('settings-logout');
+    if (row) row.style.display = profileCreated ? 'flex' : 'none';
+  }
+
+  /* Chiave localStorage per la foto, legata all'utente */
+  function camonPhotoKey(uid) { return 'camon_photo_' + uid; }
+
+  /* Salva il profilo compilato nel database Supabase */
+  async function camonSaveProfile() {
+    if (!window.sb) return;
+    const { data: { user } } = await window.sb.auth.getUser();
+    if (!user) return;
+
+    const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+    const sessoEl = document.querySelector('#chips-sesso .prof-chip.active');
+    const erasmusEl = document.querySelector('#chips-erasmus .prof-chip.active');
+    const erasmus = !!(erasmusEl && /s[iì]/i.test(erasmusEl.textContent));
+
+    // Foto: la comprimo e la salvo nel DB (così segue l'utente su ogni
+    // dispositivo). Tengo anche una copia in locale per il caricamento
+    // istantaneo sullo stesso dispositivo.
+    let photoData = null;
+    try {
+      const img = document.getElementById('prof-photo-img');
+      if (img && img.src && img.style.display === 'block' && img.src.indexOf('data:') === 0) {
+        photoData = await camonDownscalePhoto(img.src, 800, 0.82);
+      } else if (img && img.style.display === 'block' && img.src) {
+        photoData = img.src; // già una URL/foto valida caricata dal profilo
+      }
+      if (photoData) { try { localStorage.setItem(camonPhotoKey(user.id), photoData); } catch (e) {} }
+    } catch (e) { /* si ignora */ }
+
+    const row = {
+      first_name: val('edit-nome') || null,
+      last_name:  val('edit-cognome') || null,
+      gender:     sessoEl ? sessoEl.textContent.trim() : null,
+      bio:        val('edit-bio') || null,
+      languages:  val('edit-lingue') || null,
+      erasmus:    erasmus,
+      phone:      (user.user_metadata && user.user_metadata.phone) || null
+    };
+    if (photoData) row.photo_url = photoData;   // salva la foto solo se presente
+
+    // "update" e non "upsert": la riga profilo la crea già il trigger alla
+    // registrazione, e così basta il permesso RLS di aggiornamento.
+    const { error } = await window.sb.from('profiles').update(row).eq('id', user.id);
+    if (error) throw error;
+  }
+
+  /* Carica il profilo dal database e riempie il form */
+  async function camonLoadProfile() {
+    if (!window.sb) return;
+    const { data: { user } } = await window.sb.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await window.sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (error || !data) return;
+
+    const set = (id, v) => { const e = document.getElementById(id); if (e && v != null) e.value = v; };
+    set('edit-nome', data.first_name);
+    set('edit-cognome', data.last_name);
+    set('edit-bio', data.bio);
+    set('edit-lingue', data.languages);
+
+    // riattiva la chip del sesso
+    if (data.gender) {
+      document.querySelectorAll('#chips-sesso .prof-chip').forEach(c => {
+        c.classList.toggle('active', c.textContent.trim() === data.gender);
+      });
+    }
+    // riattiva la chip Erasmus
+    document.querySelectorAll('#chips-erasmus .prof-chip').forEach(c => {
+      const isSi = /s[iì]/i.test(c.textContent);
+      c.classList.toggle('active', data.erasmus ? isSi : !isSi);
+    });
+
+    // rimetti la foto: prima quella dal database (segue l'utente su ogni
+    // dispositivo), poi ripiego sulla copia locale se il DB non ne ha
+    try {
+      let photo = data.photo_url || null;
+      if (!photo) { try { photo = localStorage.getItem(camonPhotoKey(user.id)); } catch (e) {} }
+      const img = document.getElementById('prof-photo-img');
+      if (photo && img) {
+        img.src = photo; img.style.display = 'block';
+        const empty = document.getElementById('prof-photo-empty');
+        if (empty) empty.style.display = 'none';
+        try { localStorage.setItem(camonPhotoKey(user.id), photo); } catch (e) {}
+      }
+    } catch (e) { /* ignora */ }
+  }
+
+  /* Comprime una foto (data URL) ridimensionandola: riduce di molto il peso
+     salvato nel database senza rovinare la resa a schermo. */
+  function camonDownscalePhoto(src, maxDim, quality) {
+    return new Promise(function (resolve) {
+      const im = new Image();
+      im.onload = function () {
+        const scale = Math.min(1, maxDim / Math.max(im.width, im.height));
+        const w = Math.round(im.width * scale), h = Math.round(im.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(im, 0, 0, w, h);
+        try { resolve(canvas.toDataURL('image/jpeg', quality)); }
+        catch (e) { resolve(src); }
+      };
+      im.onerror = function () { resolve(src); };
+      im.src = src;
+    });
+  }
+
+  function camonFmtPrice(cents) {
+    if (cents == null) return '';
+    if (cents === 0) return 'FREE';
+    return '€' + (cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2).replace('.', ','));
+  }
+  function camonProductImg(p) {
+    if (p.image_url) return p.image_url;
+    const seed = encodeURIComponent(p.name.toLowerCase().replace(/\s+/g, '-'));
+    return `https://picsum.photos/seed/${seed}/400/400`;
+  }
+  function camonBuildCard(p) {
+    const img = camonProductImg(p);
+    const card = document.createElement('div');
+    card.className = 'drink-card';
+    card.dataset.macro = p.macro || '';
+    card.dataset.cat = p.category || '';
+    card.dataset.available = p.available ? 'true' : 'false';
+    if (p.macro === 'cibo') card.style.display = 'none';
+    card.innerHTML =
+      `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy"></div>` +
+      `<div class="drink-name">${p.name}</div>` +
+      `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>`;
+    card.addEventListener('click', function() { openProductSheet(p); });
+    return card;
+  }
+  function openProductSheet(p) {
+    document.getElementById('product-sheet-img').src = camonProductImg(p);
+    document.getElementById('product-sheet-name').textContent = p.name;
+    document.getElementById('product-sheet-price').textContent = camonFmtPrice(p.price_cents);
+    document.getElementById('product-sheet-desc').textContent = p.description || '';
+    document.getElementById('product-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeProductSheet() {
+    document.getElementById('product-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  window.closeProductSheet = closeProductSheet;
+  async function camonSyncMenu() {
+    if (!window.sb) return;
+    try {
+      const { data, error } = await window.sb.from('products').select('*').order('sort');
+      if (error || !data || !data.length) return;
+      const grid = document.getElementById('drinks-grid');
+      if (!grid) return;
+      const empty = document.getElementById('menu-empty');
+      grid.querySelectorAll('.drink-card').forEach(c => c.remove());
+      data.forEach(p => grid.appendChild(camonBuildCard(p)));
+      if (typeof applyMenuFilter === 'function') applyMenuFilter();
+    } catch (e) { console.warn('Sync menu:', e); }
+  }
+  window.camonSyncMenu = camonSyncMenu;
+
+  /* Esci dall'account */
+  async function camonLogout() {
+    if (window.sb) { try { await window.sb.auth.signOut(); } catch (e) {} }
+    profileCreated = false;
+    camonSyncAuthUI();
+    // chiudi il drawer impostazioni se aperto e torna alla home
+    const drawer = document.getElementById('settings-drawer');
+    if (drawer) drawer.classList.remove('open');
+    const overlay = document.getElementById('settings-overlay');
+    if (overlay) overlay.classList.remove('open');
+    if (typeof goTo === 'function') goTo('home');
+  }
+
+  /* All'avvio: ripristina la sessione salvata (login persistente) */
+  async function camonAuthInit() {
+    if (!window.sb) return;
+    try {
+      const { data: { session } } = await window.sb.auth.getSession();
+      profileCreated = !!session;
+      camonSyncAuthUI();
+      camonSyncMenu();   // prezzi/disponibilità del menu (non serve login)
+      if (session) {
+        await camonLoadProfile();
+        // se sei fermo sulla pagina profilo, aggiorna la vista
+        if (document.getElementById('page-profile') &&
+            document.getElementById('page-profile').classList.contains('active') &&
+            typeof profEnter === 'function') profEnter();
+      }
+      window.sb.auth.onAuthStateChange(function (_event, session) {
+        profileCreated = !!session;
+        camonSyncAuthUI();
+      });
+    } catch (e) { console.warn('Init auth:', e); }
+  }
+  window.camonAuthInit = camonAuthInit;
+  // se il modulo Supabase ha già finito prima di questo script, parte subito
+  if (window.sb) camonAuthInit();
+  else window.dispatchEvent(new Event('camon-init-ready'));
 </script>
 </body>
 </html>
