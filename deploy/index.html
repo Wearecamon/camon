@@ -1131,7 +1131,8 @@
   .book-step-title span { color:#f7cc49; }
 
   /* Tipo prenotazione — card grandi */
-  .book-type-list { display:flex; flex-direction:column; gap:12px; padding:18px 18px 90px; }
+  /* niente spazio sopra: le schede partono subito sotto la testa fissa */
+  .book-type-list { display:flex; flex-direction:column; gap:12px; padding:0 18px 90px; }
   .book-type-card {
     position:relative; border-radius:20px; padding:24px 22px; cursor:pointer; overflow:hidden;
     border:1.5px solid rgba(255,255,255,0.08); background:#1a1a1a;
@@ -3125,6 +3126,11 @@
   #page-menu .drink-price {
     order: 3;
     align-self: stretch;
+    /* Le schede si allungano per pareggiare la riga della griglia:
+       il giallo cresce con loro, altrimenti sotto resta scoperto lo
+       sfondo scuro e sembra una riga nera che taglia la scheda.
+       Capita quando un nome va a capo piu' del suo vicino. */
+    flex: 1 0 auto;
     margin: -1px 0 0;
     padding: 6px 10px 10px;
     border-radius: 0;
@@ -5197,7 +5203,7 @@
       <!-- Testa fissa: il titolo resta in alto mentre i tipi di tavolo
            scorrono e passano sotto -->
       <div class="testa-fissa">
-        <div style="padding:12px 22px 12px">
+        <div style="padding:12px 22px 10px">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px">PRENOTA <span style="color:#f7cc49">UN POSTO</span></div>
           <div style="font-family:'Manrope',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px">Come vuoi passare la serata?</div>
         </div>
