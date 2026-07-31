@@ -2,18 +2,19 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<!-- cover: serve perche' iOS comunichi i valori reali di notch e barra Home.
-     Abbinato alla barra di stato OPACA (sotto) da' finestra a tutta altezza
-     e misure corrette su entrambi i lati. -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<!-- iOS tiene in cache la pagina del bookmark con molta insistenza:
+     senza questo si continua a vedere la versione precedente. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!-- Stessa impostazione della pagina di prova che funziona:
+     niente maximum-scale, barra di stato trasparente, viewport-fit=cover -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<!-- barra di stato trasparente: l'app parte dal bordo superiore e il
-     contenuto passa dietro ora e batteria (comportamento a tutto schermo) -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0a0a0a">
-<!-- Icona dell'app: usata quando si aggiunge alla schermata Home -->
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
@@ -3227,14 +3228,85 @@
   .add-guest-sheet { bottom: calc(0px - var(--vp-gap)); }
   #remove-guest-modal { bottom: calc(0px - var(--vp-gap)) !important; }
 
+
+  /* ============================================================
+     IMPIANTO DELLA PAGINA
+     Il documento scorre normalmente: niente shell fissa, niente
+     altezze calcolate, niente tabella di misure per modello.
+     Lo sfondo arriva ai bordi, il contenuto sta dentro env().
+     E' questo che tiene l'app a tutto schermo su iPhone: la versione
+     precedente ancorava #app in basso e imponeva --safe-top da una
+     tabella per modello, lasciando scoperta una fascia in cima.
+     ============================================================ */
+  html, body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #0a0a0a;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Le pagine non sono piu' riquadri sovrapposti: si mostra solo
+     quella attiva, nel flusso normale del documento. */
+  .page {
+    position: static !important;
+    display: none !important;
+    height: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  /* Ogni pagina copre almeno lo schermo: se il contenuto e' corto, il
+     suo fondo arriva comunque in basso invece di tagliarsi a meta'. */
+  .page.active { display: block !important; min-height: 100dvh; }
+
+  /* L'area che prima scorreva da sola ora scorre insieme al documento.
+     Il respiro sopra e sotto viene solo dai valori veri di env(). */
+  .scroll-area {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important;
+  }
+
+  /* Centratura su schermi larghi, senza vincolare l'altezza. */
+  .page > .scroll-area { max-width: 430px; margin: 0 auto; }
+
+  /* Le pagine info non hanno .scroll-area: l'immagine in cima resta a
+     tutta larghezza e il testo prende il respiro in fondo. */
+  .info-page-content { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 118px) !important; }
+
+  /* Nemmeno la prenotazione usa .scroll-area: senza questo l'ultima
+     scheda finiva dietro la barra in fondo. */
+  #page-book .book-scroll { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important; }
+
+  /* La pagina giochi e' fatta apposta per occupare tutto lo schermo:
+     le slide scattano una a una dentro il suo scroller. Nel flusso
+     normale non erediterebbe piu' un'altezza, quindi gliela diamo. */
+  #page-games.active {
+    display: flex !important;
+    flex-direction: column;
+    position: relative !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  /* Le pagine dei singoli giochi si posizionano al proprio interno. */
+  .page.game-detail.active { position: relative !important; }
+
+  /* Il profilo centra i suoi contenuti con flex:1: senza una colonna a
+     tutta altezza restava alto quanto il testo e sotto si vedeva il
+     taglio netto del fondo. */
+  #page-profile.active {
+    display: flex !important;
+    flex-direction: column;
+  }
+
 </style>
 </head>
 <body>
-<div id="app">
-
-  <div class="statusbar-scrim"></div>
-
-  <!-- PWA install banner -->
   <div class="pwa-banner" id="pwa-banner">
     <div class="pwa-banner-ico">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
@@ -3390,11 +3462,6 @@
 
     </div>
   </div>
-
-
-  <!-- ============================
-       HOME PAGE
-  ============================ -->
   <div class="page active" id="page-home">
     <div class="scroll-area">
 
@@ -3572,207 +3639,164 @@
 
     </div>
   </div>
-
-
-  <!-- ============================
-       MENU PAGE
-  ============================ -->
-  <div class="page" id="page-menu">
-    <div class="page-header">
-      <div class="page-title">IL <span>MENU</span></div>
-    </div>
-
-    <!-- Toggle macro: Drink / Cibo -->
-    <div class="menu-macro">
-      <button class="macro-btn active" id="macro-drink" onclick="setMacro(this,'drink')"><span class="mi">🍹</span> Drink</button>
-      <button class="macro-btn" id="macro-cibo" onclick="setMacro(this,'cibo')"><span class="mi">🍽️</span> Cibo</button>
-    </div>
-
-    <!-- Sotto-filtri DRINK -->
-    <div class="cat-row" id="cats-drink">
-      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
-      <button class="cat-btn" onclick="filterCat(this,'cocktail')">Cocktail</button>
-      <button class="cat-btn" onclick="filterCat(this,'shot')">Shot</button>
-      <button class="cat-btn" onclick="filterCat(this,'birra')">Birra</button>
-      <button class="cat-btn" onclick="filterCat(this,'vino')">Vino</button>
-      <button class="cat-btn" onclick="filterCat(this,'analcolico')">Analcolici</button>
-    </div>
-
-    <!-- Sotto-filtri CIBO -->
-    <div class="cat-row" id="cats-cibo" style="display:none">
-      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
-      <button class="cat-btn" onclick="filterCat(this,'pizza')">Pizza</button>
-      <button class="cat-btn" onclick="filterCat(this,'burger')">Burger</button>
-      <button class="cat-btn" onclick="filterCat(this,'panuozzo')">Panuozzi</button>
-      <button class="cat-btn" onclick="filterCat(this,'fritto')">Fritti</button>
-      <button class="cat-btn" onclick="filterCat(this,'tagliere')">Tagliere</button>
-      <button class="cat-btn" onclick="filterCat(this,'speciale')">Veg &amp; Senza Glutine</button>
-      <button class="cat-btn" onclick="filterCat(this,'primo')">Primi</button>
-      <button class="cat-btn" onclick="filterCat(this,'dolce')">Dolci</button>
-    </div>
-
-    <div class="scroll-area" style="padding-top:4px">
-
-      <!-- Banner Offerte & Promo (prima dei prodotti, d'impatto) -->
-      <button class="menu-offers-hero" onclick="goTo('offerte')">
-        <div class="moh-glow"></div>
-        <div class="moh-top">
-          <span class="moh-badge">🔥 Promo attive</span>
-          <span class="moh-tag">Offerte</span>
-        </div>
-        <div class="moh-title">OFFERTE <span>&amp; PROMO</span></div>
-        <div class="moh-chips">
-          <span>🍻 Happy Hour</span>
-          <span>🏓 Tornei</span>
-          <span>🍹 2x1 Spritz</span>
-        </div>
-        <div class="moh-cta">
-          Scopri tutte le offerte
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
+  <div class="page" id="page-offerte">
+    <div class="page-header" style="flex-shrink:0">
+      <button class="page-back-btn" onclick="goTo('menu')" style="background:rgba(255,255,255,0.07);border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
+      <div class="page-title">LE <span>OFFERTE</span></div>
+    </div>
 
-      <div class="drinks-grid" id="drinks-grid">
-        <div class="menu-empty" id="menu-empty">
-          <strong>Nessun risultato</strong>
-          Prova con un altro nome o cambia categoria.
-        </div>
+    <!-- Riservato agli iscritti -->
+    <div class="offers-gate" id="offerte-locked" style="display:none">
+      <div class="offers-gate-ico">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
       </div>
+      <div class="offers-gate-title">SOLO PER<br><span>CHI È ISCRITTO</span></div>
+      <div class="offers-gate-txt">
+        Happy hour, tornei e promo del locale sono riservati agli utenti registrati.
+        Crea il tuo account: ci vuole un minuto ed è gratis.
+      </div>
+      <div class="offers-gate-perks">
+        <span>🍻 Happy hour</span>
+        <span>🏆 Tornei</span>
+        <span>🎁 Sconto prima ricarica</span>
+      </div>
+      <button class="offers-gate-btn" onclick="goTo('profile'); profShowAuth('signup')">Crea il tuo account</button>
+      <div class="offers-gate-alt">Hai già un account? <b onclick="goTo('profile'); profShowAuth('login')">Accedi</b></div>
+    </div>
 
-      <!-- Scheda prodotto overlay -->
-      <div class="product-overlay" id="product-overlay" onclick="closeProductSheet()">
-        <div class="product-sheet" onclick="event.stopPropagation()">
-          <button class="product-sheet-close" onclick="closeProductSheet()">&times;</button>
-          <img class="product-sheet-img" id="product-sheet-img" src="" alt="">
-          <div class="product-sheet-body">
-            <h2 class="product-sheet-name" id="product-sheet-name"></h2>
-            <p class="product-sheet-price" id="product-sheet-price"></p>
-            <p class="product-sheet-desc" id="product-sheet-desc"></p>
+    <div class="scroll-area" id="offerte-list" style="padding:16px 16px 96px; display:flex; flex-direction:column; gap:12px;">
+
+      <div class="offer-full-card">
+        <div class="offer-full-top amber">
+          <div class="offer-badge">HAPPY HOUR</div>
+          <div class="offer-full-emoji">🍺</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Birre a €3</div>
+          <div class="offer-full-desc">Tutte le birre alla spina a prezzo fisso, ogni giorno della settimana. Avvicinati a uno spillatore, passa la tessera e versati quel che vuoi. Nessun limite di quantità durante l'orario.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">🕕 18:00 – 20:00</span>
+            <span class="offer-meta-chip">📅 Ogni giorno</span>
           </div>
         </div>
       </div>
 
+      <div class="offer-full-card">
+        <div class="offer-full-top purple">
+          <div class="offer-badge">OGNI MARTEDÌ</div>
+          <div class="offer-full-emoji">🏆</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Torneo Beer Pong</div>
+          <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta. Premi per i vincitori e drink omaggio per tutti i finalisti.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">🕘 Dalle 21:00</span>
+            <span class="offer-meta-chip">🎟 Ingresso libero</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-full-card">
+        <div class="offer-full-top green">
+          <div class="offer-badge">BUNDLE</div>
+          <div class="offer-full-emoji">🎯</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Drink + Gioco</div>
+          <div class="offer-full-desc">Una birra alla spina e un posto riservato al tavolo giochi a prezzo combinato. Ideale per chi arriva in piccolo gruppo e vuole iniziare subito a giocare senza pensieri.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">💰 Prezzo speciale</span>
+            <span class="offer-meta-chip">👥 Per gruppi</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-full-card">
+        <div class="offer-full-top red">
+          <div class="offer-badge">PROFILO</div>
+          <div class="offer-full-emoji">👤</div>
+        </div>
+        <div class="offer-full-body">
+          <div class="offer-name">Sconto Profilo</div>
+          <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni uno sconto riservato sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
+          <div class="offer-full-meta">
+            <span class="offer-meta-chip">🎁 Solo prima ricarica</span>
+            <span class="offer-meta-chip">🔒 Utenti registrati</span>
+          </div>
+        </div>
+        <button class="offer-cta-btn" onclick="goTo('profile')">Completa il profilo</button>
+      </div>
+
     </div>
   </div>
 
-
-  <!-- ============================
-       CARTA / WALLET PAGE
-  ============================ -->
-  <div class="page" id="page-carta">
-    <div class="gd-header">
-      <button class="back-btn" onclick="goTo('menu')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">LA TUA <span>CARTA</span></div>
-    </div>
-    <div class="carta-scroll">
-
-      <!-- Carta virtuale -->
-      <div class="wallet-card">
-        <div class="wc-top">
-          <div class="wc-brand">CAM<span>ON</span></div>
-          <div class="wc-chip"></div>
-        </div>
-        <div class="wc-bal-cap">Saldo disponibile</div>
-        <div class="wc-bal" id="card-balance">€ 0,00</div>
-        <div class="wc-foot">
-          <div class="wc-holder" id="card-holder">Carta CAMON</div>
-          <div class="wc-num">•••• 4823</div>
-        </div>
-      </div>
-
-      <!-- Importi rapidi -->
-      <div class="wallet-lbl">Scegli un importo</div>
-      <div class="amt-grid">
-        <div class="amt-chip" onclick="selectAmount(this,10)">€10</div>
-        <div class="amt-chip active" onclick="selectAmount(this,20)">€20</div>
-        <div class="amt-chip" onclick="selectAmount(this,50)">€50</div>
-        <div class="amt-chip" onclick="selectAmount(this,100)">€100</div>
-      </div>
-      <div class="amt-custom">
-        <span>€</span>
-        <input id="recharge-input" type="number" inputmode="decimal" min="10" max="500" placeholder="Altro importo (min. €10)" oninput="clearAmtChips()">
-      </div>
-
-      <button class="wallet-recharge-btn" onclick="doRecharge()">Ricarica ora</button>
-      <div style="text-align:center;font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px">Ricarica minima da app €10 · Importi inferiori al banco</div>
-
-      <div class="wallet-note">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Credito spendibile solo all'interno del locale
-      </div>
-
-      <!-- I miei braccialetti -->
-      <div class="bands-block">
-        <div class="bands-head">
-          <div class="bands-title">I miei braccialetti</div>
-          <div class="bands-sub">Stesso saldo su tutti, uno attivo per volta</div>
-        </div>
-        <div class="band-add">
-          <input id="band-code-input" type="text" placeholder="Inserisci codice braccialetto" autocomplete="off" maxlength="12" oninput="this.value=this.value.toUpperCase()">
-          <button class="band-add-btn" onclick="bandLink()">Collega</button>
-        </div>
-        <div class="band-hint">Trovi il codice stampato sul braccialetto.</div>
-        <div id="band-list" class="band-list"></div>
-      </div>
-
-      <!-- Demo spina self-service -->
-      <button class="spina-demo-btn" onclick="goTo('spina-demo')">
-        <span>🍺 Prova la spina self-service</span>
-        <small>Demo: avvicina il braccialetto e spilla</small>
+  <div class="page" id="page-info-social">
+    <div class="info-page-hero" style="background: linear-gradient(135deg, #1a0a00 0%, #3d1f00 40%, #5c3200 70%, #2a1500 100%);">
+      <div class="info-page-hero-overlay"></div>
+      <button class="info-page-back" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-
-      <!-- Storico movimenti -->
-      <div class="wallet-lbl">Movimenti</div>
-      <div id="wallet-history"></div>
-
+    </div>
+    <div class="info-page-content">
+      <div class="info-page-tag">Il concept</div>
+      <div class="info-page-title">TAVOLI<br><span>SOCIALI</span></div>
+      <div class="info-page-body">
+        <p>Al CAMON non sei obbligato a venire con qualcuno. Puoi venire da solo, con un amico, con tre — e scegliere di <strong>farti abbinare ad altri avventori</strong> al tuo stesso tavolo.</p>
+        <p>Quando prenoti, ti chiediamo una cosa sola: vuoi un tavolo <strong>privato</strong> solo per te e i tuoi amici, o vuoi un tavolo <strong>aperto</strong> dove ti mettiamo insieme ad altri? Se scegli aperto, pensiamo noi al mix.</p>
+        <p>L'idea viene da una semplice constatazione: i bar migliori della tua vita sono stati quelli in cui hai parlato con qualcuno che non conoscevi. Una partita a beer pong rompe il ghiaccio meglio di qualsiasi aperitivo.</p>
+        <p><strong>Niente app di dating, niente awkwardness</strong> — solo un tavolo, qualche drink e un gioco a fare da mediatore.</p>
+      </div>
+      <button class="info-page-cta" onclick="goTo('book')">Prenota il tuo tavolo</button>
     </div>
   </div>
 
-
-  <!-- ============================
-       SPINA SELF-SERVICE (demo)
-  ============================ -->
-  <div class="page" id="page-spina-demo">
-    <div class="gd-header">
-      <button class="back-btn" onclick="goTo('carta')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">SPINA <span>SELF-SERVICE</span></div>
-    </div>
-    <div class="spina-wrap">
-
-      <div class="spina-product-tabs">
-        <button class="spina-tab active" id="spina-tab-ipa" onclick="spinaSelectProduct('IPA')">🍺 IPA</button>
-        <button class="spina-tab" id="spina-tab-mojito" onclick="spinaSelectProduct('Mojito')">🍹 Mojito</button>
-      </div>
-      <div class="spina-tap-name" id="spina-tap-name">Spina 1 · <b>IPA del Birrificio</b></div>
-      <div class="spina-price" id="spina-tap-price">€10,00 / litro</div>
-
-      <!-- bicchiere -->
-      <div class="spina-glass">
-        <div class="spina-fill" id="spina-fill"></div>
-        <div class="spina-foam" id="spina-foam"></div>
-      </div>
-
-      <div class="spina-counters">
-        <div><span id="spina-ml">0</span> ml</div>
-        <div class="spina-cost">€ <span id="spina-cost">0,00</span></div>
-      </div>
-
-      <!-- stato braccialetto -->
-      <div class="spina-band" id="spina-band">—</div>
-
-      <!-- pulsante spilla -->
-      <button class="spina-pour-btn" id="spina-pour-btn">
-        <span class="spina-pour-lbl">TIENI PREMUTO PER SPILLARE</span>
+  <!-- INFO: GIOCHI ALCOLICI -->
+  <div class="page" id="page-info-games">
+    <div class="info-page-hero" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a1040 40%, #2d1a5c 70%, #150a30 100%);">
+      <div class="info-page-hero-overlay"></div>
+      <button class="info-page-back" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <div class="spina-saldo" id="spina-saldo">Saldo: € 0,00</div>
+    </div>
+    <div class="info-page-content">
+      <div class="info-page-tag">Il cuore del locale</div>
+      <div class="info-page-title">GIOCHI<br><span>ALCOLICI</span></div>
+      <div class="info-page-body">
+        <p>Hai presente quei film americani ambientati nei college — le frat house, i tornei di beer pong nel cortile, il rumore dei bicchieri, la gente che urla? <strong>Quello è il feeling che vogliamo portare a Torino.</strong></p>
+        <p>Al CAMON trovi tavoli dedicati a <strong>Beer Pong</strong>, <strong>Flip Cup</strong>, <strong>Kings</strong> e <strong>Shot Quest</strong> — giochi che non richiedono di conoscersi prima per divertirsi insieme.</p>
+        <p>Non è una gara di chi beve di più. È un pretesto per <strong>competere, ridere, provocarsi</strong> — e alla fine brindare comunque insieme, che tu abbia vinto o perso.</p>
+        <p>Ogni gioco ha le sue regole spiegate nell'app. Se è la prima volta, non preoccuparti: ti spieghiamo tutto al tavolo.</p>
+      </div>
+      <button class="info-page-cta" onclick="goTo('games')">Scopri i giochi</button>
+    </div>
+  </div>
 
+  <!-- INFO: SPINE SELF-SERVICE -->
+  <div class="page" id="page-info-spina">
+    <div class="info-page-hero" style="background: linear-gradient(135deg, #001a0d 0%, #003320 40%, #004d2e 70%, #001a10 100%);">
+      <div class="info-page-hero-overlay"></div>
+      <button class="info-page-back" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <div class="info-page-content">
+      <div class="info-page-tag">Il sistema</div>
+      <div class="info-page-title">SPINE<br><span>SELF&#8209;SERVICE</span></div>
+      <div class="info-page-body">
+        <p>Al CAMON le bevande funzionano diversamente. C'è una <strong>parete di spillatori</strong> — una fila di rubinetti con birre diverse — e puoi servirti da solo, quando vuoi, quante volte vuoi.</p>
+        <p>Il sistema è semplice: <strong>ricarichi la tua tessera</strong> dall'app (o alla cassa), avvicini la card al lettore dello spillatore che hai scelto, e via. Il credito scala automaticamente in base ai millilitri erogati.</p>
+        <p>Nessuna attesa al bancone. Nessun cameriere da chiamare. <strong>Tu controlli il tuo consumo</strong>, in tempo reale, direttamente dall'app.</p>
+        <p>Questo ci permette di tenere i prezzi più bassi e di darti un'esperienza più libera — bevi al tuo ritmo, non quello del locale.</p>
+      </div>
+      <button class="info-page-cta" onclick="goTo('carta')">Ricarica la tessera</button>
     </div>
   </div>
 
 
-  <!-- ============================
-       GAMES PAGE — scroll colorato
-  ============================ -->
   <div class="page" id="page-games">
     <div class="games-bg" id="games-bg"></div>
     <div class="games-toggle">
@@ -4034,763 +4058,6 @@
   <!-- ============================
        PRENOTAZIONI PAGE
   ============================ -->
-  <div class="page" id="page-book">
-
-    <!-- PRENOTAZIONE ATTIVA (visibile solo se c'è una prenotazione in corso) -->
-    <div id="book-active" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-      <div class="book-active-wrap">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3)">CAMON · PRENOTAZIONE</div>
-
-        <!-- Titolo -->
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;line-height:1">LA TUA <span style="color:#f7cc49">PRENOTAZIONE</span></div>
-
-        <!-- Tavolo assegnato — tap per vedere posizione -->
-        <div class="book-active-table" onclick="bookShowMap()" style="position:relative">
-          <div>
-            <div class="book-active-table-lbl">TAVOLO ASSEGNATO</div>
-            <div class="book-active-table-num" id="ba-table">T6</div>
-          </div>
-          <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <div style="font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;color:#111;text-align:center;letter-spacing:0.3px;line-height:1.3;white-space:nowrap">TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE</div>
-          </div>
-          <svg class="book-active-table-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="10" width="18" height="10" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="10" x2="8" y2="6"/><line x1="16" y1="10" x2="16" y2="6"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
-        </div>
-
-        <!-- Dettagli -->
-        <div class="book-active-hero">
-          <div class="book-active-label">Dettagli</div>
-          <div class="book-active-row">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
-            <div><div class="book-active-row-lbl">Data e ora</div><div class="book-active-row-val" id="ba-datetime">—</div></div>
-          </div>
-          <div class="book-active-row" style="margin-top:8px">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
-            <div><div class="book-active-row-lbl">Tipo</div><div class="book-active-row-val" id="ba-type">—</div></div>
-          </div>
-          <div class="book-active-row" style="margin-top:8px">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <div><div class="book-active-row-lbl">Prenotato da</div><div class="book-active-row-val" id="ba-nome">—</div></div>
-          </div>
-        </div>
-
-        <!-- Indicatore riempimento (solo tavolo condiviso) -->
-        <div id="book-fill-box" class="book-fill-box" style="display:none">
-          <div class="book-fill-top">
-            <div class="book-fill-label">Posti al tavolo</div>
-            <div class="book-fill-count" id="book-fill-count">1 / 6</div>
-          </div>
-          <div class="book-fill-seats" id="book-fill-seats"></div>
-          <div class="book-fill-legend" id="book-fill-legend"></div>
-          <div class="book-fill-bar"><div class="book-fill-progress" id="book-fill-progress" style="width:0%"></div></div>
-          <div class="book-fill-complete" id="book-fill-complete" style="display:none">🎉 Tavolo completo — ci siete tutti!</div>
-        </div>
-
-        <!-- Azioni -->
-        <div class="book-active-actions">
-          <button class="book-new-btn" onclick="bookNewBooking()">+ Nuova prenotazione</button>
-          <button class="book-cancel-btn" onclick="bookCancelConfirm()">Annulla prenotazione</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 1: scegli tipo -->
-    <div id="book-step1" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-      <div style="padding:24px 22px 4px">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px">PRENOTA <span style="color:#f7cc49">UN POSTO</span></div>
-        <div style="font-family:'Manrope',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px">Come vuoi passare la serata?</div>
-      </div>
-      <div class="book-scroll">
-        <div class="book-type-list">
-
-          <!-- Tavolo condiviso -->
-          <div class="book-type-card shared" onclick="bookSelectType('shared')">
-            <div class="book-type-glow"></div>
-            <div class="book-type-badge">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              Sociale
-            </div>
-            <div class="book-type-name">TAVOLO<br>CONDIVISO</div>
-            <div class="book-type-desc">Siediti con altri avventori scelti per te. Nuove persone, nuove amicizie — il cuore di CAMON.</div>
-            <div class="book-type-arrow">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </div>
-          </div>
-
-          <!-- Tavolo privato -->
-          <div class="book-type-card private" onclick="bookSelectType('private')">
-            <div class="book-type-glow"></div>
-            <div class="book-type-badge">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-              Il tuo gruppo
-            </div>
-            <div class="book-type-name">TAVOLO<br>PRIVATO</div>
-            <div class="book-type-desc">Un tavolo riservato solo a te e ai tuoi amici. Nessuno si aggiunge senza il tuo invito.</div>
-            <div class="book-type-arrow">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </div>
-          </div>
-
-          <!-- Stanza privata -->
-          <div class="book-type-card room" onclick="bookSelectType('room')">
-            <div class="book-type-glow"></div>
-            <div class="book-type-badge">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              Premium
-            </div>
-            <div class="book-type-name">STANZA<br>PRIVATA</div>
-            <div class="book-type-desc">Un'esperienza esclusiva per serate speciali. Spazio dedicato, massima privacy, servizio dedicato.</div>
-            <div class="book-type-arrow">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </div>
-          </div>
-
-          <!-- Invito anonimo -->
-          <div class="book-type-card invite" onclick="bookSelectType('invite')">
-            <div class="book-type-glow"></div>
-            <div class="book-type-badge">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg>
-              Anonimo
-            </div>
-            <div class="book-type-name">INVITO<br>SEGRETO</div>
-            <div class="book-type-desc">Vuoi conoscere qualcuno? Proponi un tavolo in forma anonima: ci pensiamo noi a chiederglielo. Funziona anche se non è ancora su CAMON.</div>
-            <div class="book-type-arrow">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 2: form -->
-    <div id="book-step2" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-      <div class="book-step-head">
-        <button class="book-back" onclick="bookGoBack()">←</button>
-        <div class="book-step-title">DETTAGLI <span>PRENOTAZIONE</span></div>
-      </div>
-      <div class="book-scroll">
-        <div class="book-form-new">
-
-          <!-- Riepilogo tipo scelto -->
-          <div class="book-summary-card" id="book-summary-card">
-            <div class="book-summary-ico" id="book-sum-ico">👥</div>
-            <div>
-              <div class="book-summary-name" id="book-sum-name">TAVOLO CONDIVISO</div>
-              <div class="book-summary-desc" id="book-sum-desc">Matchato con altri avventori</div>
-            </div>
-          </div>
-
-          <!-- Data + Ora -->
-          <div class="bfield-row" id="bfield-datetime">
-            <div class="bfield">
-              <label>Data</label>
-              <input id="book-data" type="date">
-            </div>
-            <div class="bfield">
-              <label>Ora</label>
-              <input id="book-ora" type="time" value="21:00">
-            </div>
-          </div>
-
-          <!-- Quante persone -->
-          <div class="bfield" id="bfield-persone">
-            <label id="persone-lbl">Quante persone porti?</label>
-            <div class="people-grid" id="persone-grid"></div>
-          </div>
-
-          <!-- Compagni (solo tavolo condiviso, se > 1 persona) -->
-          <div class="bfield" id="bfield-compagni" style="display:none">
-            <label>Chi porti con te?</label>
-            <div class="companions-wrap" id="companions-wrap"></div>
-          </div>
-
-          <!-- Invito segreto (solo tipo invite) -->
-          <div class="bfield" id="bfield-invite" style="display:none">
-            <div class="invite-concept">
-              <span class="invite-concept-ico">💌</span>
-              <div>C'è qualcuno che vorresti conoscere? Mandagli un <b>invito segreto</b> al CAMON. Resti <b>anonimo</b>: gli sveliamo chi sei <b>solo se accetta</b>.</div>
-            </div>
-            <div class="invite-steps">
-              <div class="invite-step"><span class="invite-step-n">1</span><span>Scegli la persona, sull'app o su Instagram.</span></div>
-              <div class="invite-step"><span class="invite-step-n">2</span><span>Riceve l'invito e <b>propone lei giorno e ora</b>.</span></div>
-              <div class="invite-step"><span class="invite-step-n">3</span><span>Ti avvisiamo: <b>accetti</b> e il tavolo è prenotato.</span></div>
-            </div>
-            <label>Chi vuoi invitare?</label>
-            <div class="companion-slot" id="invite-slot"></div>
-            <!-- riga-indicazione: passa a Instagram se non è su CAMON / torna indietro -->
-            <div id="invite-switch"></div>
-            <div class="invite-ig-note" id="invite-hint"></div>
-          </div>
-
-
-          <!-- Occasione (solo stanza privata) -->
-          <div class="bfield" id="bfield-occasione" style="display:none">
-            <label>Occasione</label>
-            <select id="book-occasione">
-              <option value="">Seleziona occasione</option>
-              <option>Compleanno 🎂</option>
-              <option>Anniversario 💑</option>
-              <option>Festa di laurea 🎓</option>
-              <option>Serata aziendale 💼</option>
-              <option>Addio al celibato/nubilato 🎉</option>
-              <option>Altro</option>
-            </select>
-          </div>
-
-          <!-- Note -->
-          <div class="bfield" id="bfield-note">
-            <label>Note (opzionale)</label>
-            <textarea id="book-note" placeholder="Richieste particolari, giochi preferiti, allergie..."></textarea>
-          </div>
-
-          <button class="book-confirm-btn" onclick="bookConfirm()">Conferma prenotazione</button>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 2B: scelta tavolo -->
-    <div id="book-step-pick" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-      <div class="book-pick-head">
-        <button class="book-back" onclick="bookPickBack()">←</button>
-        <div class="book-pick-title">SCEGLI IL <span>TAVOLO</span></div>
-      </div>
-      <div class="book-pick-sub" id="book-pick-sub">Tavoli disponibili per 2 persone</div>
-      <div class="book-pick-scroll">
-        <div class="book-pick-legend">
-          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#4CD964"></div>Disponibile</div>
-          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#f7cc49"></div>Selezionato</div>
-          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#333"></div>Occupato / troppo grande</div>
-        </div>
-        <div class="book-pick-map">
-          <svg id="book-pick-svg" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a1a;">
-            <rect x="128" y="10" width="282" height="295" rx="2" fill="#2a2418" stroke="#f7cc49" stroke-width="1.5"/>
-            <rect x="128" y="10" width="26" height="295" fill="#1e1a10" stroke="#f7cc49" stroke-width="1"/>
-            <text x="141" y="100" fill="#f7cc49" font-size="6.5" text-anchor="middle" transform="rotate(-90,141,100)">SPILLATORI</text>
-            <rect x="154" y="10" width="80" height="40" rx="2" fill="#1a1510" stroke="#f7cc49" stroke-width="0.9"/>
-            <text x="194" y="27" fill="#f7cc49" font-size="7.5" font-weight="bold" text-anchor="middle">CASSE</text>
-            <text x="194" y="40" fill="#aaa" font-size="6" text-anchor="middle">automatiche</text>
-            <rect x="234" y="10" width="80" height="40" rx="2" fill="#12200f" stroke="#4CD964" stroke-width="1"/>
-            <text x="274" y="27" fill="#4CD964" font-size="7.5" font-weight="bold" text-anchor="middle">INGRESSO</text>
-            <text x="274" y="39" fill="#4CD964" font-size="6.5" text-anchor="middle">/ USCITA</text>
-            <polygon points="267,8 274,2 281,8" fill="#4CD964"/>
-            <rect x="314" y="10" width="96" height="80" rx="2" fill="#111" stroke="#777" stroke-width="1.2" stroke-dasharray="4,2"/>
-            <text x="362" y="46" fill="#888" font-size="8" font-weight="bold" text-anchor="middle">SCALE</text>
-            <line x1="322" y1="70" x2="402" y2="70" stroke="#555" stroke-width="0.7"/>
-            <line x1="322" y1="62" x2="402" y2="62" stroke="#555" stroke-width="0.7"/>
-            <line x1="322" y1="54" x2="402" y2="54" stroke="#555" stroke-width="0.7"/>
-            <rect x="8" y="10" width="118" height="215" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
-            <text x="67" y="110" fill="#444" font-size="8" text-anchor="middle">CUCINA</text>
-            <text x="67" y="122" fill="#444" font-size="8" text-anchor="middle">+ RETRO</text>
-            <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
-            <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
-            <!-- Tavoli cliccabili -->
-            <g id="pick-T1" class="map-table-pick"><rect x="165" y="60" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T1</text><text x="186" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T2" class="map-table-pick"><rect x="251" y="60" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T2</text><text x="272" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T3" class="map-table-pick"><rect x="165" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T3</text><text x="186" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T4" class="map-table-pick"><rect x="251" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T4</text><text x="272" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T5" class="map-table-pick"><rect x="335" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T5</text><text x="356" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T6" class="map-table-pick"><circle cx="272" cy="193" r="26" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T6</text><text x="272" y="168" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">8 posti</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T7" class="map-table-pick"><rect x="158" y="183" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="179" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T7</text><text x="179" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T8" class="map-table-pick"><rect x="350" y="183" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="371" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T8</text><text x="371" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T9" class="map-table-pick"><rect x="165" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T9</text><text x="186" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T10" class="map-table-pick"><rect x="251" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T10</text><text x="272" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="pick-T11" class="map-table-pick"><rect x="335" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T11</text><text x="356" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-          </svg>
-        </div>
-        <div class="book-pick-or">oppure</div>
-        <div class="book-pick-auto" onclick="bookPickAuto()">
-          <div class="book-pick-auto-ico">🎲</div>
-          <div>
-            <div class="book-pick-auto-txt">È indifferente</div>
-            <div class="book-pick-auto-sub">Assegnaci il tavolo migliore disponibile</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 3: conferma + mappa tavolo -->
-    <div id="book-step3" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-      <div class="book-confirmed-wrap">
-
-        <!-- Badge conferma -->
-        <div class="book-confirmed-badge">
-          <div class="book-confirmed-ico">✅</div>
-          <div>
-            <div class="book-confirmed-title">Prenotazione confermata!</div>
-            <div class="book-confirmed-sub" id="book-confirmed-detail">Stasera alle 21:00 — CAMON</div>
-          </div>
-        </div>
-
-        <!-- Pill tavolo assegnato -->
-        <div class="book-table-pill">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="10" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="10" x2="8" y2="6"/><line x1="16" y1="10" x2="16" y2="6"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
-          IL TUO TAVOLO: <span id="book-table-number">T1</span>
-        </div>
-
-        <!-- Mappa -->
-        <div class="book-map-label">TROVACI <span>QUI</span></div>
-        <div class="book-map-wrap">
-          <svg id="book-map-svg" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a1a;">
-
-            <!-- Sala principale -->
-            <rect x="128" y="10" width="282" height="295" rx="2" fill="#2a2418" stroke="#f7cc49" stroke-width="1.5"/>
-            <!-- Bar spillatori -->
-            <rect x="128" y="10" width="26" height="295" fill="#1e1a10" stroke="#f7cc49" stroke-width="1"/>
-            <text x="141" y="100" fill="#f7cc49" font-size="6.5" text-anchor="middle" transform="rotate(-90,141,100)">SPILLATORI</text>
-            <!-- CASSE -->
-            <rect x="154" y="10" width="80" height="40" rx="2" fill="#1a1510" stroke="#f7cc49" stroke-width="0.9"/>
-            <text x="194" y="27" fill="#f7cc49" font-size="7.5" font-weight="bold" text-anchor="middle">CASSE</text>
-            <text x="194" y="40" fill="#aaa" font-size="6" text-anchor="middle">automatiche</text>
-            <!-- INGRESSO/USCITA -->
-            <rect x="234" y="10" width="80" height="40" rx="2" fill="#12200f" stroke="#4CD964" stroke-width="1"/>
-            <text x="274" y="27" fill="#4CD964" font-size="7.5" font-weight="bold" text-anchor="middle">INGRESSO</text>
-            <text x="274" y="39" fill="#4CD964" font-size="6.5" text-anchor="middle">/ USCITA</text>
-            <polygon points="267,8 274,2 281,8" fill="#4CD964"/>
-            <!-- SCALE -->
-            <rect x="314" y="10" width="96" height="80" rx="2" fill="#111" stroke="#777" stroke-width="1.2" stroke-dasharray="4,2"/>
-            <text x="362" y="46" fill="#888" font-size="8" font-weight="bold" text-anchor="middle">SCALE</text>
-            <line x1="322" y1="70" x2="402" y2="70" stroke="#555" stroke-width="0.7"/>
-            <line x1="322" y1="62" x2="402" y2="62" stroke="#555" stroke-width="0.7"/>
-            <line x1="322" y1="54" x2="402" y2="54" stroke="#555" stroke-width="0.7"/>
-            <!-- Cucina -->
-            <rect x="8" y="10" width="118" height="215" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
-            <text x="67" y="110" fill="#444" font-size="8" text-anchor="middle">CUCINA</text>
-            <text x="67" y="122" fill="#444" font-size="8" text-anchor="middle">+ RETRO</text>
-            <!-- WC -->
-            <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
-            <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
-
-            <!-- TAVOLI — id univoci per evidenziare, cliccabili per cambio tavolo -->
-            <g id="map-T1" style="cursor:pointer"><rect x="165" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="74" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T1</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T2" style="cursor:pointer"><rect x="251" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="74" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T2</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T3" style="cursor:pointer"><rect x="165" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T3</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T4" style="cursor:pointer"><rect x="251" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T4</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T5" style="cursor:pointer"><rect x="335" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="356" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T5</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T6" style="cursor:pointer"><circle cx="272" cy="193" r="26" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T6</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T7" style="cursor:pointer"><rect x="158" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="179" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T7</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T8" style="cursor:pointer"><rect x="350" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="371" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T8</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T9" style="cursor:pointer"><rect x="165" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T9</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T10" style="cursor:pointer"><rect x="251" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T10</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-            <g id="map-T11" style="cursor:pointer"><rect x="335" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="356" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T11</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
-
-          </svg>
-        </div>
-        <button class="book-change-btn" onclick="bookOpenChangePicker()">🔄 Cambia tavolo</button>
-        <button class="book-back-btn" onclick="bookReset()">← Torna alla prenotazione</button>
-      </div>
-    </div>
-
-  </div>
-
-
-  <!-- ============================
-       PROFILO PAGE
-  ============================ -->
-  <div class="page" id="page-profile">
-
-    <!-- STATO VUOTO: nessun account ancora -->
-    <div id="prof-empty-section" class="prof-empty">
-      <div class="prof-empty-banner">
-        <span class="prof-empty-banner-ico">⚠️</span>
-        <div>Non hai ancora un profilo CAMON: <b>iscriviti o accedi</b> per usarlo.</div>
-      </div>
-      <div class="prof-empty-ico">🍹</div>
-      <div class="prof-empty-title">ENTRA IN <span>CAMON</span></div>
-      <div class="prof-empty-sub">Il profilo ti serve per i tavoli sociali, i tornei e i bonus — come lo shot omaggio. Bastano un paio di minuti.</div>
-      <div class="prof-empty-actions">
-        <button class="prof-empty-btn primary" onclick="profShowAuth('signup')">Iscriviti</button>
-        <button class="prof-empty-btn ghost" onclick="profShowAuth('login')">Ho già un account · Accedi</button>
-      </div>
-    </div>
-
-    <!-- AUTENTICAZIONE: iscriviti / accedi -->
-    <div id="prof-auth-section" class="prof-auth" style="display:none">
-      <button class="prof-auth-back" onclick="profShowEmpty()" aria-label="Indietro">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div class="prof-auth-inner">
-        <div class="prof-auth-ico">🍹</div>
-        <div class="prof-auth-title" id="auth-title">Iscriviti</div>
-        <div class="prof-auth-sub" id="auth-sub">Crea il tuo account CAMON</div>
-
-        <div class="auth-field">
-          <label>Email</label>
-          <input type="email" id="auth-email" placeholder="nome@email.com" autocomplete="email" oninput="authClearErr('auth-email-err')">
-          <div class="auth-err" id="auth-email-err"></div>
-        </div>
-        <div class="auth-field" id="auth-phone-field">
-          <label>Numero di telefono</label>
-          <input type="tel" id="auth-phone" placeholder="+39 333 000 0000" autocomplete="tel" maxlength="18" oninput="authClearErr('auth-phone-err')">
-          <div class="auth-err" id="auth-phone-err"></div>
-        </div>
-        <div class="auth-field">
-          <label>Password</label>
-          <input type="password" id="auth-pass" placeholder="Almeno 6 caratteri" autocomplete="current-password" oninput="authClearErr('auth-pass-err')">
-          <div class="auth-err" id="auth-pass-err"></div>
-        </div>
-
-        <button class="prof-auth-btn" id="auth-submit" onclick="authSubmit()">Continua</button>
-        <div class="prof-auth-switch" id="auth-switch"></div>
-      </div>
-    </div>
-
-    <!-- VERIFICA OTP -->
-    <div id="prof-otp-section" class="prof-auth" style="display:none">
-      <button class="prof-auth-back" onclick="profShowAuth('signup')" aria-label="Indietro">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div class="prof-auth-inner">
-        <div class="prof-auth-ico">📲</div>
-        <div class="prof-auth-title">Verifica il numero</div>
-        <div class="prof-auth-sub">Inserisci il codice inviato via SMS a <b id="otp-dest">+39 …</b></div>
-        <input class="otp-input" id="otp-input" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="one-time-code" oninput="authClearErr('otp-err')">
-        <div class="auth-err" id="otp-err" style="text-align:center"></div>
-        <div class="otp-demo" id="otp-demo"></div>
-        <button class="prof-auth-btn" onclick="otpVerify()">Verifica e continua</button>
-        <div class="prof-auth-switch">Non l'hai ricevuto? <b onclick="otpResend()">Invia di nuovo</b></div>
-      </div>
-    </div>
-
-    <!-- ANTEPRIMA (default) -->
-    <div id="prof-preview-section" style="flex:1;display:block;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
-
-      <!-- FOTO + NOME sovrapposto -->
-      <div style="position:relative;width:100%;height:68vh;min-height:340px;background:#111;overflow:hidden">
-        <div id="prev-photo-empty" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0.15">
-          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M3 20c0-4 4-7 9-7s9 3 9 7"/></svg>
-        </div>
-        <img id="prev-photo-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
-        <!-- gradient -->
-        <div style="position:absolute;bottom:0;left:0;right:0;height:280px;background:linear-gradient(transparent,#111);pointer-events:none"></div>
-        <!-- nome + eta -->
-        <div style="position:absolute;bottom:20px;left:22px;width:fit-content;text-align:right">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#fff;line-height:0.9;letter-spacing:1px;text-transform:uppercase" id="prev-firstname">NOME</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#f7cc49;line-height:0.9;letter-spacing:1px;text-transform:uppercase" id="prev-lastname"></div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#fff;line-height:0.95;letter-spacing:1px" id="prev-age"></div>
-        </div>
-        <!-- FAB modifica -->
-        <button class="prof-edit-fab" onclick="profShowEdit()">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-      </div>
-
-      <!-- INFO sotto la foto — Tinder/Hinge style -->
-      <div class="prof-info">
-
-        <!-- VITALS: pill con icone -->
-        <div class="prof-vitals">
-          <span class="vital" id="vital-sesso">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
-            <span id="prev-sesso"></span>
-          </span>
-          <span class="vital" id="vital-lavoro" style="display:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-            <span id="prev-lavoro"></span>
-          </span>
-          <span class="vital" id="vital-studio" style="display:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            <span id="prev-studio"></span>
-          </span>
-          <span class="vital accent" id="vital-erasmus" style="display:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <span id="prev-erasmus">In Erasmus</span>
-          </span>
-        </div>
-
-        <!-- BIO — protagonista -->
-        <div class="prof-card prof-bio-card" id="prev-bio-card" style="display:none">
-          <div class="prof-bio-txt" id="prev-bio"></div>
-        </div>
-
-        <!-- CERCA STASERA (intento) -->
-        <div class="prof-card">
-          <div class="prof-card-lbl">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="#f7cc49"/></svg>
-            Cerca stasera
-          </div>
-          <div class="tinder-chips" id="prev-stasera"></div>
-        </div>
-
-        <!-- INTERESSI -->
-        <div class="prof-card">
-          <div class="prof-card-lbl">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-            Interessi
-          </div>
-          <div class="tinder-chips" id="prev-interessi"></div>
-        </div>
-
-        <!-- LINGUE -->
-        <div class="prof-card" id="prev-lingue-wrap" style="display:none">
-          <div class="prof-card-lbl">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Lingue parlate
-          </div>
-          <div class="tinder-chips" id="prev-lingue"></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- FORM MODIFICA (nascosto) -->
-    <div id="prof-edit-section" style="flex:1;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:96px">
-      <div class="prof-photo-wrap" style="position:relative" onclick="document.getElementById('prof-file').click()">
-        <button onclick="event.stopPropagation();profShowPreview()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        </button>
-        <img class="prof-photo-img" id="prof-photo-img" src="" alt="">
-        <div class="prof-photo-placeholder" id="prof-photo-placeholder">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M3 20c0-4 4-7 9-7s9 3 9 7"/></svg>
-          <span>Aggiungi foto *</span>
-        </div>
-        <button class="prof-photo-edit" id="prof-photo-edit" style="display:none" onclick="event.stopPropagation();document.getElementById('prof-file').click()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-        <input type="file" id="prof-file" accept="image/*" style="display:none" onchange="profLoadPhoto(this)">
-      </div>
-
-      <div class="prof-basic">
-        <input class="prof-name-input" id="edit-nome" type="text" placeholder="Nome *" maxlength="20">
-        <input class="prof-name-input" id="edit-cognome" type="text" placeholder="Cognome" maxlength="20" style="color:#f7cc49">
-        <input class="prof-age-input" id="edit-age" type="number" placeholder="età" min="18" max="99">
-      </div>
-
-      <div class="prof-section">
-        <div class="prof-section-label">Sesso *</div>
-        <div class="prof-chips" id="chips-sesso">
-          <div class="prof-chip" onclick="selectChip(this,'sesso')">Uomo</div>
-          <div class="prof-chip" onclick="selectChip(this,'sesso')">Donna</div>
-          <div class="prof-chip" onclick="selectChip(this,'sesso')">Altro</div>
-        </div>
-      </div>
-
-      <div class="prof-section" style="margin-top:18px">
-        <div class="prof-section-label">Cosa cerchi stasera? *</div>
-        <div class="prof-chips" id="chips-stasera">
-          <div class="prof-chip game-chip" onclick="toggleChip(this)">💡 Shot Quest</div>
-          <div class="prof-chip game-chip" onclick="toggleChip(this)">👑 Kings</div>
-          <div class="prof-chip game-chip" onclick="toggleChip(this)">🏓 Beer Pong</div>
-          <div class="prof-chip game-chip" onclick="toggleChip(this)">🥤 Flip Cup</div>
-          <div class="prof-chip" onclick="toggleChip(this)">💃 Ballare</div>
-          <div class="prof-chip" onclick="toggleChip(this)">💬 Chiacchierare</div>
-        </div>
-      </div>
-
-      <div class="prof-section" style="margin-top:18px">
-        <div class="prof-section-label">Interessi *</div>
-        <div class="prof-chips" id="chips-interessi">
-          <div class="prof-chip" onclick="toggleChip(this)">🎵 Musica</div>
-          <div class="prof-chip" onclick="toggleChip(this)">⚽ Sport</div>
-          <div class="prof-chip" onclick="toggleChip(this)">🎬 Cinema</div>
-          <div class="prof-chip" onclick="toggleChip(this)">✈️ Viaggi</div>
-          <div class="prof-chip" onclick="toggleChip(this)">🍕 Cucina</div>
-          <div class="prof-chip" onclick="toggleChip(this)">🎮 Gaming</div>
-          <div class="prof-chip" onclick="toggleChip(this)">📚 Lettura</div>
-          <div class="prof-chip" onclick="toggleChip(this)">🎨 Arte</div>
-          <div class="prof-chip" onclick="toggleChip(this)">🍺 Birra artigianale</div>
-          <div class="prof-chip" onclick="toggleChip(this)">🎭 Teatro</div>
-        </div>
-      </div>
-
-      <div class="prof-optional-title"><span>Facoltativo</span></div>
-      <div class="prof-field-sm">
-        <div class="prof-bio-field-head">
-          <label>Bio</label>
-          <span class="prof-bio-count" id="bio-counter">0 / 240</span>
-        </div>
-        <textarea id="edit-bio" maxlength="240" placeholder="Racconta qualcosa di te: cosa ti piace fare, perché sei qui stasera, che tipo cerchi di incontrare..." oninput="profBioCount(this)"></textarea>
-      </div>
-      <div class="prof-field-sm"><label>Titolo di studio</label>
-        <select id="edit-studio">
-          <option value="" disabled selected>Seleziona</option>
-          <option>Licenza media</option><option>Diploma</option>
-          <option>Laurea triennale</option><option>Laurea magistrale</option><option>Dottorato</option>
-        </select>
-      </div>
-      <div class="prof-field-sm"><label>Lavoro / Occupazione</label><input id="edit-lavoro" type="text" placeholder="Es. Studente, Designer..."></div>
-      <div class="prof-section" style="margin-top:4px;padding-bottom:4px">
-        <div class="prof-section-label">Erasmus?</div>
-        <div class="prof-chips" id="chips-erasmus">
-          <div class="prof-chip" onclick="selectChip(this,'erasmus')">Sì 🌍</div>
-          <div class="prof-chip" onclick="selectChip(this,'erasmus')">No</div>
-        </div>
-      </div>
-      <div class="prof-field-sm" style="margin-top:14px"><label>Lingue parlate</label><input id="edit-lingue" type="text" placeholder="Es. Italiano, Inglese..."></div>
-      <button class="prof-save" style="margin:20px 20px 0;width:calc(100% - 40px)" onclick="profSave()">Salva profilo</button>
-    </div>
-
-  </div>
-
-
-
-
-
-
-
-  <!-- ============================
-       SHOT QUEST
-  ============================ -->
-  <!-- INFO: TAVOLI SOCIALI -->
-  <!-- ═══════════ PAGINA OFFERTE ═══════════ -->
-  <div class="page" id="page-offerte">
-    <div class="page-header" style="flex-shrink:0">
-      <button class="page-back-btn" onclick="goTo('menu')" style="background:rgba(255,255,255,0.07);border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div class="page-title">LE <span>OFFERTE</span></div>
-    </div>
-
-    <!-- Riservato agli iscritti -->
-    <div class="offers-gate" id="offerte-locked" style="display:none">
-      <div class="offers-gate-ico">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-      </div>
-      <div class="offers-gate-title">SOLO PER<br><span>CHI È ISCRITTO</span></div>
-      <div class="offers-gate-txt">
-        Happy hour, tornei e promo del locale sono riservati agli utenti registrati.
-        Crea il tuo account: ci vuole un minuto ed è gratis.
-      </div>
-      <div class="offers-gate-perks">
-        <span>🍻 Happy hour</span>
-        <span>🏆 Tornei</span>
-        <span>🎁 Sconto prima ricarica</span>
-      </div>
-      <button class="offers-gate-btn" onclick="goTo('profile'); profShowAuth('signup')">Crea il tuo account</button>
-      <div class="offers-gate-alt">Hai già un account? <b onclick="goTo('profile'); profShowAuth('login')">Accedi</b></div>
-    </div>
-
-    <div class="scroll-area" id="offerte-list" style="padding:16px 16px 96px; display:flex; flex-direction:column; gap:12px;">
-
-      <div class="offer-full-card">
-        <div class="offer-full-top amber">
-          <div class="offer-badge">HAPPY HOUR</div>
-          <div class="offer-full-emoji">🍺</div>
-        </div>
-        <div class="offer-full-body">
-          <div class="offer-name">Birre a €3</div>
-          <div class="offer-full-desc">Tutte le birre alla spina a prezzo fisso, ogni giorno della settimana. Avvicinati a uno spillatore, passa la tessera e versati quel che vuoi. Nessun limite di quantità durante l'orario.</div>
-          <div class="offer-full-meta">
-            <span class="offer-meta-chip">🕕 18:00 – 20:00</span>
-            <span class="offer-meta-chip">📅 Ogni giorno</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="offer-full-card">
-        <div class="offer-full-top purple">
-          <div class="offer-badge">OGNI MARTEDÌ</div>
-          <div class="offer-full-emoji">🏆</div>
-        </div>
-        <div class="offer-full-body">
-          <div class="offer-name">Torneo Beer Pong</div>
-          <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta. Premi per i vincitori e drink omaggio per tutti i finalisti.</div>
-          <div class="offer-full-meta">
-            <span class="offer-meta-chip">🕘 Dalle 21:00</span>
-            <span class="offer-meta-chip">🎟 Ingresso libero</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="offer-full-card">
-        <div class="offer-full-top green">
-          <div class="offer-badge">BUNDLE</div>
-          <div class="offer-full-emoji">🎯</div>
-        </div>
-        <div class="offer-full-body">
-          <div class="offer-name">Drink + Gioco</div>
-          <div class="offer-full-desc">Una birra alla spina e un posto riservato al tavolo giochi a prezzo combinato. Ideale per chi arriva in piccolo gruppo e vuole iniziare subito a giocare senza pensieri.</div>
-          <div class="offer-full-meta">
-            <span class="offer-meta-chip">💰 Prezzo speciale</span>
-            <span class="offer-meta-chip">👥 Per gruppi</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="offer-full-card">
-        <div class="offer-full-top red">
-          <div class="offer-badge">PROFILO</div>
-          <div class="offer-full-emoji">👤</div>
-        </div>
-        <div class="offer-full-body">
-          <div class="offer-name">Sconto Profilo</div>
-          <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni uno sconto riservato sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
-          <div class="offer-full-meta">
-            <span class="offer-meta-chip">🎁 Solo prima ricarica</span>
-            <span class="offer-meta-chip">🔒 Utenti registrati</span>
-          </div>
-        </div>
-        <button class="offer-cta-btn" onclick="goTo('profile')">Completa il profilo</button>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="page" id="page-info-social">
-    <div class="info-page-hero" style="background: linear-gradient(135deg, #1a0a00 0%, #3d1f00 40%, #5c3200 70%, #2a1500 100%);">
-      <div class="info-page-hero-overlay"></div>
-      <button class="info-page-back" onclick="goBack()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-    </div>
-    <div class="info-page-content">
-      <div class="info-page-tag">Il concept</div>
-      <div class="info-page-title">TAVOLI<br><span>SOCIALI</span></div>
-      <div class="info-page-body">
-        <p>Al CAMON non sei obbligato a venire con qualcuno. Puoi venire da solo, con un amico, con tre — e scegliere di <strong>farti abbinare ad altri avventori</strong> al tuo stesso tavolo.</p>
-        <p>Quando prenoti, ti chiediamo una cosa sola: vuoi un tavolo <strong>privato</strong> solo per te e i tuoi amici, o vuoi un tavolo <strong>aperto</strong> dove ti mettiamo insieme ad altri? Se scegli aperto, pensiamo noi al mix.</p>
-        <p>L'idea viene da una semplice constatazione: i bar migliori della tua vita sono stati quelli in cui hai parlato con qualcuno che non conoscevi. Una partita a beer pong rompe il ghiaccio meglio di qualsiasi aperitivo.</p>
-        <p><strong>Niente app di dating, niente awkwardness</strong> — solo un tavolo, qualche drink e un gioco a fare da mediatore.</p>
-      </div>
-      <button class="info-page-cta" onclick="goTo('book')">Prenota il tuo tavolo</button>
-    </div>
-  </div>
-
-  <!-- INFO: GIOCHI ALCOLICI -->
-  <div class="page" id="page-info-games">
-    <div class="info-page-hero" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a1040 40%, #2d1a5c 70%, #150a30 100%);">
-      <div class="info-page-hero-overlay"></div>
-      <button class="info-page-back" onclick="goBack()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-    </div>
-    <div class="info-page-content">
-      <div class="info-page-tag">Il cuore del locale</div>
-      <div class="info-page-title">GIOCHI<br><span>ALCOLICI</span></div>
-      <div class="info-page-body">
-        <p>Hai presente quei film americani ambientati nei college — le frat house, i tornei di beer pong nel cortile, il rumore dei bicchieri, la gente che urla? <strong>Quello è il feeling che vogliamo portare a Torino.</strong></p>
-        <p>Al CAMON trovi tavoli dedicati a <strong>Beer Pong</strong>, <strong>Flip Cup</strong>, <strong>Kings</strong> e <strong>Shot Quest</strong> — giochi che non richiedono di conoscersi prima per divertirsi insieme.</p>
-        <p>Non è una gara di chi beve di più. È un pretesto per <strong>competere, ridere, provocarsi</strong> — e alla fine brindare comunque insieme, che tu abbia vinto o perso.</p>
-        <p>Ogni gioco ha le sue regole spiegate nell'app. Se è la prima volta, non preoccuparti: ti spieghiamo tutto al tavolo.</p>
-      </div>
-      <button class="info-page-cta" onclick="goTo('games')">Scopri i giochi</button>
-    </div>
-  </div>
-
-  <!-- INFO: SPINE SELF-SERVICE -->
-  <div class="page" id="page-info-spina">
-    <div class="info-page-hero" style="background: linear-gradient(135deg, #001a0d 0%, #003320 40%, #004d2e 70%, #001a10 100%);">
-      <div class="info-page-hero-overlay"></div>
-      <button class="info-page-back" onclick="goBack()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-    </div>
-    <div class="info-page-content">
-      <div class="info-page-tag">Il sistema</div>
-      <div class="info-page-title">SPINE<br><span>SELF&#8209;SERVICE</span></div>
-      <div class="info-page-body">
-        <p>Al CAMON le bevande funzionano diversamente. C'è una <strong>parete di spillatori</strong> — una fila di rubinetti con birre diverse — e puoi servirti da solo, quando vuoi, quante volte vuoi.</p>
-        <p>Il sistema è semplice: <strong>ricarichi la tua tessera</strong> dall'app (o alla cassa), avvicini la card al lettore dello spillatore che hai scelto, e via. Il credito scala automaticamente in base ai millilitri erogati.</p>
-        <p>Nessuna attesa al bancone. Nessun cameriere da chiamare. <strong>Tu controlli il tuo consumo</strong>, in tempo reale, direttamente dall'app.</p>
-        <p>Questo ci permette di tenere i prezzi più bassi e di darti un'esperienza più libera — bevi al tuo ritmo, non quello del locale.</p>
-      </div>
-      <button class="info-page-cta" onclick="goTo('carta')">Ricarica la tessera</button>
-    </div>
-  </div>
-
   <div class="page game-detail" id="page-shotquest">
     <div class="gd-header">
       <button class="back-btn" onclick="sqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -5293,6 +4560,802 @@
   <!-- ============================
        STORIA = SHOT GRATIS
   ============================ -->
+  <div class="page" id="page-profile">
+
+    <!-- STATO VUOTO: nessun account ancora -->
+    <div id="prof-empty-section" class="prof-empty">
+      <div class="prof-empty-banner">
+        <span class="prof-empty-banner-ico">⚠️</span>
+        <div>Non hai ancora un profilo CAMON: <b>iscriviti o accedi</b> per usarlo.</div>
+      </div>
+      <div class="prof-empty-ico">🍹</div>
+      <div class="prof-empty-title">ENTRA IN <span>CAMON</span></div>
+      <div class="prof-empty-sub">Il profilo ti serve per i tavoli sociali, i tornei e i bonus — come lo shot omaggio. Bastano un paio di minuti.</div>
+      <div class="prof-empty-actions">
+        <button class="prof-empty-btn primary" onclick="profShowAuth('signup')">Iscriviti</button>
+        <button class="prof-empty-btn ghost" onclick="profShowAuth('login')">Ho già un account · Accedi</button>
+      </div>
+    </div>
+
+    <!-- AUTENTICAZIONE: iscriviti / accedi -->
+    <div id="prof-auth-section" class="prof-auth" style="display:none">
+      <button class="prof-auth-back" onclick="profShowEmpty()" aria-label="Indietro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="prof-auth-inner">
+        <div class="prof-auth-ico">🍹</div>
+        <div class="prof-auth-title" id="auth-title">Iscriviti</div>
+        <div class="prof-auth-sub" id="auth-sub">Crea il tuo account CAMON</div>
+
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="auth-email" placeholder="nome@email.com" autocomplete="email" oninput="authClearErr('auth-email-err')">
+          <div class="auth-err" id="auth-email-err"></div>
+        </div>
+        <div class="auth-field" id="auth-phone-field">
+          <label>Numero di telefono</label>
+          <input type="tel" id="auth-phone" placeholder="+39 333 000 0000" autocomplete="tel" maxlength="18" oninput="authClearErr('auth-phone-err')">
+          <div class="auth-err" id="auth-phone-err"></div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input type="password" id="auth-pass" placeholder="Almeno 6 caratteri" autocomplete="current-password" oninput="authClearErr('auth-pass-err')">
+          <div class="auth-err" id="auth-pass-err"></div>
+        </div>
+
+        <button class="prof-auth-btn" id="auth-submit" onclick="authSubmit()">Continua</button>
+        <div class="prof-auth-switch" id="auth-switch"></div>
+      </div>
+    </div>
+
+    <!-- VERIFICA OTP -->
+    <div id="prof-otp-section" class="prof-auth" style="display:none">
+      <button class="prof-auth-back" onclick="profShowAuth('signup')" aria-label="Indietro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="prof-auth-inner">
+        <div class="prof-auth-ico">📲</div>
+        <div class="prof-auth-title">Verifica il numero</div>
+        <div class="prof-auth-sub">Inserisci il codice inviato via SMS a <b id="otp-dest">+39 …</b></div>
+        <input class="otp-input" id="otp-input" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="one-time-code" oninput="authClearErr('otp-err')">
+        <div class="auth-err" id="otp-err" style="text-align:center"></div>
+        <div class="otp-demo" id="otp-demo"></div>
+        <button class="prof-auth-btn" onclick="otpVerify()">Verifica e continua</button>
+        <div class="prof-auth-switch">Non l'hai ricevuto? <b onclick="otpResend()">Invia di nuovo</b></div>
+      </div>
+    </div>
+
+    <!-- ANTEPRIMA (default) -->
+    <div id="prof-preview-section" style="flex:1;display:block;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+
+      <!-- FOTO + NOME sovrapposto -->
+      <div style="position:relative;width:100%;height:68vh;min-height:340px;background:#111;overflow:hidden">
+        <div id="prev-photo-empty" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0.15">
+          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M3 20c0-4 4-7 9-7s9 3 9 7"/></svg>
+        </div>
+        <img id="prev-photo-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+        <!-- gradient -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:280px;background:linear-gradient(transparent,#111);pointer-events:none"></div>
+        <!-- nome + eta -->
+        <div style="position:absolute;bottom:20px;left:22px;width:fit-content;text-align:right">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#fff;line-height:0.9;letter-spacing:1px;text-transform:uppercase" id="prev-firstname">NOME</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#f7cc49;line-height:0.9;letter-spacing:1px;text-transform:uppercase" id="prev-lastname"></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#fff;line-height:0.95;letter-spacing:1px" id="prev-age"></div>
+        </div>
+        <!-- FAB modifica -->
+        <button class="prof-edit-fab" onclick="profShowEdit()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+
+      <!-- INFO sotto la foto — Tinder/Hinge style -->
+      <div class="prof-info">
+
+        <!-- VITALS: pill con icone -->
+        <div class="prof-vitals">
+          <span class="vital" id="vital-sesso">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+            <span id="prev-sesso"></span>
+          </span>
+          <span class="vital" id="vital-lavoro" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            <span id="prev-lavoro"></span>
+          </span>
+          <span class="vital" id="vital-studio" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <span id="prev-studio"></span>
+          </span>
+          <span class="vital accent" id="vital-erasmus" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="prev-erasmus">In Erasmus</span>
+          </span>
+        </div>
+
+        <!-- BIO — protagonista -->
+        <div class="prof-card prof-bio-card" id="prev-bio-card" style="display:none">
+          <div class="prof-bio-txt" id="prev-bio"></div>
+        </div>
+
+        <!-- CERCA STASERA (intento) -->
+        <div class="prof-card">
+          <div class="prof-card-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="#f7cc49"/></svg>
+            Cerca stasera
+          </div>
+          <div class="tinder-chips" id="prev-stasera"></div>
+        </div>
+
+        <!-- INTERESSI -->
+        <div class="prof-card">
+          <div class="prof-card-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            Interessi
+          </div>
+          <div class="tinder-chips" id="prev-interessi"></div>
+        </div>
+
+        <!-- LINGUE -->
+        <div class="prof-card" id="prev-lingue-wrap" style="display:none">
+          <div class="prof-card-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Lingue parlate
+          </div>
+          <div class="tinder-chips" id="prev-lingue"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FORM MODIFICA (nascosto) -->
+    <div id="prof-edit-section" style="flex:1;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:96px">
+      <div class="prof-photo-wrap" style="position:relative" onclick="document.getElementById('prof-file').click()">
+        <button onclick="event.stopPropagation();profShowPreview()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <img class="prof-photo-img" id="prof-photo-img" src="" alt="">
+        <div class="prof-photo-placeholder" id="prof-photo-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M3 20c0-4 4-7 9-7s9 3 9 7"/></svg>
+          <span>Aggiungi foto *</span>
+        </div>
+        <button class="prof-photo-edit" id="prof-photo-edit" style="display:none" onclick="event.stopPropagation();document.getElementById('prof-file').click()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <input type="file" id="prof-file" accept="image/*" style="display:none" onchange="profLoadPhoto(this)">
+      </div>
+
+      <div class="prof-basic">
+        <input class="prof-name-input" id="edit-nome" type="text" placeholder="Nome *" maxlength="20">
+        <input class="prof-name-input" id="edit-cognome" type="text" placeholder="Cognome" maxlength="20" style="color:#f7cc49">
+        <input class="prof-age-input" id="edit-age" type="number" placeholder="età" min="18" max="99">
+      </div>
+
+      <div class="prof-section">
+        <div class="prof-section-label">Sesso *</div>
+        <div class="prof-chips" id="chips-sesso">
+          <div class="prof-chip" onclick="selectChip(this,'sesso')">Uomo</div>
+          <div class="prof-chip" onclick="selectChip(this,'sesso')">Donna</div>
+          <div class="prof-chip" onclick="selectChip(this,'sesso')">Altro</div>
+        </div>
+      </div>
+
+      <div class="prof-section" style="margin-top:18px">
+        <div class="prof-section-label">Cosa cerchi stasera? *</div>
+        <div class="prof-chips" id="chips-stasera">
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">💡 Shot Quest</div>
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">👑 Kings</div>
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">🏓 Beer Pong</div>
+          <div class="prof-chip game-chip" onclick="toggleChip(this)">🥤 Flip Cup</div>
+          <div class="prof-chip" onclick="toggleChip(this)">💃 Ballare</div>
+          <div class="prof-chip" onclick="toggleChip(this)">💬 Chiacchierare</div>
+        </div>
+      </div>
+
+      <div class="prof-section" style="margin-top:18px">
+        <div class="prof-section-label">Interessi *</div>
+        <div class="prof-chips" id="chips-interessi">
+          <div class="prof-chip" onclick="toggleChip(this)">🎵 Musica</div>
+          <div class="prof-chip" onclick="toggleChip(this)">⚽ Sport</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎬 Cinema</div>
+          <div class="prof-chip" onclick="toggleChip(this)">✈️ Viaggi</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🍕 Cucina</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎮 Gaming</div>
+          <div class="prof-chip" onclick="toggleChip(this)">📚 Lettura</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎨 Arte</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🍺 Birra artigianale</div>
+          <div class="prof-chip" onclick="toggleChip(this)">🎭 Teatro</div>
+        </div>
+      </div>
+
+      <div class="prof-optional-title"><span>Facoltativo</span></div>
+      <div class="prof-field-sm">
+        <div class="prof-bio-field-head">
+          <label>Bio</label>
+          <span class="prof-bio-count" id="bio-counter">0 / 240</span>
+        </div>
+        <textarea id="edit-bio" maxlength="240" placeholder="Racconta qualcosa di te: cosa ti piace fare, perché sei qui stasera, che tipo cerchi di incontrare..." oninput="profBioCount(this)"></textarea>
+      </div>
+      <div class="prof-field-sm"><label>Titolo di studio</label>
+        <select id="edit-studio">
+          <option value="" disabled selected>Seleziona</option>
+          <option>Licenza media</option><option>Diploma</option>
+          <option>Laurea triennale</option><option>Laurea magistrale</option><option>Dottorato</option>
+        </select>
+      </div>
+      <div class="prof-field-sm"><label>Lavoro / Occupazione</label><input id="edit-lavoro" type="text" placeholder="Es. Studente, Designer..."></div>
+      <div class="prof-section" style="margin-top:4px;padding-bottom:4px">
+        <div class="prof-section-label">Erasmus?</div>
+        <div class="prof-chips" id="chips-erasmus">
+          <div class="prof-chip" onclick="selectChip(this,'erasmus')">Sì 🌍</div>
+          <div class="prof-chip" onclick="selectChip(this,'erasmus')">No</div>
+        </div>
+      </div>
+      <div class="prof-field-sm" style="margin-top:14px"><label>Lingue parlate</label><input id="edit-lingue" type="text" placeholder="Es. Italiano, Inglese..."></div>
+      <button class="prof-save" style="margin:20px 20px 0;width:calc(100% - 40px)" onclick="profSave()">Salva profilo</button>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  <!-- ============================
+       SHOT QUEST
+  ============================ -->
+  <!-- INFO: TAVOLI SOCIALI -->
+  <!-- ═══════════ PAGINA OFFERTE ═══════════ -->
+  <div class="page" id="page-menu">
+    <div class="page-header">
+      <div class="page-title">IL <span>MENU</span></div>
+    </div>
+
+    <!-- Toggle macro: Drink / Cibo -->
+    <div class="menu-macro">
+      <button class="macro-btn active" id="macro-drink" onclick="setMacro(this,'drink')"><span class="mi">🍹</span> Drink</button>
+      <button class="macro-btn" id="macro-cibo" onclick="setMacro(this,'cibo')"><span class="mi">🍽️</span> Cibo</button>
+    </div>
+
+    <!-- Sotto-filtri DRINK -->
+    <div class="cat-row" id="cats-drink">
+      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
+      <button class="cat-btn" onclick="filterCat(this,'cocktail')">Cocktail</button>
+      <button class="cat-btn" onclick="filterCat(this,'shot')">Shot</button>
+      <button class="cat-btn" onclick="filterCat(this,'birra')">Birra</button>
+      <button class="cat-btn" onclick="filterCat(this,'vino')">Vino</button>
+      <button class="cat-btn" onclick="filterCat(this,'analcolico')">Analcolici</button>
+    </div>
+
+    <!-- Sotto-filtri CIBO -->
+    <div class="cat-row" id="cats-cibo" style="display:none">
+      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
+      <button class="cat-btn" onclick="filterCat(this,'pizza')">Pizza</button>
+      <button class="cat-btn" onclick="filterCat(this,'burger')">Burger</button>
+      <button class="cat-btn" onclick="filterCat(this,'panuozzo')">Panuozzi</button>
+      <button class="cat-btn" onclick="filterCat(this,'fritto')">Fritti</button>
+      <button class="cat-btn" onclick="filterCat(this,'tagliere')">Tagliere</button>
+      <button class="cat-btn" onclick="filterCat(this,'speciale')">Veg &amp; Senza Glutine</button>
+      <button class="cat-btn" onclick="filterCat(this,'primo')">Primi</button>
+      <button class="cat-btn" onclick="filterCat(this,'dolce')">Dolci</button>
+    </div>
+
+    <div class="scroll-area" style="padding-top:4px">
+
+      <!-- Banner Offerte & Promo (prima dei prodotti, d'impatto) -->
+      <button class="menu-offers-hero" onclick="goTo('offerte')">
+        <div class="moh-glow"></div>
+        <div class="moh-top">
+          <span class="moh-badge">🔥 Promo attive</span>
+          <span class="moh-tag">Offerte</span>
+        </div>
+        <div class="moh-title">OFFERTE <span>&amp; PROMO</span></div>
+        <div class="moh-chips">
+          <span>🍻 Happy Hour</span>
+          <span>🏓 Tornei</span>
+          <span>🍹 2x1 Spritz</span>
+        </div>
+        <div class="moh-cta">
+          Scopri tutte le offerte
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </button>
+
+      <div class="drinks-grid" id="drinks-grid">
+        <div class="menu-empty" id="menu-empty">
+          <strong>Nessun risultato</strong>
+          Prova con un altro nome o cambia categoria.
+        </div>
+      </div>
+
+      <!-- Scheda prodotto overlay -->
+      <div class="product-overlay" id="product-overlay" onclick="closeProductSheet()">
+        <div class="product-sheet" onclick="event.stopPropagation()">
+          <button class="product-sheet-close" onclick="closeProductSheet()">&times;</button>
+          <img class="product-sheet-img" id="product-sheet-img" src="" alt="">
+          <div class="product-sheet-body">
+            <h2 class="product-sheet-name" id="product-sheet-name"></h2>
+            <p class="product-sheet-price" id="product-sheet-price"></p>
+            <p class="product-sheet-desc" id="product-sheet-desc"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================
+       CARTA / WALLET PAGE
+  ============================ -->
+  <div class="page" id="page-carta">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('menu')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">LA TUA <span>CARTA</span></div>
+    </div>
+    <div class="carta-scroll">
+
+      <!-- Carta virtuale -->
+      <div class="wallet-card">
+        <div class="wc-top">
+          <div class="wc-brand">CAM<span>ON</span></div>
+          <div class="wc-chip"></div>
+        </div>
+        <div class="wc-bal-cap">Saldo disponibile</div>
+        <div class="wc-bal" id="card-balance">€ 0,00</div>
+        <div class="wc-foot">
+          <div class="wc-holder" id="card-holder">Carta CAMON</div>
+          <div class="wc-num">•••• 4823</div>
+        </div>
+      </div>
+
+      <!-- Importi rapidi -->
+      <div class="wallet-lbl">Scegli un importo</div>
+      <div class="amt-grid">
+        <div class="amt-chip" onclick="selectAmount(this,10)">€10</div>
+        <div class="amt-chip active" onclick="selectAmount(this,20)">€20</div>
+        <div class="amt-chip" onclick="selectAmount(this,50)">€50</div>
+        <div class="amt-chip" onclick="selectAmount(this,100)">€100</div>
+      </div>
+      <div class="amt-custom">
+        <span>€</span>
+        <input id="recharge-input" type="number" inputmode="decimal" min="10" max="500" placeholder="Altro importo (min. €10)" oninput="clearAmtChips()">
+      </div>
+
+      <button class="wallet-recharge-btn" onclick="doRecharge()">Ricarica ora</button>
+      <div style="text-align:center;font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px">Ricarica minima da app €10 · Importi inferiori al banco</div>
+
+      <div class="wallet-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Credito spendibile solo all'interno del locale
+      </div>
+
+      <!-- I miei braccialetti -->
+      <div class="bands-block">
+        <div class="bands-head">
+          <div class="bands-title">I miei braccialetti</div>
+          <div class="bands-sub">Stesso saldo su tutti, uno attivo per volta</div>
+        </div>
+        <div class="band-add">
+          <input id="band-code-input" type="text" placeholder="Inserisci codice braccialetto" autocomplete="off" maxlength="12" oninput="this.value=this.value.toUpperCase()">
+          <button class="band-add-btn" onclick="bandLink()">Collega</button>
+        </div>
+        <div class="band-hint">Trovi il codice stampato sul braccialetto.</div>
+        <div id="band-list" class="band-list"></div>
+      </div>
+
+      <!-- Demo spina self-service -->
+      <button class="spina-demo-btn" onclick="goTo('spina-demo')">
+        <span>🍺 Prova la spina self-service</span>
+        <small>Demo: avvicina il braccialetto e spilla</small>
+      </button>
+
+      <!-- Storico movimenti -->
+      <div class="wallet-lbl">Movimenti</div>
+      <div id="wallet-history"></div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================
+       SPINA SELF-SERVICE (demo)
+  ============================ -->
+  <div class="page" id="page-spina-demo">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('carta')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">SPINA <span>SELF-SERVICE</span></div>
+    </div>
+    <div class="spina-wrap">
+
+      <div class="spina-product-tabs">
+        <button class="spina-tab active" id="spina-tab-ipa" onclick="spinaSelectProduct('IPA')">🍺 IPA</button>
+        <button class="spina-tab" id="spina-tab-mojito" onclick="spinaSelectProduct('Mojito')">🍹 Mojito</button>
+      </div>
+      <div class="spina-tap-name" id="spina-tap-name">Spina 1 · <b>IPA del Birrificio</b></div>
+      <div class="spina-price" id="spina-tap-price">€10,00 / litro</div>
+
+      <!-- bicchiere -->
+      <div class="spina-glass">
+        <div class="spina-fill" id="spina-fill"></div>
+        <div class="spina-foam" id="spina-foam"></div>
+      </div>
+
+      <div class="spina-counters">
+        <div><span id="spina-ml">0</span> ml</div>
+        <div class="spina-cost">€ <span id="spina-cost">0,00</span></div>
+      </div>
+
+      <!-- stato braccialetto -->
+      <div class="spina-band" id="spina-band">—</div>
+
+      <!-- pulsante spilla -->
+      <button class="spina-pour-btn" id="spina-pour-btn">
+        <span class="spina-pour-lbl">TIENI PREMUTO PER SPILLARE</span>
+      </button>
+      <div class="spina-saldo" id="spina-saldo">Saldo: € 0,00</div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================
+       GAMES PAGE — scroll colorato
+  ============================ -->
+  <div class="page" id="page-book">
+
+    <!-- PRENOTAZIONE ATTIVA (visibile solo se c'è una prenotazione in corso) -->
+    <div id="book-active" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-active-wrap">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3)">CAMON · PRENOTAZIONE</div>
+
+        <!-- Titolo -->
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;line-height:1">LA TUA <span style="color:#f7cc49">PRENOTAZIONE</span></div>
+
+        <!-- Tavolo assegnato — tap per vedere posizione -->
+        <div class="book-active-table" onclick="bookShowMap()" style="position:relative">
+          <div>
+            <div class="book-active-table-lbl">TAVOLO ASSEGNATO</div>
+            <div class="book-active-table-num" id="ba-table">T6</div>
+          </div>
+          <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div style="font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;color:#111;text-align:center;letter-spacing:0.3px;line-height:1.3;white-space:nowrap">TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE</div>
+          </div>
+          <svg class="book-active-table-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="10" width="18" height="10" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="10" x2="8" y2="6"/><line x1="16" y1="10" x2="16" y2="6"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
+        </div>
+
+        <!-- Dettagli -->
+        <div class="book-active-hero">
+          <div class="book-active-label">Dettagli</div>
+          <div class="book-active-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+            <div><div class="book-active-row-lbl">Data e ora</div><div class="book-active-row-val" id="ba-datetime">—</div></div>
+          </div>
+          <div class="book-active-row" style="margin-top:8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            <div><div class="book-active-row-lbl">Tipo</div><div class="book-active-row-val" id="ba-type">—</div></div>
+          </div>
+          <div class="book-active-row" style="margin-top:8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div><div class="book-active-row-lbl">Prenotato da</div><div class="book-active-row-val" id="ba-nome">—</div></div>
+          </div>
+        </div>
+
+        <!-- Indicatore riempimento (solo tavolo condiviso) -->
+        <div id="book-fill-box" class="book-fill-box" style="display:none">
+          <div class="book-fill-top">
+            <div class="book-fill-label">Posti al tavolo</div>
+            <div class="book-fill-count" id="book-fill-count">1 / 6</div>
+          </div>
+          <div class="book-fill-seats" id="book-fill-seats"></div>
+          <div class="book-fill-legend" id="book-fill-legend"></div>
+          <div class="book-fill-bar"><div class="book-fill-progress" id="book-fill-progress" style="width:0%"></div></div>
+          <div class="book-fill-complete" id="book-fill-complete" style="display:none">🎉 Tavolo completo — ci siete tutti!</div>
+        </div>
+
+        <!-- Azioni -->
+        <div class="book-active-actions">
+          <button class="book-new-btn" onclick="bookNewBooking()">+ Nuova prenotazione</button>
+          <button class="book-cancel-btn" onclick="bookCancelConfirm()">Annulla prenotazione</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: scegli tipo -->
+    <div id="book-step1" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div style="padding:24px 22px 4px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px">PRENOTA <span style="color:#f7cc49">UN POSTO</span></div>
+        <div style="font-family:'Manrope',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px">Come vuoi passare la serata?</div>
+      </div>
+      <div class="book-scroll">
+        <div class="book-type-list">
+
+          <!-- Tavolo condiviso -->
+          <div class="book-type-card shared" onclick="bookSelectType('shared')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Sociale
+            </div>
+            <div class="book-type-name">TAVOLO<br>CONDIVISO</div>
+            <div class="book-type-desc">Siediti con altri avventori scelti per te. Nuove persone, nuove amicizie — il cuore di CAMON.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Tavolo privato -->
+          <div class="book-type-card private" onclick="bookSelectType('private')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Il tuo gruppo
+            </div>
+            <div class="book-type-name">TAVOLO<br>PRIVATO</div>
+            <div class="book-type-desc">Un tavolo riservato solo a te e ai tuoi amici. Nessuno si aggiunge senza il tuo invito.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Stanza privata -->
+          <div class="book-type-card room" onclick="bookSelectType('room')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Premium
+            </div>
+            <div class="book-type-name">STANZA<br>PRIVATA</div>
+            <div class="book-type-desc">Un'esperienza esclusiva per serate speciali. Spazio dedicato, massima privacy, servizio dedicato.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Invito anonimo -->
+          <div class="book-type-card invite" onclick="bookSelectType('invite')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg>
+              Anonimo
+            </div>
+            <div class="book-type-name">INVITO<br>SEGRETO</div>
+            <div class="book-type-desc">Vuoi conoscere qualcuno? Proponi un tavolo in forma anonima: ci pensiamo noi a chiederglielo. Funziona anche se non è ancora su CAMON.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: form -->
+    <div id="book-step2" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-step-head">
+        <button class="book-back" onclick="bookGoBack()">←</button>
+        <div class="book-step-title">DETTAGLI <span>PRENOTAZIONE</span></div>
+      </div>
+      <div class="book-scroll">
+        <div class="book-form-new">
+
+          <!-- Riepilogo tipo scelto -->
+          <div class="book-summary-card" id="book-summary-card">
+            <div class="book-summary-ico" id="book-sum-ico">👥</div>
+            <div>
+              <div class="book-summary-name" id="book-sum-name">TAVOLO CONDIVISO</div>
+              <div class="book-summary-desc" id="book-sum-desc">Matchato con altri avventori</div>
+            </div>
+          </div>
+
+          <!-- Data + Ora -->
+          <div class="bfield-row" id="bfield-datetime">
+            <div class="bfield">
+              <label>Data</label>
+              <input id="book-data" type="date">
+            </div>
+            <div class="bfield">
+              <label>Ora</label>
+              <input id="book-ora" type="time" value="21:00">
+            </div>
+          </div>
+
+          <!-- Quante persone -->
+          <div class="bfield" id="bfield-persone">
+            <label id="persone-lbl">Quante persone porti?</label>
+            <div class="people-grid" id="persone-grid"></div>
+          </div>
+
+          <!-- Compagni (solo tavolo condiviso, se > 1 persona) -->
+          <div class="bfield" id="bfield-compagni" style="display:none">
+            <label>Chi porti con te?</label>
+            <div class="companions-wrap" id="companions-wrap"></div>
+          </div>
+
+          <!-- Invito segreto (solo tipo invite) -->
+          <div class="bfield" id="bfield-invite" style="display:none">
+            <div class="invite-concept">
+              <span class="invite-concept-ico">💌</span>
+              <div>C'è qualcuno che vorresti conoscere? Mandagli un <b>invito segreto</b> al CAMON. Resti <b>anonimo</b>: gli sveliamo chi sei <b>solo se accetta</b>.</div>
+            </div>
+            <div class="invite-steps">
+              <div class="invite-step"><span class="invite-step-n">1</span><span>Scegli la persona, sull'app o su Instagram.</span></div>
+              <div class="invite-step"><span class="invite-step-n">2</span><span>Riceve l'invito e <b>propone lei giorno e ora</b>.</span></div>
+              <div class="invite-step"><span class="invite-step-n">3</span><span>Ti avvisiamo: <b>accetti</b> e il tavolo è prenotato.</span></div>
+            </div>
+            <label>Chi vuoi invitare?</label>
+            <div class="companion-slot" id="invite-slot"></div>
+            <!-- riga-indicazione: passa a Instagram se non è su CAMON / torna indietro -->
+            <div id="invite-switch"></div>
+            <div class="invite-ig-note" id="invite-hint"></div>
+          </div>
+
+
+          <!-- Occasione (solo stanza privata) -->
+          <div class="bfield" id="bfield-occasione" style="display:none">
+            <label>Occasione</label>
+            <select id="book-occasione">
+              <option value="">Seleziona occasione</option>
+              <option>Compleanno 🎂</option>
+              <option>Anniversario 💑</option>
+              <option>Festa di laurea 🎓</option>
+              <option>Serata aziendale 💼</option>
+              <option>Addio al celibato/nubilato 🎉</option>
+              <option>Altro</option>
+            </select>
+          </div>
+
+          <!-- Note -->
+          <div class="bfield" id="bfield-note">
+            <label>Note (opzionale)</label>
+            <textarea id="book-note" placeholder="Richieste particolari, giochi preferiti, allergie..."></textarea>
+          </div>
+
+          <button class="book-confirm-btn" onclick="bookConfirm()">Conferma prenotazione</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2B: scelta tavolo -->
+    <div id="book-step-pick" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-pick-head">
+        <button class="book-back" onclick="bookPickBack()">←</button>
+        <div class="book-pick-title">SCEGLI IL <span>TAVOLO</span></div>
+      </div>
+      <div class="book-pick-sub" id="book-pick-sub">Tavoli disponibili per 2 persone</div>
+      <div class="book-pick-scroll">
+        <div class="book-pick-legend">
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#4CD964"></div>Disponibile</div>
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#f7cc49"></div>Selezionato</div>
+          <div class="book-pick-legend-item"><div class="book-pick-legend-dot" style="background:#333"></div>Occupato / troppo grande</div>
+        </div>
+        <div class="book-pick-map">
+          <svg id="book-pick-svg" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a1a;">
+            <rect x="128" y="10" width="282" height="295" rx="2" fill="#2a2418" stroke="#f7cc49" stroke-width="1.5"/>
+            <rect x="128" y="10" width="26" height="295" fill="#1e1a10" stroke="#f7cc49" stroke-width="1"/>
+            <text x="141" y="100" fill="#f7cc49" font-size="6.5" text-anchor="middle" transform="rotate(-90,141,100)">SPILLATORI</text>
+            <rect x="154" y="10" width="80" height="40" rx="2" fill="#1a1510" stroke="#f7cc49" stroke-width="0.9"/>
+            <text x="194" y="27" fill="#f7cc49" font-size="7.5" font-weight="bold" text-anchor="middle">CASSE</text>
+            <text x="194" y="40" fill="#aaa" font-size="6" text-anchor="middle">automatiche</text>
+            <rect x="234" y="10" width="80" height="40" rx="2" fill="#12200f" stroke="#4CD964" stroke-width="1"/>
+            <text x="274" y="27" fill="#4CD964" font-size="7.5" font-weight="bold" text-anchor="middle">INGRESSO</text>
+            <text x="274" y="39" fill="#4CD964" font-size="6.5" text-anchor="middle">/ USCITA</text>
+            <polygon points="267,8 274,2 281,8" fill="#4CD964"/>
+            <rect x="314" y="10" width="96" height="80" rx="2" fill="#111" stroke="#777" stroke-width="1.2" stroke-dasharray="4,2"/>
+            <text x="362" y="46" fill="#888" font-size="8" font-weight="bold" text-anchor="middle">SCALE</text>
+            <line x1="322" y1="70" x2="402" y2="70" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="62" x2="402" y2="62" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="54" x2="402" y2="54" stroke="#555" stroke-width="0.7"/>
+            <rect x="8" y="10" width="118" height="215" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="110" fill="#444" font-size="8" text-anchor="middle">CUCINA</text>
+            <text x="67" y="122" fill="#444" font-size="8" text-anchor="middle">+ RETRO</text>
+            <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
+            <!-- Tavoli cliccabili -->
+            <g id="pick-T1" class="map-table-pick"><rect x="165" y="60" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T1</text><text x="186" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T2" class="map-table-pick"><rect x="251" y="60" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="74" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T2</text><text x="272" y="54" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T3" class="map-table-pick"><rect x="165" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T3</text><text x="186" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T4" class="map-table-pick"><rect x="251" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T4</text><text x="272" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T5" class="map-table-pick"><rect x="335" y="118" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="132" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T5</text><text x="356" y="112" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">4 posti</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T6" class="map-table-pick"><circle cx="272" cy="193" r="26" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T6</text><text x="272" y="168" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">8 posti</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T7" class="map-table-pick"><rect x="158" y="183" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="179" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T7</text><text x="179" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T8" class="map-table-pick"><rect x="350" y="183" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="371" y="197" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T8</text><text x="371" y="177" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">3 posti</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T9" class="map-table-pick"><rect x="165" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="186" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T9</text><text x="186" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T10" class="map-table-pick"><rect x="251" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="272" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T10</text><text x="272" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="pick-T11" class="map-table-pick"><rect x="335" y="250" width="42" height="22" rx="3" fill="#1a3d1a" stroke="#4CD964" stroke-width="1.2"/><text x="356" y="264" font-size="9" font-weight="bold" fill="#4CD964" text-anchor="middle">T11</text><text x="356" y="244" font-size="6" fill="rgba(255,255,255,0.4)" text-anchor="middle">6 posti</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+          </svg>
+        </div>
+        <div class="book-pick-or">oppure</div>
+        <div class="book-pick-auto" onclick="bookPickAuto()">
+          <div class="book-pick-auto-ico">🎲</div>
+          <div>
+            <div class="book-pick-auto-txt">È indifferente</div>
+            <div class="book-pick-auto-sub">Assegnaci il tavolo migliore disponibile</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: conferma + mappa tavolo -->
+    <div id="book-step3" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-confirmed-wrap">
+
+        <!-- Badge conferma -->
+        <div class="book-confirmed-badge">
+          <div class="book-confirmed-ico">✅</div>
+          <div>
+            <div class="book-confirmed-title">Prenotazione confermata!</div>
+            <div class="book-confirmed-sub" id="book-confirmed-detail">Stasera alle 21:00 — CAMON</div>
+          </div>
+        </div>
+
+        <!-- Pill tavolo assegnato -->
+        <div class="book-table-pill">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="10" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="10" x2="8" y2="6"/><line x1="16" y1="10" x2="16" y2="6"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
+          IL TUO TAVOLO: <span id="book-table-number">T1</span>
+        </div>
+
+        <!-- Mappa -->
+        <div class="book-map-label">TROVACI <span>QUI</span></div>
+        <div class="book-map-wrap">
+          <svg id="book-map-svg" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a1a;">
+
+            <!-- Sala principale -->
+            <rect x="128" y="10" width="282" height="295" rx="2" fill="#2a2418" stroke="#f7cc49" stroke-width="1.5"/>
+            <!-- Bar spillatori -->
+            <rect x="128" y="10" width="26" height="295" fill="#1e1a10" stroke="#f7cc49" stroke-width="1"/>
+            <text x="141" y="100" fill="#f7cc49" font-size="6.5" text-anchor="middle" transform="rotate(-90,141,100)">SPILLATORI</text>
+            <!-- CASSE -->
+            <rect x="154" y="10" width="80" height="40" rx="2" fill="#1a1510" stroke="#f7cc49" stroke-width="0.9"/>
+            <text x="194" y="27" fill="#f7cc49" font-size="7.5" font-weight="bold" text-anchor="middle">CASSE</text>
+            <text x="194" y="40" fill="#aaa" font-size="6" text-anchor="middle">automatiche</text>
+            <!-- INGRESSO/USCITA -->
+            <rect x="234" y="10" width="80" height="40" rx="2" fill="#12200f" stroke="#4CD964" stroke-width="1"/>
+            <text x="274" y="27" fill="#4CD964" font-size="7.5" font-weight="bold" text-anchor="middle">INGRESSO</text>
+            <text x="274" y="39" fill="#4CD964" font-size="6.5" text-anchor="middle">/ USCITA</text>
+            <polygon points="267,8 274,2 281,8" fill="#4CD964"/>
+            <!-- SCALE -->
+            <rect x="314" y="10" width="96" height="80" rx="2" fill="#111" stroke="#777" stroke-width="1.2" stroke-dasharray="4,2"/>
+            <text x="362" y="46" fill="#888" font-size="8" font-weight="bold" text-anchor="middle">SCALE</text>
+            <line x1="322" y1="70" x2="402" y2="70" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="62" x2="402" y2="62" stroke="#555" stroke-width="0.7"/>
+            <line x1="322" y1="54" x2="402" y2="54" stroke="#555" stroke-width="0.7"/>
+            <!-- Cucina -->
+            <rect x="8" y="10" width="118" height="215" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="110" fill="#444" font-size="8" text-anchor="middle">CUCINA</text>
+            <text x="67" y="122" fill="#444" font-size="8" text-anchor="middle">+ RETRO</text>
+            <!-- WC -->
+            <rect x="8" y="233" width="118" height="72" rx="2" fill="#141414" stroke="#333" stroke-width="1"/>
+            <text x="67" y="272" fill="#444" font-size="8" text-anchor="middle">WC</text>
+
+            <!-- TAVOLI — id univoci per evidenziare, cliccabili per cambio tavolo -->
+            <g id="map-T1" style="cursor:pointer"><rect x="165" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="74" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T1</text><circle cx="173" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T2" style="cursor:pointer"><rect x="251" y="60" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="74" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T2</text><circle cx="259" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="56" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="86" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T3" style="cursor:pointer"><rect x="165" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T3</text><circle cx="161" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="161" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="211" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T4" style="cursor:pointer"><rect x="251" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T4</text><circle cx="247" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T5" style="cursor:pointer"><rect x="335" y="118" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="356" y="132" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T5</text><circle cx="331" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="331" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="124" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="381" cy="134" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T6" style="cursor:pointer"><circle cx="272" cy="193" r="26" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T6</text><circle cx="272" cy="163" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="302" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="297" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="224" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="218" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="242" cy="195" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="247" cy="170" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T7" style="cursor:pointer"><rect x="158" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="179" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T7</text><circle cx="165" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="179" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="193" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T8" style="cursor:pointer"><rect x="350" y="183" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="371" y="197" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T8</text><circle cx="357" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="371" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="385" cy="179" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T9" style="cursor:pointer"><rect x="165" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="186" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T9</text><circle cx="173" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="173" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="186" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="199" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T10" style="cursor:pointer"><rect x="251" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="272" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T10</text><circle cx="259" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="259" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="272" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="285" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+            <g id="map-T11" style="cursor:pointer"><rect x="335" y="250" width="42" height="22" rx="3" fill="#252525" stroke="#444" stroke-width="1.2"/><text x="356" y="264" fill="#f7cc49" font-size="9" font-weight="bold" fill="#777" text-anchor="middle">T11</text><circle cx="343" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="246" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="343" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="356" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/><circle cx="369" cy="276" r="4" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="1"/></g>
+
+          </svg>
+        </div>
+        <button class="book-change-btn" onclick="bookOpenChangePicker()">🔄 Cambia tavolo</button>
+        <button class="book-back-btn" onclick="bookReset()">← Torna alla prenotazione</button>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================
+       PROFILO PAGE
+  ============================ -->
   <div class="page game-detail" id="page-story" style="background:#1A0A1E">
     <div class="gd-header">
       <button class="back-btn" onclick="goTo('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -5317,34 +5380,6 @@
       <div class="story-fineprint">1 storia a serata, si azzera ogni mattina alle 8:00. Lo staff verifica la storia al momento del ritiro.</div>
     </div>
   </div>
-
-
-  <!-- ============================
-       BOTTOM NAV
-  ============================ -->
-  <nav class="bottom-nav">
-    <button class="nav-btn" id="nav-book" onclick="goTo('book')">
-      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span class="nav-label">Prenota</span>
-    </button>
-    <button class="nav-btn" id="nav-menu" onclick="goTo('menu')">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M5 3l7 9 7-9z"/><line x1="12" y1="12" x2="12" y2="19"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
-      <span class="nav-label">Menu</span>
-    </button>
-    <button class="nav-btn active" id="nav-home" onclick="goTo('home')">
-      <svg xmlns="http://www.w3.org/2000/svg" class="nav-logo" viewBox="2896.83 853.51 202.26 253.91"><path fill="#fff" transform="translate(0 0)" d="m2997.96,885.81c-29.86,0-59.72-4.18-89.99-12.55-3.73-1.03-5.91-4.88-4.88-8.61,1.03-3.73,4.88-5.91,8.61-4.88,58.05,16.04,114.48,16.04,172.53,0,3.72-1.03,7.58,1.16,8.61,4.88,1.03,3.73-1.16,7.58-4.88,8.61-30.28,8.37-60.14,12.55-89.99,12.55Z"/><path fill="#fff" transform="translate(0 0)" d="m2997.96,908.02c-27.16,0-54.31-3.4-81.85-10.19-3.75-.93-6.04-4.72-5.12-8.47s4.72-6.04,8.47-5.12c52.82,13.03,104.17,13.03,156.99,0,3.75-.93,7.55,1.37,8.47,5.12s-1.37,7.55-5.12,8.47c-27.54,6.8-54.69,10.19-81.85,10.19Z"/><path fill="#fff" transform="translate(0 0)" d="m2964.52,946.79c-7.45-.81-11.16-1.34-18.56-2.61v-12.34c0-3.59-.2-5.86-.59-6.82-.4-.96-1.27-1.55-2.61-1.8-1.52-.28-2.48.08-2.89,1.08-.41,1-.61,3.3-.61,6.9v32.99c0,3.45.2,5.74.61,6.87.41,1.13,1.33,1.84,2.76,2.1,1.37.25,2.28-.12,2.7-1.1.42-.98.64-3.42.64-7.32,0-3.57,0-5.36,0-8.93,7.4,1.27,11.11,1.79,18.56,2.61v2.77c0,7.35-.52,12.51-1.57,15.46-1.05,2.96-3.36,5.39-6.93,7.21-3.57,1.82-7.97,2.31-13.17,1.36-5.41-.99-9.85-2.92-13.34-5.68-3.49-2.75-5.79-6.05-6.91-9.8-1.13-3.75-1.69-9.11-1.69-16.07v-20.75c0-5.12.17-8.91.52-11.38.35-2.47,1.38-4.67,3.1-6.61,1.72-1.94,4.11-3.23,7.18-3.92,3.07-.68,6.6-.63,10.61.11,5.44,1,9.95,2.74,13.5,5.33,3.56,2.59,5.9,5.48,7.02,8.75,1.12,3.27,1.68,8.21,1.68,14.84v6.75Z"/><path fill="#fff" transform="translate(0 0)" d="m3003.5,917.64c3.56,23.55,7.12,47.09,10.69,70.64-7.64.4-11.46.49-19.1.42-.4-5.11-.6-7.66-1-12.78-2.68-.03-4.01-.07-6.69-.16-.45,5.09-.67,7.64-1.12,12.72-7.73-.29-11.59-.56-19.29-1.34,3.17-23.4,6.34-46.8,9.51-70.2,10.79.76,16.2.9,27.01.7Zm-9.91,45.68c-1.17-9.94-2-19.91-2.85-29.88-1.34,9.88-2.77,19.78-3.59,29.72,2.57.09,3.86.12,6.44.16Z"/><path fill="#fff" transform="translate(0 0)" d="m3074.45,908.02c0,23.67,0,47.34,0,71.02-6.38,1.64-9.59,2.37-16.03,3.67l-.02-47.94c-2.13,16.39-4.27,32.77-6.42,49.16-4.58.82-6.88,1.18-11.48,1.83-2.27-15.32-4.55-30.65-6.82-45.97,0,15.62-.01,31.23-.02,46.85-6.5.76-9.77,1.05-16.29,1.47v-71.02c9.66-.61,14.49-1.11,24.09-2.48.71,4.17,1.45,9.09,2.2,14.77,1.05,7.07,1.58,10.6,2.63,17.66,1.42-11.29,2.84-22.58,4.25-33.87,9.62-1.67,14.41-2.7,23.91-5.14Z"/><path fill="#f7cc49" transform="translate(0 0)" d="m2993.73,1059.77c0,9.99-.24,17.06-.71,21.21-.48,4.15-1.97,7.93-4.48,11.29-2.51,3.36-5.9,5.87-10.16,7.44-4.26,1.57-9.23,2.09-14.88,1.45-5.36-.61-10.17-2.16-14.42-4.58-4.25-2.42-7.66-5.67-10.23-9.66-2.57-3.98-4.1-8.1-4.59-12.3-.49-4.2-.73-11.41-.73-21.65v-17.01c0-9.99.23-17.01.7-21.07.47-4.06,1.94-7.54,4.41-10.49,2.47-2.95,5.82-4.96,10.04-6.12,4.23-1.16,9.16-1.36,14.82-.73,5.36.6,10.19,1.88,14.47,3.9,4.28,2.02,7.73,4.77,10.34,8.33,2.61,3.56,4.17,7.37,4.66,11.47.5,4.1.75,11.27.75,21.5v17.01Zm-26.14-34.15c0-4.63-.26-7.61-.77-8.95-.52-1.34-1.58-2.09-3.19-2.28-1.36-.15-2.4.24-3.12,1.2-.72.96-1.08,3.99-1.08,9.11v46.43c0,5.77.24,9.36.71,10.77.47,1.41,1.58,2.22,3.31,2.42,1.77.2,2.91-.46,3.4-1.97.5-1.5.74-5.18.74-11.04v-45.69Z"/><path fill="#f7cc49" transform="translate(0 0)" d="m3061.59,994.92c0,33.14,0,66.28,0,99.42-9.03,1.91-13.57,2.69-22.69,3.92-4.53-14.56-9.05-29.12-13.55-43.68v45.2c-8.73.78-13.11,1.02-21.86,1.17v-99.42c8.75-.16,13.13-.39,21.86-1.17,4.85,14.38,9.72,28.75,14.6,43.11v-44.77c8.69-1.2,13.03-1.95,21.64-3.78Z"/></svg>
-      <span class="nav-label">Home</span>
-    </button>
-    <button class="nav-btn" id="nav-games" onclick="goTo('games')" style="position:relative">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="12 22 12 12"/><path d="M3.27 6.96 12 12.01l8.73-5.05"/></svg>
-      <span class="nav-label">Giochi</span>
-      <span class="nav-games-dot" id="nav-games-dot"></span>
-    </button>
-    <button class="nav-btn" id="nav-profile" onclick="goTo('profile')">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span class="nav-label">Profilo</span>
-    </button>
-  </nav>
 
   <!-- OVERLAY + BOTTOM SHEET AGGIUNGI PARTECIPANTE -->
   <!-- Modal conferma rimozione partecipante -->
@@ -5401,108 +5436,46 @@
 
 </div>
 
+
+  
+
+
+  <!-- ═══════════ ONBOARDING OVERLAY ═══════════ -->
+  <div id="onboard-overlay" style="display:none">
+    <div id="onboard-highlight"></div>
+    <div id="onboard-tooltip">
+      <div id="onboard-counter">1 / 5</div>
+      <div id="onboard-title"></div>
+      <div id="onboard-text"></div>
+      <div id="onboard-actions">
+        <button id="onboard-skip" onclick="onboardEnd()">Salta</button>
+        <button id="onboard-next" onclick="onboardNext()">Avanti</button>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" id="nav-book" onclick="goTo('book')">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="nav-label">Prenota</span>
+    </button>
+    <button class="nav-btn" id="nav-menu" onclick="goTo('menu')">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M5 3l7 9 7-9z"/><line x1="12" y1="12" x2="12" y2="19"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+      <span class="nav-label">Menu</span>
+    </button>
+    <button class="nav-btn active" id="nav-home" onclick="goTo('home')">
+      <svg xmlns="http://www.w3.org/2000/svg" class="nav-logo" viewBox="2896.83 853.51 202.26 253.91"><path fill="#fff" transform="translate(0 0)" d="m2997.96,885.81c-29.86,0-59.72-4.18-89.99-12.55-3.73-1.03-5.91-4.88-4.88-8.61,1.03-3.73,4.88-5.91,8.61-4.88,58.05,16.04,114.48,16.04,172.53,0,3.72-1.03,7.58,1.16,8.61,4.88,1.03,3.73-1.16,7.58-4.88,8.61-30.28,8.37-60.14,12.55-89.99,12.55Z"/><path fill="#fff" transform="translate(0 0)" d="m2997.96,908.02c-27.16,0-54.31-3.4-81.85-10.19-3.75-.93-6.04-4.72-5.12-8.47s4.72-6.04,8.47-5.12c52.82,13.03,104.17,13.03,156.99,0,3.75-.93,7.55,1.37,8.47,5.12s-1.37,7.55-5.12,8.47c-27.54,6.8-54.69,10.19-81.85,10.19Z"/><path fill="#fff" transform="translate(0 0)" d="m2964.52,946.79c-7.45-.81-11.16-1.34-18.56-2.61v-12.34c0-3.59-.2-5.86-.59-6.82-.4-.96-1.27-1.55-2.61-1.8-1.52-.28-2.48.08-2.89,1.08-.41,1-.61,3.3-.61,6.9v32.99c0,3.45.2,5.74.61,6.87.41,1.13,1.33,1.84,2.76,2.1,1.37.25,2.28-.12,2.7-1.1.42-.98.64-3.42.64-7.32,0-3.57,0-5.36,0-8.93,7.4,1.27,11.11,1.79,18.56,2.61v2.77c0,7.35-.52,12.51-1.57,15.46-1.05,2.96-3.36,5.39-6.93,7.21-3.57,1.82-7.97,2.31-13.17,1.36-5.41-.99-9.85-2.92-13.34-5.68-3.49-2.75-5.79-6.05-6.91-9.8-1.13-3.75-1.69-9.11-1.69-16.07v-20.75c0-5.12.17-8.91.52-11.38.35-2.47,1.38-4.67,3.1-6.61,1.72-1.94,4.11-3.23,7.18-3.92,3.07-.68,6.6-.63,10.61.11,5.44,1,9.95,2.74,13.5,5.33,3.56,2.59,5.9,5.48,7.02,8.75,1.12,3.27,1.68,8.21,1.68,14.84v6.75Z"/><path fill="#fff" transform="translate(0 0)" d="m3003.5,917.64c3.56,23.55,7.12,47.09,10.69,70.64-7.64.4-11.46.49-19.1.42-.4-5.11-.6-7.66-1-12.78-2.68-.03-4.01-.07-6.69-.16-.45,5.09-.67,7.64-1.12,12.72-7.73-.29-11.59-.56-19.29-1.34,3.17-23.4,6.34-46.8,9.51-70.2,10.79.76,16.2.9,27.01.7Zm-9.91,45.68c-1.17-9.94-2-19.91-2.85-29.88-1.34,9.88-2.77,19.78-3.59,29.72,2.57.09,3.86.12,6.44.16Z"/><path fill="#fff" transform="translate(0 0)" d="m3074.45,908.02c0,23.67,0,47.34,0,71.02-6.38,1.64-9.59,2.37-16.03,3.67l-.02-47.94c-2.13,16.39-4.27,32.77-6.42,49.16-4.58.82-6.88,1.18-11.48,1.83-2.27-15.32-4.55-30.65-6.82-45.97,0,15.62-.01,31.23-.02,46.85-6.5.76-9.77,1.05-16.29,1.47v-71.02c9.66-.61,14.49-1.11,24.09-2.48.71,4.17,1.45,9.09,2.2,14.77,1.05,7.07,1.58,10.6,2.63,17.66,1.42-11.29,2.84-22.58,4.25-33.87,9.62-1.67,14.41-2.7,23.91-5.14Z"/><path fill="#f7cc49" transform="translate(0 0)" d="m2993.73,1059.77c0,9.99-.24,17.06-.71,21.21-.48,4.15-1.97,7.93-4.48,11.29-2.51,3.36-5.9,5.87-10.16,7.44-4.26,1.57-9.23,2.09-14.88,1.45-5.36-.61-10.17-2.16-14.42-4.58-4.25-2.42-7.66-5.67-10.23-9.66-2.57-3.98-4.1-8.1-4.59-12.3-.49-4.2-.73-11.41-.73-21.65v-17.01c0-9.99.23-17.01.7-21.07.47-4.06,1.94-7.54,4.41-10.49,2.47-2.95,5.82-4.96,10.04-6.12,4.23-1.16,9.16-1.36,14.82-.73,5.36.6,10.19,1.88,14.47,3.9,4.28,2.02,7.73,4.77,10.34,8.33,2.61,3.56,4.17,7.37,4.66,11.47.5,4.1.75,11.27.75,21.5v17.01Zm-26.14-34.15c0-4.63-.26-7.61-.77-8.95-.52-1.34-1.58-2.09-3.19-2.28-1.36-.15-2.4.24-3.12,1.2-.72.96-1.08,3.99-1.08,9.11v46.43c0,5.77.24,9.36.71,10.77.47,1.41,1.58,2.22,3.31,2.42,1.77.2,2.91-.46,3.4-1.97.5-1.5.74-5.18.74-11.04v-45.69Z"/><path fill="#f7cc49" transform="translate(0 0)" d="m3061.59,994.92c0,33.14,0,66.28,0,99.42-9.03,1.91-13.57,2.69-22.69,3.92-4.53-14.56-9.05-29.12-13.55-43.68v45.2c-8.73.78-13.11,1.02-21.86,1.17v-99.42c8.75-.16,13.13-.39,21.86-1.17,4.85,14.38,9.72,28.75,14.6,43.11v-44.77c8.69-1.2,13.03-1.95,21.64-3.78Z"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-btn" id="nav-games" onclick="goTo('games')" style="position:relative">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="12 22 12 12"/><path d="M3.27 6.96 12 12.01l8.73-5.05"/></svg>
+      <span class="nav-label">Giochi</span>
+      <span class="nav-games-dot" id="nav-games-dot"></span>
+    </button>
+    <button class="nav-btn" id="nav-profile" onclick="goTo('profile')">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profilo</span>
+    </button>
+  </nav>
 <script>
-  /* ===== NAVIGATION ===== */
-  const gamePages = ['shotquest','shotiq','kings','beerpong','flipcup','obbligo'];
-  const navPages  = ['home','menu','games','book','profile'];
-  // profilo presente: per ora è uno stato di sessione (la persistenza vera arriverà col backend).
-  // Senza profilo reale → pagina d'ingresso, mai un profilo vuoto.
-  let profileCreated = false;
-
-  function goTo(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + page).classList.add('active');
-    const navTarget = gamePages.includes(page) ? 'games' : ((page === 'carta' || page === 'offerte') ? 'menu' : page);
-    const navBtn = document.getElementById('nav-' + navTarget);
-    if (navBtn) navBtn.classList.add('active');
-    // entrando nei giochi, ripristina la posizione (resta sullo stesso gioco al ritorno)
-    if (page === 'games') {
-      if (typeof gamesRender === 'function') gamesRender();
-      const sc = document.getElementById('games-scroll');
-      if (sc) {
-        sc.scrollTop = gamesScrollTop;
-        // re-imposta al frame successivo: su alcuni browser lo scroll-snap
-        // riazzera la posizione subito dopo il render
-        requestAnimationFrame(function() {
-          sc.scrollTop = gamesScrollTop;
-          if (typeof updateGamesBg === 'function') updateGamesBg();
-        });
-      }
-    }
-    if (page === 'book') {
-      document.getElementById('book-step2').style.display = 'none';
-      document.getElementById('book-step3').style.display = 'none';
-      document.getElementById('book-step-pick').style.display = 'none';
-      if (currentBooking) {
-        document.getElementById('ba-table').textContent = currentBooking.table;
-        document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
-        document.getElementById('ba-type').textContent = currentBooking.type;
-        document.getElementById('ba-nome').textContent = currentBooking.nome;
-        document.getElementById('book-active').style.display = 'flex';
-        document.getElementById('book-step1').style.display = 'none';
-        bookRenderFill(currentBooking.table);
-        bookUpdateMinimap(currentBooking.table);
-      } else {
-        document.getElementById('book-active').style.display = 'none';
-        document.getElementById('book-step1').style.display = 'flex';
-      }
-    }
-    // nascondi card-fab nella carta, nelle pagine giochi e nella pagina storia
-    const fab = document.getElementById('card-fab').parentElement;
-    if (page === 'carta' || page === 'games' || page === 'story' || gamePages.includes(page)) fab.classList.add('hidden');
-    else fab.classList.remove('hidden');
-    // bollino STORIA: visibile nella home e nel menu
-    const storyFab = document.getElementById('story-fab-wrap');
-    if (storyFab) storyFab.classList.toggle('hidden', page !== 'home' && page !== 'menu');
-    // FAB salva profilo: nascosto navigando (riattivato solo entrando in modifica)
-    const saveFab = document.getElementById('profile-save-fab-wrap');
-    if (saveFab) saveFab.classList.add('hidden');
-    // offerte: visibili solo a chi ha un account
-    if (page === 'offerte') offerteGate();
-    // menu: riallinea prezzi e disponibilità col database
-    if (page === 'menu' && typeof camonSyncMenu === 'function') camonSyncMenu();
-    // aggiorna saldo/storico entrando in menu o carta
-    if (page === 'menu' || page === 'carta') {
-      if (typeof renderWallet === 'function') renderWallet();
-    }
-    if (page === 'home') {
-      homeUpdateStatus();
-      homeUpdateTile();
-    }
-    if (page === 'shotquest') {
-      sqSetupReset();
-    }
-    if (page === 'shotiq') {
-      siqEnter();
-    }
-    if (page === 'obbligo') {
-      obbligoReset();
-    }
-    if (page === 'headsup') {
-      headsEnter();
-    }
-    if (page === 'cantastorie') {
-      csEnter();
-    }
-    if (page === 'raffica') {
-      raEnter();
-    }
-    if (page === 'profile') {
-      profEnter();
-    }
-    if (page === 'story') {
-      storyRender();
-    } else {
-      storyStopTimer();
-    }
-    if (page === 'spina-demo') {
-      spinaInit();
-    }
-  }
-  function goBack() { goTo('home'); }
-
-
   /* ===== SETTINGS DRAWER ===== */
   document.querySelector('.hamburger').addEventListener('click', function() {
     this.classList.toggle('open');
@@ -5600,6 +5573,202 @@
     }, 300);
   }
 
+  /* ===== OFFERTE: accesso riservato agli iscritti ===== */
+  function offerteGate() {
+    const bloccato = !profHasProfile();
+    const lista = document.getElementById('offerte-list');
+    const gate  = document.getElementById('offerte-locked');
+    if (lista) lista.style.display = bloccato ? 'none' : 'flex';
+    if (gate)  gate.style.display  = bloccato ? 'flex' : 'none';
+  }
+
+  /* ===== OFFERTE INFINITE SCROLL ===== */
+  (function() {
+    const track = document.querySelector('.offers-auto-scroll');
+    if (!track) return;
+    // Duplicate cards for seamless infinite loop
+    const clone = track.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    // Merge clone's children into track (so animation covers 50% = original set)
+    Array.from(clone.children).forEach(function(child) {
+      track.appendChild(child.cloneNode(true));
+    });
+
+  })();
+
+  // Copia il background-image dai hiw-card alle hero delle info-page (stessa immagine, piena opacità)
+  (function syncInfoHeroBg() {
+    const map = [
+      { card: 'info-social', hero: 'page-info-social' },
+      { card: 'info-games',  hero: 'page-info-games'  },
+      { card: 'info-spina',  hero: 'page-info-spina'  },
+    ];
+    map.forEach(function(m) {
+      const card = document.querySelector('[onclick="goTo(\'' + m.card + '\')"] .hiw-card-bg');
+      const hero = document.querySelector('#' + m.hero + ' .info-page-hero');
+      if (card && hero) {
+        const bg = card.style.backgroundImage;
+        if (bg) {
+          hero.style.backgroundImage = bg;
+          hero.style.backgroundSize = 'cover';
+          hero.style.backgroundPosition = 'center';
+          hero.style.background = ''; // rimuovi il gradient inline
+          hero.style.backgroundImage = bg; // riapplica dopo il reset
+        }
+      }
+    });
+  })();
+
+</script>
+<script>
+  /* ===== HOME: il gesto fa avanzare il video, poi si scorre ===== */
+  (function () {
+    const video    = document.getElementById('homeVideo');
+    const scroller = document.querySelector('#page-home .scroll-area');
+    if (!video || !scroller) return;
+
+    /* px di gesto necessari per percorrere tutto il video */
+    const PX_PER_SECOND = 180;
+    /* inseguimento morbido del tempo target (piu' basso = piu' dolce) */
+    const EASING = 0.14;
+
+    let scrubRange = 0;   /* px totali del gesto */
+    let progress   = 0;   /* 0..scrubRange */
+    let locked     = true;
+    let targetTime = 0;
+    let rafId      = null;
+    let touchY     = null;
+
+    function setup() {
+      const d = video.duration;
+      if (!d || !isFinite(d)) return;
+      scrubRange = Math.max(d * PX_PER_SECOND, 600);
+    }
+
+    function advance(delta) {
+      progress = Math.min(Math.max(progress + delta, 0), scrubRange);
+      const d = video.duration;
+      if (d && isFinite(d)) {
+        targetTime = (progress / scrubRange) * d;
+        if (rafId === null) rafId = requestAnimationFrame(animate);
+      }
+      /* sbloccato solo a video finito */
+      locked = progress < scrubRange;
+    }
+
+    function animate() {
+      const d = video.duration;
+      if (!d || !isFinite(d)) { rafId = null; return; }
+      const diff = targetTime - video.currentTime;
+      if (Math.abs(diff) < 0.015) {
+        rafId = null;
+        return;
+      }
+      if (video.readyState >= 2 && !video.seeking) {
+        video.currentTime += diff * EASING;
+      }
+      rafId = requestAnimationFrame(animate);
+    }
+
+    /* Il blocco vale finche' il video non e' completo. Tornando in cima
+       si rientra nella fase video e il gesto lo manda all'indietro. */
+    function shouldLock(delta) {
+      if (locked) return true;
+      return delta < 0 && scroller.scrollTop <= 0;
+    }
+
+    scroller.addEventListener('wheel', function (e) {
+      if (!scrubRange) return;
+      if (!shouldLock(e.deltaY)) return;
+      e.preventDefault();
+      advance(e.deltaY);
+    }, { passive: false });
+
+    scroller.addEventListener('touchstart', function (e) {
+      touchY = e.touches[0].clientY;
+    }, { passive: true });
+
+    scroller.addEventListener('touchmove', function (e) {
+      if (!scrubRange || touchY === null) return;
+      const y = e.touches[0].clientY;
+      const delta = touchY - y;          /* swipe verso l'alto = avanti */
+      if (!shouldLock(delta)) { touchY = y; return; }
+      e.preventDefault();
+      touchY = y;
+      advance(delta);
+    }, { passive: false });
+
+    scroller.addEventListener('touchend', function () { touchY = null; }, { passive: true });
+
+    /* ===== Arrivo sotto i loghi: l'header diventa opaco =====
+       Il bordo del foglio resta sempre stondato (vedi .home-sheet). */
+    const sheet  = document.getElementById('homeSheet');
+    const header = document.querySelector('#page-home .home-header');
+    const HEADER_H = 68;   /* 18 padding + 32 logo + 18 padding */
+
+    function updateEdge() {
+      if (!sheet || !header) return;
+      const top = sheet.getBoundingClientRect().top;
+      header.classList.toggle('solid', top <= HEADER_H);
+    }
+
+    scroller.addEventListener('scroll', updateEdge, { passive: true });
+    window.addEventListener('resize', updateEdge);
+    updateEdge();
+
+    window.addEventListener('resize', setup);
+
+    video.pause();
+    if (video.readyState >= 1) setup();
+    else video.addEventListener('loadedmetadata', setup);
+  })();
+</script>
+<script>
+  /* ===== Bottom nav hide on scroll (Instagram-style) ===== */
+  (function () {
+    var nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    var lastY = 0;
+    var ticking = false;
+    var THRESHOLD = 8;
+
+    function onScroll(e) {
+      var el = e.target;
+      if (!el || !el.classList) return;
+      if (!el.classList.contains('scroll-area') &&
+          !el.classList.contains('games-scroll') &&
+          !el.classList.contains('book-scroll') &&
+          !el.classList.contains('settings-scroll')) return;
+
+      var y = el.scrollTop;
+      var delta = y - (el._navLastY || 0);
+      el._navLastY = y;
+
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(function () {
+          ticking = false;
+          if (delta > THRESHOLD) {
+            nav.classList.add('nav-shrink');
+          } else if (delta < -THRESHOLD) {
+            nav.classList.remove('nav-shrink');
+          }
+        });
+      }
+    }
+
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+
+    var orig = window.goTo;
+    if (orig) {
+      window.goTo = function () {
+        nav.classList.remove('nav-shrink');
+        return orig.apply(this, arguments);
+      };
+    }
+  })();
+</script>
+<script>
   /* ===== PRENOTAZIONE ===== */
   let bookType = null;
 
@@ -7096,6 +7265,55 @@
     btn.addEventListener('pointercancel', stop);
   })();
 
+  /* ===== SVG: hit-area + tap delegation per tavoli su iOS ===== */
+  (function () {
+    var ns = 'http://www.w3.org/2000/svg';
+    var hitBoxes = {
+      T1:{x:163,y:50,w:46,h:42}, T2:{x:249,y:50,w:46,h:42},
+      T3:{x:155,y:112,w:62,h:30}, T4:{x:241,y:112,w:62,h:30}, T5:{x:325,y:112,w:62,h:30},
+      T6:{x:240,y:158,w:64,h:70},
+      T7:{x:152,y:173,w:48,h:32}, T8:{x:344,y:173,w:48,h:32},
+      T9:{x:163,y:240,w:46,h:42}, T10:{x:249,y:240,w:46,h:42}, T11:{x:333,y:240,w:46,h:42}
+    };
+    function addHitAreas(prefix) {
+      Object.keys(hitBoxes).forEach(function(t) {
+        var g = document.getElementById(prefix + t);
+        if (!g || g.querySelector('.svg-hit')) return;
+        var b = hitBoxes[t];
+        var r = document.createElementNS(ns, 'rect');
+        r.setAttribute('class','svg-hit');
+        r.setAttribute('x', b.x); r.setAttribute('y', b.y);
+        r.setAttribute('width', b.w); r.setAttribute('height', b.h);
+        r.setAttribute('fill', 'transparent'); r.setAttribute('stroke', 'none');
+        g.insertBefore(r, g.firstChild);
+      });
+    }
+    addHitAreas('pick-');
+    addHitAreas('map-');
+
+    function findTable(el, prefix) {
+      while (el && el.tagName !== 'svg') {
+        if (el.id && el.id.indexOf(prefix) === 0) return el.id.replace(prefix, '');
+        el = el.parentNode;
+      }
+      return null;
+    }
+    var pickSvg = document.getElementById('book-pick-svg');
+    if (pickSvg) pickSvg.addEventListener('click', function(e) {
+      var t = findTable(e.target, 'pick-');
+      if (t) bookPickTable(t);
+    });
+    var mapSvg = document.getElementById('book-map-svg');
+    if (mapSvg) mapSvg.addEventListener('click', function(e) {
+      var t = findTable(e.target, 'map-');
+      if (t) bookMapSwitch(t);
+    });
+  })();
+</script>
+
+<script>
+</script>
+<script>
   /* ===== SHOT QUEST (stile Picolo) ===== */
   // {0} e {1} = giocatori distinti scelti a caso. Servono almeno 2 giocatori.
   // m = modalità in cui la carta può uscire: soft / hot / estremo (classico = tutte)
@@ -9199,24 +9417,131 @@
   }
 
 
-  /* ===== OFFERTE: accesso riservato agli iscritti ===== */
-  function offerteGate() {
-    const bloccato = !profHasProfile();
-    const lista = document.getElementById('offerte-list');
-    const gate  = document.getElementById('offerte-locked');
-    if (lista) lista.style.display = bloccato ? 'none' : 'flex';
-    if (gate)  gate.style.display  = bloccato ? 'flex' : 'none';
+</script>
+<script>
+  /* Router minimo: cambia solo la pagina attiva.
+     Niente barra in fondo, niente bollini, niente stato dell'account:
+     servono per capire, passo dopo passo, cosa fa ricomparire la
+     fascia in cima. Le destinazioni non ancora presenti (menu, carta,
+     prenota, profilo, giochi) riportano alla home. */
+  /* Su iOS un tocco su un <div> a volte non genera il click finche' la
+     pagina non ha almeno un ascoltatore di tocco: questo lo garantisce. */
+  document.addEventListener('touchstart', function () {}, { passive: true });
+
+  var storico = ['home'];
+
+  /* Giochi con una pagina propria: aperti dalla lista, tengono acceso
+     il pulsante Giochi nella barra. */
+  var gamePages = ['shotquest','shotiq','kings','beerpong','flipcup','obbligo'];
+
+  function mostra(page) {
+    var el = document.getElementById('page-' + page);
+    if (!el) return false;
+    document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+    el.classList.add('active');
+    /* Il pulsante acceso segue la pagina: offerte e le schede info
+       restano sotto Home, che e' da dove ci si arriva. */
+    /* Come nell'app: carta e offerte stanno sotto Menu, i giochi con
+       pagina propria sotto Giochi, le schede info sotto Home. */
+    var nav = (page === 'carta' || page === 'offerte') ? 'menu'
+            : (page.indexOf('info-') === 0) ? 'home'
+            : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
+            : page;
+    document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
+    var btn = document.getElementById('nav-' + nav);
+    if (btn) btn.classList.add('active');
+    window.scrollTo(0, 0);
+
+    /* La lista giochi si costruisce da sola e ricorda dove eri:
+       al ritorno da un gioco resti sulla stessa slide. */
+    if (page === 'games' && typeof gamesRender === 'function') {
+      gamesRender();
+      var sc = document.getElementById('games-scroll');
+      if (sc) {
+        sc.scrollTop = gamesScrollTop;
+        requestAnimationFrame(function () {
+          sc.scrollTop = gamesScrollTop;
+          if (typeof updateGamesBg === 'function') updateGamesBg();
+        });
+      }
+    }
+    /* Entrando nel menu: prezzi e disponibilita' dal database, piu'
+       il saldo della carta. */
+    if (page === 'menu') {
+      if (typeof camonSyncMenu === 'function') camonSyncMenu();
+      if (typeof renderWallet === 'function') renderWallet();
+    }
+    if (page === 'carta' && typeof renderWallet === 'function') renderWallet();
+
+    /* Prenotazione: si riparte dal primo passo, a meno che non ci sia
+       gia' un tavolo prenotato, nel qual caso si mostra il riepilogo. */
+    if (page === 'book') {
+      ['book-step2','book-step3','book-step-pick'].forEach(function (id) {
+        var s = document.getElementById(id);
+        if (s) s.style.display = 'none';
+      });
+      var attiva = document.getElementById('book-active');
+      var passo1 = document.getElementById('book-step1');
+      if (typeof currentBooking !== 'undefined' && currentBooking) {
+        document.getElementById('ba-table').textContent = currentBooking.table;
+        document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
+        document.getElementById('ba-type').textContent = currentBooking.type;
+        document.getElementById('ba-nome').textContent = currentBooking.nome;
+        if (attiva) attiva.style.display = 'flex';
+        if (passo1) passo1.style.display = 'none';
+        if (typeof bookRenderFill === 'function') bookRenderFill(currentBooking.table);
+        if (typeof bookUpdateMinimap === 'function') bookUpdateMinimap(currentBooking.table);
+      } else {
+        if (attiva) attiva.style.display = 'none';
+        if (passo1) passo1.style.display = 'flex';
+      }
+    }
+    /* Bollini flottanti, come nell'app: la carta sparisce dove darebbe
+       fastidio, la storia si vede solo in home e nel menu, il salva
+       profilo resta nascosto finche' non si entra in modifica. */
+    var cardFab = document.getElementById('card-fab');
+    var cardWrap = cardFab && cardFab.parentElement;
+    var nascondiCarta = (page === 'carta' || page === 'games' || page === 'story' ||
+                         (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0));
+    if (cardWrap) cardWrap.classList.toggle('hidden', nascondiCarta);
+    var storyFab = document.getElementById('story-fab-wrap');
+    if (storyFab) storyFab.classList.toggle('hidden', page !== 'home' && page !== 'menu');
+    var saveFab = document.getElementById('profile-save-fab-wrap');
+    if (saveFab) saveFab.classList.add('hidden');
+
+    if (page === 'offerte' && typeof offerteGate === 'function') offerteGate();
+    if (page === 'profile' && typeof profEnter === 'function') profEnter();
+    if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
+    if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
+    if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
+    return true;
   }
 
+  function goTo(page) {
+    if (!mostra(page)) { mostra('home'); storico = ['home']; return; }
+    storico.push(page);
+  }
+
+  function goBack() {
+    storico.pop();
+    mostra(storico[storico.length - 1] || 'home');
+  }
+</script>
+<script>
+  /* stato di accesso: lo usano profilo, storia e la colla Supabase */
+  let profileCreated = false;
   /* ===== PROFILE TABS ===== */
   function profHasProfile() { return profileCreated; }
 
   // mostra/nasconde il bollino carta vs FAB salva mentre si modifica il profilo
   function profSetEditFab(editing) {
-    const card = document.getElementById('card-fab').parentElement;
+    /* I bollini flottanti (carta, salva) non sono ancora in questa prova:
+       se mancano si prosegue senza toccarli. */
+    const cardFab = document.getElementById('card-fab');
+    const card = cardFab && cardFab.parentElement;
     const save = document.getElementById('profile-save-fab-wrap');
-    if (editing) { card.classList.add('hidden'); save.classList.remove('hidden'); }
-    else { card.classList.remove('hidden'); save.classList.add('hidden'); }
+    if (card) card.classList.toggle('hidden', !!editing);
+    if (save) save.classList.toggle('hidden', !editing);
   }
 
   // scelta della schermata giusta entrando nel profilo
@@ -9583,369 +9908,7 @@
   window.addEventListener('load', onboardStart);
 
 
-  /* ===== OFFERTE INFINITE SCROLL ===== */
-  (function() {
-    const track = document.querySelector('.offers-auto-scroll');
-    if (!track) return;
-    // Duplicate cards for seamless infinite loop
-    const clone = track.cloneNode(true);
-    clone.setAttribute('aria-hidden', 'true');
-    // Merge clone's children into track (so animation covers 50% = original set)
-    Array.from(clone.children).forEach(function(child) {
-      track.appendChild(child.cloneNode(true));
-    });
-
-  })();
-
-  // Copia il background-image dai hiw-card alle hero delle info-page (stessa immagine, piena opacità)
-  (function syncInfoHeroBg() {
-    const map = [
-      { card: 'info-social', hero: 'page-info-social' },
-      { card: 'info-games',  hero: 'page-info-games'  },
-      { card: 'info-spina',  hero: 'page-info-spina'  },
-    ];
-    map.forEach(function(m) {
-      const card = document.querySelector('[onclick="goTo(\'' + m.card + '\')"] .hiw-card-bg');
-      const hero = document.querySelector('#' + m.hero + ' .info-page-hero');
-      if (card && hero) {
-        const bg = card.style.backgroundImage;
-        if (bg) {
-          hero.style.backgroundImage = bg;
-          hero.style.backgroundSize = 'cover';
-          hero.style.backgroundPosition = 'center';
-          hero.style.background = ''; // rimuovi il gradient inline
-          hero.style.backgroundImage = bg; // riapplica dopo il reset
-        }
-      }
-    });
-  })();
-
 </script>
-
-  
-
-
-  <!-- ═══════════ ONBOARDING OVERLAY ═══════════ -->
-  <div id="onboard-overlay" style="display:none">
-    <div id="onboard-highlight"></div>
-    <div id="onboard-tooltip">
-      <div id="onboard-counter">1 / 5</div>
-      <div id="onboard-title"></div>
-      <div id="onboard-text"></div>
-      <div id="onboard-actions">
-        <button id="onboard-skip" onclick="onboardEnd()">Salta</button>
-        <button id="onboard-next" onclick="onboardNext()">Avanti</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-  /* ===== HOME: il gesto fa avanzare il video, poi si scorre ===== */
-  (function () {
-    const video    = document.getElementById('homeVideo');
-    const scroller = document.querySelector('#page-home .scroll-area');
-    if (!video || !scroller) return;
-
-    /* px di gesto necessari per percorrere tutto il video */
-    const PX_PER_SECOND = 180;
-    /* inseguimento morbido del tempo target (piu' basso = piu' dolce) */
-    const EASING = 0.14;
-
-    let scrubRange = 0;   /* px totali del gesto */
-    let progress   = 0;   /* 0..scrubRange */
-    let locked     = true;
-    let targetTime = 0;
-    let rafId      = null;
-    let touchY     = null;
-
-    function setup() {
-      const d = video.duration;
-      if (!d || !isFinite(d)) return;
-      scrubRange = Math.max(d * PX_PER_SECOND, 600);
-    }
-
-    function advance(delta) {
-      progress = Math.min(Math.max(progress + delta, 0), scrubRange);
-      const d = video.duration;
-      if (d && isFinite(d)) {
-        targetTime = (progress / scrubRange) * d;
-        if (rafId === null) rafId = requestAnimationFrame(animate);
-      }
-      /* sbloccato solo a video finito */
-      locked = progress < scrubRange;
-    }
-
-    function animate() {
-      const d = video.duration;
-      if (!d || !isFinite(d)) { rafId = null; return; }
-      const diff = targetTime - video.currentTime;
-      if (Math.abs(diff) < 0.015) {
-        rafId = null;
-        return;
-      }
-      if (video.readyState >= 2 && !video.seeking) {
-        video.currentTime += diff * EASING;
-      }
-      rafId = requestAnimationFrame(animate);
-    }
-
-    /* Il blocco vale finche' il video non e' completo. Tornando in cima
-       si rientra nella fase video e il gesto lo manda all'indietro. */
-    function shouldLock(delta) {
-      if (locked) return true;
-      return delta < 0 && scroller.scrollTop <= 0;
-    }
-
-    scroller.addEventListener('wheel', function (e) {
-      if (!scrubRange) return;
-      if (!shouldLock(e.deltaY)) return;
-      e.preventDefault();
-      advance(e.deltaY);
-    }, { passive: false });
-
-    scroller.addEventListener('touchstart', function (e) {
-      touchY = e.touches[0].clientY;
-    }, { passive: true });
-
-    scroller.addEventListener('touchmove', function (e) {
-      if (!scrubRange || touchY === null) return;
-      const y = e.touches[0].clientY;
-      const delta = touchY - y;          /* swipe verso l'alto = avanti */
-      if (!shouldLock(delta)) { touchY = y; return; }
-      e.preventDefault();
-      touchY = y;
-      advance(delta);
-    }, { passive: false });
-
-    scroller.addEventListener('touchend', function () { touchY = null; }, { passive: true });
-
-    /* ===== Arrivo sotto i loghi: l'header diventa opaco =====
-       Il bordo del foglio resta sempre stondato (vedi .home-sheet). */
-    const sheet  = document.getElementById('homeSheet');
-    const header = document.querySelector('#page-home .home-header');
-    const HEADER_H = 68;   /* 18 padding + 32 logo + 18 padding */
-
-    function updateEdge() {
-      if (!sheet || !header) return;
-      const top = sheet.getBoundingClientRect().top;
-      header.classList.toggle('solid', top <= HEADER_H);
-    }
-
-    scroller.addEventListener('scroll', updateEdge, { passive: true });
-    window.addEventListener('resize', updateEdge);
-    updateEdge();
-
-    window.addEventListener('resize', setup);
-
-    video.pause();
-    if (video.readyState >= 1) setup();
-    else video.addEventListener('loadedmetadata', setup);
-  })();
-</script>
-
-<script>
-  /* ===== SVG: hit-area + tap delegation per tavoli su iOS ===== */
-  (function () {
-    var ns = 'http://www.w3.org/2000/svg';
-    var hitBoxes = {
-      T1:{x:163,y:50,w:46,h:42}, T2:{x:249,y:50,w:46,h:42},
-      T3:{x:155,y:112,w:62,h:30}, T4:{x:241,y:112,w:62,h:30}, T5:{x:325,y:112,w:62,h:30},
-      T6:{x:240,y:158,w:64,h:70},
-      T7:{x:152,y:173,w:48,h:32}, T8:{x:344,y:173,w:48,h:32},
-      T9:{x:163,y:240,w:46,h:42}, T10:{x:249,y:240,w:46,h:42}, T11:{x:333,y:240,w:46,h:42}
-    };
-    function addHitAreas(prefix) {
-      Object.keys(hitBoxes).forEach(function(t) {
-        var g = document.getElementById(prefix + t);
-        if (!g || g.querySelector('.svg-hit')) return;
-        var b = hitBoxes[t];
-        var r = document.createElementNS(ns, 'rect');
-        r.setAttribute('class','svg-hit');
-        r.setAttribute('x', b.x); r.setAttribute('y', b.y);
-        r.setAttribute('width', b.w); r.setAttribute('height', b.h);
-        r.setAttribute('fill', 'transparent'); r.setAttribute('stroke', 'none');
-        g.insertBefore(r, g.firstChild);
-      });
-    }
-    addHitAreas('pick-');
-    addHitAreas('map-');
-
-    function findTable(el, prefix) {
-      while (el && el.tagName !== 'svg') {
-        if (el.id && el.id.indexOf(prefix) === 0) return el.id.replace(prefix, '');
-        el = el.parentNode;
-      }
-      return null;
-    }
-    var pickSvg = document.getElementById('book-pick-svg');
-    if (pickSvg) pickSvg.addEventListener('click', function(e) {
-      var t = findTable(e.target, 'pick-');
-      if (t) bookPickTable(t);
-    });
-    var mapSvg = document.getElementById('book-map-svg');
-    if (mapSvg) mapSvg.addEventListener('click', function(e) {
-      var t = findTable(e.target, 'map-');
-      if (t) bookMapSwitch(t);
-    });
-  })();
-</script>
-
-<script>
-  /* ===== Bottom nav hide on scroll (Instagram-style) ===== */
-  (function () {
-    var nav = document.querySelector('.bottom-nav');
-    if (!nav) return;
-    var lastY = 0;
-    var ticking = false;
-    var THRESHOLD = 8;
-
-    function onScroll(e) {
-      var el = e.target;
-      if (!el || !el.classList) return;
-      if (!el.classList.contains('scroll-area') &&
-          !el.classList.contains('games-scroll') &&
-          !el.classList.contains('book-scroll') &&
-          !el.classList.contains('settings-scroll')) return;
-
-      var y = el.scrollTop;
-      var delta = y - (el._navLastY || 0);
-      el._navLastY = y;
-
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(function () {
-          ticking = false;
-          if (delta > THRESHOLD) {
-            nav.classList.add('nav-shrink');
-          } else if (delta < -THRESHOLD) {
-            nav.classList.remove('nav-shrink');
-          }
-        });
-      }
-    }
-
-    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
-
-    var orig = window.goTo;
-    if (orig) {
-      window.goTo = function () {
-        nav.classList.remove('nav-shrink');
-        return orig.apply(this, arguments);
-      };
-    }
-  })();
-</script>
-
-<script>
-  /* ===== iOS: piano B per le zone sicure =====
-     In modalita' app (icona sulla Home) alcuni iOS riportano le zone
-     sicure come 0 anche se il notch c'e' (bug WebKit noto). Qui si
-     misura il valore reale: se e' 0 pur essendo in modalita' app, si
-     impostano a mano i valori corretti per il modello di telefono. */
-  (function () {
-    if (window.navigator.standalone !== true) return;   // solo icona-Home iOS
-
-    function misuraEnv(prop) {
-      var d = document.createElement('div');
-      d.style.cssText = 'position:fixed;top:0;left:0;width:1px;visibility:hidden;pointer-events:none;height:' + prop + ';';
-      document.documentElement.appendChild(d);
-      var v = d.getBoundingClientRect().height;
-      d.remove();
-      return v;
-    }
-
-    var h = Math.max(screen.width, screen.height);   // altezza schermo in punti
-    var conNotch = h >= 812;                          // da iPhone X in poi
-    var mappaTop = { 812:44, 844:47, 852:59, 874:62, 896:48, 926:47, 932:59, 956:62 };
-
-    /* I due lati vanno trattati SEPARATAMENTE: su iOS capita che il valore
-       superiore arrivi corretto e quello inferiore torni 0. Controllando solo
-       il primo, la barra Home restava scoperta. */
-    /* Lo spazio di sicurezza serve solo dove la finestra dell'app TOCCA
-       davvero il bordo dello schermo. Non si puo' disegnare fuori dalla
-       finestra, quindi si misura dove iOS l'ha collocata e si protegge
-       solo il lato che confina con notch o barra Home. */
-    function adatta() {
-      var root = document.documentElement;
-      var verticale = window.innerHeight > window.innerWidth;
-      var schermo = Math.max(screen.width, screen.height);
-      var inizio = window.screenY || window.screenTop || 0;   // offset dal bordo alto
-      var fine = inizio + window.innerHeight;
-      var envT = misuraEnv('env(safe-area-inset-top,0px)');
-      var envB = misuraEnv('env(safe-area-inset-bottom,0px)');
-      var barra = mappaTop[schermo] || 47;
-
-      /* Regola decisiva: la finestra e' alta come lo schermo?
-         - SI  -> occupa tutto: sopra c'e' il notch/barra di stato e sotto la
-                  barra Home, quindi vanno protetti entrambi i lati.
-         - NO  -> iOS l'ha gia' incassata: basta un minimo di respiro.
-         Si usa solo il confronto altezza finestra / schermo, che e' un dato
-         affidabile (screenY su iOS non lo e'). */
-      var pieno = window.innerHeight >= schermo - 4;
-      var sopra = 0, sotto = 0;
-      if (verticale) {
-        if (pieno) {
-          sopra = Math.max(envT, barra);
-          sotto = Math.max(envB, conNotch ? 34 : 0);
-        } else {
-          /* finestra piu' corta dello schermo: iOS l'ancora in alto, quindi
-             sopra serve lo spazio del notch, mentre la barra Home cade FUORI
-             dalla finestra -> in fondo nessun margine, cosi' la barra CAM ON
-             scende il piu' possibile e non resta appesa. */
-          sopra = envT > 0 ? envT : barra;
-          sotto = 0;
-        }
-      }
-
-      root.style.setProperty('--safe-top', sopra + 'px');
-      root.style.setProperty('--safe-bottom', sotto + 'px');
-      // fuori dalla finestra non si dipinge: nessun allungamento artificiale
-      root.style.setProperty('--vp-gap', '0px');
-      root.style.setProperty('--app-h', '100%');
-    }
-    adatta();
-    window.addEventListener('resize', adatta);
-    window.addEventListener('orientationchange', function () { setTimeout(adatta, 250); });
-  })();
-
-  /* ===== DIAGNOSTICA (temporanea) =====
-     Scrive i valori reali nella riga della versione, in fondo alle
-     impostazioni: serve a capire se iOS sta dando all'app tutto lo
-     schermo o solo l'area sicura. */
-  (function () {
-    function misura(prop) {
-      var d = document.createElement('div');
-      d.style.cssText = 'position:fixed;top:0;left:0;width:1px;visibility:hidden;pointer-events:none;height:' + prop + ';';
-      document.documentElement.appendChild(d);
-      var v = Math.round(d.getBoundingClientRect().height);
-      d.remove();
-      return v;
-    }
-    function aggiorna() {
-      var el = document.getElementById('settings-version');
-      if (!el) return;
-      var app = document.getElementById('app');
-      var appH = app ? Math.round(app.getBoundingClientRect().height) : 0;
-      var cs = getComputedStyle(document.documentElement);
-      el.textContent = 'v1.1.1 · SY ' + (window.screenY || window.screenTop || 0) +
-                       ' · SA ' + misura('env(safe-area-inset-top,0px)') +
-                       '/' + misura('env(safe-area-inset-bottom,0px)') +
-                       ' · USA ' + cs.getPropertyValue('--safe-top').trim() +
-                       '/' + cs.getPropertyValue('--safe-bottom').trim() +
-                       ' · IN ' + window.innerHeight +
-                       ' · APP ' + appH +
-                       ' · SCR ' + Math.max(screen.width, screen.height) +
-                       ' · ST ' + (window.navigator.standalone === true ? 'SI' : 'NO');
-    }
-    setInterval(aggiorna, 1500);
-    window.addEventListener('resize', aggiorna);
-    aggiorna();
-  })();
-</script>
-
-<!-- ============================================================
-     SUPABASE · client (modulo) — carica la libreria e crea sb
-     ============================================================ -->
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -9960,10 +9923,6 @@
   if (typeof window.camonAuthInit === 'function') window.camonAuthInit();
   else window.addEventListener('camon-init-ready', function () { window.camonAuthInit(); }, { once: true });
 </script>
-
-<!-- ============================================================
-     SUPABASE · collante con l'app (script classico)
-     ============================================================ -->
 <script>
   /* Traduce i messaggi d'errore di Supabase in italiano leggibile */
   function camonAuthErr(msg) {
@@ -10181,6 +10140,5 @@
   if (window.sb) camonAuthInit();
   else window.dispatchEvent(new Event('camon-init-ready'));
 </script>
-
 </body>
 </html>

@@ -13,12 +13,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CamonHome">
+<meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-<link rel="manifest" href="home-only-manifest.json">
-<title>CAMON Home</title>
+<link rel="manifest" href="manifest.json">
+<title>CAMON — Bar Torino</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   /* ===== RESET & BASE ===== */
@@ -3230,10 +3230,13 @@
 
 
   /* ============================================================
-     PASSO 2 · home cliccabile, ancora senza barra in fondo
+     IMPIANTO DELLA PAGINA
      Il documento scorre normalmente: niente shell fissa, niente
      altezze calcolate, niente tabella di misure per modello.
      Lo sfondo arriva ai bordi, il contenuto sta dentro env().
+     E' questo che tiene l'app a tutto schermo su iPhone: la versione
+     precedente ancorava #app in basso e imponeva --safe-top da una
+     tabella per modello, lasciando scoperta una fascia in cima.
      ============================================================ */
   html, body {
     height: auto;
@@ -3301,29 +3304,9 @@
     flex-direction: column;
   }
 
-  /* Contrassegno di versione: serve solo a capire se il telefono sta
-     mostrando il file aggiornato o una copia vecchia in cache. */
-  .prova-versione {
-    position: fixed; left: 8px; z-index: 99999;
-    top: calc(env(safe-area-inset-top, 0px) + 6px);
-    padding: 3px 8px; border-radius: 8px;
-    background: rgba(255,0,0,0.85); color: #fff;
-    font: 700 11px/1.2 monospace; letter-spacing: 0.5px;
-    pointer-events: none;
-  }
-
-  /* Riga rossa a tutta altezza: se tocca sopra e sotto, l'app
-     occupa davvero tutto lo schermo. */
-  .prova-riga-rossa {
-    position: fixed; top: 0; bottom: 0; left: 50%;
-    width: 4px; margin-left: -2px;
-    background: red; z-index: 99999; pointer-events: none;
-  }
 </style>
 </head>
 <body>
-<div class="prova-riga-rossa"></div>
-<div class="prova-versione">v7 · completa</div>
   <div class="pwa-banner" id="pwa-banner">
     <div class="pwa-banner-ico">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
@@ -5453,6 +5436,22 @@
 
 </div>
 
+
+  
+
+
+  <!-- ═══════════ ONBOARDING OVERLAY ═══════════ -->
+  <div id="onboard-overlay" style="display:none">
+    <div id="onboard-highlight"></div>
+    <div id="onboard-tooltip">
+      <div id="onboard-counter">1 / 5</div>
+      <div id="onboard-title"></div>
+      <div id="onboard-text"></div>
+      <div id="onboard-actions">
+        <button id="onboard-skip" onclick="onboardEnd()">Salta</button>
+        <button id="onboard-next" onclick="onboardNext()">Avanti</button>
+    </div>
+  </div>
   <nav class="bottom-nav">
     <button class="nav-btn" id="nav-book" onclick="goTo('book')">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
