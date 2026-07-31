@@ -1680,23 +1680,42 @@
   .otp-demo b { color:#f7cc49; letter-spacing:1px; }
 
   /* ---- FAB salva profilo (sostituisce il bollino carta in modifica) ---- */
-  .profile-save-fab-wrap {
-    position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 430px; z-index: 210;
-    display: flex; justify-content: flex-end; padding: 0 16px;
-    pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+  /* Il bollino verde di salvataggio e' stato tolto: si salva col tasto
+     in fondo al modulo, e uscendo viene chiesto se salvare. */
+
+  /* Richiesta di salvataggio all'uscita dalle modifiche */
+  .prof-chiedi-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    display: none; align-items: flex-end; justify-content: center;
   }
-  .profile-save-fab-wrap.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) scale(0.8); }
-  .profile-save-fab {
-    pointer-events: auto; width: 60px; height: 60px; border-radius: 50%;
-    background: #4CD964; border: 2px solid #111;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 1px; cursor: pointer; -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 0 4px rgba(76,217,100,0.18);
-    transition: transform 0.15s; animation: fabPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  .prof-chiedi-overlay.open { display: flex; }
+  .prof-chiedi {
+    width: 100%; max-width: 430px;
+    background: #1c1c1e;
+    border-radius: 24px 24px 0 0;
+    padding: 26px 22px calc(26px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
   }
-  .profile-save-fab:active { transform: scale(0.92); }
-  .profile-save-fab-lbl { font-family: 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 1px; color: #08310f; line-height: 1; }
+  .prof-chiedi h3 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+    letter-spacing: 1px; color: #fff; margin: 0 0 6px;
+  }
+  .prof-chiedi p {
+    font-family: 'Manrope', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.55); line-height: 1.5; margin: 0 0 20px;
+  }
+  .prof-chiedi button {
+    display: block; width: 100%; border: none; border-radius: 14px;
+    padding: 15px; margin-bottom: 9px; cursor: pointer;
+    font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 800;
+    letter-spacing: 0.4px; -webkit-tap-highlight-color: transparent;
+  }
+  .prof-chiedi button:active { transform: scale(0.98); }
+  .prof-chiedi-salva { background: #f7cc49; color: #1a1400; }
+  .prof-chiedi-esci { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+  .prof-chiedi-annulla { background: none; color: rgba(255,255,255,0.4); margin-bottom: 0 !important; }
 
   .gd-header {
     display: flex;
@@ -3222,7 +3241,6 @@
   .bottom-nav { bottom: calc(16px + var(--safe-bottom) - var(--vp-gap)); }
   .card-fab-wrap,
   .story-fab-wrap { bottom: calc(100px + var(--safe-bottom) - var(--vp-gap)); }
-  .profile-save-fab-wrap,
   .offers-fab-wrap { bottom: calc(84px + var(--safe-bottom) - var(--vp-gap)); }
   .pwa-banner { bottom: calc(72px + var(--safe-bottom) - var(--vp-gap)); }
   .add-guest-sheet { bottom: calc(0px - var(--vp-gap)); }
@@ -3302,6 +3320,10 @@
   #page-profile.active {
     display: flex !important;
     flex-direction: column;
+    /* Il profilo non ha una .scroll-area, quindi partiva dal bordo
+       superiore dello schermo: il tasto matita finiva sotto l'orologio
+       e non si riusciva a premerlo. */
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
   /* ============================================================
@@ -4764,7 +4786,7 @@
     <!-- FORM MODIFICA (nascosto) -->
     <div id="prof-edit-section" style="flex:1;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:96px">
       <div class="prof-photo-wrap" style="position:relative" onclick="document.getElementById('prof-file').click()">
-        <button onclick="event.stopPropagation();profShowPreview()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
+        <button onclick="event.stopPropagation();profEsciDalleModifiche()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
         <img class="prof-photo-img" id="prof-photo-img" src="" alt="">
@@ -5474,11 +5496,15 @@
   </div>
 
   <!-- FAB SALVA PROFILO (compare solo in modifica profilo, al posto del bollino carta) -->
-  <div class="profile-save-fab-wrap hidden" id="profile-save-fab-wrap">
-    <button class="profile-save-fab" onclick="profSave()" aria-label="Salva profilo">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#08310f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span class="profile-save-fab-lbl">SALVA</span>
-    </button>
+  <!-- Uscendo dalle modifiche senza aver salvato -->
+  <div class="prof-chiedi-overlay" id="prof-chiedi-overlay">
+    <div class="prof-chiedi">
+      <h3>MODIFICHE NON SALVATE</h3>
+      <p>Hai cambiato qualcosa nel profilo. Vuoi salvare prima di uscire?</p>
+      <button class="prof-chiedi-salva" onclick="profEsciSalvando()">Salva ed esci</button>
+      <button class="prof-chiedi-esci" onclick="profEsciSenzaSalvare()">Esci senza salvare</button>
+      <button class="prof-chiedi-annulla" onclick="profChiudiRichiesta()">Annulla</button>
+    </div>
   </div>
 
   <!-- BOLLINO STORIA = SHOT (solo home, lato sinistro) -->
@@ -9563,8 +9589,6 @@
     if (cardWrap) cardWrap.classList.toggle('hidden', nascondiCarta);
     var storyFab = document.getElementById('story-fab-wrap');
     if (storyFab) storyFab.classList.toggle('hidden', page !== 'home' && page !== 'menu');
-    var saveFab = document.getElementById('profile-save-fab-wrap');
-    if (saveFab) saveFab.classList.add('hidden');
 
     if (page === 'offerte' && typeof offerteGate === 'function') offerteGate();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
@@ -9592,13 +9616,11 @@
 
   // mostra/nasconde il bollino carta vs FAB salva mentre si modifica il profilo
   function profSetEditFab(editing) {
-    /* I bollini flottanti (carta, salva) non sono ancora in questa prova:
-       se mancano si prosegue senza toccarli. */
+    /* Mentre si modifica il profilo il bollino della carta si toglie
+       di mezzo. Il salvataggio sta in fondo al modulo. */
     const cardFab = document.getElementById('card-fab');
     const card = cardFab && cardFab.parentElement;
-    const save = document.getElementById('profile-save-fab-wrap');
     if (card) card.classList.toggle('hidden', !!editing);
-    if (save) save.classList.toggle('hidden', !editing);
   }
 
   // scelta della schermata giusta entrando nel profilo
@@ -9624,6 +9646,93 @@
     document.getElementById('prof-edit-section').style.display = 'block';
     profBioCount(document.getElementById('edit-bio'));
     profSetEditFab(true);
+    profIstantanea = profLeggiModulo();
+  }
+
+  /* ===== MODIFICHE NON SALVATE =====
+     Al posto del bollino verde: si salva col tasto in fondo, e se si
+     esce con qualcosa di cambiato viene chiesto cosa fare. */
+  const PROF_CAMPI = ['edit-nome','edit-cognome','edit-age','edit-bio',
+                      'edit-lavoro','edit-studio','edit-lingue'];
+  const PROF_CHIP  = ['chips-sesso','chips-erasmus','chips-stasera','chips-interessi'];
+  let profIstantanea = null;
+
+  /* Fotografia del modulo: campi di testo piu' le scelte accese.
+     Si conservano i valori, non solo una firma, perche' uscendo senza
+     salvare vanno rimessi com'erano: ricaricarli dal database non
+     basta, e' asincrono e senza sessione non farebbe nulla. */
+  function profLeggiModulo() {
+    const stato = { campi: {}, chip: {} };
+    PROF_CAMPI.forEach(function (id) {
+      const el = document.getElementById(id);
+      stato.campi[id] = el ? el.value : '';
+    });
+    PROF_CHIP.forEach(function (id) {
+      const riga = document.getElementById(id);
+      stato.chip[id] = riga
+        ? [].slice.call(riga.querySelectorAll('.prof-chip.active'))
+            .map(function (c) { return c.textContent.trim(); })
+        : [];
+    });
+    return stato;
+  }
+
+  function profFirma(stato) {
+    if (!stato) return '';
+    return PROF_CAMPI.map(function (id) { return stato.campi[id]; }).join('|') +
+           '#' + PROF_CHIP.map(function (id) { return stato.chip[id].join('·'); }).join('|');
+  }
+
+  function profScriviModulo(stato) {
+    if (!stato) return;
+    PROF_CAMPI.forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = stato.campi[id];
+    });
+    PROF_CHIP.forEach(function (id) {
+      const riga = document.getElementById(id);
+      if (!riga) return;
+      riga.querySelectorAll('.prof-chip').forEach(function (c) {
+        c.classList.toggle('active', stato.chip[id].indexOf(c.textContent.trim()) >= 0);
+      });
+    });
+    const bio = document.getElementById('edit-bio');
+    if (bio && typeof profBioCount === 'function') profBioCount(bio);
+  }
+
+  function profCiSonoModifiche() {
+    return profIstantanea !== null && profFirma(profLeggiModulo()) !== profFirma(profIstantanea);
+  }
+
+  function profEsciDalleModifiche() {
+    if (profCiSonoModifiche()) {
+      document.getElementById('prof-chiedi-overlay').classList.add('open');
+      return;
+    }
+    profIstantanea = null;
+    profShowPreview();
+  }
+
+  function profChiudiRichiesta() {
+    document.getElementById('prof-chiedi-overlay').classList.remove('open');
+  }
+
+  function profEsciSenzaSalvare() {
+    profChiudiRichiesta();
+    /* Si rimettono i valori di partenza: senza questo, rientrando in
+       modifica si ritroverebbe il testo scartato, che diventerebbe la
+       nuova base e finirebbe salvato al giro dopo. */
+    profScriviModulo(profIstantanea);
+    profIstantanea = null;
+    profShowPreview();
+  }
+
+  async function profEsciSalvando() {
+    /* L'istantanea la azzera profSave a salvataggio riuscito: se i
+       controlli bocciano qualcosa si resta nelle modifiche e il
+       promemoria deve continuare a valere. */
+    profChiudiRichiesta();
+    await profSave();
   }
 
   function profShowPreview() {
@@ -9870,6 +9979,7 @@
       try { await camonSaveProfile(); }
       catch (e) { console.warn('Salvataggio profilo non riuscito:', e); }
     }
+    profIstantanea = null;   // salvato: uscendo non c'e' piu' nulla da chiedere
     profShowPreview(); alert('Profilo salvato! Buona serata 🎉');
   }
 
