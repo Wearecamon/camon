@@ -2,6 +2,11 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+<!-- iOS tiene in cache la pagina del bookmark con molta insistenza:
+     senza questo si continua a vedere la versione precedente. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <!-- Stessa impostazione della pagina di prova che funziona:
      niente maximum-scale, barra di stato trasparente, viewport-fit=cover -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -3269,6 +3274,17 @@
      tutta larghezza e il testo prende il respiro in fondo. */
   .info-page-content { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px) !important; }
 
+  /* Contrassegno di versione: serve solo a capire se il telefono sta
+     mostrando il file aggiornato o una copia vecchia in cache. */
+  .prova-versione {
+    position: fixed; left: 8px; z-index: 99999;
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    padding: 3px 8px; border-radius: 8px;
+    background: rgba(255,0,0,0.85); color: #fff;
+    font: 700 11px/1.2 monospace; letter-spacing: 0.5px;
+    pointer-events: none;
+  }
+
   /* Riga rossa a tutta altezza: se tocca sopra e sotto, l'app
      occupa davvero tutto lo schermo. */
   .prova-riga-rossa {
@@ -3280,6 +3296,7 @@
 </head>
 <body>
 <div class="prova-riga-rossa"></div>
+<div class="prova-versione">v2 · cliccabile</div>
   <div class="page active" id="page-home">
     <div class="scroll-area">
 
@@ -3621,6 +3638,10 @@
      servono per capire, passo dopo passo, cosa fa ricomparire la
      fascia in cima. Le destinazioni non ancora presenti (menu, carta,
      prenota, profilo, giochi) riportano alla home. */
+  /* Su iOS un tocco su un <div> a volte non genera il click finche' la
+     pagina non ha almeno un ascoltatore di tocco: questo lo garantisce. */
+  document.addEventListener('touchstart', function () {}, { passive: true });
+
   var storico = ['home'];
 
   function mostra(page) {
