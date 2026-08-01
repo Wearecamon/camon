@@ -5142,17 +5142,31 @@
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#22c55e;scrollbar-width:none;padding:20px">
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 1</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 2</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 3</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 4</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 5</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 6</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 7</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 8</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 9</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
-        <div style="background:#fff;border-radius:16px;padding:18px;cursor:pointer"><div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#111">Card 10</div><div style="font-family:'Manrope',sans-serif;font-size:12px;color:#666;margin-top:4px">Descrizione della card</div></div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:0 18px 90px">
+        <div class="book-type-card shared" style="cursor:pointer">
+          <div class="book-type-glow"></div>
+          <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Sociale</div>
+          <div class="book-type-name">TAVOLO<br>CONDIVISO</div>
+          <div class="book-type-desc">Siediti con altri avventori scelti per te. Nuove persone, nuove amicizie — il cuore di CAMON.</div>
+        </div>
+        <div class="book-type-card private" style="cursor:pointer">
+          <div class="book-type-glow"></div>
+          <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Il tuo gruppo</div>
+          <div class="book-type-name">TAVOLO<br>PRIVATO</div>
+          <div class="book-type-desc">Un tavolo riservato solo a te e ai tuoi amici. Nessuno si aggiunge senza il tuo invito.</div>
+        </div>
+        <div class="book-type-card room" style="cursor:pointer">
+          <div class="book-type-glow"></div>
+          <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Premium</div>
+          <div class="book-type-name">STANZA<br>PRIVATA</div>
+          <div class="book-type-desc">Un'esperienza esclusiva per serate speciali. Spazio dedicato, massima privacy, servizio dedicato.</div>
+        </div>
+        <div class="book-type-card invite" style="cursor:pointer">
+          <div class="book-type-glow"></div>
+          <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg> Anonimo</div>
+          <div class="book-type-name">INVITO<br>SEGRETO</div>
+          <div class="book-type-desc">Vuoi conoscere qualcuno? Proponi un tavolo in forma anonima: ci pensiamo noi a chiederglielo. Funziona anche se non è ancora su CAMON.</div>
+        </div>
       </div>
     </div>
   </div>
