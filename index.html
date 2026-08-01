@@ -1155,6 +1155,9 @@
   .book-type-card.invite { border-color:rgba(244,114,182,0.28); background:linear-gradient(135deg,#2a1322,#1a1a1a); }
   .book-type-card.invite .book-type-glow { background:radial-gradient(circle,#F472B6,transparent 70%); }
   .book-type-card.invite .book-type-badge { background:rgba(244,114,182,0.15); color:#F472B6; }
+  .book-type-card.event { border-color:rgba(167,139,250,0.28); background:linear-gradient(135deg,#1e1533,#1a1a1a); }
+  .book-type-card.event .book-type-glow { background:radial-gradient(circle,#A78BFA,transparent 70%); }
+  .book-type-card.event .book-type-badge { background:rgba(167,139,250,0.15); color:#A78BFA; }
 
   /* form invito anonimo */
   .invite-concept { display:flex; gap:11px; align-items:flex-start; background:rgba(244,114,182,0.1); border:1px solid rgba(244,114,182,0.25); border-radius:12px; padding:13px 15px; margin-bottom:4px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.72); line-height:1.5; }
@@ -5236,6 +5239,12 @@
           <div class="book-type-name">STANZA<br>PRIVATA</div>
           <div class="book-type-desc">Un'esperienza esclusiva per serate speciali. Spazio dedicato, massima privacy, servizio dedicato.</div>
         </div>
+        <div class="book-type-card event" style="cursor:pointer">
+          <div class="book-type-glow"></div>
+          <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Eventi</div>
+          <div class="book-type-name">FESTA<br>PRIVATA</div>
+          <div class="book-type-desc">Laurea, compleanno o festa a tema: organizziamo la serata su misura per te e i tuoi invitati.</div>
+        </div>
         <div class="book-type-card invite" style="cursor:pointer">
           <div class="book-type-glow"></div>
           <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg> Anonimo</div>
@@ -5385,7 +5394,7 @@
           </div>
 
 
-          <!-- Occasione (solo stanza privata) -->
+          <!-- Occasione (stanza privata e festa privata) -->
           <div class="bfield" id="bfield-occasione" style="display:none">
             <label>Occasione</label>
             <select id="book-occasione">
@@ -5996,6 +6005,12 @@
       personeOpts: ['2','3','4','5','6','8','10','12+'],
       showOccasione: true
     },
+    event: {
+      ico: '🎉', name: 'FESTA PRIVATA', desc: 'Laurea, compleanno o festa a tema',
+      personeLbl: 'Quanti invitati?',
+      personeOpts: ['10','15','20','30','40','50+'],
+      showOccasione: true
+    },
     invite: {
       ico: '💌', name: 'INVITO SEGRETO', desc: 'Proposta anonima a qualcuno',
       personeLbl: '', personeOpts: [], showOccasione: false, isInvite: true
@@ -6035,6 +6050,7 @@
     const scColors = {
       room:   ['rgba(247,204,73,0.35)','rgba(247,204,73,0.07)'],
       shared: ['rgba(100,200,255,0.25)','rgba(100,200,255,0.06)'],
+      event:  ['rgba(167,139,250,0.3)','rgba(167,139,250,0.07)'],
       invite: ['rgba(244,114,182,0.3)','rgba(244,114,182,0.07)']
     };
     const scol = scColors[type] || ['rgba(255,255,255,0.12)','rgba(255,255,255,0.04)'];
@@ -6516,7 +6532,7 @@
       svg.appendChild(g);
     }
 
-    var typeLabel = {shared:'Tavolo Condiviso', private:'Tavolo Privato', room:'Stanza Privata', invite:'Invito Segreto'};
+    var typeLabel = {shared:'Tavolo Condiviso', private:'Tavolo Privato', room:'Stanza Privata', event:'Festa Privata', invite:'Invito Segreto'};
     currentBooking = { table: assigned, nome: p.nome, data: p.data, ora: p.ora, dataFmt: p.dataFmt, type: typeLabel[bookType] || bookType, persone: p.personeNum, bookType: bookType };
 
     bookAddedGuests = companionSlots
