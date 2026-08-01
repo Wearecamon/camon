@@ -3420,6 +3420,20 @@
     font-family: 'Manrope', sans-serif;
     font-size: 13px; color: rgba(255,255,255,0.55); max-width: 260px;
   }
+  #ruota-schermo .ruota-icos { display:flex; align-items:center; gap:10px; font-size:44px; }
+  #ruota-schermo .ruota-icos .ruota-sep { font-size:22px; color:rgba(255,255,255,0.2); }
+  #ruota-schermo .ruota-lock-svg { width:40px; height:40px; }
+  #ruota-schermo .ruota-alert {
+    background:rgba(247,204,73,0.12); border:1px solid rgba(247,204,73,0.35);
+    border-radius:14px; padding:14px 18px; margin-top:4px; max-width:280px;
+  }
+  #ruota-schermo .ruota-alert-title {
+    font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; color:#f7cc49;
+  }
+  #ruota-schermo .ruota-alert-sub {
+    font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.65);
+    line-height:1.5; margin-top:4px;
+  }
 
   /* Si accende solo su schermo tattile coricato: la soglia di altezza
      e il tipo di puntatore tengono fuori i monitor. */
@@ -3460,13 +3474,37 @@
         var sub   = document.getElementById('ruota-sub');
         if (!ico) return;
         if (suHeadsUp) {
-          ico.textContent   = '🔒';
+          ico.className = 'ruota-icos';
+          ico.innerHTML =
+            '<span style="animation:ruotaCenno 1.8s ease-in-out infinite;display:inline-block">📱</span>'
+            + '<span class="ruota-sep">+</span>'
+            + '<svg class="ruota-lock-svg" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+            +   '<rect x="5" y="11" width="14" height="10" rx="2"/>'
+            +   '<path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
+            +   '<path d="M17 3.5 A9 9 0 0 1 20.5 7" stroke-width="1.6"/>'
+            +   '<polyline points="19 2 21 4 19 6" stroke-width="1.6"/>'
+            + '</svg>';
           testo.textContent = 'BLOCCA LA ROTAZIONE';
-          sub.innerHTML     = 'Gira il telefono in verticale, attiva il <b>blocco rotazione</b> dal centro di controllo, poi rigiralo in orizzontale.';
+          sub.innerHTML = '';
+          sub.className = '';
+          var alert = document.createElement('div');
+          alert.className = 'ruota-alert';
+          alert.innerHTML =
+            '<div class="ruota-alert-title">🔒 Come fare</div>'
+            + '<div class="ruota-alert-sub">'
+            + '1. Gira il telefono in <b>verticale</b><br>'
+            + '2. Apri il <b>Centro di Controllo</b> e attiva il blocco rotazione 🔒<br>'
+            + '3. Rigiralo in <b>orizzontale</b> — lo schermo resterà fermo'
+            + '</div>';
+          sub.parentNode.insertBefore(alert, sub.nextSibling);
         } else {
-          ico.textContent   = '📱';
+          ico.className = 'ruota-ico';
+          ico.textContent = '📱';
+          ico.innerHTML = '📱';
           testo.textContent = 'GIRA IL TELEFONO';
-          sub.textContent   = 'CAMON si usa in verticale.';
+          sub.textContent = 'CAMON si usa in verticale.';
+          var old = document.querySelector('#ruota-schermo .ruota-alert');
+          if (old) old.remove();
         }
       }
       window.addEventListener('orientationchange', aggiornaRuota);
