@@ -42,6 +42,8 @@
        Impostati da uno script; qui i valori neutri per browser/desktop. */
     --vp-gap: 0px;
     --app-h: 100%;
+    --nav-clearance: calc(64px + 16px + 16px + var(--safe-bottom));
+
   }
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
@@ -149,7 +151,7 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-bottom: calc(96px + var(--safe-bottom));
+    padding-bottom: var(--nav-clearance);
     -webkit-overflow-scrolling: touch;
   }
   .scroll-area::-webkit-scrollbar { display: none; }
@@ -224,7 +226,7 @@
   .settings-head-title { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1.5px; color:#fff; }
   .settings-head-title span { color:#f7cc49; }
   .settings-close { background:rgba(255,255,255,0.07); border:none; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; -webkit-tap-highlight-color:transparent; }
-  .settings-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:10px 0 calc(40px + var(--safe-bottom)); }
+  .settings-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:10px 0 var(--nav-clearance); }
   .settings-scroll::-webkit-scrollbar { display:none; }
   .settings-section-lbl { font-family:'Manrope',sans-serif; font-size:9px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,0.28); padding:18px 20px 8px; }
   .settings-row {
@@ -704,7 +706,7 @@
   }
 
   #page-carta { background:#111; }
-  .carta-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:6px 18px calc(90px + var(--safe-bottom)); }
+  .carta-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:6px 18px var(--nav-clearance); }
   .carta-scroll::-webkit-scrollbar { display:none; }
 
   /* carta virtuale */
@@ -906,7 +908,7 @@
   .games-rotation-note { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.4); padding:2px 20px 10px; line-height:1.45; }
   .games-rotation-note b { color:rgba(255,255,255,0.7); }
   .games-grid { display:grid; grid-template-columns:1fr 1fr; gap:11px; padding:6px 16px 8px; }
-  .games-grid:last-child { padding-bottom:110px; }
+  .games-grid:last-child { padding-bottom:var(--nav-clearance); }
   .game-card { position:relative; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:15px 14px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:border-color 0.15s, transform 0.1s; }
   .game-card:active { transform:scale(0.97); }
   .game-card:hover { border-color:rgba(247,204,73,0.3); }
@@ -1289,7 +1291,7 @@
   .book-pick-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:1px; }
   .book-pick-title span { color:#f7cc49; }
   .book-pick-sub { font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.4); padding:4px 22px 0; }
-  .book-pick-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 22px calc(96px + var(--safe-bottom)); }
+  .book-pick-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 22px var(--nav-clearance); }
   .book-pick-scroll::-webkit-scrollbar { display:none; }
   .book-pick-map { border-radius:16px; overflow:hidden; border:1px solid rgba(247,204,73,0.25); margin-bottom:16px; }
   .book-pick-map svg { display:block; width:100%; transform:rotate(180deg); }
@@ -1351,7 +1353,7 @@
   ======================================== */
   #page-profile { background: #111; }
 
-  .prof-scroll { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding-bottom:96px; }
+  .prof-scroll { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding-bottom:var(--nav-clearance); }
   .prof-scroll::-webkit-scrollbar { display:none; }
 
   /* photo area */
@@ -1607,7 +1609,7 @@
 
   /* ---- Storia = shot gratis ---- */
   #page-story { background:#1A0A1E; }
-  .story-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:4px 22px calc(110px + var(--safe-bottom)); scrollbar-width:none; }
+  .story-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:4px 22px var(--nav-clearance); scrollbar-width:none; }
   .story-body::-webkit-scrollbar { display:none; }
   .story-hero { position:relative; text-align:center; padding:14px 0 22px; }
   .story-hero-emoji { font-size:64px; line-height:1; filter:drop-shadow(0 8px 20px rgba(221,42,123,0.45)); }
@@ -3305,7 +3307,7 @@
     height: auto !important;
     max-height: none !important;
     padding-top: env(safe-area-inset-top, 0px) !important;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important;
+    padding-bottom: var(--nav-clearance) !important;
   }
 
   /* Centratura su schermi larghi, senza vincolare l'altezza. */
@@ -3313,11 +3315,11 @@
 
   /* Le pagine info non hanno .scroll-area: l'immagine in cima resta a
      tutta larghezza e il testo prende il respiro in fondo. */
-  .info-page-content { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 118px) !important; }
+  .info-page-content { padding-bottom: var(--nav-clearance) !important; }
 
   /* Nemmeno la prenotazione usa .scroll-area: senza questo l'ultima
      scheda finiva dietro la barra in fondo. */
-  #page-book .book-scroll { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important; }
+  #page-book .book-scroll { padding-bottom: var(--nav-clearance) !important; }
 
   /* La pagina giochi e' fatta apposta per occupare tutto lo schermo:
      le slide scattano una a una dentro il suo scroller. Nel flusso
@@ -3750,7 +3752,7 @@
       </div>
 
       <!-- Prossimi eventi -->
-      <section class="section-block" style="padding-bottom:100px">
+      <section class="section-block" style="padding-bottom:var(--nav-clearance)">
         <div class="section-eyebrow">Prossimi eventi</div>
         <div class="event-card">
           <div class="event-date"><div class="event-day">14</div><div class="event-month">GIU</div></div>
@@ -4839,7 +4841,7 @@
     </div>
 
     <!-- FORM MODIFICA (nascosto) -->
-    <div id="prof-edit-section" style="flex:1;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:96px">
+    <div id="prof-edit-section" style="flex:1;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:var(--nav-clearance)">
       <div class="prof-photo-wrap" style="position:relative" onclick="document.getElementById('prof-file').click()">
         <button class="prof-tondo-alto" onclick="event.stopPropagation();profEsciDalleModifiche()" style="position:absolute;top:16px;left:16px;background:#f7cc49;border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:background 0.15s" onmousedown="this.style.background='#d4900a'" onmouseup="this.style.background='#f7cc49'">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -5143,7 +5145,7 @@
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:20px">
-      <div style="display:flex;flex-direction:column;gap:12px;padding:0 0 110px">
+      <div style="display:flex;flex-direction:column;gap:12px;padding:0 0 var(--nav-clearance)">
         <div class="book-type-card shared" style="cursor:pointer">
           <div class="book-type-glow"></div>
           <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Sociale</div>
