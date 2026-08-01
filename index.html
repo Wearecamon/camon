@@ -10206,11 +10206,6 @@
     }, { passive: true });
   });
 
-  /* Via d'uscita sempre disponibile: un tocco sullo sfondo scuro
-     chiude il tour, cosi' non si puo' restare intrappolati. */
-  document.getElementById('onboard-overlay').addEventListener('click', function (e) {
-    if (e.target === this) onboardEnd();
-  });
 
   window.addEventListener('load', onboardStart);
 
