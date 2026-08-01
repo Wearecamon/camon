@@ -9657,6 +9657,26 @@
     storico.pop();
     mostra(storico[storico.length - 1] || 'home');
   }
+
+  (function() {
+    var sx0 = 0, sy0 = 0, swiping = false;
+    document.addEventListener('touchstart', function(e) {
+      var t = e.touches[0];
+      if (t.clientX < 30) { sx0 = t.clientX; sy0 = t.clientY; swiping = true; }
+    }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+      if (!swiping) return;
+      var dx = e.touches[0].clientX - sx0;
+      var dy = Math.abs(e.touches[0].clientY - sy0);
+      if (dy > 40) swiping = false;
+    }, { passive: true });
+    document.addEventListener('touchend', function(e) {
+      if (!swiping) return;
+      swiping = false;
+      var dx = e.changedTouches[0].clientX - sx0;
+      if (dx > 80) goBack();
+    }, { passive: true });
+  })();
 </script>
 <script>
   /* stato di accesso: lo usano profilo, storia e la colla Supabase */
