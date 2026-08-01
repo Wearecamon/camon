@@ -1451,6 +1451,19 @@
 
   /* ---- Heads Up! (nome in fronte) ---- */
   #page-headsup { background:#0A2540; }
+  .hu-rotate { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 28px; text-align:center; gap:0; }
+  .hu-rotate-icon { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .hu-rotate-arrow { animation: hu-spin 1.8s ease-in-out infinite; }
+  @keyframes hu-spin { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(-180deg)} }
+  .hu-rotate-title { font-family:'Bebas Neue',sans-serif; font-size:34px; letter-spacing:1px; color:#fff; }
+  .hu-rotate-sub { font-family:'Manrope',sans-serif; font-size:14px; color:rgba(255,255,255,0.5); margin-top:6px; }
+  .hu-rotate-steps { display:flex; flex-direction:column; gap:0; width:100%; margin-top:24px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; overflow:hidden; }
+  .hu-rotate-step { display:flex; align-items:center; gap:14px; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.07); font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.65); line-height:1.45; text-align:left; }
+  .hu-rotate-step:last-child { border-bottom:none; }
+  .hu-rotate-step b { color:#fff; }
+  .hu-rotate-step-n { flex-shrink:0; width:24px; height:24px; border-radius:8px; background:#5DA9FF; color:#0A2540; font-family:'Bebas Neue',sans-serif; font-size:14px; display:flex; align-items:center; justify-content:center; }
+  .hu-rotate-btn { margin-top:22px; width:100%; padding:16px; border:none; border-radius:14px; background:#5DA9FF; color:#0A2540; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .hu-rotate-skip { margin-top:10px; background:none; border:none; font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.3); cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .hu-modes { flex:1; min-height:0; display:flex; flex-direction:column; padding:16px 22px 130px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .hu-intro { font-family:'Manrope',sans-serif; font-size:12.5px; line-height:1.5; color:rgba(255,255,255,0.75); text-align:center; margin-bottom:18px; }
   .hu-intro b { font-weight:800; }
@@ -4478,6 +4491,32 @@
         <button type="submit" class="hu-go-btn">Mostra in fronte →</button>
       </form>
       <button class="hu-back-link" onclick="huShowModes()">← Indietro</button>
+    </div>
+
+    <!-- 2b. istruzione rotazione -->
+    <div class="hu-rotate" id="hu-rotate" style="display:none">
+      <div class="hu-rotate-icon">
+        <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#5DA9FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M9 21h6"/></svg>
+        <svg class="hu-rotate-arrow" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA9FF" stroke-width="1.8" stroke-linecap="round"><path d="M4 4v6h6"/><path d="M4 10A9 9 0 1 0 7 4.1"/></svg>
+      </div>
+      <div class="hu-rotate-title">Gira il telefono</div>
+      <div class="hu-rotate-sub">Questo gioco si usa in orizzontale.</div>
+      <div class="hu-rotate-steps">
+        <div class="hu-rotate-step">
+          <div class="hu-rotate-step-n">1</div>
+          <div>Scorri verso il basso dal bordo superiore del telefono</div>
+        </div>
+        <div class="hu-rotate-step">
+          <div class="hu-rotate-step-n">2</div>
+          <div>Disattiva il <b>blocco rotazione</b> 🔒</div>
+        </div>
+        <div class="hu-rotate-step">
+          <div class="hu-rotate-step-n">3</div>
+          <div>Gira il telefono di lato — poi torna qui</div>
+        </div>
+      </div>
+      <button class="hu-rotate-btn" onclick="huRotateReady()">Sono pronto →</button>
+      <button class="hu-rotate-skip" onclick="huRotateReady()">Salta, gioco lo stesso in verticale</button>
     </div>
 
     <!-- 3. parola gigante in fronte (tocca lo schermo per la prossima) -->
@@ -8692,7 +8731,7 @@
   let huActiveCatName = '';
 
   function huHideAll() {
-    ['hu-modes','hu-write','hu-stage'].forEach(function(id){
+    ['hu-modes','hu-write','hu-rotate','hu-stage'].forEach(function(id){
       document.getElementById(id).style.display = 'none';
     });
   }
@@ -8743,7 +8782,25 @@
     if (pool.idx >= pool.queue.length) { pool.queue.sort(function(){ return Math.random()-0.5; }); pool.idx = 0; }
     return pool.queue[pool.idx++];
   }
+  function huRotateReady() {
+    localStorage.setItem('hu_rotate_seen', '1');
+    huHideAll();
+    document.getElementById('hu-stage').style.display = 'flex';
+    huLayoutStage();
+    document.getElementById('hu-cat-tag').textContent = huPendingTag || '';
+    const word = document.getElementById('hu-word');
+    word.innerHTML = '<span id="hu-word-inner" style="display:inline-block;max-width:100%">' + huEscape(huPendingWord || '') + '</span>';
+    requestAnimationFrame(function(){ requestAnimationFrame(huFit); });
+  }
+  var huPendingWord = '', huPendingTag = '';
   function huShowWord(text, tag) {
+    huPendingWord = text; huPendingTag = tag || '';
+    if (!localStorage.getItem('hu_rotate_seen')) {
+      huScreen = 'rotate';
+      huHideAll();
+      document.getElementById('hu-rotate').style.display = 'flex';
+      return;
+    }
     huScreen = 'stage';
     huHideAll();
     document.getElementById('hu-stage').style.display = 'flex';
