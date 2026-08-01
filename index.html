@@ -5239,7 +5239,7 @@
           <div class="book-type-name">STANZA<br>PRIVATA</div>
           <div class="book-type-desc">Un'esperienza esclusiva per serate speciali. Spazio dedicato, massima privacy, servizio dedicato.</div>
         </div>
-        <div class="book-type-card event" style="cursor:pointer">
+        <div class="book-type-card event" style="cursor:pointer" onclick="goTo('event')">
           <div class="book-type-glow"></div>
           <div class="book-type-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Eventi</div>
           <div class="book-type-name">FESTA<br>PRIVATA</div>
@@ -5254,6 +5254,199 @@
       </div>
     </div>
   </div>
+
+  <!-- ============================
+       FESTA PRIVATA — richiesta
+  ============================ -->
+  <div class="page" id="page-event">
+
+    <!-- FORM -->
+    <div id="event-form-wrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-step-head">
+        <button class="book-back" onclick="goTo('test')">←</button>
+        <div class="book-step-title">FESTA <span>PRIVATA</span></div>
+      </div>
+      <div class="book-scroll">
+        <div class="book-form-new">
+
+          <div class="book-summary-card" id="event-summary-card" style="border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.07)">
+            <div class="book-summary-ico">🎉</div>
+            <div>
+              <div class="book-summary-name">FESTA PRIVATA</div>
+              <div class="book-summary-desc">Ti richiamiamo per definire i dettagli</div>
+            </div>
+          </div>
+
+          <!-- Date disponibili -->
+          <div class="bfield">
+            <label>Scegli una data disponibile</label>
+            <div class="people-grid" id="event-dates"></div>
+          </div>
+
+          <!-- Orario -->
+          <div class="bfield">
+            <label>Orario indicativo</label>
+            <div class="people-grid" id="event-times"></div>
+          </div>
+
+          <!-- Occasione -->
+          <div class="bfield">
+            <label>Occasione</label>
+            <select id="event-occasione">
+              <option value="">Seleziona occasione</option>
+              <option>Festa di laurea 🎓</option>
+              <option>Compleanno 🎂</option>
+              <option>Anniversario 💑</option>
+              <option>Serata aziendale 💼</option>
+              <option>Addio al celibato/nubilato 🎉</option>
+              <option>Altro</option>
+            </select>
+          </div>
+
+          <!-- Invitati -->
+          <div class="bfield">
+            <label>Quanti invitati?</label>
+            <div class="people-grid" id="event-guests"></div>
+          </div>
+
+          <!-- Dati personali -->
+          <div class="bfield">
+            <label>Nome e cognome</label>
+            <input id="event-nome" type="text" placeholder="Mario Rossi" autocomplete="name">
+          </div>
+          <div class="bfield">
+            <label>Telefono</label>
+            <input id="event-tel" type="tel" placeholder="333 000 0000" autocomplete="tel">
+          </div>
+          <div class="bfield">
+            <label>Email</label>
+            <input id="event-email" type="email" placeholder="mario@email.com" autocomplete="email">
+          </div>
+
+          <div class="bfield">
+            <label>Note (opzionale)</label>
+            <textarea id="event-note" placeholder="Torta, musica, allestimento, allergie..."></textarea>
+          </div>
+
+          <div id="event-error" style="display:none;font-family:'Manrope',sans-serif;font-size:12.5px;color:#FF6B61;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.35);border-radius:12px;padding:12px 14px"></div>
+
+          <button class="book-confirm-btn" onclick="eventSubmit()">Invia richiesta</button>
+          <div style="font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.5">
+            Non è una prenotazione confermata: ti ricontattiamo entro 24h per definire i dettagli.
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFERMA INVIO -->
+    <div id="event-done" style="display:none;flex-direction:column;flex:1;align-items:center;justify-content:center;text-align:center;padding:32px 30px">
+      <div style="font-size:60px;line-height:1">🎉</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;color:#fff;line-height:1;margin-top:16px">RICHIESTA<br><span style="color:#A78BFA">INVIATA</span></div>
+      <div style="font-family:'Manrope',sans-serif;font-size:14px;color:rgba(255,255,255,0.55);line-height:1.55;margin-top:14px;max-width:300px" id="event-done-sub"></div>
+      <button class="book-confirm-btn" style="max-width:320px;margin-top:28px" onclick="goTo('test')">Torna alle prenotazioni</button>
+    </div>
+  </div>
+  <script>
+    /* ===== FESTA PRIVATA — richiesta con richiamo ===== */
+    var eventSel = { data: null, dataFmt: '', ora: null, invitati: null };
+
+    /* Il lunedi' il locale e' chiuso: quelle date non si propongono. */
+    function eventBuildDates() {
+      var grid = document.getElementById('event-dates');
+      if (!grid) return;
+      grid.innerHTML = '';
+      var d = new Date();
+      d.setHours(0, 0, 0, 0);
+      var messe = 0;
+      /* si parte da domani: una festa non si organizza per stasera */
+      d.setDate(d.getDate() + 1);
+      while (messe < 12) {
+        if (d.getDay() !== 1) {
+          var iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          var lbl = d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+          eventAddPill(grid, lbl, iso, 'data', lbl);
+          messe++;
+        }
+        d.setDate(d.getDate() + 1);
+      }
+    }
+
+    function eventAddPill(grid, label, value, campo, fmt) {
+      var b = document.createElement('button');
+      b.className = 'people-pill';
+      b.type = 'button';
+      b.textContent = label;
+      b.onclick = function () {
+        grid.querySelectorAll('.people-pill').forEach(function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        eventSel[campo] = value;
+        if (campo === 'data') eventSel.dataFmt = fmt || label;
+        eventHideError();
+      };
+      grid.appendChild(b);
+    }
+
+    function eventBuildFixed() {
+      var t = document.getElementById('event-times');
+      var g = document.getElementById('event-guests');
+      if (!t || !g) return;
+      t.innerHTML = ''; g.innerHTML = '';
+      ['19:00', '20:00', '21:00', '22:00'].forEach(function (o) { eventAddPill(t, o, o, 'ora'); });
+      ['10', '15', '20', '30', '40', '50+'].forEach(function (o) { eventAddPill(g, o, o, 'invitati'); });
+    }
+
+    function eventShowError(msg) {
+      var e = document.getElementById('event-error');
+      e.textContent = msg;
+      e.style.display = 'block';
+      e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function eventHideError() {
+      var e = document.getElementById('event-error');
+      if (e) e.style.display = 'none';
+    }
+
+    /* Rientrando si riparte dal modulo pulito, non dalla conferma
+       della richiesta precedente. */
+    function eventEnter() {
+      eventSel = { data: null, dataFmt: '', ora: null, invitati: null };
+      document.getElementById('event-form-wrap').style.display = 'flex';
+      document.getElementById('event-done').style.display = 'none';
+      ['event-nome', 'event-tel', 'event-email', 'event-note'].forEach(function (id) {
+        var el = document.getElementById(id); if (el) el.value = '';
+      });
+      document.getElementById('event-occasione').value = '';
+      eventHideError();
+      eventBuildDates();
+      eventBuildFixed();
+    }
+
+    function eventSubmit() {
+      var nome  = document.getElementById('event-nome').value.trim();
+      var tel   = document.getElementById('event-tel').value.trim();
+      var email = document.getElementById('event-email').value.trim();
+      var occ   = document.getElementById('event-occasione').value;
+
+      if (!eventSel.data)      return eventShowError('Scegli una data disponibile.');
+      if (!eventSel.ora)       return eventShowError('Scegli un orario indicativo.');
+      if (!occ)                return eventShowError('Seleziona l’occasione.');
+      if (!eventSel.invitati)  return eventShowError('Indica quanti invitati sarete.');
+      if (nome.length < 3)     return eventShowError('Inserisci nome e cognome.');
+      /* almeno 8 cifre: filtra i numeri palesemente incompleti */
+      if (tel.replace(/\D/g, '').length < 8) return eventShowError('Inserisci un numero di telefono valido.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return eventShowError('Inserisci un’email valida.');
+
+      eventHideError();
+      document.getElementById('event-done-sub').innerHTML =
+        '<b style="color:#fff">' + eventSel.dataFmt + '</b> alle <b style="color:#fff">' + eventSel.ora + '</b>'
+        + ' · ' + eventSel.invitati + ' invitati<br><br>'
+        + 'Ti richiamiamo al <b style="color:#fff">' + tel + '</b> entro 24h per confermare i dettagli.';
+      document.getElementById('event-form-wrap').style.display = 'none';
+      document.getElementById('event-done').style.display = 'flex';
+      window.scrollTo(0, 0);
+    }
+  </script>
 
   <div class="page" id="page-book" style="display:none">
 
@@ -9770,6 +9963,7 @@
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
+    if (page === 'event' && typeof eventEnter === 'function') eventEnter();
 
     /* Due passaggi: subito, e dopo un attimo perche' alcune fasce
        cambiano altezza quando i loro contenuti finiscono di disporsi. */
