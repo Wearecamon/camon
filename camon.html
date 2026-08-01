@@ -9604,6 +9604,19 @@
   });
   window.addEventListener('load', function () { setTimeout(adattaTesteFisse, 120); });
 
+  /* Se una fascia cambia altezza dopo la misura — i caratteri che
+     finiscono di caricarsi, iOS che comunica le zone sicure in ritardo —
+     lo spazio riservato resterebbe quello vecchio, lasciando un vuoto o
+     coprendo il contenuto. Cosi' invece si riallinea da solo. */
+  if (typeof ResizeObserver === 'function') {
+    var osservatore = new ResizeObserver(function () { adattaTesteFisse(); });
+    document.querySelectorAll('.testa-fissa').forEach(function (t) {
+      /* riquadro esterno: la zona sicura arriva come spaziatura interna
+         e il riquadro interno non cambierebbe, quindi non scatterebbe */
+      osservatore.observe(t, { box: 'border-box' });
+    });
+  }
+
   function mostra(page) {
     var el = document.getElementById('page-' + page);
     if (!el) return false;
