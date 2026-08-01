@@ -5135,6 +5135,16 @@
   </div>
 
 
+  <div class="page" id="page-test" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div class="testa-fissa" style="background:#fff">
+      <div style="padding:12px 22px 0">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;color:#111">NUOVA <span style="color:#f7cc49">PAGINA</span></div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#22c55e;scrollbar-width:none;padding:20px">
+    </div>
+  </div>
+
   <div class="page" id="page-book" style="display:none">
 
     <!-- PRENOTAZIONE ATTIVA (visibile solo se c'è una prenotazione in corso) -->
@@ -5541,6 +5551,10 @@
   </div>
 
   <nav class="bottom-nav">
+    <button class="nav-btn" id="nav-test" onclick="goTo('test')">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="nav-label">Test</span>
+    </button>
     <button class="nav-btn" id="nav-menu" onclick="goTo('menu')">
       <svg class="nav-icon" viewBox="0 0 24 24"><path d="M5 3l7 9 7-9z"/><line x1="12" y1="12" x2="12" y2="19"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
       <span class="nav-label">Menu</span>
