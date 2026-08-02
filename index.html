@@ -10776,9 +10776,15 @@
       if (photoData) { try { localStorage.setItem(camonPhotoKey(user.id), photoData); } catch (e) {} }
     } catch (e) { /* si ignora */ }
 
+    /* L'eta' e' un intero: fuori dai limiti del modulo (18-99) la si
+       scarta, cosi' un valore incoerente non finisce nel database. */
+    const etaNum = parseInt(val('edit-age'), 10);
+    const eta = (etaNum >= 18 && etaNum <= 99) ? etaNum : null;
+
     const row = {
       first_name: val('edit-nome') || null,
       last_name:  val('edit-cognome') || null,
+      age:        eta,
       gender:     sessoEl ? sessoEl.textContent.trim() : null,
       bio:        val('edit-bio') || null,
       languages:  val('edit-lingue') || null,
@@ -10805,6 +10811,7 @@
     const set = (id, v) => { const e = document.getElementById(id); if (e && v != null) e.value = v; };
     set('edit-nome', data.first_name);
     set('edit-cognome', data.last_name);
+    set('edit-age', data.age);
     set('edit-bio', data.bio);
     set('edit-lingue', data.languages);
 
