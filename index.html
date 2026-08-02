@@ -5614,7 +5614,7 @@
       eventBuildFixed();
     }
 
-    function eventSubmit() {
+    async function eventSubmit() {
       var nome  = document.getElementById('event-nome').value.trim();
       var tel   = document.getElementById('event-tel').value.trim();
       var email = document.getElementById('event-email').value.trim();
@@ -5635,6 +5635,39 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return eventShowError('Inserisci un’email valida.');
 
       eventHideError();
+
+      /* La richiesta va salvata davvero: senza database non si puo'
+         dire "ti richiamiamo", perche' nessuno la vedrebbe mai. */
+      var btn = document.querySelector('#event-form-wrap .book-confirm-btn');
+      var testoBtn = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Invio…'; }
+      try {
+        if (!window.sb) throw new Error('offline');
+        var utente = null;
+        try {
+          var ris = await window.sb.auth.getUser();
+          utente = ris && ris.data ? ris.data.user : null;
+        } catch (e) { /* richiesta valida anche senza account */ }
+
+        var esito = await window.sb.from('event_requests').insert({
+          user_id:    utente ? utente.id : null,
+          event_date: eventSel.data,
+          event_time: eventSel.ora,
+          occasion:   occ,
+          mood:       eventSel.mood,
+          guests:     eventSel.invitati,
+          full_name:  nome,
+          phone:      tel,
+          email:      email,
+          notes:      note
+        });
+        if (esito.error) throw esito.error;
+      } catch (e) {
+        if (btn) { btn.disabled = false; btn.textContent = testoBtn; }
+        return eventShowError('Non siamo riusciti a inviare la richiesta. Controlla la connessione e riprova.');
+      }
+      if (btn) { btn.disabled = false; btn.textContent = testoBtn; }
+
       document.getElementById('event-done-sub').innerHTML =
         '<b style="color:#fff">' + eventSel.dataFmt + '</b> alle <b style="color:#fff">' + eventSel.ora + '</b><br>'
         + eventSel.invitati + ' invitati · ' + eventSel.mood + '<br><br>'
