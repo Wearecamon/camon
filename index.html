@@ -10402,9 +10402,16 @@
     btn.disabled = true; btn.textContent = 'Attendi…';
     try {
       if (authMode === 'signup') {
+        /* Il link nell'email deve riportare all'app da cui e' partita
+           l'iscrizione, non al Site URL fisso del progetto Supabase. */
         const { data, error } = await window.sb.auth.signUp({
           email, password: pass,
-          options: { data: { phone: authPhoneNormalize(phone) } }
+          options: {
+            data: { phone: authPhoneNormalize(phone) },
+            emailRedirectTo: location.protocol.startsWith('http')
+              ? location.origin + location.pathname
+              : undefined
+          }
         });
         if (error) throw error;
         if (data.session) {
