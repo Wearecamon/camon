@@ -6169,12 +6169,16 @@
         if (!(mov.data || []).length) {
           h += '<div class="adm-empty">Nessun movimento sul portafoglio.</div>';
         } else {
+          /* gli importi sono sempre positivi: e' "type" a dire se il
+             movimento entra o esce */
           mov.data.forEach(function (t) {
-            var segno = (t.amount_cents || 0) >= 0 ? '+' : '';
+            var entrata = t.type === 'recharge';
             h += '<div class="adm-row">'
-              + '<div class="adm-grow"><div class="adm-name">' + admEsc(t.kind || t.type || 'movimento') + '</div>'
+              + '<div class="adm-grow"><div class="adm-name">'
+              +   admEsc(t.description || (entrata ? 'Ricarica' : 'Consumazione')) + '</div>'
               + '<div class="adm-sub">' + admData(t.created_at) + '</div></div>'
-              + '<div class="adm-amount">' + segno + admEuro(t.amount_cents) + '</div>'
+              + '<div class="adm-amount" style="color:' + (entrata ? '#4CD964' : 'rgba(255,255,255,0.6)') + '">'
+              +   (entrata ? '+' : '−') + admEuro(t.amount_cents) + '</div>'
               + '</div>';
           });
         }
@@ -8025,11 +8029,66 @@
   }
 
   function walletSave() {
+    // con l'account collegato la verita' sta sul server: qui non si
+    // salva nulla, altrimenti al rientro si riprenderebbe un saldo finto
+    if (walletServer) return;
     try {
       localStorage.setItem('camon_balance', cardBalance.toFixed(2));
       localStorage.setItem('camon_tx', JSON.stringify(cardTx));
     } catch (e) {}
   }
+
+  /* ===== PORTAFOGLIO SUL SERVER =====
+     Il saldo lo muovono solo le funzioni del database: il client
+     chiede l'operazione e riceve indietro il nuovo saldo, cosi' non
+     puo' inventarselo. Senza account resta la modalita' dimostrativa
+     in memoria locale. */
+  let walletServer = false;
+
+  function walletFmtData(iso) {
+    try {
+      const d = new Date(iso), oggi = new Date();
+      const ora = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      if (d.toDateString() === oggi.toDateString()) return 'Oggi, ' + ora;
+      const ieri = new Date(oggi); ieri.setDate(ieri.getDate() - 1);
+      if (d.toDateString() === ieri.toDateString()) return 'Ieri, ' + ora;
+      return d.toLocaleDateString('it-IT', { day:'numeric', month:'short' }) + ', ' + ora;
+    } catch (e) { return ''; }
+  }
+
+  async function walletSync() {
+    if (!window.sb) return false;
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) { walletServer = false; return false; }
+
+      const w = await window.sb.from('wallets')
+        .select('balance_cents').eq('user_id', user.id).maybeSingle();
+      if (w.error || !w.data) { walletServer = false; return false; }
+
+      cardBalance = w.data.balance_cents / 100;
+
+      const t = await window.sb.from('transactions')
+        .select('type,amount_cents,description,created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      cardTx = (t.data || []).map(function (r) {
+        return {
+          type:   r.type === 'recharge' ? 'in' : 'out',
+          label:  r.description || (r.type === 'recharge' ? 'Ricarica' : 'Consumazione'),
+          amount: r.amount_cents / 100,
+          date:   walletFmtData(r.created_at)
+        };
+      });
+
+      walletServer = true;
+      renderWallet();
+      return true;
+    } catch (e) { walletServer = false; return false; }
+  }
+  window.walletSync = walletSync;
 
   /* ===== BRACCIALETTI ===== */
   let bands = []; // { code, active }
@@ -8177,11 +8236,31 @@
     if (lbl) lbl.textContent = 'TIENI PREMUTO PER SPILLARE';
     spinaCommit();
   }
-  function spinaCommit() {
+  async function spinaCommit() {
     if (spinaCost <= 0) return;
     const cost = Math.round(spinaCost * 100) / 100;
     const ml = Math.round(spinaMl);
     const product = spinaProduct;
+    spinaCost = 0;                     // subito: evita il doppio addebito
+
+    if (walletServer) {
+      try {
+        const { data, error } = await window.sb.rpc('wallet_spend', {
+          p_amount_cents: Math.round(cost * 100),
+          p_description: 'Spina · ' + product + ' (' + ml + ' ml)'
+        });
+        if (error) throw error;
+        cardBalance = data / 100;
+        await walletSync();
+      } catch (e) {
+        alert('Addebito non riuscito: ' + ((e && e.message) || e));
+      }
+      const el = document.getElementById('spina-saldo');
+      if (el) el.textContent = 'Saldo: ' + fmtEuro(cardBalance);
+      if (cardBalance <= 0) spinaInit();
+      return;
+    }
+
     cardBalance = Math.max(0, cardBalance - cost);
     // accorpa solo se stesso prodotto e ultima spillata < 30 secondi fa
     const MERGE_TIMEOUT_MS = 30000;
@@ -8199,7 +8278,6 @@
     walletSave();
     renderWallet();
     document.getElementById('spina-saldo').textContent = 'Saldo: ' + fmtEuro(cardBalance);
-    spinaCost = 0; // evita doppio addebito
     if (cardBalance <= 0) spinaInit();
   }
 
@@ -8258,23 +8336,44 @@
     return 'Oggi, ' + hh + ':' + mm;
   }
 
-  function doRecharge() {
+  async function doRecharge() {
     const input = document.getElementById('recharge-input');
     let amt = rechargeAmount;
     if (input.value) amt = parseFloat(input.value.replace(',', '.'));
     if (!amt || amt <= 0) { alert('Scegli o inserisci un importo valido.'); return; }
     if (amt < RECHARGE_MIN) { alert('La ricarica minima da app è €' + RECHARGE_MIN + '. Per importi inferiori puoi ricaricare al banco.'); return; }
     if (amt > 500) { amt = 500; }
-    cardBalance += amt;
-    cardTx.unshift({ type:'in', label:'Ricarica', amount:amt, date:nowLabel() });
-    walletSave();
-    renderWallet();
+
+    const btn = document.querySelector('.wallet-recharge-btn');
+    const old = btn.textContent;
+
+    if (walletServer) {
+      btn.disabled = true; btn.textContent = 'Attendi…';
+      try {
+        const { data, error } = await window.sb.rpc('wallet_recharge', {
+          p_amount_cents: Math.round(amt * 100),
+          p_description: 'Ricarica da app'
+        });
+        if (error) throw error;
+        cardBalance = data / 100;
+        await walletSync();
+      } catch (e) {
+        btn.disabled = false; btn.textContent = old;
+        alert('Ricarica non riuscita: ' + ((e && e.message) || e));
+        return;
+      }
+      btn.disabled = false;
+    } else {
+      cardBalance += amt;
+      cardTx.unshift({ type:'in', label:'Ricarica', amount:amt, date:nowLabel() });
+      walletSave();
+      renderWallet();
+    }
+
     // reset selezione
     clearAmtChips();
     input.value = '';
     // feedback sul pulsante
-    const btn = document.querySelector('.wallet-recharge-btn');
-    const old = btn.textContent;
     btn.textContent = '✓ Ricaricato ' + fmtEuro(amt).replace('€ ','€') + '!';
     btn.style.background = '#4CD964';
     setTimeout(() => { btn.textContent = old; btn.style.background = '#f7cc49'; }, 1600);
@@ -10700,6 +10799,8 @@
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
     if (page === 'admin' && typeof admEnter === 'function') admEnter();
+    // il saldo puo' essere cambiato al banco: si rilegge all'ingresso
+    if ((page === 'carta' || page === 'menu') && typeof walletSync === 'function') walletSync();
 
     /* Due passaggi: subito, e dopo un attimo perche' alcune fasce
        cambiano altezza quando i loro contenuti finiscono di disporsi. */
@@ -11530,6 +11631,7 @@
       camonSyncMenu();   // prezzi/disponibilità del menu (non serve login)
       if (session) {
         await camonLoadProfile();
+        if (typeof walletSync === 'function') await walletSync();
         // se sei fermo sulla pagina profilo, aggiorna la vista
         if (document.getElementById('page-profile') &&
             document.getElementById('page-profile').classList.contains('active') &&
@@ -11538,6 +11640,11 @@
       window.sb.auth.onAuthStateChange(function (_event, session) {
         profileCreated = !!session;
         camonSyncAuthUI();
+        // entrando si prende il saldo vero, uscendo si torna alla demo
+        if (typeof walletSync === 'function') {
+          if (session) walletSync();
+          else { walletServer = false; walletLoad(); renderWallet(); }
+        }
       });
     } catch (e) { console.warn('Init auth:', e); }
   }
