@@ -10751,6 +10751,42 @@
   /* Chiave localStorage per la foto, legata all'utente */
   function camonPhotoKey(uid) { return 'camon_photo_' + uid; }
 
+  /* --- Foto profilo nello Storage ---
+     Nel database resta solo il percorso del file; il bucket e' privato,
+     quindi per mostrarla serve un link temporaneo. */
+
+  function camonDataUrlToBlob(dataUrl) {
+    const parti = dataUrl.split(',');
+    const tipo = (parti[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+    const bin = atob(parti[1]);
+    const buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return new Blob([buf], { type: tipo });
+  }
+
+  /* Un solo file per utente, sovrascritto a ogni cambio: niente foto
+     vecchie che restano appese nel bucket. */
+  async function camonUploadAvatar(uid, dataUrl) {
+    const percorso = uid + '/avatar.jpg';
+    const { error } = await window.sb.storage.from('avatars')
+      .upload(percorso, camonDataUrlToBlob(dataUrl), {
+        contentType: 'image/jpeg', upsert: true
+      });
+    if (error) throw error;
+    return percorso;
+  }
+
+  /* Accetta sia i percorsi nuovi sia le foto dei profili gia' esistenti,
+     salvate quando stavano ancora in base64 dentro la colonna. */
+  async function camonAvatarUrl(valore) {
+    if (!valore) return null;
+    if (valore.indexOf('data:') === 0) return valore;
+    if (/^https?:/i.test(valore)) return valore;
+    const { data, error } = await window.sb.storage.from('avatars')
+      .createSignedUrl(valore, 3600);
+    return (!error && data) ? data.signedUrl : null;
+  }
+
   /* Salva il profilo compilato nel database Supabase */
   async function camonSaveProfile() {
     if (!window.sb) return;
@@ -10762,19 +10798,19 @@
     const erasmusEl = document.querySelector('#chips-erasmus .prof-chip.active');
     const erasmus = !!(erasmusEl && /s[iì]/i.test(erasmusEl.textContent));
 
-    // Foto: la comprimo e la salvo nel DB (così segue l'utente su ogni
-    // dispositivo). Tengo anche una copia in locale per il caricamento
-    // istantaneo sullo stesso dispositivo.
-    let photoData = null;
+    // Foto: solo se ne e' stata scelta una nuova (arriva come data URL).
+    // La comprimo, la carico nello Storage e tengo una copia in locale
+    // per rivederla subito sullo stesso dispositivo.
+    let photoPath = null;
     try {
       const img = document.getElementById('prof-photo-img');
-      if (img && img.src && img.style.display === 'block' && img.src.indexOf('data:') === 0) {
-        photoData = await camonDownscalePhoto(img.src, 800, 0.82);
-      } else if (img && img.style.display === 'block' && img.src) {
-        photoData = img.src; // già una URL/foto valida caricata dal profilo
+      const src = (img && img.style.display === 'block') ? img.src : '';
+      if (src && src.indexOf('data:') === 0) {
+        const piccola = await camonDownscalePhoto(src, 800, 0.82);
+        photoPath = await camonUploadAvatar(user.id, piccola);
+        try { localStorage.setItem(camonPhotoKey(user.id), piccola); } catch (e) {}
       }
-      if (photoData) { try { localStorage.setItem(camonPhotoKey(user.id), photoData); } catch (e) {} }
-    } catch (e) { /* si ignora */ }
+    } catch (e) { /* una foto non caricata non deve bloccare il resto */ }
 
     /* L'eta' e' un intero: fuori dai limiti del modulo (18-99) la si
        scarta, cosi' un valore incoerente non finisce nel database. */
@@ -10791,7 +10827,7 @@
       erasmus:    erasmus,
       phone:      (user.user_metadata && user.user_metadata.phone) || null
     };
-    if (photoData) row.photo_url = photoData;   // salva la foto solo se presente
+    if (photoPath) row.photo_url = photoPath;   // tocca la colonna solo se c'e' una foto nuova
 
     // "update" e non "upsert": la riga profilo la crea già il trigger alla
     // registrazione, e così basta il permesso RLS di aggiornamento.
@@ -10830,14 +10866,15 @@
     // rimetti la foto: prima quella dal database (segue l'utente su ogni
     // dispositivo), poi ripiego sulla copia locale se il DB non ne ha
     try {
-      let photo = data.photo_url || null;
+      // il link firmato scade, quindi non lo si mette in cache: in locale
+      // resta solo la copia salvata al momento del caricamento della foto
+      let photo = await camonAvatarUrl(data.photo_url);
       if (!photo) { try { photo = localStorage.getItem(camonPhotoKey(user.id)); } catch (e) {} }
       const img = document.getElementById('prof-photo-img');
       if (photo && img) {
         img.src = photo; img.style.display = 'block';
         const empty = document.getElementById('prof-photo-empty');
         if (empty) empty.style.display = 'none';
-        try { localStorage.setItem(camonPhotoKey(user.id), photo); } catch (e) {}
       }
     } catch (e) { /* ignora */ }
   }
