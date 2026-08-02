@@ -1202,6 +1202,26 @@
   .bfield input:focus, .bfield select:focus, .bfield textarea:focus { border-color:#f7cc49; }
   .bfield select option { background:#1a1a1a; }
   .bfield textarea { resize:none; height:88px; line-height:1.55; }
+
+  /* --- Festa privata: calendario --- */
+  .evcal { background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 12px 10px; }
+  .evcal-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .evcal-month { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:1px; color:#fff; text-transform:capitalize; }
+  .evcal-nav { width:30px; height:30px; flex-shrink:0; border:none; border-radius:9px; background:rgba(255,255,255,0.07); color:#fff; font-size:19px; line-height:1; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .evcal-nav:disabled { opacity:0.25; cursor:default; }
+  .evcal-dows, .evcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .evcal-dows span { text-align:center; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; color:rgba(255,255,255,0.3); padding-bottom:4px; }
+  .evcal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border:none; border-radius:9px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.75); font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
+  .evcal-day.empty { background:none; cursor:default; }
+  .evcal-day.off { background:none; color:rgba(255,255,255,0.15); cursor:default; text-decoration:line-through; }
+  .evcal-day.active { background:#A78BFA; color:#1a1a1a; }
+  .evcal-legend { font-family:'Manrope',sans-serif; font-size:10.5px; color:rgba(255,255,255,0.3); text-align:center; margin-top:9px; }
+
+  /* --- Festa privata: campo "serata ideale" in evidenza --- */
+  .evnote { background:rgba(167,139,250,0.07); border:1px solid rgba(167,139,250,0.3); border-radius:14px; padding:14px; }
+  .evnote .evnote-lbl { font-size:11px; color:#A78BFA; letter-spacing:1.5px; }
+  .evnote-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.5); line-height:1.5; margin:-2px 0 2px; }
+  .evnote textarea { height:120px; }
   .bfield-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .book-confirm-btn { background:#f7cc49; color:#111; border:none; border-radius:14px; padding:17px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; margin-top:6px; }
   .book-confirm-btn:active { opacity:0.85; }
@@ -5277,10 +5297,19 @@
             </div>
           </div>
 
-          <!-- Date disponibili -->
+          <!-- Calendario date disponibili -->
           <div class="bfield">
-            <label>Scegli una data disponibile</label>
-            <div class="people-grid" id="event-dates"></div>
+            <label>Scegli il giorno</label>
+            <div class="evcal">
+              <div class="evcal-head">
+                <button type="button" class="evcal-nav" id="evcal-prev" onclick="eventCalMove(-1)" aria-label="Mese precedente">‹</button>
+                <div class="evcal-month" id="evcal-month"></div>
+                <button type="button" class="evcal-nav" id="evcal-next" onclick="eventCalMove(1)" aria-label="Mese successivo">›</button>
+              </div>
+              <div class="evcal-dows"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+              <div class="evcal-grid" id="evcal-grid"></div>
+              <div class="evcal-legend">Il lunedì il locale è chiuso</div>
+            </div>
           </div>
 
           <!-- Orario -->
@@ -5296,11 +5325,16 @@
               <option value="">Seleziona occasione</option>
               <option>Festa di laurea 🎓</option>
               <option>Compleanno 🎂</option>
-              <option>Anniversario 💑</option>
-              <option>Serata aziendale 💼</option>
+              <option>Festa a tema 🎭</option>
               <option>Addio al celibato/nubilato 🎉</option>
               <option>Altro</option>
             </select>
+          </div>
+
+          <!-- Atmosfera -->
+          <div class="bfield">
+            <label>Che atmosfera vuoi?</label>
+            <div class="people-grid" id="event-mood"></div>
           </div>
 
           <!-- Invitati -->
@@ -5323,9 +5357,12 @@
             <input id="event-email" type="email" placeholder="mario@email.com" autocomplete="email">
           </div>
 
-          <div class="bfield">
-            <label>Note (opzionale)</label>
-            <textarea id="event-note" placeholder="Torta, musica, allestimento, allergie..."></textarea>
+          <!-- Come vuole la serata: è il campo che ci fa capire davvero
+               cosa organizzare, quindi sta in evidenza ed è obbligatorio. -->
+          <div class="bfield evnote">
+            <label class="evnote-lbl">Raccontaci com'è la tua serata ideale</label>
+            <div class="evnote-hint">Più dettagli ci dai, più la serata sarà come te la immagini: musica, allestimento, torta, brindisi, giochi, allergie, sorprese…</div>
+            <textarea id="event-note" placeholder="Es. Vorrei una laurea a tema anni '90, musica dal vivo fino a mezzanotte, torta a sorpresa verso le 23 e un angolo foto per gli invitati."></textarea>
           </div>
 
           <div id="event-error" style="display:none;font-family:'Manrope',sans-serif;font-size:12.5px;color:#FF6B61;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.35);border-radius:12px;padding:12px 14px"></div>
@@ -5349,26 +5386,84 @@
   </div>
   <script>
     /* ===== FESTA PRIVATA — richiesta con richiamo ===== */
-    var eventSel = { data: null, dataFmt: '', ora: null, invitati: null };
+    var eventSel = { data: null, dataFmt: '', ora: null, invitati: null, mood: null };
+    var evCalCursor = null;   // primo giorno del mese mostrato
+    var EV_MESI_AVANTI = 3;   // fin dove si puo' sfogliare
 
-    /* Il lunedi' il locale e' chiuso: quelle date non si propongono. */
-    function eventBuildDates() {
-      var grid = document.getElementById('event-dates');
-      if (!grid) return;
-      grid.innerHTML = '';
-      var d = new Date();
-      d.setHours(0, 0, 0, 0);
-      var messe = 0;
-      /* si parte da domani: una festa non si organizza per stasera */
+    function evStripTime(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+
+    /* Si parte da domani: una festa non si organizza per stasera. */
+    function evPrimoGiorno() {
+      var d = evStripTime(new Date());
       d.setDate(d.getDate() + 1);
-      while (messe < 12) {
-        if (d.getDay() !== 1) {
-          var iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-          var lbl = d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
-          eventAddPill(grid, lbl, iso, 'data', lbl);
-          messe++;
-        }
-        d.setDate(d.getDate() + 1);
+      return d;
+    }
+    function evUltimoGiorno() {
+      var d = evPrimoGiorno();
+      d.setMonth(d.getMonth() + EV_MESI_AVANTI);
+      return d;
+    }
+
+    /* Il lunedi' il locale e' chiuso, e nel passato non si prenota. */
+    function evGiornoValido(d) {
+      if (d.getDay() === 1) return false;
+      return d >= evPrimoGiorno() && d <= evUltimoGiorno();
+    }
+
+    function eventCalMove(delta) {
+      evCalCursor.setMonth(evCalCursor.getMonth() + delta);
+      eventCalRender();
+    }
+
+    function eventCalRender() {
+      var grid = document.getElementById('evcal-grid');
+      if (!grid) return;
+      var anno = evCalCursor.getFullYear(), mese = evCalCursor.getMonth();
+
+      document.getElementById('evcal-month').textContent =
+        evCalCursor.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+
+      /* niente frecce oltre l'intervallo prenotabile */
+      var min = evPrimoGiorno(), max = evUltimoGiorno();
+      document.getElementById('evcal-prev').disabled =
+        (anno === min.getFullYear() && mese === min.getMonth()) ||
+        new Date(anno, mese, 1) <= new Date(min.getFullYear(), min.getMonth(), 1);
+      document.getElementById('evcal-next').disabled =
+        new Date(anno, mese, 1) >= new Date(max.getFullYear(), max.getMonth(), 1);
+
+      grid.innerHTML = '';
+      /* la griglia parte da lunedi': domenica (0) va in fondo */
+      var primo = new Date(anno, mese, 1);
+      var offset = (primo.getDay() + 6) % 7;
+      for (var i = 0; i < offset; i++) {
+        var vuoto = document.createElement('div');
+        vuoto.className = 'evcal-day empty';
+        grid.appendChild(vuoto);
+      }
+
+      var giorniNelMese = new Date(anno, mese + 1, 0).getDate();
+      for (var g = 1; g <= giorniNelMese; g++) {
+        (function (giorno) {
+          var d = new Date(anno, mese, giorno);
+          var iso = anno + '-' + String(mese + 1).padStart(2, '0') + '-' + String(giorno).padStart(2, '0');
+          var cell = document.createElement('button');
+          cell.type = 'button';
+          cell.textContent = giorno;
+          if (!evGiornoValido(d)) {
+            cell.className = 'evcal-day off';
+            cell.disabled = true;
+          } else {
+            cell.className = 'evcal-day' + (eventSel.data === iso ? ' active' : '');
+            cell.onclick = function () {
+              eventSel.data = iso;
+              eventSel.dataFmt = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+              grid.querySelectorAll('.evcal-day').forEach(function (x) { x.classList.remove('active'); });
+              cell.classList.add('active');
+              eventHideError();
+            };
+          }
+          grid.appendChild(cell);
+        })(g);
       }
     }
 
@@ -5390,10 +5485,13 @@
     function eventBuildFixed() {
       var t = document.getElementById('event-times');
       var g = document.getElementById('event-guests');
-      if (!t || !g) return;
-      t.innerHTML = ''; g.innerHTML = '';
+      var m = document.getElementById('event-mood');
+      if (!t || !g || !m) return;
+      t.innerHTML = ''; g.innerHTML = ''; m.innerHTML = '';
       ['19:00', '20:00', '21:00', '22:00'].forEach(function (o) { eventAddPill(t, o, o, 'ora'); });
       ['10', '15', '20', '30', '40', '50+'].forEach(function (o) { eventAddPill(g, o, o, 'invitati'); });
+      ['✨ Elegante', '🛋️ Chill', '🔥 Scatenata', '🎭 A tema', '🤷 Decidiamo insieme']
+        .forEach(function (o) { eventAddPill(m, o, o, 'mood'); });
     }
 
     function eventShowError(msg) {
@@ -5410,7 +5508,7 @@
     /* Rientrando si riparte dal modulo pulito, non dalla conferma
        della richiesta precedente. */
     function eventEnter() {
-      eventSel = { data: null, dataFmt: '', ora: null, invitati: null };
+      eventSel = { data: null, dataFmt: '', ora: null, invitati: null, mood: null };
       document.getElementById('event-form-wrap').style.display = 'flex';
       document.getElementById('event-done').style.display = 'none';
       ['event-nome', 'event-tel', 'event-email', 'event-note'].forEach(function (id) {
@@ -5418,7 +5516,9 @@
       });
       document.getElementById('event-occasione').value = '';
       eventHideError();
-      eventBuildDates();
+      evCalCursor = evStripTime(evPrimoGiorno());
+      evCalCursor.setDate(1);
+      eventCalRender();
       eventBuildFixed();
     }
 
@@ -5427,11 +5527,16 @@
       var tel   = document.getElementById('event-tel').value.trim();
       var email = document.getElementById('event-email').value.trim();
       var occ   = document.getElementById('event-occasione').value;
+      var note  = document.getElementById('event-note').value.trim();
 
-      if (!eventSel.data)      return eventShowError('Scegli una data disponibile.');
+      if (!eventSel.data)      return eventShowError('Scegli il giorno della festa.');
       if (!eventSel.ora)       return eventShowError('Scegli un orario indicativo.');
       if (!occ)                return eventShowError('Seleziona l’occasione.');
+      if (!eventSel.mood)      return eventShowError('Dicci che atmosfera vuoi.');
       if (!eventSel.invitati)  return eventShowError('Indica quanti invitati sarete.');
+      /* serve una descrizione vera, non due parole: e' su questa che
+         costruiamo la proposta per la serata */
+      if (note.length < 20)    return eventShowError('Raccontaci come immagini la serata: bastano due righe.');
       if (nome.length < 3)     return eventShowError('Inserisci nome e cognome.');
       /* almeno 8 cifre: filtra i numeri palesemente incompleti */
       if (tel.replace(/\D/g, '').length < 8) return eventShowError('Inserisci un numero di telefono valido.');
@@ -5439,8 +5544,8 @@
 
       eventHideError();
       document.getElementById('event-done-sub').innerHTML =
-        '<b style="color:#fff">' + eventSel.dataFmt + '</b> alle <b style="color:#fff">' + eventSel.ora + '</b>'
-        + ' · ' + eventSel.invitati + ' invitati<br><br>'
+        '<b style="color:#fff">' + eventSel.dataFmt + '</b> alle <b style="color:#fff">' + eventSel.ora + '</b><br>'
+        + eventSel.invitati + ' invitati · ' + eventSel.mood + '<br><br>'
         + 'Ti richiamiamo al <b style="color:#fff">' + tel + '</b> entro 24h per confermare i dettagli.';
       document.getElementById('event-form-wrap').style.display = 'none';
       document.getElementById('event-done').style.display = 'flex';
