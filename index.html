@@ -1248,11 +1248,49 @@
     color:#fff !important;
     text-shadow:0 1px 7px rgba(0,0,0,0.8);
   }
-  .mood-elegante::before  { background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%232b1d06'/><circle cx='18' cy='18' r='19' fill='%23f7cc49' opacity='.6'/><circle cx='72' cy='40' r='23' fill='%23c9902c' opacity='.5'/><circle cx='47' cy='8' r='13' fill='%23fff1c4' opacity='.4'/><circle cx='90' cy='12' r='10' fill='%23ffe08a' opacity='.35'/></svg>"); }
-  .mood-chill::before     { background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><defs><linearGradient id='c' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231d4470'/><stop offset='1' stop-color='%2385c9ec'/></linearGradient></defs><rect width='100' height='60' fill='url(%23c)'/><ellipse cx='28' cy='40' rx='26' ry='11' fill='%23ffffff' opacity='.55'/><ellipse cx='74' cy='48' rx='22' ry='9' fill='%23ffffff' opacity='.45'/><circle cx='82' cy='14' r='9' fill='%23ffeeb8' opacity='.6'/></svg>"); }
-  .mood-scatenata::before { background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%232b0210'/><circle cx='20' cy='38' r='20' fill='%23ff2d6f' opacity='.75'/><circle cx='58' cy='16' r='18' fill='%23ff8a00' opacity='.7'/><circle cx='86' cy='44' r='19' fill='%23c026d3' opacity='.7'/><circle cx='42' cy='52' r='12' fill='%23ff0055' opacity='.6'/></svg>"); }
-  .mood-tema::before      { background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%231d1233'/><circle cx='16' cy='16' r='15' fill='%23a78bfa' opacity='.8'/><circle cx='52' cy='42' r='17' fill='%23f472b6' opacity='.7'/><circle cx='84' cy='18' r='15' fill='%2334d399' opacity='.65'/><circle cx='30' cy='50' r='11' fill='%23f7cc49' opacity='.6'/></svg>"); }
-  .mood-aperto::before    { background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%23212127'/><circle cx='26' cy='22' r='20' fill='%236b7280' opacity='.6'/><circle cx='74' cy='40' r='22' fill='%239aa2b1' opacity='.45'/><circle cx='58' cy='10' r='12' fill='%23c9cfda' opacity='.3'/></svg>"); }
+  /* Le immagini stanno qui una volta sola: le usano sia la pastiglia
+     sia lo sfondo dell'intera pagina. */
+  :root {
+    --mood-elegante:  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%232b1d06'/><circle cx='18' cy='18' r='19' fill='%23f7cc49' opacity='.6'/><circle cx='72' cy='40' r='23' fill='%23c9902c' opacity='.5'/><circle cx='47' cy='8' r='13' fill='%23fff1c4' opacity='.4'/><circle cx='90' cy='12' r='10' fill='%23ffe08a' opacity='.35'/></svg>");
+    --mood-chill:     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><defs><linearGradient id='c' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231d4470'/><stop offset='1' stop-color='%2385c9ec'/></linearGradient></defs><rect width='100' height='60' fill='url(%23c)'/><ellipse cx='28' cy='40' rx='26' ry='11' fill='%23ffffff' opacity='.55'/><ellipse cx='74' cy='48' rx='22' ry='9' fill='%23ffffff' opacity='.45'/><circle cx='82' cy='14' r='9' fill='%23ffeeb8' opacity='.6'/></svg>");
+    --mood-scatenata: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%232b0210'/><circle cx='20' cy='38' r='20' fill='%23ff2d6f' opacity='.75'/><circle cx='58' cy='16' r='18' fill='%23ff8a00' opacity='.7'/><circle cx='86' cy='44' r='19' fill='%23c026d3' opacity='.7'/><circle cx='42' cy='52' r='12' fill='%23ff0055' opacity='.6'/></svg>");
+    --mood-tema:      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%231d1233'/><circle cx='16' cy='16' r='15' fill='%23a78bfa' opacity='.8'/><circle cx='52' cy='42' r='17' fill='%23f472b6' opacity='.7'/><circle cx='84' cy='18' r='15' fill='%2334d399' opacity='.65'/><circle cx='30' cy='50' r='11' fill='%23f7cc49' opacity='.6'/></svg>");
+    --mood-aperto:    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%23212127'/><circle cx='26' cy='22' r='20' fill='%236b7280' opacity='.6'/><circle cx='74' cy='40' r='22' fill='%239aa2b1' opacity='.45'/><circle cx='58' cy='10' r='12' fill='%23c9cfda' opacity='.3'/></svg>");
+  }
+  .mood-elegante  { --mood-img:var(--mood-elegante); }
+  .mood-chill     { --mood-img:var(--mood-chill); }
+  .mood-scatenata { --mood-img:var(--mood-scatenata); }
+  .mood-tema      { --mood-img:var(--mood-tema); }
+  .mood-aperto    { --mood-img:var(--mood-aperto); }
+  .mood-pill::before { background-image:var(--mood-img); }
+
+  /* --- Sfondo dell'intera pagina, intonato all'atmosfera scelta ---
+     Il velo resta fisso mentre il modulo scorre. Sta dietro al
+     contenuto (z-index negativo) e molto sfocato: deve dare il tono
+     alla pagina, non rubare leggibilita' ai campi. */
+  /* isolation: senza un contesto di impilamento proprio i due veli,
+     che stanno a z-index negativo, finirebbero dietro allo sfondo
+     del body e non si vedrebbero affatto. */
+  #page-event { position:relative; z-index:0; isolation:isolate; }
+  #page-event.evmood-elegante  { --mood-img:var(--mood-elegante); }
+  #page-event.evmood-chill     { --mood-img:var(--mood-chill); }
+  #page-event.evmood-scatenata { --mood-img:var(--mood-scatenata); }
+  #page-event.evmood-tema      { --mood-img:var(--mood-tema); }
+  #page-event.evmood-aperto    { --mood-img:var(--mood-aperto); }
+  #page-event::before {
+    content:''; position:fixed; inset:0; z-index:-2;
+    background-image:var(--mood-img);
+    background-size:cover; background-position:center;
+    filter:blur(34px) saturate(1.35); transform:scale(1.2);
+    opacity:0; transition:opacity 0.45s ease; pointer-events:none;
+  }
+  /* velo scuro sopra l'immagine: tiene il contrasto dei campi */
+  #page-event::after {
+    content:''; position:fixed; inset:0; z-index:-1;
+    background:linear-gradient(180deg,rgba(10,10,10,0.62),rgba(10,10,10,0.82));
+    opacity:0; transition:opacity 0.45s ease; pointer-events:none;
+  }
+  #page-event.evmood-on::before, #page-event.evmood-on::after { opacity:1; }
   .bfield-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .book-confirm-btn { background:#f7cc49; color:#111; border:none; border-radius:14px; padding:17px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; margin-top:6px; }
   .book-confirm-btn:active { opacity:0.85; }
@@ -5512,9 +5550,19 @@
         b.classList.add('active');
         eventSel[campo] = value;
         if (campo === 'data') eventSel.dataFmt = fmt || label;
+        if (campo === 'mood') eventApplyMood(b.dataset.mood);
         eventHideError();
       };
       grid.appendChild(b);
+      return b;
+    }
+
+    /* Tinge l'intera pagina con l'atmosfera scelta. */
+    function eventApplyMood(chiave) {
+      var pg = document.getElementById('page-event');
+      if (!pg) return;
+      pg.className = pg.className.replace(/\s*evmood-\S+/g, '');
+      if (chiave) pg.classList.add('evmood-' + chiave, 'evmood-on');
     }
 
     function eventBuildFixed() {
@@ -5530,7 +5578,9 @@
        { l: '🔥 Scatenata', k: 'scatenata' },
        { l: '🎭 A tema', k: 'tema' },
        { l: '🤷 Decidiamo insieme', k: 'aperto' }]
-        .forEach(function (o) { eventAddPill(m, o.l, o.l, 'mood', null, 'mood-pill mood-' + o.k); });
+        .forEach(function (o) {
+          eventAddPill(m, o.l, o.l, 'mood', null, 'mood-pill mood-' + o.k).dataset.mood = o.k;
+        });
     }
 
     function eventShowError(msg) {
@@ -5554,6 +5604,7 @@
         var el = document.getElementById(id); if (el) el.value = '';
       });
       document.getElementById('event-occasione').value = '';
+      eventApplyMood(null);
       eventHideError();
       evCalCursor = evStripTime(evPrimoGiorno());
       evCalCursor.setDate(1);
