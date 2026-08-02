@@ -1293,6 +1293,69 @@
     opacity:0; transition:opacity 0.45s ease; pointer-events:none;
   }
   #page-event.evmood-on::before, #page-event.evmood-on::after { opacity:1; }
+
+  /* ============================================================
+     AREA TITOLARE
+     ============================================================ */
+  #page-admin { background:#0d0d0f; }
+  .adm-tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:4px 18px 12px; flex-shrink:0; }
+  .adm-tabs::-webkit-scrollbar { display:none; }
+  .adm-tab { flex-shrink:0; padding:8px 15px; border-radius:30px; border:1.5px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.55); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .adm-tab.active { background:rgba(247,204,73,0.14); border-color:#f7cc49; color:#f7cc49; }
+  .adm-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:0 18px var(--nav-clearance); }
+  .adm-body::-webkit-scrollbar { display:none; }
+
+  .adm-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+  .adm-search { flex:1; min-width:140px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:10px 13px; border-radius:11px; font-family:'Manrope',sans-serif; font-size:13px; outline:none; }
+  .adm-search:focus { border-color:#f7cc49; }
+  .adm-select { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:10px 12px; border-radius:11px; font-family:'Manrope',sans-serif; font-size:12.5px; outline:none; appearance:none; }
+  .adm-select option { background:#1a1a1a; }
+
+  /* riquadri riassuntivi */
+  .adm-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:9px; margin-bottom:14px; }
+  .adm-stat { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:13px 14px; }
+  .adm-stat-lbl { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+  .adm-stat-val { font-family:'Bebas Neue',sans-serif; font-size:27px; letter-spacing:1px; color:#f7cc49; line-height:1.1; margin-top:3px; }
+
+  /* riga generica di elenco */
+  .adm-row { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:11px 13px; margin-bottom:8px; }
+  .adm-avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; flex-shrink:0; background:rgba(255,255,255,0.08); }
+  .adm-avatar-empty { width:42px; height:42px; border-radius:50%; flex-shrink:0; background:rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .adm-grow { flex:1; min-width:0; }
+  .adm-name { font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .adm-sub { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.45); margin-top:2px; overflow:hidden; text-overflow:ellipsis; }
+  .adm-amount { font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:0.5px; color:#f7cc49; flex-shrink:0; }
+
+  /* scheda richiesta / prenotazione */
+  .adm-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:15px; padding:14px; margin-bottom:10px; }
+  .adm-card-head { display:flex; align-items:center; gap:9px; margin-bottom:9px; flex-wrap:wrap; }
+  .adm-card-title { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.5px; color:#fff; flex:1; min-width:0; }
+  .adm-chip { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; padding:4px 9px; border-radius:20px; flex-shrink:0; }
+  .adm-chip.nuova      { background:rgba(247,204,73,0.16); color:#f7cc49; }
+  .adm-chip.contattato { background:rgba(100,200,255,0.16); color:#64c8ff; }
+  .adm-chip.confermata { background:rgba(76,217,100,0.16); color:#4CD964; }
+  .adm-chip.annullata  { background:rgba(255,69,58,0.14); color:#FF6B61; }
+  .adm-chip.attiva     { background:rgba(76,217,100,0.16); color:#4CD964; }
+  .adm-chip.completata { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); }
+  .adm-kv { display:flex; gap:8px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.6); line-height:1.5; padding:2px 0; }
+  .adm-kv b { color:rgba(255,255,255,0.4); font-weight:700; min-width:78px; flex-shrink:0; }
+  .adm-note { background:rgba(255,255,255,0.04); border-radius:10px; padding:10px 12px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.7); line-height:1.55; margin-top:9px; white-space:pre-wrap; }
+  .adm-actions { display:flex; gap:7px; flex-wrap:wrap; margin-top:11px; }
+  .adm-btn { flex:1; min-width:88px; padding:9px; border:none; border-radius:10px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.75); }
+  .adm-btn.primary { background:#f7cc49; color:#111; }
+  .adm-btn.danger  { background:rgba(255,69,58,0.14); color:#FF6B61; }
+  .adm-btn:disabled { opacity:0.45; cursor:default; }
+  .adm-link { color:#f7cc49; text-decoration:none; }
+
+  /* interruttore acceso/spento */
+  .adm-switch { position:relative; width:44px; height:25px; flex-shrink:0; border:none; border-radius:20px; background:rgba(255,255,255,0.13); cursor:pointer; transition:background 0.18s; -webkit-tap-highlight-color:transparent; }
+  .adm-switch::after { content:''; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%; background:#fff; transition:transform 0.18s; }
+  .adm-switch.on { background:#4CD964; }
+  .adm-switch.on::after { transform:translateX(19px); }
+
+  .adm-empty { text-align:center; font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.3); padding:34px 20px; line-height:1.6; }
+  .adm-group-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1.6px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin:16px 0 9px; }
+  .adm-err { background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.35); border-radius:12px; padding:12px 14px; font-family:'Manrope',sans-serif; font-size:12.5px; color:#FF6B61; line-height:1.5; margin-bottom:12px; }
   .bfield-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .book-confirm-btn { background:#f7cc49; color:#111; border:none; border-radius:14px; padding:17px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; margin-top:6px; }
   .book-confirm-btn:active { opacity:0.85; }
@@ -3749,6 +3812,19 @@
         <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
 
+      <div class="settings-row" id="settings-admin" style="display:none" onclick="settingsClose(); goTo('admin')">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl" style="color:#f7cc49">Area titolare</div>
+            <div class="settings-row-sub">Clienti, prenotazioni, menu e dati</div>
+          </div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+
       <div class="settings-row" id="settings-logout" style="display:none" onclick="camonLogout()">
         <div class="settings-row-left">
           <div class="settings-row-ico">
@@ -5675,6 +5751,435 @@
       document.getElementById('event-form-wrap').style.display = 'none';
       document.getElementById('event-done').style.display = 'flex';
       window.scrollTo(0, 0);
+    }
+  </script>
+
+  <!-- ============================
+       AREA TITOLARE
+  ============================ -->
+  <div class="page" id="page-admin">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">AREA <span style="color:#f7cc49">TITOLARE</span></div>
+    </div>
+    <div class="adm-tabs" id="adm-tabs">
+      <button class="adm-tab active" onclick="admGo('clienti')">Clienti</button>
+      <button class="adm-tab" onclick="admGo('prenotazioni')">Prenotazioni</button>
+      <button class="adm-tab" onclick="admGo('menu')">Menu</button>
+      <button class="adm-tab" onclick="admGo('giochi')">Giochi</button>
+      <button class="adm-tab" onclick="admGo('dati')">Dati</button>
+    </div>
+    <div class="adm-body" id="adm-body"></div>
+  </div>
+  <script>
+    /* ===================== AREA TITOLARE =====================
+       Tutto quello che si vede qui passa comunque dalle regole del
+       database: se chi guarda non e' segnato come staff, le query
+       tornano vuote. Nascondere la voce non e' la protezione. */
+
+    var admSec = 'clienti';
+    var admStaff = false;
+
+    function admEsc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+    function admEuro(cents) {
+      if (cents == null) return '€0';
+      return '€' + (cents / 100).toFixed(2).replace('.', ',');
+    }
+    function admData(iso) {
+      if (!iso) return '—';
+      try {
+        return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'short', year:'numeric' });
+      } catch (e) { return iso; }
+    }
+    function admBody() { return document.getElementById('adm-body'); }
+    function admCarico(msg) {
+      admBody().innerHTML = '<div class="adm-empty">' + admEsc(msg || 'Carico…') + '</div>';
+    }
+    function admErrore(e) {
+      admBody().innerHTML = '<div class="adm-err">Non riesco a caricare i dati.<br>'
+        + admEsc((e && e.message) || e) + '</div>';
+    }
+
+    function admGo(sec) {
+      admSec = sec;
+      var tabs = document.querySelectorAll('#adm-tabs .adm-tab');
+      var nomi = ['clienti','prenotazioni','menu','giochi','dati'];
+      tabs.forEach(function (t, i) { t.classList.toggle('active', nomi[i] === sec); });
+      admRender();
+    }
+
+    /* Chiamata all'ingresso nella pagina */
+    async function admEnter() {
+      if (!window.sb) { admErrore(new Error('Nessuna connessione al database.')); return; }
+      try {
+        var u = await window.sb.auth.getUser();
+        var user = u && u.data ? u.data.user : null;
+        if (!user) { admErrore(new Error('Devi accedere con il tuo account.')); return; }
+        var p = await window.sb.from('profiles').select('is_staff').eq('id', user.id).maybeSingle();
+        admStaff = !!(p.data && p.data.is_staff);
+        if (!admStaff) {
+          admBody().innerHTML = '<div class="adm-err">Questo account non è abilitato come staff.</div>';
+          return;
+        }
+      } catch (e) { admErrore(e); return; }
+      admRender();
+    }
+
+    function admRender() {
+      if (!admStaff) return;
+      if (admSec === 'clienti')       admClienti();
+      else if (admSec === 'prenotazioni') admPrenotazioni();
+      else if (admSec === 'menu')     admMenu();
+      else if (admSec === 'giochi')   admGiochi();
+      else                            admDati();
+    }
+
+    /* ---------------- CLIENTI + SALDI ---------------- */
+    var admClientiCache = null;
+
+    async function admClienti() {
+      admCarico();
+      try {
+        if (!admClientiCache) {
+          var pr = await window.sb.from('profiles').select('*');
+          if (pr.error) throw pr.error;
+          var wl = await window.sb.from('wallets').select('*');
+          if (wl.error) throw wl.error;
+
+          var saldi = {};
+          (wl.data || []).forEach(function (w) { saldi[w.user_id] = w; });
+
+          admClientiCache = await Promise.all((pr.data || []).map(async function (p) {
+            var foto = null;
+            try { foto = await camonAvatarUrl(p.photo_url); } catch (e) {}
+            var w = saldi[p.id];
+            return {
+              id: p.id,
+              nome: [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Senza nome',
+              eta: p.age, telefono: p.phone, lingue: p.languages,
+              erasmus: p.erasmus, staff: p.is_staff, creato: p.created_at,
+              foto: foto,
+              saldo: w ? w.balance_cents : 0,
+              ultimoMov: w ? w.updated_at : null
+            };
+          }));
+        }
+        admClientiDisegna();
+      } catch (e) { admErrore(e); }
+    }
+
+    function admClientiDisegna() {
+      var lista = admClientiCache || [];
+      var q = (document.getElementById('adm-q') || {}).value || '';
+      var ordine = (document.getElementById('adm-ord') || {}).value || 'saldo';
+
+      var filtrata = lista.filter(function (c) {
+        if (!q.trim()) return true;
+        var t = (c.nome + ' ' + (c.telefono || '')).toLowerCase();
+        return t.indexOf(q.trim().toLowerCase()) >= 0;
+      });
+
+      filtrata.sort(function (a, b) {
+        if (ordine === 'saldo')   return b.saldo - a.saldo;
+        if (ordine === 'nome')    return a.nome.localeCompare(b.nome);
+        if (ordine === 'recenti') return new Date(b.creato || 0) - new Date(a.creato || 0);
+        return new Date(b.ultimoMov || 0) - new Date(a.ultimoMov || 0);
+      });
+
+      var totale = lista.reduce(function (s, c) { return s + (c.saldo || 0); }, 0);
+
+      var h = ''
+        + '<div class="adm-stats">'
+        +   '<div class="adm-stat"><div class="adm-stat-lbl">Clienti</div><div class="adm-stat-val">' + lista.length + '</div></div>'
+        +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + admEuro(totale) + '</div></div>'
+        + '</div>'
+        + '<div class="adm-toolbar">'
+        +   '<input class="adm-search" id="adm-q" placeholder="Cerca nome o telefono…" oninput="admClientiDisegna()" value="' + admEsc(q) + '">'
+        +   '<select class="adm-select" id="adm-ord" onchange="admClientiDisegna()">'
+        +     '<option value="saldo">Saldo</option>'
+        +     '<option value="movimento">Ultimo movimento</option>'
+        +     '<option value="recenti">Iscritti di recente</option>'
+        +     '<option value="nome">Nome</option>'
+        +   '</select>'
+        + '</div>';
+
+      if (!filtrata.length) {
+        h += '<div class="adm-empty">Nessun cliente trovato.</div>';
+      } else {
+        filtrata.forEach(function (c) {
+          var dettagli = [];
+          if (c.eta) dettagli.push(c.eta + ' anni');
+          if (c.telefono) dettagli.push(c.telefono);
+          if (c.erasmus) dettagli.push('Erasmus');
+          if (c.staff) dettagli.push('STAFF');
+          h += '<div class="adm-row">'
+            + (c.foto
+                ? '<img class="adm-avatar" src="' + admEsc(c.foto) + '" alt="">'
+                : '<div class="adm-avatar-empty">👤</div>')
+            + '<div class="adm-grow">'
+            +   '<div class="adm-name">' + admEsc(c.nome) + '</div>'
+            +   '<div class="adm-sub">' + admEsc(dettagli.join(' · ') || '—') + '</div>'
+            + '</div>'
+            + '<div class="adm-amount">' + admEuro(c.saldo) + '</div>'
+            + '</div>';
+        });
+      }
+      admBody().innerHTML = h;
+
+      var sel = document.getElementById('adm-ord');
+      if (sel) sel.value = ordine;
+    }
+
+    /* ---------------- PRENOTAZIONI + RICHIESTE ---------------- */
+    async function admPrenotazioni() {
+      admCarico();
+      try {
+        var rq = await window.sb.from('event_requests').select('*').order('created_at', { ascending: false });
+        if (rq.error) throw rq.error;
+        var bk = await window.sb.from('bookings').select('*').order('created_at', { ascending: false });
+        if (bk.error) throw bk.error;
+
+        var richieste = rq.data || [], prenotazioni = bk.data || [];
+        var nuove = richieste.filter(function (r) { return r.status === 'nuova'; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Richieste nuove</div><div class="adm-stat-val">' + nuove + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Prenotazioni</div><div class="adm-stat-val">' + prenotazioni.length + '</div></div>'
+          + '</div>';
+
+        h += '<div class="adm-group-title">Richieste feste private</div>';
+        if (!richieste.length) {
+          h += '<div class="adm-empty">Nessuna richiesta ricevuta.</div>';
+        } else {
+          richieste.forEach(function (r) {
+            h += '<div class="adm-card">'
+              + '<div class="adm-card-head">'
+              +   '<div class="adm-card-title">' + admEsc(r.full_name) + '</div>'
+              +   '<span class="adm-chip ' + admEsc(r.status) + '">' + admEsc(r.status) + '</span>'
+              + '</div>'
+              + '<div class="adm-kv"><b>Quando</b><span>' + admData(r.event_date) + (r.event_time ? ' · ' + admEsc(r.event_time) : '') + '</span></div>'
+              + '<div class="adm-kv"><b>Occasione</b><span>' + admEsc(r.occasion || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Atmosfera</b><span>' + admEsc(r.mood || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Invitati</b><span>' + admEsc(r.guests || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Contatti</b><span><a class="adm-link" href="tel:' + admEsc(r.phone) + '">' + admEsc(r.phone) + '</a> · <a class="adm-link" href="mailto:' + admEsc(r.email) + '">' + admEsc(r.email) + '</a></span></div>'
+              + (r.notes ? '<div class="adm-note">' + admEsc(r.notes) + '</div>' : '')
+              + '<div class="adm-actions">'
+              +   '<button class="adm-btn" onclick="admStatoRichiesta(\'' + r.id + '\',\'contattato\')">Contattato</button>'
+              +   '<button class="adm-btn primary" onclick="admStatoRichiesta(\'' + r.id + '\',\'confermata\')">Confermata</button>'
+              +   '<button class="adm-btn danger" onclick="admStatoRichiesta(\'' + r.id + '\',\'annullata\')">Annulla</button>'
+              + '</div>'
+              + '</div>';
+          });
+        }
+
+        h += '<div class="adm-group-title">Prenotazioni tavoli</div>';
+        if (!prenotazioni.length) {
+          h += '<div class="adm-empty">Nessuna prenotazione salvata.<br>Il flusso dei tavoli non scrive ancora sul database.</div>';
+        } else {
+          var etichetta = { shared:'Tavolo condiviso', private:'Tavolo privato', room:'Stanza privata', invite:'Invito segreto' };
+          prenotazioni.forEach(function (b) {
+            h += '<div class="adm-card">'
+              + '<div class="adm-card-head">'
+              +   '<div class="adm-card-title">' + admEsc(etichetta[b.booking_type] || b.booking_type) + '</div>'
+              +   '<span class="adm-chip ' + admEsc(b.status) + '">' + admEsc(b.status) + '</span>'
+              + '</div>'
+              + '<div class="adm-kv"><b>Quando</b><span>' + admData(b.booking_date) + (b.booking_time ? ' · ' + admEsc(b.booking_time) : '') + '</span></div>'
+              + '<div class="adm-kv"><b>Persone</b><span>' + admEsc(b.people || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Tavolo</b><span>' + admEsc(b.table_code || '—') + '</span></div>'
+              + (b.notes ? '<div class="adm-note">' + admEsc(b.notes) + '</div>' : '')
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admStatoRichiesta(id, stato) {
+      try {
+        var r = await window.sb.from('event_requests').update({ status: stato }).eq('id', id);
+        if (r.error) throw r.error;
+        admPrenotazioni();
+      } catch (e) { admErrore(e); }
+    }
+
+    /* ---------------- MENU ---------------- */
+    async function admMenu() {
+      admCarico();
+      try {
+        var r = await window.sb.from('products').select('*').order('macro').order('category').order('sort');
+        if (r.error) throw r.error;
+        var prodotti = r.data || [];
+        var attivi = prodotti.filter(function (p) { return p.available; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">In carta</div><div class="adm-stat-val">' + attivi + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Esauriti</div><div class="adm-stat-val">' + (prodotti.length - attivi) + '</div></div>'
+          + '</div>';
+
+        if (!prodotti.length) {
+          h += '<div class="adm-empty">Nessun prodotto nel database.</div>';
+        } else {
+          var categoriaCorrente = '';
+          prodotti.forEach(function (p) {
+            var cat = p.macro + ' · ' + p.category;
+            if (cat !== categoriaCorrente) {
+              categoriaCorrente = cat;
+              h += '<div class="adm-group-title">' + admEsc(cat) + '</div>';
+            }
+            h += '<div class="adm-row">'
+              + '<div class="adm-avatar-empty">' + admEsc(p.emoji || '🍸') + '</div>'
+              + '<div class="adm-grow">'
+              +   '<div class="adm-name">' + admEsc(p.name) + '</div>'
+              +   '<div class="adm-sub">' + admEuro(p.price_cents) + (p.available ? '' : ' · esaurito') + '</div>'
+              + '</div>'
+              + '<button class="adm-switch' + (p.available ? ' on' : '') + '" onclick="admToggleProdotto(this,\'' + p.id + '\')" aria-label="Disponibile"></button>'
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admToggleProdotto(btn, id) {
+      var acceso = !btn.classList.contains('on');
+      btn.classList.toggle('on', acceso);       // risposta immediata al tocco
+      btn.disabled = true;
+      try {
+        var r = await window.sb.from('products').update({ available: acceso }).eq('id', id);
+        if (r.error) throw r.error;
+        if (typeof camonSyncMenu === 'function') { try { camonSyncMenu(); } catch (e) {} }
+      } catch (e) {
+        btn.classList.toggle('on', !acceso);    // il database ha rifiutato: torno indietro
+        alert('Non sono riuscito a salvare: ' + ((e && e.message) || e));
+      } finally { btn.disabled = false; }
+    }
+
+    /* ---------------- GIOCHI ---------------- */
+    function admChiaveGioco(nome) {
+      return nome.toLowerCase()
+        .replace(/[àáâä]/g,'a').replace(/[èéêë]/g,'e').replace(/[ìíîï]/g,'i')
+        .replace(/[òóôö]/g,'o').replace(/[ùúûü]/g,'u')
+        .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    }
+
+    async function admGiochi() {
+      admCarico();
+      try {
+        var r = await window.sb.from('games').select('*');
+        if (r.error) throw r.error;
+        var salvati = {};
+        (r.data || []).forEach(function (g) { salvati[g.key] = g; });
+
+        var elenco = (typeof GAMES !== 'undefined' ? GAMES : []).map(function (g, i) {
+          var k = admChiaveGioco(g.name);
+          return {
+            key: k, nome: g.name, emoji: g.emoji, sub: g.sub, ordine: i,
+            attivo: salvati[k] ? salvati[k].enabled : true,
+            registrato: !!salvati[k]
+          };
+        });
+        var spenti = elenco.filter(function (g) { return !g.attivo; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Giochi</div><div class="adm-stat-val">' + elenco.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Nascosti</div><div class="adm-stat-val">' + spenti + '</div></div>'
+          + '</div>';
+
+        elenco.forEach(function (g) {
+          h += '<div class="adm-row">'
+            + '<div class="adm-avatar-empty">' + admEsc(g.emoji || '🎲') + '</div>'
+            + '<div class="adm-grow">'
+            +   '<div class="adm-name">' + admEsc(g.nome) + '</div>'
+            +   '<div class="adm-sub">' + admEsc(g.sub || '') + '</div>'
+            + '</div>'
+            + '<button class="adm-switch' + (g.attivo ? ' on' : '') + '" onclick="admToggleGioco(this,\'' + admEsc(g.key) + '\',\'' + admEsc(g.nome).replace(/'/g, "\\'") + '\',' + g.ordine + ')"></button>'
+            + '</div>';
+        });
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admToggleGioco(btn, key, nome, ordine) {
+      var acceso = !btn.classList.contains('on');
+      btn.classList.toggle('on', acceso);
+      btn.disabled = true;
+      try {
+        /* upsert: la riga nasce solo quando il titolare tocca il gioco,
+           cosi' il database non deve conoscere in anticipo l'elenco. */
+        var r = await window.sb.from('games').upsert({
+          key: key, name: nome, enabled: acceso, sort_order: ordine, updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
+        if (r.error) throw r.error;
+      } catch (e) {
+        btn.classList.toggle('on', !acceso);
+        alert('Non sono riuscito a salvare: ' + ((e && e.message) || e));
+      } finally { btn.disabled = false; }
+    }
+
+    /* ---------------- DATI ---------------- */
+    async function admDati() {
+      admCarico();
+      try {
+        var ordini = await window.sb.from('orders').select('total_cents,status,created_at');
+        if (ordini.error) throw ordini.error;
+        var righe = await window.sb.from('order_items').select('name,quantity,unit_cents');
+        if (righe.error) throw righe.error;
+        var mov = await window.sb.from('transactions').select('*').order('created_at', { ascending: false }).limit(20);
+        if (mov.error) throw mov.error;
+
+        var incasso = (ordini.data || []).reduce(function (s, o) { return s + (o.total_cents || 0); }, 0);
+
+        // classifica prodotti per pezzi venduti
+        var perProdotto = {};
+        (righe.data || []).forEach(function (r) {
+          if (!perProdotto[r.name]) perProdotto[r.name] = { pezzi: 0, incasso: 0 };
+          perProdotto[r.name].pezzi += r.quantity;
+          perProdotto[r.name].incasso += r.quantity * r.unit_cents;
+        });
+        var classifica = Object.keys(perProdotto)
+          .map(function (n) { return { nome: n, pezzi: perProdotto[n].pezzi, incasso: perProdotto[n].incasso }; })
+          .sort(function (a, b) { return b.pezzi - a.pezzi; })
+          .slice(0, 10);
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Ordini</div><div class="adm-stat-val">' + (ordini.data || []).length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Incassato</div><div class="adm-stat-val">' + admEuro(incasso) + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Movimenti</div><div class="adm-stat-val">' + (mov.data || []).length + '</div></div>'
+          + '</div>';
+
+        h += '<div class="adm-group-title">Prodotti più venduti</div>';
+        if (!classifica.length) {
+          h += '<div class="adm-empty">Ancora nessuna vendita registrata.<br>I dati compaiono quando l\'app inizierà a salvare gli ordini.</div>';
+        } else {
+          classifica.forEach(function (p, i) {
+            h += '<div class="adm-row">'
+              + '<div class="adm-avatar-empty">' + (i + 1) + '</div>'
+              + '<div class="adm-grow"><div class="adm-name">' + admEsc(p.nome) + '</div>'
+              + '<div class="adm-sub">' + p.pezzi + ' pezzi</div></div>'
+              + '<div class="adm-amount">' + admEuro(p.incasso) + '</div>'
+              + '</div>';
+          });
+        }
+
+        h += '<div class="adm-group-title">Ultimi movimenti</div>';
+        if (!(mov.data || []).length) {
+          h += '<div class="adm-empty">Nessun movimento sul portafoglio.</div>';
+        } else {
+          mov.data.forEach(function (t) {
+            var segno = (t.amount_cents || 0) >= 0 ? '+' : '';
+            h += '<div class="adm-row">'
+              + '<div class="adm-grow"><div class="adm-name">' + admEsc(t.kind || t.type || 'movimento') + '</div>'
+              + '<div class="adm-sub">' + admData(t.created_at) + '</div></div>'
+              + '<div class="adm-amount">' + segno + admEuro(t.amount_cents) + '</div>'
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
     }
   </script>
 
@@ -10194,6 +10699,7 @@
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
+    if (page === 'admin' && typeof admEnter === 'function') admEnter();
 
     /* Due passaggi: subito, e dopo un attimo perche' alcune fasce
        cambiano altezza quando i loro contenuti finiscono di disporsi. */
@@ -10779,6 +11285,23 @@
   function camonSyncAuthUI() {
     const row = document.getElementById('settings-logout');
     if (row) row.style.display = profileCreated ? 'flex' : 'none';
+    camonSyncStaffUI();
+  }
+
+  /* La voce "Area titolare" compare solo allo staff. E' solo cortesia
+     verso gli altri utenti: a proteggere i dati sono le regole del
+     database, non il fatto che il pulsante sia nascosto. */
+  async function camonSyncStaffUI() {
+    const row = document.getElementById('settings-admin');
+    if (!row) return;
+    row.style.display = 'none';
+    if (!window.sb || !profileCreated) return;
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) return;
+      const { data } = await window.sb.from('profiles').select('is_staff').eq('id', user.id).maybeSingle();
+      if (data && data.is_staff) row.style.display = 'flex';
+    } catch (e) { /* nel dubbio resta nascosta */ }
   }
 
   /* Chiave localStorage per la foto, legata all'utente */
