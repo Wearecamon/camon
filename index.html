@@ -1281,13 +1281,15 @@
     content:''; position:fixed; inset:0; z-index:-2;
     background-image:var(--mood-img);
     background-size:cover; background-position:center;
-    filter:blur(34px) saturate(1.35); transform:scale(1.2);
+    filter:blur(5px) saturate(1.15); transform:scale(1.08);
     opacity:0; transition:opacity 0.45s ease; pointer-events:none;
   }
-  /* velo scuro sopra l'immagine: tiene il contrasto dei campi */
+  /* velo scuro sopra l'immagine: la foto resta riconoscibile, ma i
+     campi conservano contrasto. Piu' chiaro in alto, dove c'e' meno
+     testo, piu' denso in basso sul modulo. */
   #page-event::after {
     content:''; position:fixed; inset:0; z-index:-1;
-    background:linear-gradient(180deg,rgba(10,10,10,0.62),rgba(10,10,10,0.82));
+    background:linear-gradient(180deg,rgba(8,8,10,0.52),rgba(8,8,10,0.68) 55%,rgba(8,8,10,0.78));
     opacity:0; transition:opacity 0.45s ease; pointer-events:none;
   }
   #page-event.evmood-on::before, #page-event.evmood-on::after { opacity:1; }
