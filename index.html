@@ -1372,6 +1372,39 @@
     cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
   .cart-qty span { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #f7cc49; min-width: 18px; text-align: center; }
+  /* scelta banco / tavolo */
+  .cart-serv-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin:20px 0 9px; }
+  .cart-serv { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .cart-serv-opt {
+    background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1);
+    border-radius:13px; padding:13px 11px; cursor:pointer; text-align:center;
+    -webkit-tap-highlight-color:transparent; transition:all 0.15s;
+  }
+  .cart-serv-opt.active { background:rgba(247,204,73,0.12); border-color:#f7cc49; }
+  .cart-serv-ico { font-size:21px; line-height:1; }
+  .cart-serv-nome { font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; color:#fff; margin-top:6px; }
+  .cart-serv-sub { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+  .cart-serv-opt.active .cart-serv-sub { color:#f7cc49; }
+
+  /* riepilogo importi */
+  .cart-riga { display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.55); padding:3px 0; }
+
+  /* modalita' di pagamento */
+  .cart-pay { display:flex; flex-direction:column; gap:9px; margin-top:6px; }
+  .cart-pay-btn {
+    display:flex; align-items:center; gap:12px; width:100%; padding:15px 16px;
+    border:1.5px solid rgba(255,255,255,0.12); border-radius:14px;
+    background:rgba(255,255,255,0.05); color:#fff; cursor:pointer;
+    font-family:'Manrope',sans-serif; font-size:14px; font-weight:700;
+    text-align:left; -webkit-tap-highlight-color:transparent;
+  }
+  .cart-pay-btn.primary { background:#f7cc49; border-color:#f7cc49; color:#111; font-weight:800; }
+  .cart-pay-btn:disabled { opacity:0.4; cursor:default; }
+  .cart-pay-ico { font-size:19px; flex-shrink:0; }
+  .cart-pay-testo { flex:1; min-width:0; }
+  .cart-pay-sub { font-size:11.5px; font-weight:600; opacity:0.65; margin-top:2px; }
+  .cart-pay-presto { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:20px; flex-shrink:0; }
+
   .cart-total { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 4px; }
   .cart-total-lbl { font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
   .cart-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 1px; color: #f7cc49; }
@@ -6310,9 +6343,12 @@
           ordini.forEach(function (x) {
             var lista = perOrdine[x.id] || [];
             var quando = new Date(x.created_at).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+            var dove = x.service_mode === 'tavolo'
+              ? (x.table_code ? '🍽️ Tavolo ' + admEsc(x.table_code) : '🍽️ Al tavolo')
+              : '🥤 Ritiro al banco';
             h += '<div class="adm-card">'
               + '<div class="adm-card-head">'
-              +   '<div class="adm-card-title">' + (x.table_code ? 'Tavolo ' + admEsc(x.table_code) : 'Al banco') + ' · ' + quando + '</div>'
+              +   '<div class="adm-card-title">' + dove + ' · ' + quando + '</div>'
               +   '<span class="adm-chip ' + (x.status === 'served' ? 'completata' : x.status === 'cancelled' ? 'annullata' : 'nuova') + '">'
               +     (x.status === 'served' ? 'Servito' : x.status === 'cancelled' ? 'Annullato' : 'Da servire') + '</span>'
               + '</div>'
@@ -6320,6 +6356,7 @@
                   return '<div class="adm-kv"><b>' + r.quantity + '×</b><span>' + admEsc(r.name)
                     + ' — ' + admEuro(r.unit_cents * r.quantity) + '</span></div>';
                 }).join('')
+              + (x.service_fee_cents ? '<div class="adm-kv"><b>Servizio</b><span>' + admEuro(x.service_fee_cents) + '</span></div>' : '')
               + '<div class="adm-kv"><b>Totale</b><span style="color:#f7cc49;font-weight:800">' + admEuro(x.total_cents) + '</span></div>'
               + (x.note ? '<div class="adm-note">' + admEsc(x.note) + '</div>' : '')
               + (x.status === 'paid'
@@ -12283,8 +12320,23 @@
   var cart = [];                 // [{ id, name, price_cents, qty }]
   var productSheetCurrent = null;
 
-  function cartTotale() {
+  var cartServizio = 'banco';        // 'banco' | 'tavolo'
+  var SERVIZIO_TAVOLO = 100;         // supplemento in centesimi
+  var SOGLIA_CARTA    = 1000;        // sotto i 10 € la carta non conviene: si ricarica
+
+  function cartSubtotale() {
     return cart.reduce(function (s, r) { return s + r.price_cents * r.qty; }, 0);
+  }
+  function cartSupplemento() {
+    return cartServizio === 'tavolo' ? SERVIZIO_TAVOLO : 0;
+  }
+  function cartTotale() {
+    return cartSubtotale() + cartSupplemento();
+  }
+  function cartSetServizio(modo) {
+    cartServizio = modo;
+    cartRender();
+    cartRenderFab();
   }
   function cartPezzi() {
     return cart.reduce(function (s, r) { return s + r.qty; }, 0);
@@ -12355,15 +12407,81 @@
         + '</div>';
     }).join('');
 
+    var subtotale = cartSubtotale();
+    var supplemento = cartSupplemento();
     var totale = cartTotale();
-    var bastano = !walletServer || (cardBalance * 100) >= totale;
-    piede.innerHTML = ''
-      + '<div class="cart-total"><span class="cart-total-lbl">Totale</span>'
-      +   '<span class="cart-total-val">' + camonFmtPrice(totale) + '</span></div>'
-      + '<div class="cart-saldo">Saldo disponibile: ' + fmtEuro(cardBalance)
-      +   (bastano ? '' : ' — non basta per questo ordine') + '</div>'
-      + '<button class="cart-send" id="cart-send" onclick="cartInvia()"' + (bastano ? '' : ' disabled') + '>'
-      +   'Ordina e paga col saldo</button>';
+    var saldoCents = Math.round(cardBalance * 100);
+    var bastano = saldoCents >= totale;
+    var mancano = totale - saldoCents;
+
+    var h = ''
+      + '<div class="cart-serv-lbl">Come lo vuoi</div>'
+      + '<div class="cart-serv">'
+      +   '<div class="cart-serv-opt' + (cartServizio === 'banco' ? ' active' : '') + '" onclick="cartSetServizio(\'banco\')">'
+      +     '<div class="cart-serv-ico">🥤</div>'
+      +     '<div class="cart-serv-nome">Ritiro al banco</div>'
+      +     '<div class="cart-serv-sub">Nessun supplemento</div>'
+      +   '</div>'
+      +   '<div class="cart-serv-opt' + (cartServizio === 'tavolo' ? ' active' : '') + '" onclick="cartSetServizio(\'tavolo\')">'
+      +     '<div class="cart-serv-ico">🍽️</div>'
+      +     '<div class="cart-serv-nome">Al tavolo</div>'
+      +     '<div class="cart-serv-sub">+ ' + camonFmtPrice(SERVIZIO_TAVOLO) + '</div>'
+      +   '</div>'
+      + '</div>';
+
+    if (supplemento) {
+      h += '<div style="margin-top:16px">'
+        +   '<div class="cart-riga"><span>Prodotti</span><span>' + camonFmtPrice(subtotale) + '</span></div>'
+        +   '<div class="cart-riga"><span>Servizio al tavolo</span><span>' + camonFmtPrice(supplemento) + '</span></div>'
+        + '</div>';
+    }
+
+    h += '<div class="cart-total"><span class="cart-total-lbl">Totale</span>'
+      +    '<span class="cart-total-val">' + camonFmtPrice(totale) + '</span></div>'
+      +  '<div class="cart-saldo">Saldo disponibile: ' + fmtEuro(cardBalance)
+      +    (bastano ? '' : ' — mancano ' + camonFmtPrice(mancano)) + '</div>';
+
+    h += '<div class="cart-pay">';
+    if (bastano) {
+      h += '<button class="cart-pay-btn primary" id="cart-send" onclick="cartInvia()">'
+        +    '<span class="cart-pay-ico">💳</span>'
+        +    '<span class="cart-pay-testo">Ordina e paga col saldo'
+        +      '<div class="cart-pay-sub">Restano ' + camonFmtPrice(saldoCents - totale) + '</div></span>'
+        +  '</button>';
+    } else {
+      /* Sotto la soglia il pagamento con carta costa piu' di quanto
+         renda: conviene ricaricare e pagare dal saldo. */
+      if (totale >= SOGLIA_CARTA) {
+        h += '<button class="cart-pay-btn" onclick="cartPagamentoPresto()">'
+          +    '<span class="cart-pay-ico">💳</span>'
+          +    '<span class="cart-pay-testo">Paga con carta'
+          +      '<div class="cart-pay-sub">Carta, Apple Pay o PayPal</div></span>'
+          +    '<span class="cart-pay-presto">Presto</span>'
+          +  '</button>';
+      }
+      h += '<button class="cart-pay-btn primary" onclick="cartVaiARicarica()">'
+        +    '<span class="cart-pay-ico">➕</span>'
+        +    '<span class="cart-pay-testo">Ricarica la tessera'
+        +      '<div class="cart-pay-sub">'
+        +        (totale < SOGLIA_CARTA
+                   ? 'Sotto ' + camonFmtPrice(SOGLIA_CARTA) + ' si paga dal saldo'
+                   : 'Poi torni qui e paghi in un tocco')
+        +      '</div></span>'
+        +  '</button>';
+    }
+    h += '</div>';
+
+    piede.innerHTML = h;
+  }
+
+  function cartPagamentoPresto() {
+    cartErrore('Il pagamento con carta non è ancora attivo. Per ora ricarica la tessera e paghi dal saldo.');
+  }
+
+  /* L'ordine resta nel carrello: dopo la ricarica si riapre e si paga */
+  function cartVaiARicarica() {
+    cartClose();
+    goTo('carta');
   }
 
   async function cartInvia() {
@@ -12379,17 +12497,22 @@
       var tavolo = (typeof currentBooking !== 'undefined' && currentBooking) ? currentBooking.table : null;
       var r = await window.sb.rpc('order_create', {
         p_items: cart.map(function (x) { return { product_id: x.id, quantity: x.qty }; }),
-        p_table_code: tavolo,
-        p_note: null
+        p_table_code: cartServizio === 'tavolo' ? tavolo : null,
+        p_note: null,
+        p_service_mode: cartServizio
       });
       if (r.error) throw r.error;
       var esito = Array.isArray(r.data) ? r.data[0] : r.data;
 
+      var alTavolo = cartServizio === 'tavolo';
       cart = [];
+      cartServizio = 'banco';
       cartRenderFab();
       await walletSync();
       document.getElementById('cart-lines').innerHTML =
-        '<div class="cart-empty">✅ Ordine inviato!<br>Te lo portiamo al tavolo.<br><br>'
+        '<div class="cart-empty">✅ Ordine inviato!<br>'
+        + (alTavolo ? 'Te lo portiamo al tavolo.' : 'Ritiralo al banco quando è pronto.')
+        + '<br><br>'
         + 'Scalati ' + camonFmtPrice(esito.total_cents) + ' · nuovo saldo ' + camonFmtPrice(esito.new_balance)
         + '</div>';
       document.getElementById('cart-foot').innerHTML = '';
