@@ -1295,6 +1295,71 @@
   #page-event.evmood-on::before, #page-event.evmood-on::after { opacity:1; }
 
   /* ============================================================
+     CARRELLO / ORDINE AL TAVOLO
+     ============================================================ */
+  .cart-fab {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(96px + var(--safe-bottom) - var(--vp-gap));
+    z-index: 210; display: flex; align-items: center; gap: 10px;
+    background: #f7cc49; color: #111; border: none; border-radius: 30px;
+    padding: 13px 20px; font-family: 'Manrope', sans-serif; font-size: 13.5px;
+    font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 8px 26px rgba(247,204,73,0.4);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .cart-fab.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) scale(0.85); }
+  .cart-fab-count {
+    background: #111; color: #f7cc49; border-radius: 20px;
+    padding: 2px 8px; font-size: 12px; font-weight: 800;
+  }
+
+  .cart-overlay {
+    position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.82);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .cart-overlay.open { opacity: 1; pointer-events: auto; }
+  .cart-sheet {
+    width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto;
+    background: #141416; border-radius: 24px 24px 0 0;
+    padding: 20px 20px calc(28px + var(--safe-bottom));
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(.22,.68,0,1);
+    scrollbar-width: none;
+  }
+  .cart-sheet::-webkit-scrollbar { display: none; }
+  .cart-overlay.open .cart-sheet { transform: translateY(0); }
+  .cart-handle { width: 38px; height: 4px; background: rgba(255,255,255,0.16); border-radius: 2px; margin: 0 auto 18px; }
+  .cart-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; color: #fff; margin-bottom: 14px; }
+  .cart-title span { color: #f7cc49; }
+  .cart-line { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .cart-line-name { flex: 1; min-width: 0; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+  .cart-line-price { font-family: 'Manrope', sans-serif; font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .cart-qty { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .cart-qty button {
+    width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06); color: #fff; font-size: 17px; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .cart-qty span { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #f7cc49; min-width: 18px; text-align: center; }
+  .cart-total { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 4px; }
+  .cart-total-lbl { font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .cart-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 1px; color: #f7cc49; }
+  .cart-saldo { font-family: 'Manrope', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+  .cart-send {
+    width: 100%; padding: 17px; border: none; border-radius: 14px; background: #f7cc49; color: #111;
+    font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.5px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .cart-send:disabled { opacity: 0.45; cursor: default; }
+  .cart-err { background: rgba(255,69,58,0.1); border: 1px solid rgba(255,69,58,0.35); border-radius: 12px; padding: 12px 14px; font-family: 'Manrope', sans-serif; font-size: 12.5px; color: #FF6B61; line-height: 1.5; margin-bottom: 12px; }
+  .cart-empty { text-align: center; font-family: 'Manrope', sans-serif; font-size: 13.5px; color: rgba(255,255,255,0.35); padding: 28px 10px; }
+  .sheet-add {
+    width: 100%; margin-top: 6px; padding: 15px; border: none; border-radius: 13px;
+    background: #f7cc49; color: #111; font-family: 'Manrope', sans-serif;
+    font-size: 14px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ============================================================
      AREA TITOLARE
      ============================================================ */
   #page-admin { background:#0d0d0f; }
@@ -5257,6 +5322,7 @@
             <h2 class="product-sheet-name" id="product-sheet-name"></h2>
             <p class="product-sheet-price" id="product-sheet-price"></p>
             <p class="product-sheet-desc" id="product-sheet-desc"></p>
+            <button class="sheet-add" id="product-sheet-add" onclick="cartAddCurrent()">Aggiungi all'ordine</button>
           </div>
         </div>
       </div>
@@ -5765,6 +5831,7 @@
     <div class="adm-tabs" id="adm-tabs">
       <button class="adm-tab active" onclick="admGo('clienti')">Clienti</button>
       <button class="adm-tab" onclick="admGo('prenotazioni')">Prenotazioni</button>
+      <button class="adm-tab" onclick="admGo('comande')">Comande</button>
       <button class="adm-tab" onclick="admGo('shot')">Shot</button>
       <button class="adm-tab" onclick="admGo('menu')">Menu</button>
       <button class="adm-tab" onclick="admGo('giochi')">Giochi</button>
@@ -5808,7 +5875,7 @@
     function admGo(sec) {
       admSec = sec;
       var tabs = document.querySelectorAll('#adm-tabs .adm-tab');
-      var nomi = ['clienti','prenotazioni','shot','menu','giochi','dati'];
+      var nomi = ['clienti','prenotazioni','comande','shot','menu','giochi','dati'];
       tabs.forEach(function (t, i) { t.classList.toggle('active', nomi[i] === sec); });
       admRender();
     }
@@ -5834,6 +5901,7 @@
       if (!admStaff) return;
       if (admSec === 'clienti')       admClienti();
       else if (admSec === 'prenotazioni') admPrenotazioni();
+      else if (admSec === 'comande')  admComande();
       else if (admSec === 'shot')     admShot();
       else if (admSec === 'menu')     admMenu();
       else if (admSec === 'giochi')   admGiochi();
@@ -6005,6 +6073,79 @@
         var r = await window.sb.from('event_requests').update({ status: stato }).eq('id', id);
         if (r.error) throw r.error;
         admPrenotazioni();
+      } catch (e) { admErrore(e); }
+    }
+
+    /* ---------------- COMANDE ----------------
+       Le righe dell'ordine stanno in una tabella a parte: si
+       leggono insieme e si raggruppano per ordine. */
+    async function admComande() {
+      admCarico();
+      try {
+        var o = await window.sb.from('orders')
+          .select('*').order('created_at', { ascending: false }).limit(60);
+        if (o.error) throw o.error;
+        var ordini = o.data || [];
+
+        var righe = [];
+        if (ordini.length) {
+          var ri = await window.sb.from('order_items')
+            .select('order_id,name,quantity,unit_cents')
+            .in('order_id', ordini.map(function (x) { return x.id; }));
+          if (ri.error) throw ri.error;
+          righe = ri.data || [];
+        }
+        var perOrdine = {};
+        righe.forEach(function (r) {
+          (perOrdine[r.order_id] = perOrdine[r.order_id] || []).push(r);
+        });
+
+        var daServire = ordini.filter(function (x) { return x.status === 'paid'; });
+        var incassoOggi = ordini
+          .filter(function (x) { return new Date(x.created_at).toDateString() === new Date().toDateString(); })
+          .reduce(function (s, x) { return s + (x.total_cents || 0); }, 0);
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Da servire</div><div class="adm-stat-val">' + daServire.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Incasso oggi</div><div class="adm-stat-val">' + admEuro(incassoOggi) + '</div></div>'
+          + '</div>';
+
+        if (!ordini.length) {
+          h += '<div class="adm-empty">Nessun ordine ricevuto.</div>';
+        } else {
+          ordini.forEach(function (x) {
+            var lista = perOrdine[x.id] || [];
+            var quando = new Date(x.created_at).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+            h += '<div class="adm-card">'
+              + '<div class="adm-card-head">'
+              +   '<div class="adm-card-title">' + (x.table_code ? 'Tavolo ' + admEsc(x.table_code) : 'Al banco') + ' · ' + quando + '</div>'
+              +   '<span class="adm-chip ' + (x.status === 'served' ? 'completata' : x.status === 'cancelled' ? 'annullata' : 'nuova') + '">'
+              +     (x.status === 'served' ? 'Servito' : x.status === 'cancelled' ? 'Annullato' : 'Da servire') + '</span>'
+              + '</div>'
+              + lista.map(function (r) {
+                  return '<div class="adm-kv"><b>' + r.quantity + '×</b><span>' + admEsc(r.name)
+                    + ' — ' + admEuro(r.unit_cents * r.quantity) + '</span></div>';
+                }).join('')
+              + '<div class="adm-kv"><b>Totale</b><span style="color:#f7cc49;font-weight:800">' + admEuro(x.total_cents) + '</span></div>'
+              + (x.note ? '<div class="adm-note">' + admEsc(x.note) + '</div>' : '')
+              + (x.status === 'paid'
+                  ? '<div class="adm-actions">'
+                    + '<button class="adm-btn primary" onclick="admStatoOrdine(\'' + x.id + '\',\'served\')">Servito</button>'
+                    + '<button class="adm-btn danger" onclick="admStatoOrdine(\'' + x.id + '\',\'cancelled\')">Annulla</button>'
+                    + '</div>'
+                  : '')
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admStatoOrdine(id, stato) {
+      try {
+        var r = await window.sb.from('orders').update({ status: stato }).eq('id', id);
+        if (r.error) throw r.error;
+        admComande();
       } catch (e) { admErrore(e); }
     }
 
@@ -6659,6 +6800,22 @@
       </div>
     </div>
     <button class="add-guest-close" onclick="closeAddGuest()">Annulla</button>
+  </div>
+
+  <!-- CARRELLO ORDINE -->
+  <button class="cart-fab hidden" id="cart-fab" onclick="cartOpen()">
+    <span class="cart-fab-count" id="cart-count">0</span>
+    <span>Ordina · <span id="cart-fab-total">€0</span></span>
+  </button>
+
+  <div class="cart-overlay" id="cart-overlay" onclick="cartClose()">
+    <div class="cart-sheet" onclick="event.stopPropagation()">
+      <div class="cart-handle"></div>
+      <div class="cart-title">IL TUO <span>ORDINE</span></div>
+      <div id="cart-err"></div>
+      <div id="cart-lines"></div>
+      <div id="cart-foot"></div>
+    </div>
   </div>
 
   <!-- BOLLINO CARTA (presente su tutte le pagine) -->
@@ -10991,6 +11148,7 @@
     if (page === 'admin' && typeof admEnter === 'function') admEnter();
     // il saldo puo' essere cambiato al banco: si rilegge all'ingresso
     if ((page === 'carta' || page === 'menu') && typeof walletSync === 'function') walletSync();
+    if (typeof cartRenderFab === 'function') cartRenderFab();
 
     /* Due passaggi: subito, e dopo un attimo perche' alcune fasce
        cambiano altezza quando i loro contenuti finiscono di disporsi. */
@@ -11771,6 +11929,9 @@
     return card;
   }
   function openProductSheet(p) {
+    productSheetCurrent = p;
+    var add = document.getElementById('product-sheet-add');
+    if (add) add.style.display = p.available === false ? 'none' : 'block';
     document.getElementById('product-sheet-img').src = camonProductImg(p);
     document.getElementById('product-sheet-name').textContent = p.name;
     document.getElementById('product-sheet-price').textContent = camonFmtPrice(p.price_cents);
@@ -11783,6 +11944,134 @@
     document.body.style.overflow = '';
   }
   window.closeProductSheet = closeProductSheet;
+
+  /* ===================== CARRELLO =====================
+     Qui si tiene solo l'elenco di cosa e quanto. Il conto lo rifa'
+     il server sui prezzi veri al momento dell'invio: quello mostrato
+     e' un'anteprima, non il valore su cui si paga. */
+  var cart = [];                 // [{ id, name, price_cents, qty }]
+  var productSheetCurrent = null;
+
+  function cartTotale() {
+    return cart.reduce(function (s, r) { return s + r.price_cents * r.qty; }, 0);
+  }
+  function cartPezzi() {
+    return cart.reduce(function (s, r) { return s + r.qty; }, 0);
+  }
+
+  function cartAdd(p) {
+    var riga = cart.filter(function (r) { return r.id === p.id; })[0];
+    if (riga) riga.qty++;
+    else cart.push({ id: p.id, name: p.name, price_cents: p.price_cents, qty: 1 });
+    cartRenderFab();
+  }
+
+  function cartAddCurrent() {
+    if (!productSheetCurrent) return;
+    cartAdd(productSheetCurrent);
+    closeProductSheet();
+  }
+
+  function cartSetQty(id, delta) {
+    var riga = cart.filter(function (r) { return r.id === id; })[0];
+    if (!riga) return;
+    riga.qty += delta;
+    if (riga.qty <= 0) cart = cart.filter(function (r) { return r.id !== id; });
+    cartRenderFab();
+    cartRender();
+  }
+
+  /* Il pulsante compare solo dove ha senso ordinare */
+  function cartRenderFab() {
+    var fab = document.getElementById('cart-fab');
+    if (!fab) return;
+    var attiva = document.querySelector('.page.active');
+    var suMenu = attiva && (attiva.id === 'page-menu' || attiva.id === 'page-carta');
+    if (!cart.length || !suMenu) { fab.classList.add('hidden'); return; }
+    fab.classList.remove('hidden');
+    document.getElementById('cart-count').textContent = cartPezzi();
+    document.getElementById('cart-fab-total').textContent = camonFmtPrice(cartTotale());
+  }
+  window.cartRenderFab = cartRenderFab;
+
+  function cartOpen() { cartRender(); document.getElementById('cart-overlay').classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function cartClose() { document.getElementById('cart-overlay').classList.remove('open'); document.body.style.overflow = ''; }
+
+  function cartErrore(msg) {
+    var el = document.getElementById('cart-err');
+    el.innerHTML = msg ? '<div class="cart-err">' + msg + '</div>' : '';
+  }
+
+  function cartRender() {
+    var righe = document.getElementById('cart-lines');
+    var piede = document.getElementById('cart-foot');
+    if (!cart.length) {
+      righe.innerHTML = '<div class="cart-empty">Il carrello è vuoto.<br>Scegli qualcosa dal menu.</div>';
+      piede.innerHTML = '';
+      return;
+    }
+    righe.innerHTML = cart.map(function (r) {
+      return '<div class="cart-line">'
+        + '<div style="flex:1;min-width:0">'
+        +   '<div class="cart-line-name">' + r.name + '</div>'
+        +   '<div class="cart-line-price">' + camonFmtPrice(r.price_cents) + ' · ' + camonFmtPrice(r.price_cents * r.qty) + '</div>'
+        + '</div>'
+        + '<div class="cart-qty">'
+        +   '<button onclick="cartSetQty(\'' + r.id + '\',-1)">−</button>'
+        +   '<span>' + r.qty + '</span>'
+        +   '<button onclick="cartSetQty(\'' + r.id + '\',1)">+</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    var totale = cartTotale();
+    var bastano = !walletServer || (cardBalance * 100) >= totale;
+    piede.innerHTML = ''
+      + '<div class="cart-total"><span class="cart-total-lbl">Totale</span>'
+      +   '<span class="cart-total-val">' + camonFmtPrice(totale) + '</span></div>'
+      + '<div class="cart-saldo">Saldo disponibile: ' + fmtEuro(cardBalance)
+      +   (bastano ? '' : ' — non basta per questo ordine') + '</div>'
+      + '<button class="cart-send" id="cart-send" onclick="cartInvia()"' + (bastano ? '' : ' disabled') + '>'
+      +   'Ordina e paga col saldo</button>';
+  }
+
+  async function cartInvia() {
+    cartErrore('');
+    if (!cart.length) return;
+    if (!window.sb) { cartErrore('Serve la connessione per ordinare.'); return; }
+    if (!walletServer) { cartErrore('Accedi al tuo account per ordinare dal tavolo.'); return; }
+
+    var btn = document.getElementById('cart-send');
+    var testo = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Invio…';
+    try {
+      var tavolo = (typeof currentBooking !== 'undefined' && currentBooking) ? currentBooking.table : null;
+      var r = await window.sb.rpc('order_create', {
+        p_items: cart.map(function (x) { return { product_id: x.id, quantity: x.qty }; }),
+        p_table_code: tavolo,
+        p_note: null
+      });
+      if (r.error) throw r.error;
+      var esito = Array.isArray(r.data) ? r.data[0] : r.data;
+
+      cart = [];
+      cartRenderFab();
+      await walletSync();
+      document.getElementById('cart-lines').innerHTML =
+        '<div class="cart-empty">✅ Ordine inviato!<br>Te lo portiamo al tavolo.<br><br>'
+        + 'Scalati ' + camonFmtPrice(esito.total_cents) + ' · nuovo saldo ' + camonFmtPrice(esito.new_balance)
+        + '</div>';
+      document.getElementById('cart-foot').innerHTML = '';
+      setTimeout(cartClose, 2600);
+    } catch (e) {
+      btn.disabled = false; btn.textContent = testo;
+      var m = (e && e.message) || String(e);
+      if (/Saldo insufficiente/i.test(m)) m = 'Saldo insufficiente: ricarica la tessera.';
+      else if (/non e.* piu.* disponibile|disponibile/i.test(m)) m = 'Un prodotto è appena finito: togli e riprova.';
+      else if (/find the function/i.test(m)) m = 'Le ordinazioni non sono ancora attive sul database.';
+      cartErrore(m);
+    }
+  }
   async function camonSyncMenu() {
     if (!window.sb) return;
     try {
