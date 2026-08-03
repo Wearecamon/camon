@@ -5765,6 +5765,7 @@
     <div class="adm-tabs" id="adm-tabs">
       <button class="adm-tab active" onclick="admGo('clienti')">Clienti</button>
       <button class="adm-tab" onclick="admGo('prenotazioni')">Prenotazioni</button>
+      <button class="adm-tab" onclick="admGo('shot')">Shot</button>
       <button class="adm-tab" onclick="admGo('menu')">Menu</button>
       <button class="adm-tab" onclick="admGo('giochi')">Giochi</button>
       <button class="adm-tab" onclick="admGo('dati')">Dati</button>
@@ -5807,7 +5808,7 @@
     function admGo(sec) {
       admSec = sec;
       var tabs = document.querySelectorAll('#adm-tabs .adm-tab');
-      var nomi = ['clienti','prenotazioni','menu','giochi','dati'];
+      var nomi = ['clienti','prenotazioni','shot','menu','giochi','dati'];
       tabs.forEach(function (t, i) { t.classList.toggle('active', nomi[i] === sec); });
       admRender();
     }
@@ -5833,6 +5834,7 @@
       if (!admStaff) return;
       if (admSec === 'clienti')       admClienti();
       else if (admSec === 'prenotazioni') admPrenotazioni();
+      else if (admSec === 'shot')     admShot();
       else if (admSec === 'menu')     admMenu();
       else if (admSec === 'giochi')   admGiochi();
       else                            admDati();
@@ -6004,6 +6006,115 @@
         if (r.error) throw r.error;
         admPrenotazioni();
       } catch (e) { admErrore(e); }
+    }
+
+    /* ---------------- SHOT OMAGGIO ---------------- */
+    function admShot() {
+      admBody().innerHTML = ''
+        + '<div class="adm-group-title">Verifica codice</div>'
+        + '<div class="adm-card">'
+        +   '<div class="adm-toolbar">'
+        +     '<input class="adm-search" id="adm-shot-code" placeholder="CMN-0000" '
+        +       'autocomplete="off" maxlength="8" '
+        +       'oninput="this.value=this.value.toUpperCase()" '
+        +       'onkeydown="if(event.key===\'Enter\')admShotVerifica()">'
+        +     '<button class="adm-btn primary" style="flex:0 0 auto;min-width:100px" onclick="admShotVerifica()">Controlla</button>'
+        +   '</div>'
+        +   '<div id="adm-shot-esito"></div>'
+        + '</div>'
+        + '<div id="adm-shot-oggi"></div>';
+      admShotStorico();
+    }
+
+    function admShotEtichetta(stato) {
+      if (stato === 'valido')     return { chip:'confermata', testo:'Valido',            nota:'Controlla che la storia sia ancora online, poi consegna.' };
+      if (stato === 'gia_usato')  return { chip:'annullata',  testo:'Già consegnato',    nota:'Questo codice è stato ritirato.' };
+      if (stato === 'scaduto')    return { chip:'annullata',  testo:'Scaduto',           nota:'La finestra di 15 minuti è finita.' };
+      return { chip:'annullata', testo:'Inesistente', nota:'Nessun codice con questo numero.' };
+    }
+
+    async function admShotVerifica() {
+      var campo = document.getElementById('adm-shot-code');
+      var esito = document.getElementById('adm-shot-esito');
+      var codice = (campo.value || '').trim();
+      if (!codice) { esito.innerHTML = ''; return; }
+      esito.innerHTML = '<div class="adm-empty">Controllo…</div>';
+      try {
+        var r = await window.sb.rpc('shot_verify', { p_code: codice });
+        if (r.error) throw r.error;
+        var d = Array.isArray(r.data) ? r.data[0] : r.data;
+        if (!d) { esito.innerHTML = '<div class="adm-err">Nessuna risposta.</div>'; return; }
+        var e = admShotEtichetta(d.stato);
+        esito.innerHTML = ''
+          + '<div class="adm-card-head" style="margin-top:10px">'
+          +   '<div class="adm-card-title">' + admEsc(d.cliente || '—') + '</div>'
+          +   '<span class="adm-chip ' + e.chip + '">' + e.testo + '</span>'
+          + '</div>'
+          + '<div class="adm-kv"><b>Nota</b><span>' + admEsc(e.nota) + '</span></div>'
+          + (d.scade ? '<div class="adm-kv"><b>Scade</b><span>' + admEsc(new Date(d.scade).toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'})) + '</span></div>' : '')
+          + (d.stato === 'valido'
+              ? '<div class="adm-actions"><button class="adm-btn primary" onclick="admShotRitira()">Segna come consegnato</button></div>'
+              : '');
+      } catch (err) {
+        esito.innerHTML = '<div class="adm-err">' + admEsc((err && err.message) || err) + '</div>';
+      }
+    }
+
+    async function admShotRitira() {
+      var codice = (document.getElementById('adm-shot-code').value || '').trim();
+      try {
+        var r = await window.sb.rpc('shot_redeem', { p_code: codice });
+        if (r.error) throw r.error;
+        document.getElementById('adm-shot-esito').innerHTML =
+          '<div class="adm-card-head" style="margin-top:10px">'
+          + '<div class="adm-card-title">Shot consegnato 🥃</div>'
+          + '<span class="adm-chip confermata">Fatto</span></div>';
+        document.getElementById('adm-shot-code').value = '';
+        admShotStorico();
+      } catch (err) {
+        document.getElementById('adm-shot-esito').innerHTML =
+          '<div class="adm-err">' + admEsc((err && err.message) || err) + '</div>';
+      }
+    }
+
+    /* Quadro della serata: utile per capire quanti bonus stanno girando */
+    async function admShotStorico() {
+      var box = document.getElementById('adm-shot-oggi');
+      if (!box) return;
+      try {
+        var da = new Date(); da.setHours(da.getHours() - 24);
+        var r = await window.sb.from('shot_codes')
+          .select('code,created_at,expires_at,redeemed_at')
+          .gte('created_at', da.toISOString())
+          .order('created_at', { ascending: false });
+        if (r.error) throw r.error;
+        var lista = r.data || [];
+        var ritirati = lista.filter(function (c) { return c.redeemed_at; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Richiesti (24h)</div><div class="adm-stat-val">' + lista.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Consegnati</div><div class="adm-stat-val">' + ritirati + '</div></div>'
+          + '</div>';
+        h += '<div class="adm-group-title">Ultimi codici</div>';
+        if (!lista.length) {
+          h += '<div class="adm-empty">Nessun codice richiesto nelle ultime 24 ore.</div>';
+        } else {
+          lista.slice(0, 20).forEach(function (c) {
+            var stato = c.redeemed_at ? 'Consegnato'
+                      : (new Date(c.expires_at) < new Date() ? 'Scaduto' : 'In attesa');
+            var chip  = c.redeemed_at ? 'completata'
+                      : (new Date(c.expires_at) < new Date() ? 'annullata' : 'nuova');
+            h += '<div class="adm-row">'
+              + '<div class="adm-grow"><div class="adm-name">' + admEsc(c.code) + '</div>'
+              + '<div class="adm-sub">' + admEsc(new Date(c.created_at).toLocaleString('it-IT', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})) + '</div></div>'
+              + '<span class="adm-chip ' + chip + '">' + stato + '</span>'
+              + '</div>';
+          });
+        }
+        box.innerHTML = h;
+      } catch (e) {
+        box.innerHTML = '<div class="adm-err">' + admEsc((e && e.message) || e) + '</div>';
+      }
     }
 
     /* ---------------- MENU ---------------- */
@@ -10355,12 +10466,42 @@
     window.open('https://instagram.com/' + STORY_IG, '_blank');
   }
 
-  // genera il codice della serata (parte il limite fino alle 8:00 e la finestra di ritiro)
-  function storyClaim() {
-    if (!storyHasProfile()) { storyRender(); return; } // sicurezza: serve il profilo
+  /* Genera il codice della serata. Lo decide il server: cosi' non e'
+     prevedibile, il limite di uno a serata non si aggira svuotando il
+     browser e allo staff resta traccia del ritiro. */
+  async function storyClaim() {
+    if (!storyHasProfile()) { storyRender(); return; }
+
+    if (window.sb) {
+      try {
+        const { data, error } = await window.sb.rpc('shot_claim');
+        if (error) throw error;
+        const riga = Array.isArray(data) ? data[0] : data;
+        if (!riga || !riga.code) throw new Error('Risposta inattesa');
+        localStorage.setItem(storyKeyLast(), String(Date.now()));
+        localStorage.setItem(storyKeyCode(), riga.code);
+        storyRender();
+        return;
+      } catch (e) {
+        const msg = (e && e.message) || '';
+        if (/gi[aà] richiesto/i.test(msg)) {
+          // il server sa che il bonus e' gia' stato preso: allineo la vista
+          localStorage.setItem(storyKeyLast(), String(Date.now()));
+          storyRender();
+          return;
+        }
+        /* Funzioni non ancora installate sul database: si prosegue col
+           codice locale invece di lasciare il cliente senza bonus. */
+        if (!/find the function/i.test(msg)) {
+          alert('Non riesco a generare il codice: ' + (msg || e));
+          return;
+        }
+      }
+    }
+
+    // senza connessione: codice dimostrativo, non verificabile al banco
     const now = Date.now();
     localStorage.setItem(storyKeyLast(), String(now));
-    // codice deterministico (giorno + profilo), comodo da verificare allo staff
     const d = new Date(now);
     const seed = '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate() + storyProfileId();
     let code = 0;
