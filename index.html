@@ -3915,10 +3915,13 @@
           </div>
           <div>
             <div class="settings-row-lbl" style="color:#f7cc49">Area titolare</div>
-            <div class="settings-row-sub">Clienti, prenotazioni, menu e dati</div>
+            <div class="settings-row-sub" id="settings-admin-sub">Clienti, prenotazioni, menu e dati</div>
           </div>
         </div>
-        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        <div class="settings-row-val">
+          <span id="admin-badge" style="display:none;background:#ff453a;color:#fff;font-family:Manrope,sans-serif;font-size:11px;font-weight:800;border-radius:20px;padding:3px 8px;margin-right:6px"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
       </div>
 
       <div class="settings-row" id="settings-export" style="display:none" onclick="camonScaricaDati()">
@@ -12009,8 +12012,36 @@
       const { data: { user } } = await window.sb.auth.getUser();
       if (!user) return;
       const { data } = await window.sb.from('profiles').select('is_staff').eq('id', user.id).maybeSingle();
-      if (data && data.is_staff) row.style.display = 'flex';
+      if (data && data.is_staff) { row.style.display = 'flex'; camonContaDaFare(); }
     } catch (e) { /* nel dubbio resta nascosta */ }
+  }
+
+  /* Quante cose aspettano il titolare: senza un numero in vista
+     bisognerebbe ricordarsi di aprire la dashboard per scoprirlo. */
+  async function camonContaDaFare() {
+    const badge = document.getElementById('admin-badge');
+    const sub   = document.getElementById('settings-admin-sub');
+    if (!badge || !window.sb) return;
+    try {
+      const feste = await window.sb.from('event_requests')
+        .select('id', { count: 'exact', head: true }).eq('status', 'nuova');
+      const ordini = await window.sb.from('orders')
+        .select('id', { count: 'exact', head: true }).eq('status', 'paid');
+
+      const nFeste  = feste.count  || 0;
+      const nOrdini = ordini.count || 0;
+      const totale  = nFeste + nOrdini;
+
+      badge.style.display = totale ? 'inline-block' : 'none';
+      badge.textContent = totale;
+
+      if (sub) {
+        const pezzi = [];
+        if (nFeste)  pezzi.push(nFeste  + (nFeste  === 1 ? ' richiesta festa' : ' richieste feste'));
+        if (nOrdini) pezzi.push(nOrdini + (nOrdini === 1 ? ' ordine da servire' : ' ordini da servire'));
+        sub.textContent = pezzi.length ? pezzi.join(' · ') : 'Clienti, prenotazioni, menu e dati';
+      }
+    } catch (e) { /* tabelle non ancora create: nessun avviso */ }
   }
 
   /* Chiave localStorage per la foto, legata all'utente */
