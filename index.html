@@ -8400,6 +8400,35 @@
   /* ===== MENU FILTER ===== */
   let menuMacro = 'drink';
 
+  /* 'attesa' finche' i prodotti non sono arrivati, 'errore' se non ce
+     l'hanno fatta. Serve a non dire "nessun risultato" quando il vero
+     motivo e' che il menu non e' ancora stato scaricato. */
+  let menuStato = 'attesa';
+
+  function menuMostraStato() {
+    const vuoto = document.getElementById('menu-empty');
+    if (!vuoto) return;
+    if (menuStato === 'attesa') {
+      vuoto.innerHTML = '<strong>Un attimo…</strong>Stiamo caricando il menu.';
+    } else if (menuStato === 'errore') {
+      vuoto.innerHTML = '<strong>Menu non disponibile</strong>'
+        + 'Controlla la connessione e riprova.<br>'
+        + '<button onclick="menuRiprova(this)" style="margin-top:14px;padding:10px 20px;border:none;'
+        + 'border-radius:10px;background:#f7cc49;color:#111;font-family:Manrope,sans-serif;'
+        + 'font-size:13px;font-weight:800;cursor:pointer">Riprova</button>';
+    } else {
+      vuoto.innerHTML = '<strong>Nessun risultato</strong>Prova con un altro nome o cambia categoria.';
+    }
+    vuoto.style.display = 'block';
+  }
+
+  async function menuRiprova(btn) {
+    if (btn) { btn.disabled = true; btn.textContent = 'Carico…'; }
+    menuStato = 'attesa';
+    menuMostraStato();
+    await camonSyncMenu();
+  }
+
   function setMacro(btn, macro) {
     menuMacro = macro;
     document.querySelectorAll('.macro-btn').forEach(b => b.classList.remove('active'));
@@ -8458,7 +8487,10 @@
     });
 
     const vuoto = document.getElementById('menu-empty');
-    if (vuoto) vuoto.style.display = visibili ? 'none' : 'block';
+    if (vuoto) {
+      if (visibili) vuoto.style.display = 'none';
+      else menuMostraStato();
+    }
 
     return visibili;
   }
@@ -11340,6 +11372,14 @@
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
     if (page === 'admin' && typeof admEnter === 'function') admEnter();
+    /* Ultima rete di sicurezza: se all'avvio il menu non e' arrivato,
+       si riprova entrando invece di lasciare la griglia vuota. */
+    if (page === 'menu' && typeof camonSyncMenu === 'function'
+        && !document.querySelector('#drinks-grid .drink-card')) {
+      menuStato = 'attesa';
+      menuMostraStato();
+      camonSyncMenu();
+    }
     // il saldo puo' essere cambiato al banco: si rilegge all'ingresso
     if ((page === 'carta' || page === 'menu') && typeof walletSync === 'function') walletSync();
     if (typeof cartRenderFab === 'function') cartRenderFab();
@@ -12363,18 +12403,39 @@
       cartErrore(m);
     }
   }
-  async function camonSyncMenu() {
-    if (!window.sb) return;
+  /* I prodotti non stanno nell'HTML: arrivano tutti da qui. Se questa
+     chiamata fallisce e nessuno riprova, il menu resta vuoto per tutta
+     la sessione — succede aprendo l'app da bookmark con la rete ancora
+     incerta. Quindi si ritenta, e nel frattempo si dice che sta
+     caricando invece di annunciare "nessun risultato". */
+  async function camonSyncMenu(tentativiRimasti) {
+    if (!window.sb) return false;
+    if (tentativiRimasti == null) tentativiRimasti = 3;
+
     try {
       const { data, error } = await window.sb.from('products').select('*').order('sort');
-      if (error || !data || !data.length) return;
+      if (error) throw error;
+      if (!data || !data.length) throw new Error('Menu vuoto');
+
       const grid = document.getElementById('drinks-grid');
-      if (!grid) return;
-      const empty = document.getElementById('menu-empty');
+      if (!grid) return false;
       grid.querySelectorAll('.drink-card').forEach(c => c.remove());
       data.forEach(p => grid.appendChild(camonBuildCard(p)));
+
+      menuStato = 'ok';
       if (typeof applyMenuFilter === 'function') applyMenuFilter();
-    } catch (e) { console.warn('Sync menu:', e); }
+      return true;
+    } catch (e) {
+      if (tentativiRimasti > 0) {
+        // attese crescenti: 1s, 2s, 3s
+        await new Promise(r => setTimeout(r, (4 - tentativiRimasti) * 1000));
+        return camonSyncMenu(tentativiRimasti - 1);
+      }
+      console.warn('Sync menu:', e);
+      menuStato = 'errore';
+      menuMostraStato();
+      return false;
+    }
   }
   window.camonSyncMenu = camonSyncMenu;
 
