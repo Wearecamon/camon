@@ -3457,30 +3457,100 @@
     transition: transform 0.3s cubic-bezier(.22,.68,0,1);
   }
   .product-overlay.open .product-sheet { transform: translateY(0); }
+  /* immagine con sfumatura: il titolo ci si appoggia sopra */
+  .ps-hero { position: relative; }
   .product-sheet-img {
-    width: 100%; height: 260px; object-fit: cover;
+    width: 100%; height: 250px; object-fit: cover;
     border-radius: 24px 24px 0 0; display: block;
   }
-  .product-sheet-body { padding: 20px 20px 32px; }
+  .ps-hero::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(24,18,0,0) 38%, rgba(24,18,0,0.75) 78%, #181200 100%);
+    border-radius: 24px 24px 0 0; pointer-events: none;
+  }
+  .ps-hero-testo { position: absolute; left: 20px; right: 20px; bottom: 14px; z-index: 2; }
+  .ps-badge {
+    display: inline-block; font-family: 'Manrope', sans-serif;
+    font-size: 10px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+    background: rgba(247,204,73,0.9); color: #14110A;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 8px;
+  }
+  .ps-badge.grigio { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); }
   .product-sheet-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 26px; font-weight: 900; color: #f7cc49;
-    margin: 0 0 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px; letter-spacing: 1px; color: #fff;
+    margin: 0; line-height: 1.02;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
   }
-  .product-sheet-price {
-    font-size: 18px; font-weight: 800; color: rgba(247,204,73,0.7);
-    margin: 0 0 14px;
-  }
+
+  .product-sheet-body { padding: 16px 20px 26px; }
   .product-sheet-desc {
-    font-size: 15px; line-height: 1.5; color: rgba(255,255,255,0.75);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.66);
     margin: 0;
   }
+
+  /* riga di dati veloci: gradazione, volume, attesa */
+  .ps-specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .ps-spec {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 11px; padding: 8px 12px;
+    font-family: 'Manrope', sans-serif; font-size: 12px; color: rgba(255,255,255,0.7);
+  }
+  .ps-spec b { color: #fff; font-weight: 800; }
+  .ps-spec.verde { background: rgba(76,217,100,0.1); border-color: rgba(76,217,100,0.28); color: #7BE08F; }
+
+  .ps-sez { margin-top: 20px; }
+  .ps-sez-lbl {
+    font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255,255,255,0.32); margin-bottom: 7px;
+  }
+  .ps-sez-testo { font-family: 'Manrope', sans-serif; font-size: 13.5px; line-height: 1.55; color: rgba(255,255,255,0.72); }
+
+  .ps-allergeni {
+    display: flex; gap: 11px; align-items: flex-start;
+    background: rgba(255,159,10,0.09); border: 1px solid rgba(255,159,10,0.3);
+    border-radius: 13px; padding: 12px 14px; margin-top: 18px;
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; line-height: 1.5;
+    color: rgba(255,255,255,0.72);
+  }
+  .ps-allergeni b { color: #FFB443; }
+
+  /* quantita' + aggiungi, appaiati in fondo */
+  .ps-azioni { display: flex; gap: 11px; align-items: center; margin-top: 22px; }
+  .ps-qty {
+    display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 13px; padding: 5px;
+  }
+  .ps-qty button {
+    width: 34px; height: 34px; border: none; border-radius: 9px;
+    background: none; color: #fff; font-size: 19px; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .ps-qty button:active { background: rgba(255,255,255,0.08); }
+  .ps-qty span {
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: #f7cc49;
+    min-width: 24px; text-align: center;
+  }
+  .sheet-add { flex: 1; margin-top: 0 !important; }
+
+  .ps-esaurito {
+    text-align: center; background: rgba(255,69,58,0.1);
+    border: 1px solid rgba(255,69,58,0.32); border-radius: 13px;
+    padding: 14px; margin-top: 22px;
+    font-family: 'Manrope', sans-serif; font-size: 13px; color: #FF6B61;
+  }
+
   .product-sheet-close {
-    position: absolute; top: 12px; right: 12px;
+    position: absolute; top: 12px; right: 12px; z-index: 3;
     width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(0,0,0,0.5); border: none;
+    background: rgba(0,0,0,0.55); border: none;
     color: #fff; font-size: 20px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   }
 
   /* intestazioni di sotto-sezione */
@@ -5420,13 +5490,14 @@
       <div class="product-overlay" id="product-overlay" onclick="closeProductSheet()">
         <div class="product-sheet" onclick="event.stopPropagation()">
           <button class="product-sheet-close" onclick="closeProductSheet()">&times;</button>
-          <img class="product-sheet-img" id="product-sheet-img" src="" alt="">
-          <div class="product-sheet-body">
-            <h2 class="product-sheet-name" id="product-sheet-name"></h2>
-            <p class="product-sheet-price" id="product-sheet-price"></p>
-            <p class="product-sheet-desc" id="product-sheet-desc"></p>
-            <button class="sheet-add" id="product-sheet-add" onclick="cartAddCurrent()">Aggiungi all'ordine</button>
+          <div class="ps-hero">
+            <img class="product-sheet-img" id="product-sheet-img" src="" alt="">
+            <div class="ps-hero-testo">
+              <div id="product-sheet-badge"></div>
+              <h2 class="product-sheet-name" id="product-sheet-name"></h2>
+            </div>
           </div>
+          <div class="product-sheet-body" id="product-sheet-body"></div>
         </div>
       </div>
 
@@ -12296,14 +12367,86 @@
     card.addEventListener('click', function() { openProductSheet(p); });
     return card;
   }
+  /* Quante unita' si stanno per aggiungere dalla scheda */
+  var psQty = 1;
+
+  function psSetQty(delta) {
+    psQty = Math.max(1, Math.min(20, psQty + delta));
+    var el = document.getElementById('ps-qty-val');
+    if (el) el.textContent = psQty;
+    var btn = document.getElementById('product-sheet-add');
+    if (btn && productSheetCurrent) {
+      btn.textContent = 'Aggiungi · ' + camonFmtPrice(productSheetCurrent.price_cents * psQty);
+    }
+  }
+
+  function psEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c];
+    });
+  }
+
   function openProductSheet(p) {
     productSheetCurrent = p;
-    var add = document.getElementById('product-sheet-add');
-    if (add) add.style.display = p.available === false ? 'none' : 'block';
+    psQty = 1;
+
     document.getElementById('product-sheet-img').src = camonProductImg(p);
     document.getElementById('product-sheet-name').textContent = p.name;
-    document.getElementById('product-sheet-price').textContent = camonFmtPrice(p.price_cents);
-    document.getElementById('product-sheet-desc').textContent = p.description || '';
+
+    /* Un solo distintivo, quello che conta di piu': esaurito batte
+       "la casa consiglia", che a sua volta batte la categoria. */
+    var badge = p.available === false
+      ? '<span class="ps-badge grigio">Esaurito</span>'
+      : p.is_signature
+        ? '<span class="ps-badge">⭐ La casa consiglia</span>'
+        : (p.category ? '<span class="ps-badge grigio">' + psEsc(p.category) + '</span>' : '');
+    document.getElementById('product-sheet-badge').innerHTML = badge;
+
+    var h = '';
+    if (p.description) h += '<p class="product-sheet-desc">' + psEsc(p.description) + '</p>';
+
+    // dati veloci: si mostrano solo quelli compilati
+    var specs = [];
+    specs.push('<div class="ps-spec">💶 <b>' + camonFmtPrice(p.price_cents) + '</b></div>');
+    if (p.volume_ml)    specs.push('<div class="ps-spec">🥃 <b>' + p.volume_ml + '</b> ml</div>');
+    if (p.abv != null)  specs.push('<div class="ps-spec">🍸 <b>' + String(p.abv).replace('.', ',') + '%</b> vol</div>');
+    if (p.prep_minutes) specs.push('<div class="ps-spec">⏱ <b>' + p.prep_minutes + '</b> min</div>');
+    if (p.is_vegan)        specs.push('<div class="ps-spec verde">🌱 Vegano</div>');
+    if (p.is_gluten_free)  specs.push('<div class="ps-spec verde">🌾 Senza glutine</div>');
+    h += '<div class="ps-specs">' + specs.join('') + '</div>';
+
+    if (p.ingredients) {
+      h += '<div class="ps-sez"><div class="ps-sez-lbl">Ingredienti</div>'
+        +  '<div class="ps-sez-testo">' + psEsc(p.ingredients) + '</div></div>';
+    }
+    if (p.origin) {
+      h += '<div class="ps-sez"><div class="ps-sez-lbl">Provenienza</div>'
+        +  '<div class="ps-sez-testo">' + psEsc(p.origin) + '</div></div>';
+    }
+
+    /* Gli allergeni si segnalano sempre: se il dato manca lo si dice,
+       invece di lasciar credere che non ce ne siano. */
+    var all = (p.allergens && p.allergens.length)
+      ? '<b>Contiene:</b> ' + p.allergens.map(psEsc).join(', ') + '.'
+      : 'Informazioni sugli allergeni non ancora inserite.';
+    h += '<div class="ps-allergeni"><span>⚠️</span><div>' + all
+      +  ' Per intolleranze o allergie chiedi allo staff prima di ordinare.</div></div>';
+
+    if (p.available === false) {
+      h += '<div class="ps-esaurito">Per stasera è finito. Torna a trovarci!</div>';
+    } else {
+      h += '<div class="ps-azioni">'
+        +    '<div class="ps-qty">'
+        +      '<button onclick="psSetQty(-1)">−</button>'
+        +      '<span id="ps-qty-val">1</span>'
+        +      '<button onclick="psSetQty(1)">+</button>'
+        +    '</div>'
+        +    '<button class="sheet-add" id="product-sheet-add" onclick="cartAddCurrent()">'
+        +      'Aggiungi · ' + camonFmtPrice(p.price_cents) + '</button>'
+        +  '</div>';
+    }
+
+    document.getElementById('product-sheet-body').innerHTML = h;
     document.getElementById('product-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -12342,16 +12485,17 @@
     return cart.reduce(function (s, r) { return s + r.qty; }, 0);
   }
 
-  function cartAdd(p) {
+  function cartAdd(p, quante) {
+    var n = quante || 1;
     var riga = cart.filter(function (r) { return r.id === p.id; })[0];
-    if (riga) riga.qty++;
-    else cart.push({ id: p.id, name: p.name, price_cents: p.price_cents, qty: 1 });
+    if (riga) riga.qty += n;
+    else cart.push({ id: p.id, name: p.name, price_cents: p.price_cents, qty: n });
     cartRenderFab();
   }
 
   function cartAddCurrent() {
     if (!productSheetCurrent) return;
-    cartAdd(productSheetCurrent);
+    cartAdd(productSheetCurrent, psQty);
     closeProductSheet();
   }
 
