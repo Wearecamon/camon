@@ -1203,6 +1203,29 @@
   .bfield select option { background:#1a1a1a; }
   .bfield textarea { resize:none; height:88px; line-height:1.55; }
 
+  /* --- Fascia della serata: cena / cena+dopo / dopocena --- */
+  .fascia-grid { display:flex; flex-direction:column; gap:8px; }
+  .fascia-opt {
+    display:flex; align-items:center; gap:12px;
+    background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1);
+    border-radius:13px; padding:12px 14px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent; transition:all 0.15s;
+  }
+  .fascia-opt.active { background:rgba(247,204,73,0.12); border-color:#f7cc49; }
+  .fascia-ico { font-size:19px; flex-shrink:0; }
+  .fascia-testo { flex:1; min-width:0; }
+  .fascia-nome { font-family:'Manrope',sans-serif; font-size:13.5px; font-weight:800; color:#fff; }
+  .fascia-sub { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.45); margin-top:2px; }
+  .fascia-opt.active .fascia-sub { color:rgba(247,204,73,0.85); }
+  .fascia-nota {
+    display:flex; gap:9px; align-items:flex-start;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px; padding:11px 13px; margin-top:9px;
+    font-family:'Manrope',sans-serif; font-size:11.5px; line-height:1.5;
+    color:rgba(255,255,255,0.5);
+  }
+  .fascia-nota b { color:rgba(255,255,255,0.75); }
+
   /* --- Festa privata: calendario --- */
   .evcal { background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 12px 10px; }
   .evcal-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
@@ -6356,6 +6379,9 @@
               +   '<span class="adm-chip ' + admEsc(b.status) + '">' + admEsc(b.status) + '</span>'
               + '</div>'
               + '<div class="adm-kv"><b>Quando</b><span>' + admData(b.booking_date) + (b.booking_time ? ' · ' + admEsc(b.booking_time) : '') + '</span></div>'
+              + '<div class="adm-kv"><b>Fascia</b><span>' + admEsc(
+                  { cena:'🍽️ Solo cena', cena_dopocena:'🍸 Cena e dopocena', dopocena:'🌙 Solo dopocena' }[b.dining_slot] || '—'
+                ) + '</span></div>'
               + '<div class="adm-kv"><b>Persone</b><span>' + admEsc(b.people || '—') + '</span></div>'
               + '<div class="adm-kv"><b>Tavolo</b><span>' + admEsc(b.table_code || '—') + '</span></div>'
               + (b.notes ? '<div class="adm-note">' + admEsc(b.notes) + '</div>' : '')
@@ -6847,6 +6873,13 @@
               <label>Ora</label>
               <input id="book-ora" type="time" value="21:00">
             </div>
+          </div>
+
+          <!-- Fino a quando si ferma -->
+          <div class="bfield" id="bfield-fascia">
+            <label>Quanto ti fermi?</label>
+            <div class="fascia-grid" id="fascia-grid"></div>
+            <div class="fascia-nota" id="fascia-nota"></div>
           </div>
 
           <!-- Quante persone -->
@@ -7554,6 +7587,47 @@
     bookSelectType(tipo);
   }
 
+  /* Fascia scelta per la prenotazione in corso */
+  var bookFascia = 'cena';
+
+  function bookSetFascia(valore) {
+    bookFascia = valore;
+    document.querySelectorAll('#fascia-grid .fascia-opt').forEach(function (o) {
+      o.classList.toggle('active', o.dataset.fascia === valore);
+    });
+  }
+
+  /* Il dopocena da solo si prenota solo al tavolo condiviso: sugli
+     altri il tavolo resterebbe vuoto proprio nelle ore di cena. */
+  function bookRenderFascia(type) {
+    var grid = document.getElementById('fascia-grid');
+    var nota = document.getElementById('fascia-nota');
+    if (!grid) return;
+
+    var soloCondiviso = (type === 'shared');
+    var opzioni = [
+      { v:'cena',          i:'🍽️', n:'Solo cena',        s:'Il tavolo resta tuo per la cena' },
+      { v:'cena_dopocena', i:'🍸', n:'Cena e dopocena',  s:'Resti anche dopo, senza rifare il giro' }
+    ];
+    if (soloCondiviso) {
+      opzioni.push({ v:'dopocena', i:'🌙', n:'Solo dopocena', s:'Ti abbiniamo a un tavolo già avviato' });
+    }
+
+    bookFascia = 'cena';
+    grid.innerHTML = opzioni.map(function (o) {
+      return '<div class="fascia-opt' + (o.v === 'cena' ? ' active' : '') + '" data-fascia="' + o.v + '"'
+        +      ' onclick="bookSetFascia(\'' + o.v + '\')">'
+        +      '<span class="fascia-ico">' + o.i + '</span>'
+        +      '<span class="fascia-testo"><span class="fascia-nome">' + o.n + '</span>'
+        +        '<span class="fascia-sub" style="display:block">' + o.s + '</span></span>'
+        +    '</div>';
+    }).join('');
+
+    nota.innerHTML = soloCondiviso
+      ? '<span>💡</span><div>Al tavolo condiviso puoi unirti anche a serata iniziata: ti sediamo con chi è già lì.</div>'
+      : '<span>ℹ️</span><div>Il <b>solo dopocena</b> non è prenotabile su questo tipo di tavolo. Se vuoi passare più tardi vieni pure: ti sistemiamo se c\'è posto libero.</div>';
+  }
+
   function bookSelectType(type) {
     bookType = type;
     const cfg = bookTypes[type];
@@ -7589,6 +7663,9 @@
     });
     // occasione solo per stanza privata
     document.getElementById('bfield-occasione').style.display = cfg.showOccasione ? 'flex' : 'none';
+    // la fascia non ha senso sull'invito segreto: la serata la propone l'altra persona
+    document.getElementById('bfield-fascia').style.display = cfg.isInvite ? 'none' : 'flex';
+    if (!cfg.isInvite) bookRenderFascia(type);
     // compagni solo per shared, nascosto di default (richiede > 1 pers)
     document.getElementById('bfield-compagni').style.display = 'none';
     // campi specifici per l'invito segreto
@@ -8087,6 +8164,7 @@
         booking_date: p.data,
         booking_time: p.ora,
         people:       p.personeNum,
+        dining_slot:  (bookType === 'shared' || bookFascia !== 'dopocena') ? bookFascia : 'cena',
         table_code:   tavolo,
         occasion:     occasioneEl ? (occasioneEl.value || null) : null,
         notes:        noteEl ? (noteEl.value.trim() || null) : null
