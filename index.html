@@ -12322,6 +12322,7 @@
 
   var cartServizio = 'banco';        // 'banco' | 'tavolo'
   var SERVIZIO_TAVOLO = 100;         // supplemento in centesimi
+  var SOGLIA_CARTA    = 1000;        // sotto i 10 € le commissioni non ripagano: si ricarica
 
   function cartSubtotale() {
     return cart.reduce(function (s, r) { return s + r.price_cents * r.qty; }, 0);
@@ -12440,6 +12441,10 @@
       +  '<div class="cart-saldo">Saldo disponibile: ' + fmtEuro(cardBalance)
       +    (bastano ? '' : ' — mancano ' + camonFmtPrice(mancano)) + '</div>';
 
+    /* La carta si offre solo da 10 € in su: sotto, le commissioni si
+       mangiano l'incasso, quindi si passa dalla ricarica. */
+    var cartaAmmessa = totale >= SOGLIA_CARTA;
+
     h += '<div class="cart-pay">';
     if (bastano) {
       h += '<button class="cart-pay-btn primary" id="cart-send" onclick="cartInvia()">'
@@ -12449,20 +12454,24 @@
         +  '</button>';
     }
 
-    /* La carta resta sempre a disposizione: chi non ha saldo, o non
-       vuole ricaricare, deve poter pagare comunque. */
-    h += '<button class="cart-pay-btn' + (bastano ? '' : ' primary') + '" onclick="cartPagamentoPresto()">'
-      +    '<span class="cart-pay-ico">💳</span>'
-      +    '<span class="cart-pay-testo">Paga con carta'
-      +      '<div class="cart-pay-sub">Carta, Apple Pay o PayPal</div></span>'
-      +    '<span class="cart-pay-presto">Presto</span>'
-      +  '</button>';
+    if (cartaAmmessa) {
+      h += '<button class="cart-pay-btn' + (bastano ? '' : ' primary') + '" onclick="cartPagamentoPresto()">'
+        +    '<span class="cart-pay-ico">💳</span>'
+        +    '<span class="cart-pay-testo">Paga con carta'
+        +      '<div class="cart-pay-sub">Carta, Apple Pay o PayPal</div></span>'
+        +    '<span class="cart-pay-presto">Presto</span>'
+        +  '</button>';
+    }
 
     if (!bastano) {
-      h += '<button class="cart-pay-btn" onclick="cartVaiARicarica()">'
+      h += '<button class="cart-pay-btn' + (cartaAmmessa ? '' : ' primary') + '" onclick="cartVaiARicarica()">'
         +    '<span class="cart-pay-ico">➕</span>'
         +    '<span class="cart-pay-testo">Ricarica la tessera'
-        +      '<div class="cart-pay-sub">Poi torni qui e paghi in un tocco</div></span>'
+        +      '<div class="cart-pay-sub">'
+        +        (cartaAmmessa
+                   ? 'Poi torni qui e paghi in un tocco'
+                   : 'Sotto ' + camonFmtPrice(SOGLIA_CARTA) + ' si paga dal saldo')
+        +      '</div></span>'
         +  '</button>';
     }
     h += '</div>';
