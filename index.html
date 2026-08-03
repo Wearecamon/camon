@@ -12322,7 +12322,6 @@
 
   var cartServizio = 'banco';        // 'banco' | 'tavolo'
   var SERVIZIO_TAVOLO = 100;         // supplemento in centesimi
-  var SOGLIA_CARTA    = 1000;        // sotto i 10 € la carta non conviene: si ricarica
 
   function cartSubtotale() {
     return cart.reduce(function (s, r) { return s + r.price_cents * r.qty; }, 0);
@@ -12444,29 +12443,26 @@
     h += '<div class="cart-pay">';
     if (bastano) {
       h += '<button class="cart-pay-btn primary" id="cart-send" onclick="cartInvia()">'
-        +    '<span class="cart-pay-ico">💳</span>'
+        +    '<span class="cart-pay-ico">🎫</span>'
         +    '<span class="cart-pay-testo">Ordina e paga col saldo'
         +      '<div class="cart-pay-sub">Restano ' + camonFmtPrice(saldoCents - totale) + '</div></span>'
         +  '</button>';
-    } else {
-      /* Sotto la soglia il pagamento con carta costa piu' di quanto
-         renda: conviene ricaricare e pagare dal saldo. */
-      if (totale >= SOGLIA_CARTA) {
-        h += '<button class="cart-pay-btn" onclick="cartPagamentoPresto()">'
-          +    '<span class="cart-pay-ico">💳</span>'
-          +    '<span class="cart-pay-testo">Paga con carta'
-          +      '<div class="cart-pay-sub">Carta, Apple Pay o PayPal</div></span>'
-          +    '<span class="cart-pay-presto">Presto</span>'
-          +  '</button>';
-      }
-      h += '<button class="cart-pay-btn primary" onclick="cartVaiARicarica()">'
+    }
+
+    /* La carta resta sempre a disposizione: chi non ha saldo, o non
+       vuole ricaricare, deve poter pagare comunque. */
+    h += '<button class="cart-pay-btn' + (bastano ? '' : ' primary') + '" onclick="cartPagamentoPresto()">'
+      +    '<span class="cart-pay-ico">💳</span>'
+      +    '<span class="cart-pay-testo">Paga con carta'
+      +      '<div class="cart-pay-sub">Carta, Apple Pay o PayPal</div></span>'
+      +    '<span class="cart-pay-presto">Presto</span>'
+      +  '</button>';
+
+    if (!bastano) {
+      h += '<button class="cart-pay-btn" onclick="cartVaiARicarica()">'
         +    '<span class="cart-pay-ico">➕</span>'
         +    '<span class="cart-pay-testo">Ricarica la tessera'
-        +      '<div class="cart-pay-sub">'
-        +        (totale < SOGLIA_CARTA
-                   ? 'Sotto ' + camonFmtPrice(SOGLIA_CARTA) + ' si paga dal saldo'
-                   : 'Poi torni qui e paghi in un tocco')
-        +      '</div></span>'
+        +      '<div class="cart-pay-sub">Poi torni qui e paghi in un tocco</div></span>'
         +  '</button>';
     }
     h += '</div>';
