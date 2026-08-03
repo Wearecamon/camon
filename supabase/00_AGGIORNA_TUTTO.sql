@@ -653,10 +653,10 @@ grant execute on function public.export_my_data() to authenticated;
 update public.profiles
    set is_staff = true
  where id = (select id from auth.users
-              where lower(email) = 'fiandinomarcowork@gmail.com');
+              where lower(email) = 'fiandinoamrco01@gmail.com');
 
 -- Controllo: deve comparire una riga con is_staff = true
 select u.email, p.is_staff
   from public.profiles p
   join auth.users u on u.id = p.id
- where lower(u.email) = 'fiandinomarcowork@gmail.com';
+ where lower(u.email) = 'fiandinoamrco01@gmail.com';
