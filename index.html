@@ -6869,7 +6869,7 @@
               <label>Data</label>
               <input id="book-data" type="date">
             </div>
-            <div class="bfield">
+            <div class="bfield" id="bfield-ora">
               <label>Ora</label>
               <input id="book-ora" type="time" value="21:00">
             </div>
@@ -7590,11 +7590,24 @@
   /* Fascia scelta per la prenotazione in corso */
   var bookFascia = 'cena';
 
+  /* Al tavolo condiviso l'orario non si sceglie: per far sedere
+     insieme gente che non si conosce servono partenze comuni,
+     altrimenti si arriva alla spicciolata a tavolo gia' avviato. */
+  var ORA_CENA     = '20:00';
+  var ORA_DOPOCENA = '22:00';
+
+  function bookOraDaFascia(fascia) {
+    return fascia === 'dopocena' ? ORA_DOPOCENA : ORA_CENA;
+  }
+
   function bookSetFascia(valore) {
     bookFascia = valore;
     document.querySelectorAll('#fascia-grid .fascia-opt').forEach(function (o) {
       o.classList.toggle('active', o.dataset.fascia === valore);
     });
+    // sul condiviso l'ora segue la fascia
+    var ora = document.getElementById('book-ora');
+    if (ora && bookType === 'shared') ora.value = bookOraDaFascia(valore);
   }
 
   /* Il dopocena da solo si prenota solo al tavolo condiviso: sugli
@@ -7604,13 +7617,16 @@
     var nota = document.getElementById('fascia-nota');
     if (!grid) return;
 
-    var soloCondiviso = (type === 'shared');
+    var condiviso = (type === 'shared');
     var opzioni = [
-      { v:'cena',          i:'🍽️', n:'Solo cena',        s:'Il tavolo resta tuo per la cena' },
-      { v:'cena_dopocena', i:'🍸', n:'Cena e dopocena',  s:'Resti anche dopo, senza rifare il giro' }
+      { v:'cena',          i:'🍽️', n:'Solo cena',
+        s: condiviso ? 'Ritrovo alle ' + ORA_CENA : 'Il tavolo resta tuo per la cena' },
+      { v:'cena_dopocena', i:'🍸', n:'Cena e dopocena',
+        s: condiviso ? 'Ritrovo alle ' + ORA_CENA + ', si prosegue insieme' : 'Resti anche dopo, senza rifare il giro' }
     ];
-    if (soloCondiviso) {
-      opzioni.push({ v:'dopocena', i:'🌙', n:'Solo dopocena', s:'Ti abbiniamo a un tavolo già avviato' });
+    if (condiviso) {
+      opzioni.push({ v:'dopocena', i:'🌙', n:'Solo dopocena',
+        s:'Ritrovo alle ' + ORA_DOPOCENA });
     }
 
     bookFascia = 'cena';
@@ -7623,9 +7639,19 @@
         +    '</div>';
     }).join('');
 
-    nota.innerHTML = soloCondiviso
-      ? '<span>💡</span><div>Al tavolo condiviso puoi unirti anche a serata iniziata: ti sediamo con chi è già lì.</div>'
+    nota.innerHTML = condiviso
+      ? '<span>💡</span><div>L\'orario è fisso perché al tavolo condiviso <b>si arriva tutti insieme</b>: è così che il tavolo funziona. Possiamo riservarci di unirti a un tavolo già avviato, ma cerchiamo di abbinarti a chi arriva alla tua stessa ora.</div>'
       : '<span>ℹ️</span><div>Il <b>solo dopocena</b> non è prenotabile su questo tipo di tavolo. Se vuoi passare più tardi vieni pure: ti sistemiamo se c\'è posto libero.</div>';
+
+    /* Al condiviso resta solo la data: l'ora la decide la fascia */
+    var campoOra = document.getElementById('bfield-ora');
+    if (campoOra) campoOra.style.display = condiviso ? 'none' : 'flex';
+    var riga = document.getElementById('bfield-datetime');
+    if (riga) riga.style.gridTemplateColumns = condiviso ? '1fr' : '';
+    /* Tornando a un tavolo con orario libero si riparte dal solito,
+       senza trascinarsi l'ora imposta dal condiviso. */
+    var ora = document.getElementById('book-ora');
+    if (ora) ora.value = condiviso ? ORA_CENA : '21:00';
   }
 
   function bookSelectType(type) {
