@@ -12905,7 +12905,7 @@
      ricarica la pagina — ma solo se c'era già un SW attivo in precedenza
      (controller !== null), così il primo avvio non viene interrotto. */
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+    navigator.serviceWorker.register('sw.js').then(function(reg) {
       reg.addEventListener('updatefound', function() {
         var newSW = reg.installing;
         newSW.addEventListener('statechange', function() {
