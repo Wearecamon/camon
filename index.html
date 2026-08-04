@@ -3483,7 +3483,7 @@
   /* immagine con sfumatura: il titolo ci si appoggia sopra */
   .ps-hero { position: relative; }
   .product-sheet-img {
-    width: 100%; height: 250px; object-fit: cover;
+    width: 100%; height: auto;
     border-radius: 24px 24px 0 0; display: block;
   }
   .ps-hero::after {
@@ -12511,7 +12511,7 @@
 
     // dati veloci: si mostrano solo quelli compilati
     var specs = [];
-    specs.push('<div class="ps-spec">💶 <b>' + camonFmtPrice(p.price_cents) + '</b></div>');
+    // price is shown in the Aggiungi button, not here
     if (p.volume_ml)    specs.push('<div class="ps-spec">🥃 <b>' + p.volume_ml + '</b> ml</div>');
     if (p.abv != null)  specs.push('<div class="ps-spec">🍸 <b>' + String(p.abv).replace('.', ',') + '%</b> vol</div>');
     if (p.prep_minutes) specs.push('<div class="ps-spec">⏱ <b>' + p.prep_minutes + '</b> min</div>');
@@ -12859,6 +12859,25 @@
   // se il modulo Supabase ha già finito prima di questo script, parte subito
   if (window.sb) camonAuthInit();
   else window.dispatchEvent(new Event('camon-init-ready'));
+</script>
+
+<script>
+  /* Registra il service worker e ricarica la pagina quando arriva
+     una versione aggiornata, così il bookmark si aggiorna da solo. */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+      reg.addEventListener('updatefound', function() {
+        var sw = reg.installing;
+        sw.addEventListener('statechange', function() {
+          /* Il nuovo SW è attivo e c'era già un vecchio controller:
+             ricarica per servire la versione aggiornata. */
+          if (sw.state === 'activated' && navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        });
+      });
+    });
+  }
 </script>
 </body>
 </html>
