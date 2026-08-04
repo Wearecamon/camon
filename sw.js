@@ -4,9 +4,11 @@
 
 const CACHE = 'camon-v1';
 
-/* Attiva subito senza aspettare che le schede vecchie vengano chiuse. */
+/* Attiva subito, ma NON ruba il controllo delle pagine già aperte
+   (niente clients.claim): così il reload automatico in-page si attiva
+   solo quando c'era già un SW precedente, non al primo avvio. */
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+self.addEventListener('activate', () => {});
 
 self.addEventListener('fetch', e => {
   const req = e.request;
