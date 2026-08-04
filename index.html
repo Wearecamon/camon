@@ -12862,21 +12862,11 @@
 </script>
 
 <script>
-  /* Registra il service worker e ricarica la pagina quando arriva
-     una versione aggiornata, così il bookmark si aggiorna da solo. */
+  /* Registra il service worker. Con la strategia network-first nel SW,
+     ogni apertura del bookmark carica già la versione aggiornata dalla
+     rete — non serve un reload automatico. */
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(function(reg) {
-      reg.addEventListener('updatefound', function() {
-        var sw = reg.installing;
-        sw.addEventListener('statechange', function() {
-          /* Il nuovo SW è attivo e c'era già un vecchio controller:
-             ricarica per servire la versione aggiornata. */
-          if (sw.state === 'activated' && navigator.serviceWorker.controller) {
-            window.location.reload();
-          }
-        });
-      });
-    });
+    navigator.serviceWorker.register('/sw.js');
   }
 </script>
 </body>
