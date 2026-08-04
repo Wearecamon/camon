@@ -643,6 +643,9 @@
     background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.32);
     border: 1px solid rgba(255,255,255,0.09);
   }
+  .drink-badge-sep {
+    color: rgba(247,204,73,0.35); margin: 0 2px;
+  }
 
   /* Toggle macro Cibo / Drink */
   .menu-macro { display: flex; gap: 8px; padding: 16px 22px 4px; }
@@ -12493,9 +12496,12 @@
     card.dataset.cat = p.category || '';
     card.dataset.available = p.available ? 'true' : 'false';
     if (p.macro === 'cibo') card.style.display = 'none';
-    var badge = isAppOrderable(p)
-      ? '<div class="drink-badge drink-badge-tavolo">🛎 Al tavolo</div>'
-      : '<div class="drink-badge drink-badge-self">🍺 Vai allo spillatore</div>';
+    var badge = '';
+    if (p.macro !== 'cibo') {
+      badge = isAppOrderable(p)
+        ? '<div class="drink-badge drink-badge-tavolo">🛎 Al tavolo <span class="drink-badge-sep">·</span> 🥡 Asporto</div>'
+        : '<div class="drink-badge drink-badge-self">🍺 Vai allo spillatore</div>';
+    }
     card.innerHTML =
       `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy"></div>` +
       `<div class="drink-name">${p.name}</div>` +
@@ -12571,7 +12577,7 @@
 
     if (p.available === false) {
       h += '<div class="ps-esaurito">Per stasera è finito. Torna a trovarci!</div>';
-    } else if (!isAppOrderable(p)) {
+    } else if (p.macro !== 'cibo' && !isAppOrderable(p)) {
       h += '<div class="ps-self-info">'
         +    '<span class="ps-si-ico">🍺</span>'
         +    '<div>Questo cocktail è disponibile agli <b>spillatori self-service</b>. '
