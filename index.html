@@ -12550,13 +12550,26 @@
 
     // dati veloci: si mostrano solo quelli compilati
     var specs = [];
-    // price is shown in the Aggiungi button, not here
-    if (p.volume_ml)    specs.push('<div class="ps-spec">🥃 <b>' + p.volume_ml + '</b> ml</div>');
-    if (p.abv != null)  specs.push('<div class="ps-spec">🍸 <b>' + String(p.abv).replace('.', ',') + '%</b> vol</div>');
-    if (p.prep_minutes) specs.push('<div class="ps-spec">⏱ <b>' + p.prep_minutes + '</b> min</div>');
-    if (p.is_vegan)        specs.push('<div class="ps-spec verde">🌱 Vegano</div>');
-    if (p.is_gluten_free)  specs.push('<div class="ps-spec verde">🌾 Senza glutine</div>');
-    h += '<div class="ps-specs">' + specs.join('') + '</div>';
+    if (p.macro === 'cibo') {
+      // campi specifici per il cibo
+      if (p.portion_size)  specs.push('<div class="ps-spec">⚖️ <b>' + psEsc(p.portion_size) + '</b></div>');
+      if (p.serving_temp === 'caldo')    specs.push('<div class="ps-spec">🔥 Servito <b>caldo</b></div>');
+      if (p.serving_temp === 'freddo')   specs.push('<div class="ps-spec">❄️ Servito <b>freddo</b></div>');
+      if (p.serving_temp === 'ambiente') specs.push('<div class="ps-spec">🌡️ Temperatura <b>ambiente</b></div>');
+      if (p.prep_minutes)  specs.push('<div class="ps-spec">⏱ <b>' + p.prep_minutes + '</b> min</div>');
+      if (p.is_vegetarian) specs.push('<div class="ps-spec verde">🥦 Vegetariano</div>');
+      if (p.is_vegan)      specs.push('<div class="ps-spec verde">🌱 Vegano</div>');
+      if (p.is_gluten_free)specs.push('<div class="ps-spec verde">🌾 Senza glutine</div>');
+      if (p.is_halal)      specs.push('<div class="ps-spec verde">☪️ Halal</div>');
+    } else {
+      // campi specifici per i drink
+      if (p.volume_ml)     specs.push('<div class="ps-spec">🥃 <b>' + p.volume_ml + '</b> ml</div>');
+      if (p.abv != null)   specs.push('<div class="ps-spec">🍸 <b>' + String(p.abv).replace('.', ',') + '%</b> vol</div>');
+      if (p.prep_minutes)  specs.push('<div class="ps-spec">⏱ <b>' + p.prep_minutes + '</b> min</div>');
+      if (p.is_vegan)      specs.push('<div class="ps-spec verde">🌱 Vegano</div>');
+      if (p.is_gluten_free)specs.push('<div class="ps-spec verde">🌾 Senza glutine</div>');
+    }
+    if (specs.length) h += '<div class="ps-specs">' + specs.join('') + '</div>';
 
     if (p.ingredients) {
       h += '<div class="ps-sez"><div class="ps-sez-lbl">Ingredienti</div>'
