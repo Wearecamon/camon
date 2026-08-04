@@ -630,6 +630,19 @@
   }
   .drink-price { font-size: 14px; font-weight: 700; color: #f7cc49; }
   .drink-desc { font-size: 11px; color: rgba(255,240,205,0.42); margin-top: 5px; line-height: 1.4; }
+  .drink-badge {
+    display: inline-block; font-family: 'Manrope', sans-serif;
+    font-size: 9px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px; margin-top: 7px;
+  }
+  .drink-badge-tavolo {
+    background: rgba(247,204,73,0.14); color: #f7cc49;
+    border: 1px solid rgba(247,204,73,0.32);
+  }
+  .drink-badge-self {
+    background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.32);
+    border: 1px solid rgba(255,255,255,0.09);
+  }
 
   /* Toggle macro Cibo / Drink */
   .menu-macro { display: flex; gap: 8px; padding: 16px 22px 4px; }
@@ -3559,6 +3572,16 @@
     min-width: 24px; text-align: center;
   }
   .sheet-add { flex: 1; margin-top: 0 !important; }
+
+  .ps-self-info {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 13px; padding: 14px 16px; margin-top: 22px;
+    font-family: 'Manrope', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.5); line-height: 1.55;
+  }
+  .ps-self-info .ps-si-ico { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .ps-self-info b { color: rgba(255,255,255,0.75); font-weight: 700; }
 
   .ps-esaurito {
     text-align: center; background: rgba(255,69,58,0.1);
@@ -12456,6 +12479,12 @@
     const seed = encodeURIComponent(p.name.toLowerCase().replace(/\s+/g, '-'));
     return `https://picsum.photos/seed/${seed}/400/400`;
   }
+  function isAppOrderable(p) {
+    if (p.app_orderable != null) return Boolean(p.app_orderable);
+    var n = (p.name || '').toLowerCase();
+    return n.includes('spritz') || n.includes('gin');
+  }
+
   function camonBuildCard(p) {
     const img = camonProductImg(p);
     const card = document.createElement('div');
@@ -12464,10 +12493,14 @@
     card.dataset.cat = p.category || '';
     card.dataset.available = p.available ? 'true' : 'false';
     if (p.macro === 'cibo') card.style.display = 'none';
+    var badge = isAppOrderable(p)
+      ? '<div class="drink-badge drink-badge-tavolo">🛎 Al tavolo</div>'
+      : '<div class="drink-badge drink-badge-self">🍺 Vai allo spillatore</div>';
     card.innerHTML =
       `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy"></div>` +
       `<div class="drink-name">${p.name}</div>` +
-      `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>`;
+      `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>` +
+      badge;
     card.addEventListener('click', function() { openProductSheet(p); });
     return card;
   }
@@ -12538,6 +12571,12 @@
 
     if (p.available === false) {
       h += '<div class="ps-esaurito">Per stasera è finito. Torna a trovarci!</div>';
+    } else if (!isAppOrderable(p)) {
+      h += '<div class="ps-self-info">'
+        +    '<span class="ps-si-ico">🍺</span>'
+        +    '<div>Questo cocktail è disponibile agli <b>spillatori self-service</b>. '
+        +    'Serviti direttamente — è più veloce!</div>'
+        +  '</div>';
     } else {
       h += '<div class="ps-azioni">'
         +    '<div class="ps-qty">'
