@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAMON · Totem</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f7cc49;--bg:#0e0e0e;--card:#1a1a1a;--card2:#222;
+  --text:#fff;--muted:rgba(255,255,255,0.4);--border:rgba(255,255,255,0.08);
+  --red:#ff4d4d;--green:#4cd964;--blue:#4a9eff;
+}
+body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:20px 20px 70px;overflow-x:hidden}
+
+/* ── Logo ── */
+.logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;margin-bottom:4px;text-align:center}
+.logo span{color:var(--gold)}
+.tagline{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:32px;text-align:center}
+
+/* ── Screens ── */
+.screen{display:none;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:420px}
+.screen.active{display:flex}
+
+/* ── HOME: due grandi pulsanti ── */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
+.home-btn{background:var(--card);border:2px solid var(--border);border-radius:20px;
+  padding:28px 16px;cursor:pointer;transition:border-color .15s,transform .1s;
+  display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.home-btn:active{transform:scale(0.97)}
+.home-btn.gold{border-color:rgba(247,204,73,0.3)}
+.home-btn.gold:hover{border-color:var(--gold)}
+.home-btn.blue{border-color:rgba(74,158,255,0.3)}
+.home-btn.blue:hover{border-color:var(--blue)}
+.home-btn.green{border-color:rgba(76,217,100,0.3)}
+.home-btn.green:hover{border-color:var(--green)}
+.home-btn-ico{font-size:40px}
+.home-btn-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.5px}
+.home-btn-sub{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* ── TAP CARD ── */
+.nfc-ring{width:140px;height:140px;border-radius:50%;border:3px solid rgba(247,204,73,0.25);
+  display:flex;align-items:center;justify-content:center;position:relative}
+.nfc-ring::after{content:'';position:absolute;inset:12px;border-radius:50%;
+  border:2px dashed rgba(247,204,73,0.12);animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(247,204,73,0.3)}50%{box-shadow:0 0 0 18px rgba(247,204,73,0)}}
+.nfc-ring.pulsing{animation:pulse-ring 1.4s ease infinite;border-color:var(--gold)}
+.nfc-icon{width:50px;height:50px;color:var(--gold)}
+.tap-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;text-align:center}
+.tap-sub{font-size:13px;color:var(--muted);text-align:center;max-width:260px;line-height:1.6}
+
+/* ── USER BADGE ── */
+.user-badge{display:flex;align-items:center;gap:12px;background:var(--card);
+  border:1px solid var(--border);border-radius:14px;padding:12px 16px;width:100%}
+.user-avatar{width:44px;height:44px;border-radius:50%;background:rgba(247,204,73,0.15);
+  border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);flex-shrink:0}
+.user-info{flex:1}
+.user-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.3px}
+.user-bal{font-size:12px;color:var(--muted)}
+.user-bal b{color:var(--gold)}
+
+/* ── SEZIONE TITOLO ── */
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
+  align-self:flex-start;width:100%}
+
+/* ── RICARICA ── */
+.amt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
+.amt-chip{background:var(--card);border:2px solid var(--border);border-radius:12px;
+  padding:16px 8px;text-align:center;cursor:pointer;font-family:'Bebas Neue',sans-serif;
+  font-size:22px;transition:border-color .15s,background .15s}
+.amt-chip:active{transform:scale(0.96)}
+.amt-chip.sel{border-color:var(--gold);background:rgba(247,204,73,0.1)}
+.amt-custom{display:flex;align-items:center;gap:8px;width:100%;
+  background:var(--card);border:2px solid var(--border);border-radius:12px;padding:12px 16px}
+.amt-custom span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)}
+.amt-custom input{flex:1;background:none;border:none;outline:none;color:var(--text);
+  font-size:18px;font-family:'Manrope',sans-serif;font-weight:600}
+.amt-custom input::placeholder{color:var(--muted)}
+.recharge-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
+
+/* ── MENU ── */
+.cat-tabs{display:flex;gap:8px;overflow-x:auto;width:100%;padding-bottom:4px;
+  scrollbar-width:none}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{background:var(--card);border:2px solid var(--border);border-radius:30px;
+  padding:8px 16px;font-size:12px;font-weight:800;letter-spacing:0.5px;
+  text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:border-color .12s}
+.cat-tab.sel{border-color:var(--gold);color:var(--gold)}
+.menu-list{display:flex;flex-direction:column;gap:10px;width:100%;max-height:360px;
+  overflow-y:auto;scrollbar-width:none}
+.menu-list::-webkit-scrollbar{display:none}
+.menu-item{background:var(--card);border:2px solid var(--border);border-radius:14px;
+  padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:border-color .12s}
+.menu-item:active{transform:scale(0.98)}
+.menu-item-info{flex:1}
+.menu-item-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.3px}
+.menu-item-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.menu-item-price{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0}
+.menu-item-qty{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.qty-btn{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);
+  background:none;color:var(--text);font-size:16px;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;transition:border-color .12s}
+.qty-btn:active{transform:scale(0.9)}
+.qty-btn.plus{border-color:rgba(247,204,73,0.4);color:var(--gold)}
+.qty-num{font-family:'Bebas Neue',sans-serif;font-size:20px;min-width:20px;text-align:center}
+
+/* ── CARRELLO ── */
+.cart-bar{width:100%;background:var(--gold);border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  transition:opacity .15s}
+.cart-bar:active{opacity:0.85}
+.cart-bar-left{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#111}
+.cart-bar-price{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#111}
+.cart-bar:disabled,.cart-bar[disabled]{opacity:0.3;cursor:not-allowed}
+
+/* ── RIEPILOGO ORDINE ── */
+.order-rows{width:100%;display:flex;flex-direction:column;gap:8px}
+.order-row{display:flex;justify-content:space-between;align-items:center;
+  font-size:14px;padding:10px 14px;background:var(--card);border-radius:10px}
+.order-row-name{flex:1;font-weight:600}
+.order-row-qty{color:var(--muted);font-size:13px;margin:0 10px}
+.order-row-price{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold)}
+.order-total{display:flex;justify-content:space-between;align-items:baseline;
+  width:100%;padding:12px 0;border-top:1px solid var(--border);margin-top:4px}
+.order-total-lbl{font-size:13px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1px;font-weight:800}
+.order-total-val{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--gold)}
+.saldo-row{display:flex;justify-content:space-between;align-items:center;
+  width:100%;font-size:13px;color:var(--muted)}
+.saldo-row b{color:var(--text)}
+.saldo-row.warn b{color:var(--red)}
+
+/* ── SPILLA ── */
+.spina-product-tabs{display:flex;gap:8px;overflow-x:auto;width:100%;
+  scrollbar-width:none;padding-bottom:4px}
+.spina-product-tabs::-webkit-scrollbar{display:none}
+.spina-tab{background:var(--card);border:2px solid var(--border);border-radius:30px;
+  padding:8px 16px;font-size:12px;font-weight:800;letter-spacing:0.5px;
+  text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.spina-tab.sel{border-color:var(--gold);color:var(--gold)}
+.spina-glass-wrap{position:relative;width:120px;height:180px}
+.spina-glass-svg{width:100%;height:100%}
+.pour-info{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--green);
+  letter-spacing:1px;min-height:40px;text-align:center}
+
+/* ── PULSANTI AZIONE ── */
+.btn{width:100%;padding:16px;border-radius:14px;border:none;cursor:pointer;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;
+  transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(0.98)}
+.btn:disabled{opacity:0.35;cursor:not-allowed}
+.btn-gold{background:var(--gold);color:#111}
+.btn-outline{background:none;border:2px solid var(--border);color:var(--muted);font-size:16px}
+.btn-red{background:rgba(255,77,77,0.15);color:var(--red);border:2px solid rgba(255,77,77,0.3)}
+
+/* ── POUR BTN ── */
+.pour-btn{width:100%;padding:20px;border-radius:14px;border:none;cursor:pointer;
+  background:var(--gold);color:#111;font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:1.5px;user-select:none;-webkit-user-select:none;
+  transition:background .2s}
+.pour-btn.pouring{background:var(--green)}
+.pour-btn:disabled{opacity:0.35;cursor:not-allowed}
+
+/* ── FEEDBACK ── */
+.fb-icon{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:44px}
+.fb-icon.ok{background:rgba(76,217,100,0.15)}
+.fb-icon.err{background:rgba(255,77,77,0.15)}
+.fb-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;text-align:center}
+.fb-sub{font-size:14px;color:var(--muted);text-align:center;max-width:300px;line-height:1.6}
+.fb-bal{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold)}
+
+/* ── STATUS BAR ── */
+.status-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 20px;
+  background:rgba(10,10,10,0.9);backdrop-filter:blur(10px);
+  display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0}
+.sdot.ok{background:var(--green)}
+
+/* ── DEV PANEL ── */
+#dev{position:fixed;top:12px;right:12px;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;
+  font-size:12px;display:flex;flex-direction:column;gap:7px;z-index:200;width:190px}
+#dev .dtit{font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  font-size:10px;color:var(--muted)}
+#dev input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:7px;padding:5px 9px;color:#fff;font-size:12px;font-family:monospace;width:100%}
+#dev button{background:var(--gold);color:#111;border:none;border-radius:7px;
+  padding:6px 10px;font-weight:800;font-size:11px;cursor:pointer}
+#dev button.sec{background:rgba(255,255,255,0.08);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="logo">CAM<span>ON</span></div>
+<div class="tagline">Totem Self-Service</div>
+
+<!-- ══════════════════════════════════════
+     HOME
+══════════════════════════════════════ -->
+<div class="screen active" id="s-home">
+  <div class="home-grid">
+    <button class="home-btn gold" onclick="startFlow('ricarica')">
+      <div class="home-btn-ico">💳</div>
+      <div class="home-btn-name">Ricarica Tessera</div>
+      <div class="home-btn-sub">Aggiungi credito alla tua carta CAMON</div>
+    </button>
+    <button class="home-btn blue" onclick="startFlow('ordina')">
+      <div class="home-btn-ico">🍔</div>
+      <div class="home-btn-name">Ordina dal Menu</div>
+      <div class="home-btn-sub">Scegli cibo e drink, paga col saldo</div>
+    </button>
+    <button class="home-btn green" onclick="startFlow('spilla')" style="grid-column:1/-1">
+      <div class="home-btn-ico">🍺</div>
+      <div class="home-btn-name">Spina Self-Service</div>
+      <div class="home-btn-sub">Spilla la tua birra e paga al millilitro</div>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAP CARTA
+══════════════════════════════════════ -->
+<div class="screen" id="s-tap">
+  <div class="nfc-ring pulsing" id="nfc-ring">
+    <svg class="nfc-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="14" width="32" height="22" rx="4"/>
+      <line x1="8" y1="20" x2="40" y2="20"/>
+      <circle cx="16" cy="30" r="2" fill="currentColor"/>
+    </svg>
+  </div>
+  <div class="tap-title" id="tap-title">AVVICINA LA CARTA</div>
+  <div class="tap-sub" id="tap-sub">Appoggia la tua tessera o portachiavi CAMON al lettore</div>
+  <button class="btn btn-outline" onclick="goHome()">← Indietro</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     RICARICA — scegli importo
+══════════════════════════════════════ -->
+<div class="screen" id="s-ricarica">
+  <div class="user-badge" id="rc-badge"></div>
+  <div class="section-title">Quanto vuoi ricaricare?</div>
+  <div class="amt-grid">
+    <div class="amt-chip" onclick="selectAmt(this,10)">€10</div>
+    <div class="amt-chip sel" onclick="selectAmt(this,20)">€20</div>
+    <div class="amt-chip" onclick="selectAmt(this,50)">€50</div>
+    <div class="amt-chip" onclick="selectAmt(this,100)">€100</div>
+  </div>
+  <div class="amt-custom">
+    <span>€</span>
+    <input id="rc-custom" type="number" inputmode="decimal" min="5" max="500" placeholder="Altro importo" oninput="clearAmtChips()">
+  </div>
+  <div class="recharge-note">Il pagamento avviene in cassa o con POS al banco.<br>Lo staff confermerà la ricarica dopo l'incasso.</div>
+  <button class="btn btn-gold" onclick="doRecharge()">CONTINUA →</button>
+  <button class="btn btn-outline" onclick="goHome()">Annulla</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     ORDINA — menu
+══════════════════════════════════════ -->
+<div class="screen" id="s-ordina">
+  <div class="user-badge" id="ord-badge"></div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div class="menu-list" id="menu-list"></div>
+  <button class="cart-bar" id="cart-bar" onclick="goConfirm()" disabled>
+    <span class="cart-bar-left" id="cart-lbl">Carrello vuoto</span>
+    <span class="cart-bar-price" id="cart-price">€ 0,00</span>
+  </button>
+  <button class="btn btn-outline" onclick="goHome()">Annulla</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     CONFERMA ORDINE
+══════════════════════════════════════ -->
+<div class="screen" id="s-confirm">
+  <div class="user-badge" id="cf-badge"></div>
+  <div class="section-title">Riepilogo ordine</div>
+  <div class="order-rows" id="order-rows"></div>
+  <div class="order-total">
+    <div class="order-total-lbl">Totale</div>
+    <div class="order-total-val" id="order-total">€ 0,00</div>
+  </div>
+  <div class="saldo-row" id="saldo-row">
+    <span>Saldo disponibile</span>
+    <b id="saldo-disp">€ 0,00</b>
+  </div>
+  <div class="saldo-row" id="saldo-after-row" style="margin-top:4px">
+    <span>Saldo dopo pagamento</span>
+    <b id="saldo-after">€ 0,00</b>
+  </div>
+  <button class="btn btn-gold" id="confirm-btn" onclick="doOrder()">PAGA E ORDINA</button>
+  <button class="btn btn-outline" onclick="show('s-ordina')">← Modifica</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SPILLA
+══════════════════════════════════════ -->
+<div class="screen" id="s-spilla">
+  <div class="user-badge" id="sp-badge"></div>
+  <div class="spina-product-tabs" id="spina-tabs"></div>
+  <div class="pour-info" id="pour-info">Seleziona un prodotto</div>
+  <div class="spina-glass-wrap">
+    <svg class="spina-glass-svg" viewBox="0 0 120 180" fill="none">
+      <path d="M20 10 L10 170 Q10 175 15 175 L105 175 Q110 175 110 170 L100 10 Z"
+            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+      <clipPath id="fill-clip">
+        <path d="M21 10 L11 170 Q11 175 16 175 L104 175 Q109 175 109 170 L99 10 Z"/>
+      </clipPath>
+      <rect id="fill-rect" x="11" y="175" width="98" height="0"
+            fill="#FFC433" clip-path="url(#fill-clip)">
+        <animate attributeName="y" dur="0.1s" fill="freeze" begin="indefinite"/>
+        <animate attributeName="height" dur="0.1s" fill="freeze" begin="indefinite"/>
+      </rect>
+      <rect id="foam-rect" x="11" y="170" width="98" height="0"
+            fill="rgba(255,255,255,0.7)" clip-path="url(#fill-clip)"/>
+    </svg>
+  </div>
+  <button class="pour-btn" id="pour-btn" disabled>TIENI PREMUTO PER SPILLARE</button>
+  <button class="btn btn-outline" onclick="stopPour();goHome()">Annulla</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     FEEDBACK
+══════════════════════════════════════ -->
+<div class="screen" id="s-feedback">
+  <div class="fb-icon" id="fb-icon"></div>
+  <div class="fb-title" id="fb-title"></div>
+  <div class="fb-sub" id="fb-sub"></div>
+  <div class="fb-bal" id="fb-bal"></div>
+  <button class="btn btn-outline" onclick="goHome()">Torna alla home</button>
+</div>
+
+<!-- ── Status bar ── -->
+<div class="status-bar">
+  <div class="sdot" id="sdot"></div>
+  <span id="stext">Connessione bridge NFC…</span>
+</div>
+
+<!-- ── Dev panel ── -->
+<div id="dev">
+  <div class="dtit">🛠 Simulatore</div>
+  <input id="dev-uid" value="A1B2C3D4" placeholder="UID carta">
+  <button onclick="devSim()">Simula tap carta</button>
+  <button class="sec" onclick="goHome()">Reset home</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  CONFIG — sostituisci con i tuoi valori
+// ════════════════════════════════════════════
+const SUPABASE_URL = 'https://vbwttxfkyvbrmykwodqi.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_7iZyVXYEmYL6Ne1nf5R9Cg_gTgrMKWv';
+const WS_URL       = 'ws://localhost:8765';
+
+// Prodotti spina
+const SPINA_PRODUCTS = [
+  { id:'ipa',    name:'IPA del Birrificio', pricePerMl:0.01,  color:'#FFC433', label:'€10/litro' },
+  { id:'mojito', name:'Mojito Classico',    pricePerMl:0.015, color:'#4CD964', label:'€15/litro' },
+  { id:'lager',  name:'Lager Classica',     pricePerMl:0.009, color:'#FFE066', label:'€9/litro'  },
+  { id:'weizen', name:'Weizen Bavaro',      pricePerMl:0.012, color:'#F5A623', label:'€12/litro' },
+];
+
+// ════════════════════════════════════════════
+//  STATO
+// ════════════════════════════════════════════
+let currentFlow   = null;   // 'ricarica' | 'ordina' | 'spilla'
+let currentUser   = null;   // { uid, user_id, first_name, last_name, balance_cents }
+let selectedAmt   = 20;     // centesimi×100 per ricarica
+let products      = [];     // da Supabase
+let currentCat    = null;
+let cart          = {};     // { product_id: { name, price_cents, qty } }
+let spinaProd     = null;
+let pourTimer     = null;
+let pourMl        = 0;
+let pourTs        = 0;
+let idleTO        = null;
+let ws            = null;
+
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+const cents = c => '€ ' + (c/100).toFixed(2).replace('.',',');
+const el    = id => document.getElementById(id);
+function show(screenId) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  el(screenId).classList.add('active');
+}
+function setStatus(ok, txt) {
+  el('sdot').className = 'sdot' + (ok?' ok':'');
+  el('stext').textContent = txt;
+}
+function userBadgeHTML(u) {
+  const initials = ((u.first_name||'?')[0]+(u.last_name||'')[0]||'').toUpperCase();
+  const low = u.balance_cents < 100;
+  return `<div class="user-avatar">${initials}</div>
+    <div class="user-info">
+      <div class="user-name">${[u.first_name,u.last_name].filter(Boolean).join(' ')||'Utente'}</div>
+      <div class="user-bal">Saldo: <b style="${low?'color:var(--red)':''}">${cents(u.balance_cents)}</b></div>
+    </div>`;
+}
+function resetIdleTO(ms=30000) {
+  clearTimeout(idleTO);
+  idleTO = setTimeout(goHome, ms);
+}
+function goHome() {
+  clearTimeout(idleTO);
+  stopPour();
+  currentUser = null; currentFlow = null; cart = {};
+  show('s-home');
+}
+async function rpc(fn, params) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+    body: JSON.stringify(params)
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.message||d.hint||JSON.stringify(d));
+  return d;
+}
+
+// ════════════════════════════════════════════
+//  FLOW START
+// ════════════════════════════════════════════
+function startFlow(flow) {
+  currentFlow = flow;
+  el('tap-title').textContent = flow==='ricarica' ? 'AVVICINA LA CARTA PER RICARICARE'
+    : flow==='ordina' ? 'AVVICINA LA CARTA PER ORDINARE'
+    : 'AVVICINA LA CARTA PER SPILLARE';
+  el('tap-sub').textContent = 'Appoggia la tua tessera o portachiavi CAMON al lettore';
+  show('s-tap');
+}
+
+// Carta identificata → vai al flusso corretto
+function onUserIdentified(user) {
+  currentUser = user;
+  resetIdleTO();
+  if (currentFlow === 'ricarica') openRicarica();
+  else if (currentFlow === 'ordina') openOrdina();
+  else openSpilla();
+}
+
+// ════════════════════════════════════════════
+//  RICARICA
+// ════════════════════════════════════════════
+function openRicarica() {
+  el('rc-badge').innerHTML = userBadgeHTML(currentUser);
+  selectedAmt = 20;
+  document.querySelectorAll('.amt-chip').forEach(c=>{
+    c.classList.toggle('sel', c.textContent==='€20');
+  });
+  el('rc-custom').value = '';
+  show('s-ricarica');
+}
+function selectAmt(chip, euros) {
+  document.querySelectorAll('.amt-chip').forEach(c=>c.classList.remove('sel'));
+  chip.classList.add('sel');
+  selectedAmt = euros;
+  el('rc-custom').value = '';
+}
+function clearAmtChips() {
+  document.querySelectorAll('.amt-chip').forEach(c=>c.classList.remove('sel'));
+  selectedAmt = null;
+}
+async function doRecharge() {
+  const custom = parseFloat(el('rc-custom').value);
+  const euros  = custom > 0 ? custom : selectedAmt;
+  if (!euros || euros < 5) { alert('Importo minimo €5'); return; }
+  const cents100 = Math.round(euros * 100);
+
+  // La ricarica vera verrà confermata dallo staff dopo l'incasso —
+  // qui mostriamo istruzioni e poi lo staff usa la funzione nfc_recharge
+  // (o il pannello staff). Per ora mostriamo il messaggio.
+  feedback(true, '💳', 'Vai alla cassa',
+    `Mostra la ricevuta al banco per ricaricare €${euros.toFixed(2)} sulla tua carta.\nIl personale confermerà la ricarica.`,
+    null);
+}
+
+// ════════════════════════════════════════════
+//  ORDINA DAL MENU
+// ════════════════════════════════════════════
+async function openOrdina() {
+  el('ord-badge').innerHTML = userBadgeHTML(currentUser);
+  cart = {};
+  show('s-ordina');
+  if (!products.length) await loadProducts();
+  renderCats();
+}
+async function loadProducts() {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/products?available=eq.true&order=sort.asc`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+    });
+    products = await r.json();
+  } catch(e) {
+    products = [];
+    setStatus(false,'Errore caricamento menu: '+e.message);
+  }
+}
+function renderCats() {
+  const cats = [...new Set(products.map(p=>p.category))];
+  currentCat = currentCat || cats[0];
+  el('cat-tabs').innerHTML = cats.map(c=>`
+    <button class="cat-tab${c===currentCat?' sel':''}" onclick="selectCat('${c}')">${c}</button>
+  `).join('');
+  renderMenu();
+}
+function selectCat(cat) {
+  currentCat = cat;
+  renderCats();
+}
+function renderMenu() {
+  const items = products.filter(p=>p.category===currentCat);
+  el('menu-list').innerHTML = items.map(p=>{
+    const qty = cart[p.id]?.qty||0;
+    return `<div class="menu-item">
+      <div class="menu-item-info">
+        <div class="menu-item-name">${p.emoji||''} ${p.name}</div>
+        ${p.description?`<div class="menu-item-desc">${p.description}</div>`:''}
+      </div>
+      <div class="menu-item-price">${cents(p.price_cents)}</div>
+      <div class="menu-item-qty">
+        ${qty>0?`<button class="qty-btn" onclick="changeQty('${p.id}',-1,'${escQ(p.name)}',${p.price_cents})">−</button>
+        <span class="qty-num">${qty}</span>`:''}
+        <button class="qty-btn plus" onclick="changeQty('${p.id}',1,'${escQ(p.name)}',${p.price_cents})">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  renderCart();
+}
+function escQ(s){ return s.replace(/'/g,"\\'") }
+function changeQty(id, delta, name, price_cents) {
+  if (!cart[id]) cart[id] = {name, price_cents, qty:0};
+  cart[id].qty = Math.max(0, cart[id].qty + delta);
+  if (cart[id].qty === 0) delete cart[id];
+  renderMenu();
+}
+function renderCart() {
+  const items = Object.values(cart);
+  const total = items.reduce((s,i)=>s+i.qty*i.price_cents,0);
+  const count = items.reduce((s,i)=>s+i.qty,0);
+  const btn   = el('cart-bar');
+  btn.disabled = count===0;
+  el('cart-lbl').textContent   = count===0 ? 'Carrello vuoto' : `${count} ${count===1?'prodotto':'prodotti'}`;
+  el('cart-price').textContent = cents(total);
+}
+function goConfirm() {
+  if (!Object.keys(cart).length) return;
+  const total = Object.values(cart).reduce((s,i)=>s+i.qty*i.price_cents,0);
+  const after = currentUser.balance_cents - total;
+  el('cf-badge').innerHTML = userBadgeHTML(currentUser);
+  el('order-rows').innerHTML = Object.values(cart).map(i=>`
+    <div class="order-row">
+      <span class="order-row-name">${i.name}</span>
+      <span class="order-row-qty">x${i.qty}</span>
+      <span class="order-row-price">${cents(i.qty*i.price_cents)}</span>
+    </div>
+  `).join('');
+  el('order-total').textContent = cents(total);
+  el('saldo-disp').textContent  = cents(currentUser.balance_cents);
+  el('saldo-after').textContent = after>=0 ? cents(after) : '— saldo insufficiente';
+  const sr = el('saldo-after-row');
+  sr.className = 'saldo-row' + (after<0?' warn':'');
+  el('confirm-btn').disabled = after<0;
+  show('s-confirm');
+}
+async function doOrder() {
+  const items = Object.values(cart);
+  const total = items.reduce((s,i)=>s+i.qty*i.price_cents,0);
+  const desc  = items.map(i=>`${i.qty}x ${i.name}`).join(', ');
+  el('confirm-btn').disabled = true;
+  try {
+    await rpc('nfc_spend',{
+      p_uid: currentUser.uid,
+      p_amount_cents: total,
+      p_description: 'Ordine totem: '+desc
+    });
+    feedback(true,'✅','Ordine confermato!',desc,currentUser.balance_cents-total);
+    cart = {};
+  } catch(e) {
+    const msg = e.message||String(e);
+    if (msg==='SALDO_INSUFFICIENTE')
+      feedback(false,'❌','Saldo insufficiente','Ricarica la carta al banco.',currentUser.balance_cents);
+    else
+      feedback(false,'❌','Errore',msg,null);
+  }
+}
+
+// ════════════════════════════════════════════
+//  SPILLA
+// ════════════════════════════════════════════
+function openSpilla() {
+  el('sp-badge').innerHTML = userBadgeHTML(currentUser);
+  spinaProd = null; pourMl = 0;
+  el('spina-tabs').innerHTML = SPINA_PRODUCTS.map(p=>`
+    <button class="spina-tab${spinaProd?.id===p.id?' sel':''}" onclick="selectSpina('${p.id}')">
+      ${p.name}
+    </button>`).join('');
+  el('pour-info').textContent = 'Seleziona un prodotto';
+  el('pour-btn').disabled = true;
+  resetFillRect(0);
+  show('s-spilla');
+}
+function selectSpina(id) {
+  spinaProd = SPINA_PRODUCTS.find(p=>p.id===id);
+  document.querySelectorAll('.spina-tab').forEach(t=>t.classList.toggle('sel',t.textContent.trim()===spinaProd.name));
+  el('pour-btn').disabled = false;
+  el('pour-info').textContent = spinaProd.label;
+  el('fill-rect').setAttribute('fill', spinaProd.color);
+  resetFillRect(0);
+}
+function resetFillRect(pct) {
+  // pct 0-1
+  const h = Math.round(165 * pct);
+  el('fill-rect').setAttribute('y', 175-h);
+  el('fill-rect').setAttribute('height', h);
+  el('foam-rect').setAttribute('y', 175-h-6);
+  el('foam-rect').setAttribute('height', h>0?6:0);
+}
+function startPour() {
+  if (!spinaProd||!currentUser) return;
+  pourMl = 0; pourTs = Date.now();
+  el('pour-btn').classList.add('pouring');
+  el('pour-btn').textContent = 'RILASCIA PER ADDEBITARE';
+  pourTimer = setInterval(()=>{
+    pourMl = (Date.now()-pourTs)/1000 * 50;
+    const cost = pourMl*spinaProd.pricePerMl;
+    el('pour-info').textContent = `${Math.round(pourMl)} ml · ${cents(Math.round(cost*100))}`;
+    resetFillRect(Math.min(pourMl/400,1));
+  },50);
+}
+async function stopPour() {
+  if (!pourTimer) return;
+  clearInterval(pourTimer); pourTimer=null;
+  el('pour-btn').classList.remove('pouring');
+  el('pour-btn').textContent = 'TIENI PREMUTO PER SPILLARE';
+  if (pourMl<10||!spinaProd||!currentUser) return;
+  const amtCents = Math.round(pourMl*spinaProd.pricePerMl*100);
+  el('pour-btn').disabled=true;
+  try {
+    await rpc('nfc_spend',{
+      p_uid: currentUser.uid,
+      p_amount_cents: amtCents,
+      p_description: `Spillata ${spinaProd.name} · ${Math.round(pourMl)}ml`
+    });
+    feedback(true,'🍺','Spillata!',`${Math.round(pourMl)}ml di ${spinaProd.name}`,currentUser.balance_cents-amtCents);
+  } catch(e) {
+    const msg=e.message||String(e);
+    feedback(false,'❌',msg==='SALDO_INSUFFICIENTE'?'Saldo insufficiente':'Errore',
+      msg==='SALDO_INSUFFICIENTE'?'Ricarica la carta al banco.':msg, null);
+  }
+}
+const pb = el('pour-btn');
+pb.addEventListener('mousedown', startPour);
+pb.addEventListener('mouseup',   stopPour);
+pb.addEventListener('mouseleave',()=>{ if(pourTimer) stopPour(); });
+pb.addEventListener('touchstart', e=>{ e.preventDefault(); startPour(); },{passive:false});
+pb.addEventListener('touchend',   e=>{ e.preventDefault(); stopPour(); }, {passive:false});
+
+// ════════════════════════════════════════════
+//  FEEDBACK
+// ════════════════════════════════════════════
+function feedback(ok, icon, title, sub, newBal) {
+  el('fb-icon').textContent = icon;
+  el('fb-icon').className   = 'fb-icon '+(ok?'ok':'err');
+  el('fb-title').textContent = title;
+  el('fb-sub').textContent   = sub;
+  el('fb-bal').textContent   = newBal!==null&&newBal!==undefined ? 'Nuovo saldo: '+cents(newBal) : '';
+  show('s-feedback');
+  resetIdleTO(5000);
+}
+
+// ════════════════════════════════════════════
+//  WEBSOCKET (bridge NFC)
+// ════════════════════════════════════════════
+function connectWS() {
+  ws = new WebSocket(WS_URL);
+  ws.onopen  = ()=>{ setStatus(true,'Bridge NFC connesso'); el('nfc-ring').classList.add('pulsing'); };
+  ws.onclose = ()=>{ setStatus(false,'Bridge NFC disconnesso — riconnessione…'); setTimeout(connectWS,3000); };
+  ws.onerror = ()=>{ setStatus(false,'Errore WebSocket — avvia nfc-bridge/server.js'); };
+  ws.onmessage = e=>{ onBridge(JSON.parse(e.data)); };
+}
+function onBridge(msg) {
+  if (msg.type==='user_identified') {
+    onUserIdentified({uid:msg.uid,user_id:msg.user_id,
+      first_name:msg.first_name,last_name:msg.last_name,balance_cents:msg.balance_cents});
+  } else if (msg.type==='card_unknown') {
+    feedback(false,'🤷','Carta non riconosciuta','Registra la tessera tramite il personale.',null);
+  } else if (msg.type==='error') {
+    setStatus(false,'Errore: '+msg.message);
+  }
+}
+
+// ════════════════════════════════════════════
+//  SIMULATORE DEV
+// ════════════════════════════════════════════
+async function devSim() {
+  const uid = (el('dev-uid').value||'A1B2C3D4').trim().toUpperCase();
+  if (!currentFlow) { alert('Prima scegli un\'azione dalla home'); return; }
+  setStatus(true,'Simulazione carta: '+uid);
+  try {
+    const rows = await rpc('nfc_lookup',{p_uid:uid});
+    if (rows&&rows.length>0) onUserIdentified({uid,...rows[0]});
+    else onBridge({type:'card_unknown',uid});
+  } catch(e) {
+    const msg=e.message||String(e);
+    if (msg==='CARD_NOT_FOUND') onBridge({type:'card_unknown',uid});
+    else setStatus(false,'Errore: '+msg);
+  }
+}
+
+// ════════════════════════════════════════════
+//  AVVIO
+// ════════════════════════════════════════════
+connectWS();
+</script>
+</body>
+</html>
