@@ -2,13 +2,19 @@
    Ogni apertura del bookmark prova a caricare la versione aggiornata
    dalla rete; se non c'è connessione usa quella in cache. */
 
-const CACHE = 'camon-v1';
+const CACHE = 'camon-v2';
 
 /* Attiva subito, ma NON ruba il controllo delle pagine già aperte
    (niente clients.claim): così il reload automatico in-page si attiva
    solo quando c'era già un SW precedente, non al primo avvio. */
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', () => {});
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+});
 
 self.addEventListener('fetch', e => {
   const req = e.request;
