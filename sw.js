@@ -2,7 +2,7 @@
    Ogni apertura del bookmark prova a caricare la versione aggiornata
    dalla rete; se non c'è connessione usa quella in cache. */
 
-const CACHE = 'camon-v2';
+const CACHE = 'camon-v3';
 
 /* Attiva subito, ma NON ruba il controllo delle pagine già aperte
    (niente clients.claim): così il reload automatico in-page si attiva
@@ -33,9 +33,14 @@ self.addEventListener('fetch', e => {
 
   if (isNavigation || isSameOrigin) {
     /* Network-first: prova la rete, aggiorna la cache, ritorna la risposta.
-       Se la rete fallisce usa la cache. */
+       Se la rete fallisce usa la cache.
+       IMPORTANTE: 'cache: reload' forza il browser a ignorare la sua
+       cache HTTP interna (GitHub Pages manda Cache-Control: max-age=600
+       sull'HTML — senza questo, per 10 minuti dopo ogni pubblicazione
+       il browser potrebbe restituire la pagina vecchia senza nemmeno
+       controllare la rete, anche col service worker aggiornato). */
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'reload' })
         .then(res => {
           if (res.ok) {
             const copy = res.clone();
