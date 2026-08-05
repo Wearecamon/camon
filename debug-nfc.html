@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAMON — Debug NFC</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; background:#111; color:#eee; padding:16px; line-height:1.5; font-size:14px; }
+  h1 { font-size:18px; }
+  .row { padding:10px; margin:8px 0; border-radius:8px; background:#1c1c1c; word-break:break-word; white-space:pre-wrap; }
+  .ok { border-left:4px solid #4caf50; }
+  .err { border-left:4px solid #e53935; }
+  .warn { border-left:4px solid #ffb300; }
+  button { background:#ffd54a; border:none; padding:10px 16px; border-radius:8px; font-weight:bold; margin:6px 6px 6px 0; }
+</style>
+</head>
+<body>
+<h1>CAMON — Debug NFC</h1>
+<div id="out">Carico…</div>
+<button onclick="location.reload()">Ricarica test</button>
+<button onclick="runFix()">Pulisci cache e ricarica</button>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://vbwttxfkyvbrmykwodqi.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_7iZyVXYEmYL6Ne1nf5R9Cg_gTgrMKWv';
+  const out = document.getElementById('out');
+  const lines = [];
+  function add(cls, label, val) {
+    lines.push({ cls, label, val });
+    render();
+  }
+  function render() {
+    out.innerHTML = lines.map(l =>
+      `<div class="row ${l.cls}"><b>${l.label}</b><br>${typeof l.val === 'string' ? l.val : JSON.stringify(l.val, null, 2)}</div>`
+    ).join('');
+  }
+
+  window.runFix = async function () {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const r of regs) await r.unregister();
+    const keys = await caches.keys();
+    for (const k of keys) await caches.delete(k);
+    alert('Cache pulita. Ora chiudi questa scheda, riapri camon.html da zero.');
+  };
+
+  (async () => {
+    add('ok', 'Pagina caricata alle', new Date().toString());
+    add('ok', 'Service worker attivo', !!navigator.serviceWorker.controller);
+
+    let sb;
+    try {
+      sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+      add('ok', 'Client Supabase creato', 'OK');
+    } catch (e) {
+      add('err', 'Errore creazione client Supabase', e.message);
+      return;
+    }
+
+    let session;
+    try {
+      const { data, error } = await sb.auth.getSession();
+      if (error) throw error;
+      session = data.session;
+      add(session ? 'ok' : 'warn', 'Sessione trovata', session ? { email: session.user.email, id: session.user.id } : 'NESSUNA SESSIONE — non sei loggato in questo browser/scheda');
+    } catch (e) {
+      add('err', 'Errore lettura sessione', e.message);
+      return;
+    }
+
+    if (!session) {
+      add('warn', 'Conclusione', 'Devi fare login su questa pagina/browser per vedere i braccialetti. Se pensavi di essere loggato, la sessione non è salvata in questo browser.');
+      return;
+    }
+
+    try {
+      const { data, error } = await sb.from('nfc_cards').select('*').eq('user_id', session.user.id);
+      if (error) throw error;
+      add(data.length ? 'ok' : 'warn', 'Braccialetti trovati su Supabase per questo account (' + data.length + ')', data);
+    } catch (e) {
+      add('err', 'Errore lettura nfc_cards', e.message);
+    }
+  })();
+</script>
+</body>
+</html>
