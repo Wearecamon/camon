@@ -7028,8 +7028,12 @@
     } catch (e) {}
   }
 
-  /* ===== BRACCIALETTI ===== */
+  /* ===== BRACCIALETTI =====
+     Fonte di verità: tabella nfc_cards su Supabase (colonna user_id).
+     La copia in localStorage è solo una cache per mostrare qualcosa
+     mentre la pagina si carica o se non c'è connessione. */
   let bands = []; // { code, active }
+  let bandsLoading = false;
 
   function bandsLoad() {
     try {
@@ -7040,14 +7044,39 @@
   function bandsSave() {
     try { localStorage.setItem('camon_bands', JSON.stringify(bands)); } catch (e) {}
   }
+
+  /* Utente corrente: usa prima la sessione già in memoria (camonUser,
+     aggiornata dal listener onAuthStateChange — niente round-trip di
+     rete, niente race condition su una pagina appena aperta). Se non
+     è ancora pronta, prova a leggerla direttamente da Supabase. */
+  async function bandsCurrentUser() {
+    if (typeof window.camonUser !== 'undefined' && window.camonUser) return window.camonUser;
+    if (!window.sb) return null;
+    try {
+      const { data, error } = await window.sb.auth.getSession();
+      if (error) { console.warn('[bands] getSession error:', error.message); return null; }
+      return data?.session?.user || null;
+    } catch (e) { console.warn('[bands] getSession exception:', e); return null; }
+  }
+
   /* I braccialetti sono legati all'account: al login (o entrando nella
      Carta) li ricarichiamo da Supabase, così risultano già collegati
      su qualsiasi dispositivo con cui si accede. */
   async function bandsSync() {
-    const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
-    if (!user) return; // non loggato: resta la sola copia locale (se presente)
-    const { data, error } = await sb.from('nfc_cards').select('uid,active').eq('user_id', user.id);
-    if (error) return;
+    const user = await bandsCurrentUser();
+    if (!user) {
+      console.warn('[bands] bandsSync: nessun utente loggato, salto la sincronizzazione');
+      return;
+    }
+    bandsLoading = true;
+    bandRender();
+    const { data, error } = await window.sb.from('nfc_cards').select('uid,active').eq('user_id', user.id);
+    bandsLoading = false;
+    if (error) {
+      console.error('[bands] errore lettura nfc_cards:', error.message);
+      bandRender();
+      return;
+    }
     bands = (data || []).map(r => ({ code: r.uid, active: !!r.active }));
     bandsSave();
     bandRender();
@@ -7059,26 +7088,26 @@
     if (bands.some(b => b.code === code)) { alert('Questo braccialetto è già collegato al tuo conto.'); return; }
 
     // Salva su Supabase nfc_cards — richiede una sessione attiva
-    const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
+    const user = await bandsCurrentUser();
     if (!user) {
       alert('Devi accedere al tuo account per collegare un braccialetto.');
       return;
     }
-    const { error } = await sb.rpc('nfc_register', { p_uid: code, p_user_id: user.id });
-    if (error) { alert('Errore collegamento carta: ' + error.message); return; }
+    const { error } = await window.sb.rpc('nfc_register', { p_uid: code, p_user_id: user.id });
+    if (error) { console.error('[bands] nfc_register:', error); alert('Errore collegamento carta: ' + error.message); return; }
 
-    // un solo braccialetto attivo per volta: il nuovo diventa attivo, gli altri si disattivano
-    bands.forEach(b => b.active = false);
-    bands.push({ code, active: true });
-    bandsSave();
+    // ricarica dal server invece di aggiornare solo in locale: garantisce
+    // che quello che vedi corrisponda sempre a quello salvato su Supabase
     input.value = '';
-    bandRender();
+    await bandsSync();
   }
   async function bandActivate(code) {
-    const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
+    const user = await bandsCurrentUser();
     if (user) {
-      const { error } = await sb.rpc('nfc_set_active', { p_uid: code, p_user_id: user.id });
-      if (error) { alert('Errore attivazione carta: ' + error.message); return; }
+      const { error } = await window.sb.rpc('nfc_set_active', { p_uid: code, p_user_id: user.id });
+      if (error) { console.error('[bands] nfc_set_active:', error); alert('Errore attivazione carta: ' + error.message); return; }
+      await bandsSync();
+      return;
     }
     bands.forEach(b => b.active = (b.code === code));
     bandsSave();
@@ -7086,10 +7115,12 @@
   }
   function bandRemove(code) {
     camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', async function() {
-      const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
+      const user = await bandsCurrentUser();
       if (user) {
-        const { error } = await sb.rpc('nfc_unlink', { p_uid: code, p_user_id: user.id });
-        if (error) { alert('Errore rimozione carta: ' + error.message); return; }
+        const { error } = await window.sb.rpc('nfc_unlink', { p_uid: code, p_user_id: user.id });
+        if (error) { console.error('[bands] nfc_unlink:', error); alert('Errore rimozione carta: ' + error.message); return; }
+        await bandsSync();
+        return;
       }
       bands = bands.filter(b => b.code !== code);
       bandsSave();
@@ -7099,6 +7130,10 @@
   function bandRender() {
     const list = document.getElementById('band-list');
     if (!list) return;
+    if (bandsLoading && !bands.length) {
+      list.innerHTML = '<div class="band-empty">Carico i tuoi braccialetti…</div>';
+      return;
+    }
     if (!bands.length) {
       list.innerHTML = '<div class="band-empty">Nessun braccialetto collegato.<br>Inserisci un codice qui sopra per aggiungerne uno.</div>';
       return;
@@ -10470,6 +10505,7 @@
     if (!window.sb) return;
     try {
       const { data: { session } } = await window.sb.auth.getSession();
+      window.camonUser = session ? session.user : null;
       profileCreated = !!session;
       camonSyncAuthUI();
       camonSyncMenu();   // prezzi/disponibilità del menu (non serve login)
@@ -10482,6 +10518,7 @@
             typeof profEnter === 'function') profEnter();
       }
       window.sb.auth.onAuthStateChange(function (_event, session) {
+        window.camonUser = session ? session.user : null;
         profileCreated = !!session;
         camonSyncAuthUI();
         if (session && typeof bandsSync === 'function') bandsSync();
