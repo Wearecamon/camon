@@ -7046,12 +7046,14 @@
     if (code.length < 4) { alert('Inserisci un codice valido (almeno 4 caratteri), lo trovi stampato sul braccialetto.'); return; }
     if (bands.some(b => b.code === code)) { alert('Questo braccialetto è già collegato al tuo conto.'); return; }
 
-    // Salva su Supabase nfc_cards
+    // Salva su Supabase nfc_cards — richiede una sessione attiva
     const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
-    if (user) {
-      const { error } = await sb.rpc('nfc_register', { p_uid: code, p_user_id: user.id });
-      if (error) { alert('Errore collegamento carta: ' + error.message); return; }
+    if (!user) {
+      alert('Devi accedere al tuo account per collegare un braccialetto.');
+      return;
     }
+    const { error } = await sb.rpc('nfc_register', { p_uid: code, p_user_id: user.id });
+    if (error) { alert('Errore collegamento carta: ' + error.message); return; }
 
     // un solo braccialetto attivo per volta: il nuovo diventa attivo, gli altri si disattivano
     bands.forEach(b => b.active = false);
