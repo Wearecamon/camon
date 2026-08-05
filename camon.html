@@ -7040,6 +7040,18 @@
   function bandsSave() {
     try { localStorage.setItem('camon_bands', JSON.stringify(bands)); } catch (e) {}
   }
+  /* I braccialetti sono legati all'account: al login (o entrando nella
+     Carta) li ricarichiamo da Supabase, così risultano già collegati
+     su qualsiasi dispositivo con cui si accede. */
+  async function bandsSync() {
+    const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
+    if (!user) return; // non loggato: resta la sola copia locale (se presente)
+    const { data, error } = await sb.from('nfc_cards').select('uid,active').eq('user_id', user.id);
+    if (error) return;
+    bands = (data || []).map(r => ({ code: r.uid, active: !!r.active }));
+    bandsSave();
+    bandRender();
+  }
   async function bandLink() {
     const input = document.getElementById('band-code-input');
     const code = (input.value || '').trim().toUpperCase();
@@ -7062,13 +7074,23 @@
     input.value = '';
     bandRender();
   }
-  function bandActivate(code) {
+  async function bandActivate(code) {
+    const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
+    if (user) {
+      const { error } = await sb.rpc('nfc_set_active', { p_uid: code, p_user_id: user.id });
+      if (error) { alert('Errore attivazione carta: ' + error.message); return; }
+    }
     bands.forEach(b => b.active = (b.code === code));
     bandsSave();
     bandRender();
   }
   function bandRemove(code) {
-    camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', function() {
+    camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', async function() {
+      const user = sb.auth.getUser ? (await sb.auth.getUser()).data?.user : null;
+      if (user) {
+        const { error } = await sb.rpc('nfc_unlink', { p_uid: code, p_user_id: user.id });
+        if (error) { alert('Errore rimozione carta: ' + error.message); return; }
+      }
       bands = bands.filter(b => b.code !== code);
       bandsSave();
       bandRender();
@@ -9665,6 +9687,7 @@
       if (typeof renderWallet === 'function') renderWallet();
     }
     if (page === 'carta' && typeof renderWallet === 'function') renderWallet();
+    if (page === 'carta' && typeof bandsSync === 'function') bandsSync();
 
     /* Prenotazione: si riparte dal primo passo, a meno che non ci sia
        gia' un tavolo prenotato, nel qual caso si mostra il riepilogo. */
@@ -10452,6 +10475,7 @@
       camonSyncMenu();   // prezzi/disponibilità del menu (non serve login)
       if (session) {
         await camonLoadProfile();
+        if (typeof bandsSync === 'function') bandsSync();
         // se sei fermo sulla pagina profilo, aggiorna la vista
         if (document.getElementById('page-profile') &&
             document.getElementById('page-profile').classList.contains('active') &&
@@ -10460,6 +10484,7 @@
       window.sb.auth.onAuthStateChange(function (_event, session) {
         profileCreated = !!session;
         camonSyncAuthUI();
+        if (session && typeof bandsSync === 'function') bandsSync();
       });
     } catch (e) { console.warn('Init auth:', e); }
   }
