@@ -84,6 +84,16 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
 .amt-custom input::placeholder{color:var(--muted)}
 .recharge-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
 
+/* ── PAGAMENTO ── */
+.pay-amt{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--gold);letter-spacing:1px}
+.pay-methods{display:flex;flex-direction:column;gap:12px;width:100%}
+.pay-method-btn{display:flex;align-items:center;gap:14px;width:100%;
+  background:var(--card);border:2px solid var(--border);border-radius:14px;
+  padding:18px 20px;color:var(--text);font-family:'Manrope',sans-serif;font-weight:700;font-size:16px}
+.pay-method-btn:active{transform:scale(0.97);border-color:var(--gold)}
+.pay-method-ico{font-size:26px}
+.pay-wait-ico{font-size:52px}
+
 /* ── MENU ── */
 .cat-tabs{display:flex;gap:8px;overflow-x:auto;width:100%;padding-bottom:4px;
   scrollbar-width:none}
@@ -217,10 +227,10 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
       <div class="home-btn-name">Ordina dal Menu</div>
       <div class="home-btn-sub">Scegli cibo e drink, paga col saldo</div>
     </button>
-    <button class="home-btn green" onclick="startFlow('spilla')" style="grid-column:1/-1">
-      <div class="home-btn-ico">🍺</div>
-      <div class="home-btn-name">Spina Self-Service</div>
-      <div class="home-btn-sub">Spilla la tua birra e paga al millilitro</div>
+    <button class="home-btn green" onclick="startFlow('spritz')" style="grid-column:1/-1">
+      <div class="home-btn-ico">🍹</div>
+      <div class="home-btn-name">Spritz Self-Service</div>
+      <div class="home-btn-sub" id="spritz-home-sub">Avvicina la carta e paga uno Spritz</div>
     </button>
   </div>
 </div>
@@ -257,9 +267,36 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
     <span>€</span>
     <input id="rc-custom" type="number" inputmode="decimal" min="5" max="500" placeholder="Altro importo" oninput="clearAmtChips()">
   </div>
-  <div class="recharge-note">Il pagamento avviene in cassa o con POS al banco.<br>Lo staff confermerà la ricarica dopo l'incasso.</div>
-  <button class="btn btn-gold" onclick="doRecharge()">CONTINUA →</button>
+  <button class="btn btn-gold" onclick="goPagamento()">CONTINUA →</button>
   <button class="btn btn-outline" onclick="goHome()">Annulla</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     RICARICA — metodo di pagamento
+══════════════════════════════════════ -->
+<div class="screen" id="s-pagamento">
+  <div class="section-title">Come vuoi pagare?</div>
+  <div class="pay-amt" id="pay-amt-lbl"></div>
+  <div class="pay-methods">
+    <button class="pay-method-btn" onclick="startPagamento('carta')">
+      <span class="pay-method-ico">💳</span>
+      <span>Carta di credito / debito</span>
+    </button>
+    <button class="pay-method-btn" onclick="startPagamento('contanti')">
+      <span class="pay-method-ico">💵</span>
+      <span>Contanti</span>
+    </button>
+  </div>
+  <button class="btn btn-outline" onclick="show('s-ricarica')">← Indietro</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     RICARICA — attesa pagamento
+══════════════════════════════════════ -->
+<div class="screen" id="s-attesa-pagamento">
+  <div class="nfc-ring pulsing"><span class="pay-wait-ico">⏳</span></div>
+  <div class="tap-title">ELABORAZIONE PAGAMENTO…</div>
+  <div class="tap-sub" id="pay-wait-sub">Attendere, non rimuovere la carta</div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -300,30 +337,12 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
 </div>
 
 <!-- ══════════════════════════════════════
-     SPILLA
+     SPRITZ SELF-SERVICE — addebito automatico al tap
 ══════════════════════════════════════ -->
-<div class="screen" id="s-spilla">
-  <div class="user-badge" id="sp-badge"></div>
-  <div class="spina-product-tabs" id="spina-tabs"></div>
-  <div class="pour-info" id="pour-info">Seleziona un prodotto</div>
-  <div class="spina-glass-wrap">
-    <svg class="spina-glass-svg" viewBox="0 0 120 180" fill="none">
-      <path d="M20 10 L10 170 Q10 175 15 175 L105 175 Q110 175 110 170 L100 10 Z"
-            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
-      <clipPath id="fill-clip">
-        <path d="M21 10 L11 170 Q11 175 16 175 L104 175 Q109 175 109 170 L99 10 Z"/>
-      </clipPath>
-      <rect id="fill-rect" x="11" y="175" width="98" height="0"
-            fill="#FFC433" clip-path="url(#fill-clip)">
-        <animate attributeName="y" dur="0.1s" fill="freeze" begin="indefinite"/>
-        <animate attributeName="height" dur="0.1s" fill="freeze" begin="indefinite"/>
-      </rect>
-      <rect id="foam-rect" x="11" y="170" width="98" height="0"
-            fill="rgba(255,255,255,0.7)" clip-path="url(#fill-clip)"/>
-    </svg>
-  </div>
-  <button class="pour-btn" id="pour-btn" disabled>TIENI PREMUTO PER SPILLARE</button>
-  <button class="btn btn-outline" onclick="stopPour();goHome()">Annulla</button>
+<div class="screen" id="s-spritz">
+  <div class="nfc-ring pulsing"><span class="pay-wait-ico">🍹</span></div>
+  <div class="tap-title">ADDEBITO IN CORSO…</div>
+  <div class="tap-sub" id="spritz-wait-sub">Un attimo</div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -343,11 +362,8 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
   <span id="stext">Connessione bridge NFC…</span>
 </div>
 
-<!-- ── Dev panel ── -->
+<!-- ── Pannello di servizio (solo reset, niente simulazione: si usa il lettore reale) ── -->
 <div id="dev">
-  <div class="dtit">🛠 Simulatore</div>
-  <input id="dev-uid" value="A1B2C3D4" placeholder="UID carta">
-  <button onclick="devSim()">Simula tap carta</button>
   <button class="sec" onclick="goHome()">Reset home</button>
 </div>
 
@@ -359,27 +375,15 @@ const SUPABASE_URL = 'https://vbwttxfkyvbrmykwodqi.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_7iZyVXYEmYL6Ne1nf5R9Cg_gTgrMKWv';
 const WS_URL       = 'ws://localhost:8765';
 
-// Prodotti spina
-const SPINA_PRODUCTS = [
-  { id:'ipa',    name:'IPA del Birrificio', pricePerMl:0.01,  color:'#FFC433', label:'€10/litro' },
-  { id:'mojito', name:'Mojito Classico',    pricePerMl:0.015, color:'#4CD964', label:'€15/litro' },
-  { id:'lager',  name:'Lager Classica',     pricePerMl:0.009, color:'#FFE066', label:'€9/litro'  },
-  { id:'weizen', name:'Weizen Bavaro',      pricePerMl:0.012, color:'#F5A623', label:'€12/litro' },
-];
-
 // ════════════════════════════════════════════
 //  STATO
 // ════════════════════════════════════════════
-let currentFlow   = null;   // 'ricarica' | 'ordina' | 'spilla'
+let currentFlow   = null;   // 'ricarica' | 'ordina' | 'spritz'
 let currentUser   = null;   // { uid, user_id, first_name, last_name, balance_cents }
 let selectedAmt   = 20;     // centesimi×100 per ricarica
 let products      = [];     // da Supabase
 let currentCat    = null;
 let cart          = {};     // { product_id: { name, price_cents, qty } }
-let spinaProd     = null;
-let pourTimer     = null;
-let pourMl        = 0;
-let pourTs        = 0;
 let idleTO        = null;
 let ws            = null;
 
@@ -411,7 +415,6 @@ function resetIdleTO(ms=30000) {
 }
 function goHome() {
   clearTimeout(idleTO);
-  stopPour();
   currentUser = null; currentFlow = null; cart = {};
   show('s-home');
 }
@@ -433,7 +436,7 @@ function startFlow(flow) {
   currentFlow = flow;
   el('tap-title').textContent = flow==='ricarica' ? 'AVVICINA LA CARTA PER RICARICARE'
     : flow==='ordina' ? 'AVVICINA LA CARTA PER ORDINARE'
-    : 'AVVICINA LA CARTA PER SPILLARE';
+    : 'AVVICINA LA CARTA PER LO SPRITZ';
   el('tap-sub').textContent = 'Appoggia la tua tessera o portachiavi CAMON al lettore';
   show('s-tap');
 }
@@ -444,7 +447,7 @@ function onUserIdentified(user) {
   resetIdleTO();
   if (currentFlow === 'ricarica') openRicarica();
   else if (currentFlow === 'ordina') openOrdina();
-  else openSpilla();
+  else chargeSpritz();
 }
 
 // ════════════════════════════════════════════
@@ -469,18 +472,49 @@ function clearAmtChips() {
   document.querySelectorAll('.amt-chip').forEach(c=>c.classList.remove('sel'));
   selectedAmt = null;
 }
-async function doRecharge() {
+let pendingRechargeEuros = 0;
+
+function goPagamento() {
   const custom = parseFloat(el('rc-custom').value);
   const euros  = custom > 0 ? custom : selectedAmt;
   if (!euros || euros < 5) { alert('Importo minimo €5'); return; }
-  const cents100 = Math.round(euros * 100);
+  pendingRechargeEuros = euros;
+  el('pay-amt-lbl').textContent = '€ ' + euros.toFixed(2).replace('.', ',');
+  show('s-pagamento');
+}
 
-  // La ricarica vera verrà confermata dallo staff dopo l'incasso —
-  // qui mostriamo istruzioni e poi lo staff usa la funzione nfc_recharge
-  // (o il pannello staff). Per ora mostriamo il messaggio.
-  feedback(true, '💳', 'Vai alla cassa',
-    `Mostra la ricevuta al banco per ricaricare €${euros.toFixed(2)} sulla tua carta.\nIl personale confermerà la ricarica.`,
-    null);
+/* Metodo scelto → schermata di attesa → ricarica automatica.
+   NOTA: qui non c'è ancora un vero POS/gateway di pagamento collegato;
+   il blocco sotto è il punto in cui andrà agganciata l'integrazione
+   reale (es. conferma dal terminale POS). Per ora si procede in
+   automatico, self-service, senza intervento dello staff. */
+async function startPagamento(metodo) {
+  el('pay-wait-sub').textContent = metodo === 'carta'
+    ? 'Segui le istruzioni sul terminale POS'
+    : 'Consegna i contanti allo staff, poi attendi';
+  show('s-attesa-pagamento');
+
+  const cents = Math.round(pendingRechargeEuros * 100);
+  const descrizione = 'Ricarica self-service al totem (' + (metodo === 'carta' ? 'carta' : 'contanti') + ')';
+
+  try {
+    // TODO integrazione POS reale: qui si aspetterebbe la conferma del
+    // pagamento dal terminale prima di procedere. Per ora si simula
+    // un breve tempo di elaborazione e si procede sempre.
+    await new Promise(r => setTimeout(r, 1800));
+
+    const newBal = await rpc('nfc_recharge', {
+      p_uid: currentUser.uid,
+      p_amount_cents: cents,
+      p_description: descrizione
+    });
+    feedback(true, '✅', 'Ricarica completata',
+      `Hai ricaricato €${pendingRechargeEuros.toFixed(2)} sulla tua carta.`,
+      newBal);
+  } catch (e) {
+    const msg = e.message || String(e);
+    feedback(false, '❌', 'Ricarica non riuscita', msg, null);
+  }
 }
 
 // ════════════════════════════════════════════
@@ -594,75 +628,49 @@ async function doOrder() {
 }
 
 // ════════════════════════════════════════════
-//  SPILLA
+//  SPRITZ SELF-SERVICE — un tap, un addebito fisso
 // ════════════════════════════════════════════
-function openSpilla() {
-  el('sp-badge').innerHTML = userBadgeHTML(currentUser);
-  spinaProd = null; pourMl = 0;
-  el('spina-tabs').innerHTML = SPINA_PRODUCTS.map(p=>`
-    <button class="spina-tab${spinaProd?.id===p.id?' sel':''}" onclick="selectSpina('${p.id}')">
-      ${p.name}
-    </button>`).join('');
-  el('pour-info').textContent = 'Seleziona un prodotto';
-  el('pour-btn').disabled = true;
-  resetFillRect(0);
-  show('s-spilla');
+let spritzPriceCents = null; // cache: letto dalla tabella products (nome 'SPRITZ')
+
+async function getSpritzPriceCents() {
+  if (spritzPriceCents !== null) return spritzPriceCents;
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/products?name=eq.SPRITZ&select=price_cents&limit=1`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  const rows = await r.json();
+  if (!r.ok || !rows.length) throw new Error('Prezzo Spritz non trovato nel menu');
+  spritzPriceCents = rows[0].price_cents;
+  return spritzPriceCents;
 }
-function selectSpina(id) {
-  spinaProd = SPINA_PRODUCTS.find(p=>p.id===id);
-  document.querySelectorAll('.spina-tab').forEach(t=>t.classList.toggle('sel',t.textContent.trim()===spinaProd.name));
-  el('pour-btn').disabled = false;
-  el('pour-info').textContent = spinaProd.label;
-  el('fill-rect').setAttribute('fill', spinaProd.color);
-  resetFillRect(0);
-}
-function resetFillRect(pct) {
-  // pct 0-1
-  const h = Math.round(165 * pct);
-  el('fill-rect').setAttribute('y', 175-h);
-  el('fill-rect').setAttribute('height', h);
-  el('foam-rect').setAttribute('y', 175-h-6);
-  el('foam-rect').setAttribute('height', h>0?6:0);
-}
-function startPour() {
-  if (!spinaProd||!currentUser) return;
-  pourMl = 0; pourTs = Date.now();
-  el('pour-btn').classList.add('pouring');
-  el('pour-btn').textContent = 'RILASCIA PER ADDEBITARE';
-  pourTimer = setInterval(()=>{
-    pourMl = (Date.now()-pourTs)/1000 * 50;
-    const cost = pourMl*spinaProd.pricePerMl;
-    el('pour-info').textContent = `${Math.round(pourMl)} ml · ${cents(Math.round(cost*100))}`;
-    resetFillRect(Math.min(pourMl/400,1));
-  },50);
-}
-async function stopPour() {
-  if (!pourTimer) return;
-  clearInterval(pourTimer); pourTimer=null;
-  el('pour-btn').classList.remove('pouring');
-  el('pour-btn').textContent = 'TIENI PREMUTO PER SPILLARE';
-  if (pourMl<10||!spinaProd||!currentUser) return;
-  const amtCents = Math.round(pourMl*spinaProd.pricePerMl*100);
-  el('pour-btn').disabled=true;
+
+// Aggiorna il sottotitolo del bottone in home con il prezzo reale
+(async function initSpritzLabel() {
   try {
-    await rpc('nfc_spend',{
+    const c = await getSpritzPriceCents();
+    const lbl = el('spritz-home-sub');
+    if (lbl) lbl.textContent = `Avvicina la carta e paga ${cents(c)}`;
+  } catch (e) { console.warn('Prezzo Spritz:', e.message); }
+})();
+
+async function chargeSpritz() {
+  show('s-spritz');
+  try {
+    const priceCents = await getSpritzPriceCents();
+    el('spritz-wait-sub').textContent = 'Addebito ' + cents(priceCents) + ' · ' +
+      [currentUser.first_name, currentUser.last_name].filter(Boolean).join(' ');
+
+    const newBal = await rpc('nfc_spend', {
       p_uid: currentUser.uid,
-      p_amount_cents: amtCents,
-      p_description: `Spillata ${spinaProd.name} · ${Math.round(pourMl)}ml`
+      p_amount_cents: priceCents,
+      p_description: 'Spritz self-service'
     });
-    feedback(true,'🍺','Spillata!',`${Math.round(pourMl)}ml di ${spinaProd.name}`,currentUser.balance_cents-amtCents);
-  } catch(e) {
-    const msg=e.message||String(e);
-    feedback(false,'❌',msg==='SALDO_INSUFFICIENTE'?'Saldo insufficiente':'Errore',
-      msg==='SALDO_INSUFFICIENTE'?'Ricarica la carta al banco.':msg, null);
+    feedback(true, '🍹', 'Spritz pagato!', 'Buona bevuta, ' + (currentUser.first_name || ''), newBal);
+  } catch (e) {
+    const msg = e.message || String(e);
+    feedback(false, '❌', msg === 'SALDO_INSUFFICIENTE' ? 'Saldo insufficiente' : 'Errore',
+      msg === 'SALDO_INSUFFICIENTE' ? 'Ricarica la carta al banco.' : msg, null);
   }
 }
-const pb = el('pour-btn');
-pb.addEventListener('mousedown', startPour);
-pb.addEventListener('mouseup',   stopPour);
-pb.addEventListener('mouseleave',()=>{ if(pourTimer) stopPour(); });
-pb.addEventListener('touchstart', e=>{ e.preventDefault(); startPour(); },{passive:false});
-pb.addEventListener('touchend',   e=>{ e.preventDefault(); stopPour(); }, {passive:false});
 
 // ════════════════════════════════════════════
 //  FEEDBACK
@@ -695,24 +703,6 @@ function onBridge(msg) {
     feedback(false,'🤷','Carta non riconosciuta','Registra la tessera tramite il personale.',null);
   } else if (msg.type==='error') {
     setStatus(false,'Errore: '+msg.message);
-  }
-}
-
-// ════════════════════════════════════════════
-//  SIMULATORE DEV
-// ════════════════════════════════════════════
-async function devSim() {
-  const uid = (el('dev-uid').value||'A1B2C3D4').trim().toUpperCase();
-  if (!currentFlow) { alert('Prima scegli un\'azione dalla home'); return; }
-  setStatus(true,'Simulazione carta: '+uid);
-  try {
-    const rows = await rpc('nfc_lookup',{p_uid:uid});
-    if (rows&&rows.length>0) onUserIdentified({uid,...rows[0]});
-    else onBridge({type:'card_unknown',uid});
-  } catch(e) {
-    const msg=e.message||String(e);
-    if (msg==='CARD_NOT_FOUND') onBridge({type:'card_unknown',uid});
-    else setStatus(false,'Errore: '+msg);
   }
 }
 
