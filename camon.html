@@ -7060,6 +7060,63 @@
     const bloccato = !user;
     locked.style.display  = bloccato ? 'flex' : 'none';
     content.style.display = bloccato ? 'none' : 'block';
+    if (user) {
+      walletSyncFromServer();
+      walletSubscribeRealtime(user.id);
+    }
+  }
+
+  /* Data di un movimento in formato leggibile: "Oggi, 13:37" / "Ieri, 21:50"
+     / "3 ago, 17:28" — stesso stile usato nei dati dimostrativi. */
+  function fmtTxDate(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const hm = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    const sameDay = d.toDateString() === now.toDateString();
+    const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+    if (sameDay) return 'Oggi, ' + hm;
+    if (d.toDateString() === yesterday.toDateString()) return 'Ieri, ' + hm;
+    return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + ', ' + hm;
+  }
+
+  /* Saldo e movimenti VERI, letti dalle tabelle wallets/transactions —
+     sostituiscono i dati demo locali per chi è loggato. */
+  async function walletSyncFromServer() {
+    if (!window.sb) return;
+    const { data: { user } } = await window.sb.auth.getUser();
+    if (!user) return;
+
+    const [walletRes, txRes] = await Promise.all([
+      window.sb.from('wallets').select('balance_cents').eq('user_id', user.id).maybeSingle(),
+      window.sb.from('transactions').select('type,amount_cents,description,created_at')
+        .eq('user_id', user.id).order('created_at', { ascending: false }).limit(30)
+    ]);
+
+    if (walletRes.error) { console.error('[wallet] select wallets:', walletRes.error.message); return; }
+    if (txRes.error)     { console.error('[wallet] select transactions:', txRes.error.message); return; }
+
+    cardBalance = (walletRes.data?.balance_cents ?? 0) / 100;
+    cardTx = (txRes.data || []).map(t => ({
+      type: t.type === 'spend' ? 'out' : 'in',
+      label: t.description || (t.type === 'spend' ? 'Spesa' : 'Ricarica'),
+      amount: t.amount_cents / 100,
+      date: fmtTxDate(t.created_at)
+    }));
+    renderWallet();
+  }
+
+  /* Ascolto in tempo reale: appena wallets/transactions cambiano per
+     questo utente (es. una ricarica fatta al totem con il braccialetto),
+     l'app si aggiorna da sola — non serve uscire e rientrare dalla Carta. */
+  let walletChannel = null;
+  function walletSubscribeRealtime(userId) {
+    if (walletChannel || !window.sb) return; // già in ascolto
+    walletChannel = window.sb.channel('wallet-' + userId)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'wallets', filter: 'user_id=eq.' + userId },
+        () => walletSyncFromServer())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions', filter: 'user_id=eq.' + userId },
+        () => walletSyncFromServer())
+      .subscribe();
   }
 
   /* ===== BRACCIALETTI =====
