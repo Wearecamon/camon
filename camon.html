@@ -5031,6 +5031,24 @@
     </div>
     <div class="carta-scroll">
 
+      <!-- Blocco per chi non ha fatto l'accesso: niente saldo/carta finché non sei loggato -->
+      <div class="offers-gate" id="carta-locked" style="display:none">
+        <div class="offers-gate-ico">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="offers-gate-title">ACCEDI PER<br><span>VEDERE LA CARTA</span></div>
+        <div class="offers-gate-txt">
+          Saldo, ricariche e braccialetti sono legati al tuo account.
+          Accedi o crea un account per continuare.
+        </div>
+        <button class="offers-gate-btn" onclick="goTo('profile'); profShowAuth('login')">Accedi</button>
+        <div class="offers-gate-alt">Non hai un account? <b onclick="goTo('profile'); profShowAuth('signup')">Iscriviti</b></div>
+      </div>
+
+      <div id="carta-content">
+
       <!-- Carta virtuale -->
       <div class="wallet-card">
         <div class="wc-top">
@@ -5089,6 +5107,8 @@
       <!-- Storico movimenti -->
       <div class="wallet-lbl">Movimenti</div>
       <div id="wallet-history"></div>
+
+      </div><!-- /carta-content -->
 
     </div>
   </div>
@@ -7026,6 +7046,20 @@
       localStorage.setItem('camon_balance', cardBalance.toFixed(2));
       localStorage.setItem('camon_tx', JSON.stringify(cardTx));
     } catch (e) {}
+  }
+
+  /* Accesso alla Carta riservato: senza una sessione reale (non basta
+     il "profilo" locale) si vede solo l'invito ad accedere, mai un
+     saldo. Controlla auth.getSession() ogni volta — niente stato
+     locale che possa dire "sei loggato" per errore. */
+  async function cartaGate() {
+    const locked  = document.getElementById('carta-locked');
+    const content = document.getElementById('carta-content');
+    if (!locked || !content) return;
+    const user = window.sb ? (await window.sb.auth.getSession()).data?.session?.user : null;
+    const bloccato = !user;
+    locked.style.display  = bloccato ? 'flex' : 'none';
+    content.style.display = bloccato ? 'none' : 'block';
   }
 
   /* ===== BRACCIALETTI =====
@@ -9735,6 +9769,7 @@
       if (typeof camonSyncMenu === 'function') camonSyncMenu();
       if (typeof renderWallet === 'function') renderWallet();
     }
+    if (page === 'carta' && typeof cartaGate === 'function') cartaGate();
     if (page === 'carta' && typeof renderWallet === 'function') renderWallet();
     if (page === 'carta' && typeof bandsSync === 'function') bandsSync();
 
@@ -10531,11 +10566,13 @@
             document.getElementById('page-profile').classList.contains('active') &&
             typeof profEnter === 'function') profEnter();
       }
+      if (typeof cartaGate === 'function') cartaGate();
       window.sb.auth.onAuthStateChange(function (_event, session) {
         window.camonUser = session ? session.user : null;
         profileCreated = !!session;
         camonSyncAuthUI();
         if (session && typeof bandsSync === 'function') bandsSync();
+        if (typeof cartaGate === 'function') cartaGate(); // login/logout mentre sei sulla Carta
       });
     } catch (e) { console.warn('Init auth:', e); }
   }
