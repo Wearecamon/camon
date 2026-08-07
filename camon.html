@@ -7886,9 +7886,41 @@
     });
 
     const vuoto = document.getElementById('menu-empty');
-    if (vuoto) vuoto.style.display = visibili ? 'none' : 'block';
+    if (vuoto) {
+      if (visibili) vuoto.style.display = 'none';
+      else menuMostraStato();
+    }
 
     return visibili;
+  }
+
+  /* 'attesa' finché i prodotti non sono arrivati, 'errore' se non ce
+     l'hanno fatta. Serve a non dire "nessun risultato" quando il vero
+     motivo è che il menu non è ancora stato scaricato. */
+  let menuStato = 'attesa';
+
+  function menuMostraStato() {
+    const vuoto = document.getElementById('menu-empty');
+    if (!vuoto) return;
+    if (menuStato === 'attesa') {
+      vuoto.innerHTML = '<strong>Un attimo…</strong>Stiamo caricando il menu.';
+    } else if (menuStato === 'errore') {
+      vuoto.innerHTML = '<strong>Menu non disponibile</strong>'
+        + 'Controlla la connessione e riprova.<br>'
+        + '<button onclick="menuRiprova(this)" style="margin-top:14px;padding:10px 20px;border:none;'
+        + 'border-radius:10px;background:#f7cc49;color:#111;font-family:Manrope,sans-serif;'
+        + 'font-size:13px;font-weight:800;cursor:pointer">Riprova</button>';
+    } else {
+      vuoto.innerHTML = '<strong>Nessun risultato</strong>Prova con un altro nome o cambia categoria.';
+    }
+    vuoto.style.display = 'block';
+  }
+
+  async function menuRiprova(btn) {
+    if (btn) { btn.disabled = true; btn.textContent = 'Carico…'; }
+    menuStato = 'attesa';
+    menuMostraStato();
+    await camonSyncMenu();
   }
 
   /* quante corrispondenze ci sono nell'altra sezione (drink <-> cibo) */
@@ -11897,6 +11929,7 @@
       grid.querySelectorAll('.drink-card').forEach(c => c.remove());
       data.forEach(p => grid.appendChild(camonBuildCard(p)));
 
+      menuStato = 'ok';
       if (typeof applyMenuFilter === 'function') applyMenuFilter();
       return true;
     } catch (e) {
@@ -11905,6 +11938,8 @@
         return camonSyncMenu(tentativiRimasti - 1);
       }
       console.warn('Sync menu:', e);
+      menuStato = 'errore';
+      menuMostraStato();
       return false;
     }
   }
