@@ -832,65 +832,6 @@
     text-align:center; padding:16px 2px; border:1px dashed rgba(255,255,255,0.1); border-radius:14px; margin-top:14px;
   }
 
-  /* Pulsante demo spina */
-  .spina-demo-btn {
-    width:100%; margin-top:16px; display:flex; flex-direction:column; align-items:flex-start; gap:2px;
-    background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.14); border-radius:14px;
-    padding:14px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s;
-  }
-  .spina-demo-btn:active { background:rgba(255,255,255,0.08); }
-  .spina-demo-btn span { font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; color:#fff; }
-  .spina-demo-btn small { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.4); }
-
-  /* ===== SPINA SELF-SERVICE (demo) ===== */
-  #page-spina-demo { background:#0f0f10; }
-  #page-spina-demo .gd-title span { color:#f7cc49; }
-  .spina-wrap { flex:1; display:flex; flex-direction:column; align-items:center; padding:8px 24px 100px; overflow-y:auto; }
-  .spina-tap-name { font-family:'Manrope',sans-serif; font-size:15px; color:rgba(255,255,255,0.65); margin-top:6px; }
-  .spina-tap-name b { color:#fff; font-weight:800; }
-  .spina-price { font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; color:#f7cc49; margin-top:3px; }
-  /* bicchiere */
-  .spina-glass {
-    position:relative; width:120px; height:170px; margin:22px 0 14px;
-    border:3px solid rgba(255,255,255,0.25); border-top:none;
-    border-radius:8px 8px 16px 16px; overflow:hidden;
-    background:rgba(255,255,255,0.03);
-  }
-  .spina-fill {
-    position:absolute; left:0; right:0; bottom:0; height:0%;
-    background:linear-gradient(180deg,#FFC433,#E89010);
-    transition:height 0.05s linear;
-  }
-  .spina-foam {
-    position:absolute; left:0; right:0; bottom:0%; height:0; opacity:0;
-    background:#FFF7E0; border-radius:50% 50% 0 0;
-    transition:bottom 0.05s linear;
-  }
-  .spina-counters {
-    display:flex; align-items:baseline; gap:16px; margin-top:4px;
-    font-family:'Manrope',sans-serif; color:rgba(255,255,255,0.6); font-size:14px; font-weight:700;
-  }
-  .spina-cost { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:1px; color:#fff; }
-  .spina-band {
-    margin-top:18px; font-family:'Manrope',sans-serif; font-size:13px; font-weight:700;
-    padding:9px 16px; border-radius:30px; text-align:center;
-  }
-  .spina-band.ok { background:rgba(76,217,100,0.14); color:#4CD964; }
-  .spina-band.warn { background:rgba(239,68,68,0.14); color:#F87171; }
-  .spina-pour-btn {
-    width:100%; max-width:300px; margin-top:16px;
-    background:#f7cc49; border:none; border-radius:16px; padding:20px;
-    cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:none;
-    transition:transform 0.1s, background 0.15s, opacity 0.15s;
-  }
-  .spina-pour-btn.pouring { background:#E8530E; transform:scale(0.98); }
-  .spina-pour-btn:disabled { opacity:0.4; cursor:not-allowed; }
-  .spina-pour-lbl { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1.5px; color:#111; }
-  .spina-saldo { margin-top:12px; font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.45); }
-  .spina-product-tabs { display:flex; gap:8px; margin-top:8px; margin-bottom:2px; }
-  .spina-tab { flex:1; padding:9px 0; border:1.5px solid rgba(255,255,255,0.13); border-radius:12px; background:rgba(255,255,255,0.04); font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1px; color:rgba(255,255,255,0.45); cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
-  .spina-tab.active { background:rgba(247,204,73,0.15); border-color:#f7cc49; color:#f7cc49; }
-
   .wallet-hist-empty { font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.3); padding:6px 2px; }
   .wallet-tx { display:flex; align-items:center; justify-content:space-between; padding:14px 2px; border-bottom:1px solid rgba(255,255,255,0.06); }
   .wallet-tx-left { display:flex; align-items:center; gap:13px; }
@@ -3016,7 +2957,6 @@
   .wallet-card,
   .companion-chip,
   .companion-search input,
-  .spina-band,
   .amt-chip,
   .bfield input, .bfield select, .bfield textarea,
   .people-pill,
@@ -5496,58 +5436,11 @@
         <div id="band-list" class="band-list"></div>
       </div>
 
-      <!-- Demo spina self-service -->
-      <button class="spina-demo-btn" onclick="goTo('spina-demo')">
-        <span>🍺 Prova la spina self-service</span>
-        <small>Demo: avvicina il braccialetto e spilla</small>
-      </button>
-
       <!-- Storico movimenti -->
       <div class="wallet-lbl">Movimenti</div>
       <div id="wallet-history"></div>
 
       </div><!-- /carta-content -->
-
-    </div>
-  </div>
-
-
-  <!-- ============================
-       SPINA SELF-SERVICE (demo)
-  ============================ -->
-  <div class="page" id="page-spina-demo">
-    <div class="gd-header">
-      <button class="back-btn" onclick="goTo('carta')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">SPINA <span>SELF-SERVICE</span></div>
-    </div>
-    <div class="spina-wrap">
-
-      <div class="spina-product-tabs">
-        <button class="spina-tab active" id="spina-tab-ipa" onclick="spinaSelectProduct('IPA')">🍺 IPA</button>
-        <button class="spina-tab" id="spina-tab-mojito" onclick="spinaSelectProduct('Mojito')">🍹 Mojito</button>
-      </div>
-      <div class="spina-tap-name" id="spina-tap-name">Spina 1 · <b>IPA del Birrificio</b></div>
-      <div class="spina-price" id="spina-tap-price">€10,00 / litro</div>
-
-      <!-- bicchiere -->
-      <div class="spina-glass">
-        <div class="spina-fill" id="spina-fill"></div>
-        <div class="spina-foam" id="spina-foam"></div>
-      </div>
-
-      <div class="spina-counters">
-        <div><span id="spina-ml">0</span> ml</div>
-        <div class="spina-cost">€ <span id="spina-cost">0,00</span></div>
-      </div>
-
-      <!-- stato braccialetto -->
-      <div class="spina-band" id="spina-band">—</div>
-
-      <!-- pulsante spilla -->
-      <button class="spina-pour-btn" id="spina-pour-btn">
-        <span class="spina-pour-lbl">TIENI PREMUTO PER SPILLARE</span>
-      </button>
-      <div class="spina-saldo" id="spina-saldo">Saldo: € 0,00</div>
 
     </div>
   </div>
@@ -8602,109 +8495,6 @@
     return b ? b.code : null;
   }
 
-  /* ===== SPINA SELF-SERVICE (demo) ===== */
-  const SPINA_PRODUCTS = {
-    'IPA':    { pricePerMl: 0.01, label: 'Spina 1 · IPA del Birrificio', priceLabel: '€10,00 / litro', fillColor: 'linear-gradient(180deg,#FFC433,#E89010)' },
-    'Mojito': { pricePerMl: 0.015, label: 'Spina 2 · Mojito Classico', priceLabel: '€15,00 / litro', fillColor: 'linear-gradient(180deg,#4CD964,#2A9D4E)' },
-  };
-  let spinaProduct = 'IPA';
-  let spinaMl = 0, spinaCost = 0, spinaTimer = null, spinaReady = false;
-
-  function spinaSelectProduct(product) {
-    if (spinaTimer) return; // non cambiare mentre stai spillando
-    spinaProduct = product;
-    document.querySelectorAll('.spina-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('spina-tab-' + product.toLowerCase()).classList.add('active');
-    const p = SPINA_PRODUCTS[product];
-    document.getElementById('spina-tap-name').innerHTML = p.label.replace(' · ', ' · <b>').replace(/(<b>.*)$/, '$1</b>');
-    document.getElementById('spina-tap-price').textContent = p.priceLabel;
-    document.getElementById('spina-fill').style.background = p.fillColor;
-    spinaMl = 0; spinaCost = 0; spinaRenderGlass();
-  }
-
-  function spinaInit() {
-    spinaStopPour();
-    spinaMl = 0; spinaCost = 0;
-    spinaRenderGlass();
-    const bandEl = document.getElementById('spina-band');
-    const btn = document.getElementById('spina-pour-btn');
-    const code = bandActiveCode();
-    if (!code) {
-      bandEl.className = 'spina-band warn';
-      bandEl.textContent = '⚠ Nessun braccialetto attivo — attivane uno nella Carta';
-      btn.disabled = true; spinaReady = false;
-    } else if (cardBalance <= 0) {
-      bandEl.className = 'spina-band warn';
-      bandEl.textContent = '⚠ Saldo esaurito — ricarica la carta';
-      btn.disabled = true; spinaReady = false;
-    } else {
-      bandEl.className = 'spina-band ok';
-      bandEl.textContent = '● Braccialetto ' + code + ' attivo';
-      btn.disabled = false; spinaReady = true;
-    }
-    document.getElementById('spina-saldo').textContent = 'Saldo: ' + fmtEuro(cardBalance);
-  }
-  function spinaRenderGlass() {
-    // mostra il bicchiere in loop: ogni 500ml ricomincia visivamente
-    const DISPLAY_ML = 500;
-    const pct = Math.min(100, (spinaMl % DISPLAY_ML || (spinaMl > 0 && spinaMl % DISPLAY_ML === 0 ? DISPLAY_ML : 0)) / DISPLAY_ML * 100);
-    document.getElementById('spina-fill').style.height = pct + '%';
-    const foam = document.getElementById('spina-foam');
-    foam.style.bottom = pct + '%'; foam.style.height = (pct > 0 ? 10 : 0) + 'px'; foam.style.opacity = pct > 0 ? 1 : 0;
-    document.getElementById('spina-ml').textContent = Math.round(spinaMl);
-    document.getElementById('spina-cost').textContent = spinaCost.toFixed(2).replace('.', ',');
-  }
-  function spinaStartPour() {
-    if (!spinaReady || spinaTimer) return;
-    const pricePerMl = SPINA_PRODUCTS[spinaProduct].pricePerMl;
-    spinaMl = 0; spinaCost = 0; spinaRenderGlass();
-    document.getElementById('spina-pour-btn').classList.add('pouring');
-    document.querySelector('.spina-pour-lbl').textContent = 'STO SPILLANDO…';
-    spinaTimer = setInterval(() => {
-      const maxByBalance = cardBalance / pricePerMl;
-      const next = Math.min(spinaMl + 16, maxByBalance);
-      spinaMl = next;
-      spinaCost = spinaMl * pricePerMl;
-      spinaRenderGlass();
-      if (spinaMl >= maxByBalance - 0.1) {
-        spinaStopPour(); // saldo finito
-      }
-    }, 60);
-  }
-  function spinaStopPour() {
-    if (spinaTimer) { clearInterval(spinaTimer); spinaTimer = null; }
-    const btn = document.getElementById('spina-pour-btn');
-    if (btn) btn.classList.remove('pouring');
-    const lbl = document.querySelector('.spina-pour-lbl');
-    if (lbl) lbl.textContent = 'TIENI PREMUTO PER SPILLARE';
-    spinaCommit();
-  }
-  function spinaCommit() {
-    if (spinaCost <= 0) return;
-    const cost = Math.round(spinaCost * 100) / 100;
-    const ml = Math.round(spinaMl);
-    const product = spinaProduct;
-    cardBalance = Math.max(0, cardBalance - cost);
-    // accorpa solo se stesso prodotto e ultima spillata < 30 secondi fa
-    const MERGE_TIMEOUT_MS = 30000;
-    const now = Date.now();
-    const last = cardTx[0];
-    if (last && last.spina && last.product === product && (now - (last.ts || 0)) < MERGE_TIMEOUT_MS) {
-      last.ml += ml;
-      last.amount = Math.round((last.amount + cost) * 100) / 100;
-      last.label = 'Spina · ' + product + ' (' + last.ml + ' ml)';
-      last.date = nowLabel();
-      last.ts = now;
-    } else {
-      cardTx.unshift({ type:'out', spina:true, product, ml, label:'Spina · ' + product + ' (' + ml + ' ml)', amount:cost, date:nowLabel(), ts:now });
-    }
-    walletSave();
-    renderWallet();
-    document.getElementById('spina-saldo').textContent = 'Saldo: ' + fmtEuro(cardBalance);
-    spinaCost = 0; // evita doppio addebito
-    if (cardBalance <= 0) spinaInit();
-  }
-
   function renderWallet() {
     const mb = document.getElementById('menu-balance');
     const cb = document.getElementById('card-balance');
@@ -8760,23 +8550,48 @@
     return 'Oggi, ' + hh + ':' + mm;
   }
 
-  function doRecharge() {
+  /* Ricarica vera: chiama la funzione server wallet_recharge (in
+     supabase/03_wallet_functions.sql) che scala/aggiunge sul saldo
+     reale — non più un numero finto tenuto solo in locale. */
+  async function doRecharge() {
     const input = document.getElementById('recharge-input');
     let amt = rechargeAmount;
     if (input.value) amt = parseFloat(input.value.replace(',', '.'));
     if (!amt || amt <= 0) { alert('Scegli o inserisci un importo valido.'); return; }
     if (amt < RECHARGE_MIN) { alert('La ricarica minima da app è €' + RECHARGE_MIN + '. Per importi inferiori puoi ricaricare al banco.'); return; }
     if (amt > 500) { amt = 500; }
-    cardBalance += amt;
-    cardTx.unshift({ type:'in', label:'Ricarica', amount:amt, date:nowLabel() });
-    walletSave();
-    renderWallet();
+
+    const btn = document.querySelector('.wallet-recharge-btn');
+    const old = btn.textContent;
+
+    if (window.sb) {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) { alert('Devi accedere al tuo account per ricaricare.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Attendi…';
+      const { error } = await window.sb.rpc('wallet_recharge', {
+        p_amount_cents: Math.round(amt * 100),
+        p_description: 'Ricarica da app'
+      });
+      btn.disabled = false;
+      if (error) {
+        btn.textContent = old;
+        alert('Ricarica non riuscita: ' + error.message);
+        return;
+      }
+      await walletSyncFromServer(); // rilegge saldo/movimenti veri
+    } else {
+      // offline/demo: nessuna connessione a Supabase, resta la sola copia locale
+      cardBalance += amt;
+      cardTx.unshift({ type:'in', label:'Ricarica', amount:amt, date:nowLabel() });
+      walletSave();
+      renderWallet();
+    }
+
     // reset selezione
     clearAmtChips();
     input.value = '';
     // feedback sul pulsante
-    const btn = document.querySelector('.wallet-recharge-btn');
-    const old = btn.textContent;
     btn.textContent = '✓ Ricaricato ' + fmtEuro(amt).replace('€ ','€') + '!';
     btn.style.background = '#4CD964';
     setTimeout(() => { btn.textContent = old; btn.style.background = '#f7cc49'; }, 1600);
@@ -8904,18 +8719,6 @@
         } catch(e) { img.style.opacity = '1'; }
       }
     } catch(e) { /* libreria non disponibile, le foto rimangono */ }
-  })();
-
-  // eventi pulsante "tieni premuto per spillare"
-  (function () {
-    const btn = document.getElementById('spina-pour-btn');
-    if (!btn) return;
-    const start = (e) => { e.preventDefault(); spinaStartPour(); };
-    const stop  = (e) => { e.preventDefault(); spinaStopPour(); };
-    btn.addEventListener('pointerdown', start);
-    btn.addEventListener('pointerup', stop);
-    btn.addEventListener('pointerleave', stop);
-    btn.addEventListener('pointercancel', stop);
   })();
 
   /* ===== SVG: hit-area + tap delegation per tavoli su iOS ===== */
@@ -10930,12 +10733,43 @@
     window.open('https://instagram.com/' + STORY_IG, '_blank');
   }
 
-  // genera il codice della serata (parte il limite fino alle 8:00 e la finestra di ritiro)
-  function storyClaim() {
+  /* Genera il codice della serata. Lo decide il server (funzione
+     shot_claim in supabase/08_shot_omaggio.sql): così non è
+     prevedibile — un codice calcolato solo in locale si potrebbe
+     ricostruire senza aver davvero diritto al bonus — e allo staff
+     resta traccia del ritiro. */
+  async function storyClaim() {
     if (!storyHasProfile()) { storyRender(); return; } // sicurezza: serve il profilo
+
+    if (window.sb) {
+      try {
+        const { data, error } = await window.sb.rpc('shot_claim');
+        if (error) throw error;
+        const riga = Array.isArray(data) ? data[0] : data;
+        if (!riga || !riga.code) throw new Error('Risposta inattesa');
+        localStorage.setItem(storyKeyLast(), String(Date.now()));
+        localStorage.setItem(storyKeyCode(), riga.code);
+        storyRender();
+        return;
+      } catch (e) {
+        const msg = (e && e.message) || '';
+        if (/gi[aà] richiesto/i.test(msg)) {
+          // il server sa che il bonus è già stato preso: allineo la vista
+          localStorage.setItem(storyKeyLast(), String(Date.now()));
+          storyRender();
+          return;
+        }
+        if (!/find the function/i.test(msg)) {
+          alert('Non riesco a generare il codice: ' + (msg || e));
+          return;
+        }
+        // funzione non ancora installata sul database: ripiego sul codice locale
+      }
+    }
+
     const now = Date.now();
     localStorage.setItem(storyKeyLast(), String(now));
-    // codice deterministico (giorno + profilo), comodo da verificare allo staff
+    // codice deterministico (giorno + profilo) — solo di riserva, se il server non risponde
     const d = new Date(now);
     const seed = '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate() + storyProfileId();
     let code = 0;
