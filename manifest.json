@@ -1,7 +1,7 @@
 {
   "name": "CAMON",
   "short_name": "CAMON",
-  "start_url": ".",
+  "start_url": "camon.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0a0a",

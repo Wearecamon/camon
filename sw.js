@@ -2,7 +2,7 @@
    Ogni apertura del bookmark prova a caricare la versione aggiornata
    dalla rete; se non c'è connessione usa quella in cache. */
 
-const CACHE = 'camon-v3';
+const CACHE = 'camon-v4';
 
 /* Attiva subito, ma NON ruba il controllo delle pagine già aperte
    (niente clients.claim): così il reload automatico in-page si attiva
