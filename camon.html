@@ -1153,6 +1153,9 @@
   .book-type-card.invite { border-color:rgba(244,114,182,0.28); background:linear-gradient(135deg,#2a1322,#1a1a1a); }
   .book-type-card.invite .book-type-glow { background:radial-gradient(circle,#F472B6,transparent 70%); }
   .book-type-card.invite .book-type-badge { background:rgba(244,114,182,0.15); color:#F472B6; }
+  .book-type-card.event { border-color:rgba(167,139,250,0.28); background:linear-gradient(135deg,#1e1533,#1a1a1a); }
+  .book-type-card.event .book-type-glow { background:radial-gradient(circle,#A78BFA,transparent 70%); }
+  .book-type-card.event .book-type-badge { background:rgba(167,139,250,0.15); color:#A78BFA; }
 
   /* form invito anonimo */
   .invite-concept { display:flex; gap:11px; align-items:flex-start; background:rgba(244,114,182,0.1); border:1px solid rgba(244,114,182,0.25); border-radius:12px; padding:13px 15px; margin-bottom:4px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.72); line-height:1.5; }
@@ -1189,6 +1192,83 @@
   .people-grid { display:flex; flex-wrap:wrap; gap:9px; }
   .people-pill { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; padding:9px 16px; border-radius:30px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; white-space:nowrap; }
   .people-pill.active { background:rgba(247,204,73,0.14); border-color:#f7cc49; color:#f7cc49; }
+
+  /* --- Festa privata: calendario --- */
+  .evcal { background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 12px 10px; }
+  .evcal-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .evcal-month { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:1px; color:#fff; text-transform:capitalize; }
+  .evcal-nav { width:30px; height:30px; flex-shrink:0; border:none; border-radius:9px; background:rgba(255,255,255,0.07); color:#fff; font-size:19px; line-height:1; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .evcal-nav:disabled { opacity:0.25; cursor:default; }
+  .evcal-dows, .evcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .evcal-dows span { text-align:center; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; color:rgba(255,255,255,0.3); padding-bottom:4px; }
+  .evcal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border:none; border-radius:9px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.75); font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
+  .evcal-day.empty { background:none; cursor:default; }
+  .evcal-day.off { background:none; color:rgba(255,255,255,0.15); cursor:default; text-decoration:line-through; }
+  .evcal-day.active { background:#A78BFA; color:#1a1a1a; }
+  .evcal-legend { font-family:'Manrope',sans-serif; font-size:10.5px; color:rgba(255,255,255,0.3); text-align:center; margin-top:9px; }
+
+  /* --- Festa privata: campo "serata ideale" in evidenza --- */
+  .evnote { background:rgba(167,139,250,0.07); border:1px solid rgba(167,139,250,0.3); border-radius:14px; padding:14px; }
+  .evnote .evnote-lbl { font-size:11px; color:#A78BFA; letter-spacing:1.5px; }
+  .evnote-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.5); line-height:1.5; margin:-2px 0 2px; }
+  .evnote textarea { height:120px; }
+
+  /* --- Festa privata: atmosfere ---
+     Da selezionata la pastiglia non e' piu' scura: sotto al testo
+     scorre un'immagine sfocata che evoca quel tipo di serata. */
+  .mood-pill { position:relative; overflow:hidden; }
+  .mood-pill > span { position:relative; z-index:2; }
+  .mood-pill::before {
+    content:''; position:absolute; inset:-40%;
+    background-size:cover; background-position:center;
+    filter:blur(7px) saturate(1.45);
+    opacity:0; transition:opacity 0.25s; z-index:0;
+  }
+  .mood-pill::after {
+    content:''; position:absolute; inset:0;
+    background:rgba(0,0,0,0.3); opacity:0; transition:opacity 0.25s; z-index:1;
+  }
+  .mood-pill.active::before, .mood-pill.active::after { opacity:1; }
+  .mood-pill.active {
+    background:transparent !important;
+    border-color:rgba(255,255,255,0.6) !important;
+    color:#fff !important;
+    text-shadow:0 1px 7px rgba(0,0,0,0.8);
+  }
+  :root {
+    --mood-elegante:  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%232b1d06'/><circle cx='18' cy='18' r='19' fill='%23f7cc49' opacity='.6'/><circle cx='72' cy='40' r='23' fill='%23c9902c' opacity='.5'/><circle cx='47' cy='8' r='13' fill='%23fff1c4' opacity='.4'/><circle cx='90' cy='12' r='10' fill='%23ffe08a' opacity='.35'/></svg>");
+    --mood-chill:     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><defs><linearGradient id='c' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231d4470'/><stop offset='1' stop-color='%2385c9ec'/></linearGradient></defs><rect width='100' height='60' fill='url(%23c)'/><ellipse cx='28' cy='40' rx='26' ry='11' fill='%23ffffff' opacity='.55'/><ellipse cx='74' cy='48' rx='22' ry='9' fill='%23ffffff' opacity='.45'/><circle cx='82' cy='14' r='9' fill='%23ffeeb8' opacity='.6'/></svg>");
+    --mood-scatenata: url("foto%20scatenata.jpg");
+    --mood-tema:      url("foto%20a%20tema.jpg");
+    --mood-aperto:    url("foto%20scegliamo%20assieme.jpg");
+  }
+  .mood-elegante  { --mood-img:var(--mood-elegante); }
+  .mood-chill     { --mood-img:var(--mood-chill); }
+  .mood-scatenata { --mood-img:var(--mood-scatenata); }
+  .mood-tema      { --mood-img:var(--mood-tema); }
+  .mood-aperto    { --mood-img:var(--mood-aperto); }
+  .mood-pill::before { background-image:var(--mood-img); }
+
+  /* --- Sfondo della pagina festa privata, intonato all'atmosfera scelta --- */
+  #page-event { position:relative; z-index:0; isolation:isolate; }
+  #page-event.evmood-elegante  { --mood-img:var(--mood-elegante); }
+  #page-event.evmood-chill     { --mood-img:var(--mood-chill); }
+  #page-event.evmood-scatenata { --mood-img:var(--mood-scatenata); }
+  #page-event.evmood-tema      { --mood-img:var(--mood-tema); }
+  #page-event.evmood-aperto    { --mood-img:var(--mood-aperto); }
+  #page-event::before {
+    content:''; position:fixed; inset:0; z-index:-2;
+    background-image:var(--mood-img);
+    background-size:cover; background-position:center;
+    filter:blur(5px) saturate(1.15); transform:scale(1.08);
+    opacity:0; transition:opacity 0.45s ease; pointer-events:none;
+  }
+  #page-event::after {
+    content:''; position:fixed; inset:0; z-index:-1;
+    background:linear-gradient(180deg,rgba(8,8,10,0.52),rgba(8,8,10,0.68) 55%,rgba(8,8,10,0.78));
+    opacity:0; transition:opacity 0.45s ease; pointer-events:none;
+  }
+  #page-event.evmood-on::before, #page-event.evmood-on::after { opacity:1; }
 
   /* Campo form nuovo */
   .bfield { display:flex; flex-direction:column; gap:7px; }
@@ -3852,6 +3932,30 @@
         </div>
       </div>
 
+      <div class="settings-row" id="settings-export" style="display:none" onclick="camonScaricaDati()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl">Scarica i miei dati</div>
+            <div class="settings-row-sub">Copia di tutto quello che abbiamo su di te</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row" id="settings-delete" style="display:none" onclick="camonEliminaAccount()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl" style="color:#ff6b6b">Elimina account</div>
+            <div class="settings-row-sub">Cancella profilo, foto e credito residuo</div>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-row" id="settings-logout" style="display:none" onclick="camonLogout()">
         <div class="settings-row-left">
           <div class="settings-row-ico">
@@ -5546,6 +5650,20 @@
             </div>
           </div>
 
+          <!-- Festa privata -->
+          <div class="book-type-card event" onclick="goTo('event')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+              Eventi
+            </div>
+            <div class="book-type-name">FESTA<br>PRIVATA</div>
+            <div class="book-type-desc">Laurea, compleanno o festa a tema: organizziamo la serata su misura per te e i tuoi invitati.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
           <!-- Invito anonimo -->
           <div class="book-type-card invite" onclick="bookSelectType('invite')">
             <div class="book-type-glow"></div>
@@ -5783,6 +5901,116 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ============================
+       FESTA PRIVATA
+  ============================ -->
+  <div class="page" id="page-event">
+
+    <!-- FORM -->
+    <div id="event-form-wrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-step-head">
+        <button class="book-back" onclick="goTo('book')">←</button>
+        <div class="book-step-title">FESTA <span>PRIVATA</span></div>
+      </div>
+      <div class="book-scroll">
+        <div class="book-form-new">
+
+          <div class="book-summary-card" id="event-summary-card" style="border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.07)">
+            <div class="book-summary-ico">🎉</div>
+            <div>
+              <div class="book-summary-name">FESTA PRIVATA</div>
+              <div class="book-summary-desc">Ti richiamiamo per definire i dettagli</div>
+            </div>
+          </div>
+
+          <!-- Calendario date disponibili -->
+          <div class="bfield">
+            <label>Scegli il giorno</label>
+            <div class="evcal">
+              <div class="evcal-head">
+                <button type="button" class="evcal-nav" id="evcal-prev" onclick="eventCalMove(-1)" aria-label="Mese precedente">‹</button>
+                <div class="evcal-month" id="evcal-month"></div>
+                <button type="button" class="evcal-nav" id="evcal-next" onclick="eventCalMove(1)" aria-label="Mese successivo">›</button>
+              </div>
+              <div class="evcal-dows"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+              <div class="evcal-grid" id="evcal-grid"></div>
+              <div class="evcal-legend">Il lunedì il locale è chiuso</div>
+            </div>
+          </div>
+
+          <!-- Orario -->
+          <div class="bfield">
+            <label>Orario indicativo</label>
+            <div class="people-grid" id="event-times"></div>
+          </div>
+
+          <!-- Occasione -->
+          <div class="bfield">
+            <label>Occasione</label>
+            <select id="event-occasione">
+              <option value="">Seleziona occasione</option>
+              <option>Festa di laurea 🎓</option>
+              <option>Compleanno 🎂</option>
+              <option>Festa a tema 🎭</option>
+              <option>Addio al celibato/nubilato 🎉</option>
+              <option>Altro</option>
+            </select>
+          </div>
+
+          <!-- Atmosfera -->
+          <div class="bfield">
+            <label>Che atmosfera vuoi?</label>
+            <div class="people-grid" id="event-mood"></div>
+          </div>
+
+          <!-- Invitati -->
+          <div class="bfield">
+            <label>Quanti invitati?</label>
+            <div class="people-grid" id="event-guests"></div>
+          </div>
+
+          <!-- Dati personali -->
+          <div class="bfield">
+            <label>Nome e cognome</label>
+            <input id="event-nome" type="text" placeholder="Mario Rossi" autocomplete="name">
+          </div>
+          <div class="bfield">
+            <label>Telefono</label>
+            <input id="event-tel" type="tel" placeholder="333 000 0000" autocomplete="tel">
+          </div>
+          <div class="bfield">
+            <label>Email</label>
+            <input id="event-email" type="email" placeholder="mario@email.com" autocomplete="email">
+          </div>
+
+          <!-- Come vuole la serata: e' il campo che ci fa capire davvero
+               cosa organizzare, quindi sta in evidenza ed e' obbligatorio. -->
+          <div class="bfield evnote">
+            <label class="evnote-lbl">Raccontaci com'è la tua serata ideale</label>
+            <div class="evnote-hint">Più dettagli ci dai, più la serata sarà come te la immagini: musica, allestimento, torta, brindisi, giochi, allergie, sorprese…</div>
+            <textarea id="event-note" placeholder="Es. Vorrei una laurea a tema anni '90, musica dal vivo fino a mezzanotte, torta a sorpresa verso le 23 e un angolo foto per gli invitati."></textarea>
+          </div>
+
+          <div id="event-error" style="display:none;font-family:'Manrope',sans-serif;font-size:12.5px;color:#FF6B61;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.35);border-radius:12px;padding:12px 14px"></div>
+
+          <button class="book-confirm-btn" onclick="eventSubmit()">Invia richiesta</button>
+          <div style="font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.5">
+            Non è una prenotazione confermata: ti ricontattiamo entro 24h per definire i dettagli.
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFERMA INVIO -->
+    <div id="event-done" style="display:none;flex-direction:column;flex:1;align-items:center;justify-content:center;text-align:center;padding:32px 30px">
+      <div style="font-size:60px;line-height:1">🎉</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;color:#fff;line-height:1;margin-top:16px">RICHIESTA<br><span style="color:#A78BFA">INVIATA</span></div>
+      <div style="font-family:'Manrope',sans-serif;font-size:14px;color:rgba(255,255,255,0.55);line-height:1.55;margin-top:14px;max-width:300px" id="event-done-sub"></div>
+      <button class="book-confirm-btn" style="max-width:320px;margin-top:28px" onclick="goTo('book')">Torna alle prenotazioni</button>
+    </div>
   </div>
 
 
@@ -8589,6 +8817,226 @@
 </script>
 
 <script>
+  /* ===== FESTA PRIVATA (richiesta evento) ===== */
+  var eventSel = { data: null, dataFmt: '', ora: null, invitati: null, mood: null };
+  var evCalCursor = null;   // primo giorno del mese mostrato
+  var EV_MESI_AVANTI = 3;   // fin dove si puo' sfogliare
+
+  function evStripTime(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+
+  /* Si parte da domani: una festa non si organizza per stasera. */
+  function evPrimoGiorno() {
+    var d = evStripTime(new Date());
+    d.setDate(d.getDate() + 1);
+    return d;
+  }
+  function evUltimoGiorno() {
+    var d = evPrimoGiorno();
+    d.setMonth(d.getMonth() + EV_MESI_AVANTI);
+    return d;
+  }
+
+  /* Il lunedi' il locale e' chiuso, e nel passato non si prenota. */
+  function evGiornoValido(d) {
+    if (d.getDay() === 1) return false;
+    return d >= evPrimoGiorno() && d <= evUltimoGiorno();
+  }
+
+  function eventCalMove(delta) {
+    evCalCursor.setMonth(evCalCursor.getMonth() + delta);
+    eventCalRender();
+  }
+
+  function eventCalRender() {
+    var grid = document.getElementById('evcal-grid');
+    if (!grid) return;
+    var anno = evCalCursor.getFullYear(), mese = evCalCursor.getMonth();
+
+    document.getElementById('evcal-month').textContent =
+      evCalCursor.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+
+    /* niente frecce oltre l'intervallo prenotabile */
+    var min = evPrimoGiorno(), max = evUltimoGiorno();
+    document.getElementById('evcal-prev').disabled =
+      (anno === min.getFullYear() && mese === min.getMonth()) ||
+      new Date(anno, mese, 1) <= new Date(min.getFullYear(), min.getMonth(), 1);
+    document.getElementById('evcal-next').disabled =
+      new Date(anno, mese, 1) >= new Date(max.getFullYear(), max.getMonth(), 1);
+
+    grid.innerHTML = '';
+    /* la griglia parte da lunedi': domenica (0) va in fondo */
+    var primo = new Date(anno, mese, 1);
+    var offset = (primo.getDay() + 6) % 7;
+    for (var i = 0; i < offset; i++) {
+      var vuoto = document.createElement('div');
+      vuoto.className = 'evcal-day empty';
+      grid.appendChild(vuoto);
+    }
+
+    var giorniNelMese = new Date(anno, mese + 1, 0).getDate();
+    for (var g = 1; g <= giorniNelMese; g++) {
+      (function (giorno) {
+        var d = new Date(anno, mese, giorno);
+        var iso = anno + '-' + String(mese + 1).padStart(2, '0') + '-' + String(giorno).padStart(2, '0');
+        var cell = document.createElement('button');
+        cell.type = 'button';
+        cell.textContent = giorno;
+        if (!evGiornoValido(d)) {
+          cell.className = 'evcal-day off';
+          cell.disabled = true;
+        } else {
+          cell.className = 'evcal-day' + (eventSel.data === iso ? ' active' : '');
+          cell.onclick = function () {
+            eventSel.data = iso;
+            eventSel.dataFmt = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+            grid.querySelectorAll('.evcal-day').forEach(function (x) { x.classList.remove('active'); });
+            cell.classList.add('active');
+            eventHideError();
+          };
+        }
+        grid.appendChild(cell);
+      })(g);
+    }
+  }
+
+  function eventAddPill(grid, label, value, campo, fmt, cls) {
+    var b = document.createElement('button');
+    b.className = 'people-pill' + (cls ? ' ' + cls : '');
+    b.type = 'button';
+    /* testo in un elemento a parte: sulle atmosfere deve stare
+       sopra l'immagine di sfondo e il suo velo */
+    var s = document.createElement('span');
+    s.textContent = label;
+    b.appendChild(s);
+    b.onclick = function () {
+      grid.querySelectorAll('.people-pill').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      eventSel[campo] = value;
+      if (campo === 'data') eventSel.dataFmt = fmt || label;
+      if (campo === 'mood') eventApplyMood(b.dataset.mood);
+      eventHideError();
+    };
+    grid.appendChild(b);
+    return b;
+  }
+
+  /* Tinge l'intera pagina con l'atmosfera scelta. */
+  function eventApplyMood(chiave) {
+    var pg = document.getElementById('page-event');
+    if (!pg) return;
+    pg.className = pg.className.replace(/\s*evmood-\S+/g, '');
+    if (chiave) pg.classList.add('evmood-' + chiave, 'evmood-on');
+  }
+
+  function eventBuildFixed() {
+    var t = document.getElementById('event-times');
+    var g = document.getElementById('event-guests');
+    var m = document.getElementById('event-mood');
+    if (!t || !g || !m) return;
+    t.innerHTML = ''; g.innerHTML = ''; m.innerHTML = '';
+    ['19:00', '20:00', '21:00', '22:00'].forEach(function (o) { eventAddPill(t, o, o, 'ora'); });
+    ['10', '15', '20', '30', '40', '50+'].forEach(function (o) { eventAddPill(g, o, o, 'invitati'); });
+    [{ l: '✨ Elegante', k: 'elegante' },
+     { l: '🛋️ Chill', k: 'chill' },
+     { l: '🔥 Scatenata', k: 'scatenata' },
+     { l: '🎭 A tema', k: 'tema' },
+     { l: '🤷 Decidiamo insieme', k: 'aperto' }]
+      .forEach(function (o) {
+        eventAddPill(m, o.l, o.l, 'mood', null, 'mood-pill mood-' + o.k).dataset.mood = o.k;
+      });
+  }
+
+  function eventShowError(msg) {
+    var e = document.getElementById('event-error');
+    e.textContent = msg;
+    e.style.display = 'block';
+    e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function eventHideError() {
+    var e = document.getElementById('event-error');
+    if (e) e.style.display = 'none';
+  }
+
+  /* Rientrando si riparte dal modulo pulito, non dalla conferma
+     della richiesta precedente. */
+  function eventEnter() {
+    eventSel = { data: null, dataFmt: '', ora: null, invitati: null, mood: null };
+    document.getElementById('event-form-wrap').style.display = 'flex';
+    document.getElementById('event-done').style.display = 'none';
+    ['event-nome', 'event-tel', 'event-email', 'event-note'].forEach(function (id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('event-occasione').value = '';
+    eventApplyMood(null);
+    eventHideError();
+    evCalCursor = evStripTime(evPrimoGiorno());
+    evCalCursor.setDate(1);
+    eventCalRender();
+    eventBuildFixed();
+  }
+
+  async function eventSubmit() {
+    var nome  = document.getElementById('event-nome').value.trim();
+    var tel   = document.getElementById('event-tel').value.trim();
+    var email = document.getElementById('event-email').value.trim();
+    var occ   = document.getElementById('event-occasione').value;
+    var note  = document.getElementById('event-note').value.trim();
+
+    if (!eventSel.data)      return eventShowError('Scegli il giorno della festa.');
+    if (!eventSel.ora)       return eventShowError('Scegli un orario indicativo.');
+    if (!occ)                return eventShowError('Seleziona l’occasione.');
+    if (!eventSel.mood)      return eventShowError('Dicci che atmosfera vuoi.');
+    if (!eventSel.invitati)  return eventShowError('Indica quanti invitati sarete.');
+    /* serve una descrizione vera, non due parole: e' su questa che
+       costruiamo la proposta per la serata */
+    if (note.length < 20)    return eventShowError('Raccontaci come immagini la serata: bastano due righe.');
+    if (nome.length < 3)     return eventShowError('Inserisci nome e cognome.');
+    /* almeno 8 cifre: filtra i numeri palesemente incompleti */
+    if (tel.replace(/\D/g, '').length < 8) return eventShowError('Inserisci un numero di telefono valido.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return eventShowError('Inserisci un’email valida.');
+
+    eventHideError();
+
+    /* La richiesta va salvata davvero: senza database non si puo'
+       dire "ti richiamiamo", perche' nessuno la vedrebbe mai. */
+    var btn = document.querySelector('#event-form-wrap .book-confirm-btn');
+    var testoBtn = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Invio…'; }
+    try {
+      if (!window.sb) throw new Error('offline');
+      var utente = null;
+      try {
+        var ris = await window.sb.auth.getUser();
+        utente = ris && ris.data ? ris.data.user : null;
+      } catch (e) { /* richiesta valida anche senza account */ }
+
+      var esito = await window.sb.from('event_requests').insert({
+        user_id:    utente ? utente.id : null,
+        event_date: eventSel.data,
+        event_time: eventSel.ora,
+        occasion:   occ,
+        mood:       eventSel.mood,
+        guests:     eventSel.invitati,
+        full_name:  nome,
+        phone:      tel,
+        email:      email,
+        notes:      note
+      });
+      if (esito.error) throw esito.error;
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.textContent = testoBtn; }
+      return eventShowError('Non siamo riusciti a inviare la richiesta. Controlla la connessione e riprova.');
+    }
+    if (btn) { btn.disabled = false; btn.textContent = testoBtn; }
+
+    document.getElementById('event-done-sub').innerHTML =
+      '<b style="color:#fff">' + eventSel.dataFmt + '</b> alle <b style="color:#fff">' + eventSel.ora + '</b><br>'
+      + eventSel.invitati + ' invitati · ' + eventSel.mood + '<br><br>'
+      + 'Ti richiamiamo al <b style="color:#fff">' + tel + '</b> entro 24h per confermare i dettagli.';
+    document.getElementById('event-form-wrap').style.display = 'none';
+    document.getElementById('event-done').style.display = 'flex';
+    window.scrollTo(0, 0);
+  }
 </script>
 <script>
   /* ===== SHOT QUEST (stile Picolo) ===== */
@@ -10822,6 +11270,7 @@
 
     if (page === 'offerte' && typeof offerteGate === 'function') offerteGate();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
+    if (page === 'event' && typeof eventEnter === 'function') eventEnter();
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
@@ -11390,7 +11839,53 @@
   function camonSyncAuthUI() {
     const row = document.getElementById('settings-logout');
     if (row) row.style.display = profileCreated ? 'flex' : 'none';
+    const exportRow = document.getElementById('settings-export');
+    if (exportRow) exportRow.style.display = profileCreated ? 'flex' : 'none';
+    const deleteRow = document.getElementById('settings-delete');
+    if (deleteRow) deleteRow.style.display = profileCreated ? 'flex' : 'none';
     camonSyncStaffUI();
+  }
+
+  /* Diritto di accesso: scarica una copia di tutto quello che
+     sappiamo sull'utente, in un file json. */
+  async function camonScaricaDati() {
+    if (!window.sb) { alert('Serve la connessione.'); return; }
+    try {
+      const { data, error } = await window.sb.rpc('export_my_data');
+      if (error) throw error;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'camon-miei-dati.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      alert('Non riesco a preparare i dati: ' + ((e && e.message) || e));
+    }
+  }
+
+  /* Cancellazione: irreversibile, quindi si chiede conferma due
+     volte e si avvisa del credito che va perso. */
+  function camonEliminaAccount() {
+    const saldo = (typeof cardBalance === 'number' && cardBalance > 0)
+      ? '<br><br>Hai ancora ' + fmtEuro(cardBalance) + ' sulla tessera: quel credito andrà perso.'
+      : '';
+    camonConfirm('Vuoi eliminare il tuo account CAMON?<br><br>'
+      + 'Spariscono profilo, foto e tessera. È definitivo.'
+      + saldo, function () {
+      camonConfirm('Confermi davvero? Non si torna indietro.', async function () {
+        try {
+          const { error } = await window.sb.rpc('delete_my_account');
+          if (error) throw error;
+          try { await window.sb.auth.signOut(); } catch (e) {}
+          try { localStorage.clear(); } catch (e) {}
+          alert('Account eliminato. Ci dispiace vederti andare.');
+          location.reload();
+        } catch (e) {
+          alert('Non riesco a eliminare l\'account: ' + ((e && e.message) || e));
+        }
+      });
+    });
   }
 
   /* La voce "Area titolare" compare solo allo staff. E' solo cortesia
