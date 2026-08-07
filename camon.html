@@ -5066,6 +5066,20 @@
         Credito spendibile solo all'interno del locale
       </div>
 
+      <!-- I miei braccialetti -->
+      <div class="bands-block">
+        <div class="bands-head">
+          <div class="bands-title">I miei braccialetti</div>
+          <div class="bands-sub">Stesso saldo su tutti, uno attivo per volta</div>
+        </div>
+        <div class="band-add">
+          <input id="band-code-input" type="text" placeholder="Inserisci codice braccialetto" autocomplete="off" maxlength="12" oninput="this.value=this.value.toUpperCase()">
+          <button class="band-add-btn" onclick="bandLink()">Collega</button>
+        </div>
+        <div class="band-hint">Trovi il codice stampato sul braccialetto.</div>
+        <div id="band-list" class="band-list"></div>
+      </div>
+
       <!-- Demo spina self-service -->
       <button class="spina-demo-btn" onclick="goTo('spina-demo')">
         <span>🍺 Prova la spina self-service</span>
@@ -7015,12 +7029,154 @@
   }
 
   /* ===== BRACCIALETTI =====
-     Sezione temporaneamente disattivata (rimossa dalla UI della Carta)
-     in attesa di essere ricollegata al lettore NFC fisico. La demo
-     "spina self-service" usa ancora un codice fittizio per restare
-     provabile senza braccialetto reale. */
+     Nessuno stato locale: ogni azione (collega/attiva/rimuovi) scrive
+     su Supabase e poi rilegge la tabella nfc_cards, quindi quello che
+     vedi in UI è sempre esattamente quello che c'è sul server per il
+     tuo account. */
+  let bands = []; // ultima lettura da Supabase: { code, active }
+  let bandsState = 'idle'; // idle | loading | logged-out | error | ready
+
+  /* Attende (fino a 5s) che ci sia una sessione Supabase valida.
+     Necessario perché appena la pagina si apre il client può metterci
+     un istante a ripristinare la sessione salvata: se interrogassimo
+     subito rischieremmo di vederci "non loggati" per errore. */
+  async function bandsWaitForUser(timeoutMs) {
+    if (!window.sb) return null;
+    const deadline = Date.now() + (timeoutMs || 5000);
+    while (Date.now() < deadline) {
+      try {
+        const { data, error } = await window.sb.auth.getSession();
+        if (error) { console.error('[braccialetti] getSession:', error.message); return null; }
+        if (data?.session?.user) return data.session.user;
+      } catch (e) { console.error('[braccialetti] getSession exception:', e); return null; }
+      await new Promise(r => setTimeout(r, 200));
+    }
+    return null;
+  }
+
+  /* Legge da zero i braccialetti dell'account loggato. Fonte unica di
+     verità: tabella public.nfc_cards, filtrata per user_id (RLS la
+     limita comunque alle sole righe dell'utente che chiama). */
+  async function bandsSync() {
+    bandsState = 'loading';
+    bandRender();
+
+    const user = await bandsWaitForUser();
+    if (!user) {
+      console.warn('[braccialetti] nessuna sessione: non posso leggere nfc_cards');
+      bands = [];
+      bandsState = 'logged-out';
+      bandRender();
+      return;
+    }
+
+    const { data, error } = await window.sb
+      .from('nfc_cards')
+      .select('uid,active')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('[braccialetti] select nfc_cards:', error.message);
+      bandsState = 'error';
+      bandRender();
+      return;
+    }
+
+    bands = (data || []).map(r => ({ code: r.uid, active: !!r.active }));
+    bandsState = 'ready';
+    bandRender();
+  }
+
+  async function bandLink() {
+    const input = document.getElementById('band-code-input');
+    const code = (input.value || '').trim().toUpperCase();
+    if (code.length < 4) { alert('Inserisci un codice valido (almeno 4 caratteri), lo trovi stampato sul braccialetto.'); return; }
+    if (bands.some(b => b.code === code)) { alert('Questo braccialetto è già collegato al tuo conto.'); return; }
+
+    const user = await bandsWaitForUser(3000);
+    if (!user) {
+      alert('Devi accedere al tuo account per collegare un braccialetto.');
+      return;
+    }
+
+    const btn = document.querySelector('.band-add-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    const { error } = await window.sb.rpc('nfc_register', { p_uid: code, p_user_id: user.id });
+    if (btn) { btn.disabled = false; btn.textContent = 'Collega'; }
+
+    if (error) {
+      console.error('[braccialetti] nfc_register:', error);
+      alert('Errore collegamento carta: ' + error.message);
+      return;
+    }
+
+    input.value = '';
+    await bandsSync(); // rilegge dal server: la UI mostra solo dati confermati
+  }
+
+  async function bandActivate(code) {
+    const user = await bandsWaitForUser(3000);
+    if (!user) { alert('Devi accedere al tuo account.'); return; }
+    const { error } = await window.sb.rpc('nfc_set_active', { p_uid: code, p_user_id: user.id });
+    if (error) { console.error('[braccialetti] nfc_set_active:', error); alert('Errore attivazione carta: ' + error.message); return; }
+    await bandsSync();
+  }
+
+  function bandRemove(code) {
+    camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', async function() {
+      const user = await bandsWaitForUser(3000);
+      if (!user) { alert('Devi accedere al tuo account.'); return; }
+      const { error } = await window.sb.rpc('nfc_unlink', { p_uid: code, p_user_id: user.id });
+      if (error) { console.error('[braccialetti] nfc_unlink:', error); alert('Errore rimozione carta: ' + error.message); return; }
+      await bandsSync();
+    });
+  }
+
+  function bandRender() {
+    const list = document.getElementById('band-list');
+    if (!list) return;
+
+    if (bandsState === 'loading') {
+      list.innerHTML = '<div class="band-empty">Carico i tuoi braccialetti…</div>';
+      return;
+    }
+    if (bandsState === 'logged-out') {
+      list.innerHTML = '<div class="band-empty">Accedi al tuo account per vedere i braccialetti collegati.</div>';
+      return;
+    }
+    if (bandsState === 'error') {
+      list.innerHTML = '<div class="band-empty">Errore nel caricamento. Riprova tra poco.</div>';
+      return;
+    }
+    if (!bands.length) {
+      list.innerHTML = '<div class="band-empty">Nessun braccialetto collegato.<br>Inserisci un codice qui sopra per aggiungerne uno.</div>';
+      return;
+    }
+    const viz = `<span class="band-viz"><svg viewBox="0 0 46 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="23" cy="25" rx="15" ry="12.5" stroke="currentColor" stroke-width="6"/>
+        <rect x="15" y="4.5" width="16" height="9" rx="2.5" fill="currentColor"/>
+        <circle cx="19.5" cy="9" r="1" fill="#111" fill-opacity="0.55"/>
+        <circle cx="23" cy="9" r="1" fill="#111" fill-opacity="0.55"/>
+        <circle cx="26.5" cy="9" r="1" fill="#111" fill-opacity="0.55"/>
+      </svg></span>`;
+    list.innerHTML = bands.map(b => `
+      <div class="band-item${b.active ? ' active' : ''}">
+        ${viz}
+        <div class="band-info">
+          <div class="band-code">${b.code}</div>
+          <div class="band-status ${b.active ? 'on' : 'off'}"><span class="dot"></span>${b.active ? 'Attivo' : 'Bloccato'}</div>
+        </div>
+        ${b.active ? '' : `<button class="band-act" onclick="bandActivate('${b.code}')">Attiva</button>`}
+        <button class="band-del" onclick="bandRemove('${b.code}')" aria-label="Rimuovi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
   function bandActiveCode() {
-    return 'DEMO';
+    const b = bands.find(x => x.active);
+    return b ? b.code : null;
   }
 
   /* ===== SPINA SELF-SERVICE (demo) ===== */
@@ -7205,6 +7361,7 @@
 
   walletLoad();
   renderWallet();
+  bandRender(); // stato iniziale ("Carico…" o "accedi") finché bandsSync() non risponde
   homeUpdateStatus();
   homeUpdateTile();
   // mostra il bollino shot nella home al caricamento iniziale
