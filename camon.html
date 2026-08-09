@@ -11251,6 +11251,7 @@
     if (storyFab) storyFab.classList.toggle('hidden', page !== 'home' && page !== 'menu');
 
     if (page === 'offerte' && typeof offerteGate === 'function') offerteGate();
+    if (page === 'story' && typeof storyRender === 'function') storyRender();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
