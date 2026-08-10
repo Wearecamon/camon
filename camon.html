@@ -4021,33 +4021,14 @@
         </div><!-- end wrap -->
       </div>
 
-      <!-- Prossimi eventi -->
-      <section class="section-block">
-        <div class="section-eyebrow">Prossimi eventi</div>
-        <div class="event-card">
-          <div class="event-date"><div class="event-day">14</div><div class="event-month">GIU</div></div>
-          <div class="event-divider"></div>
-          <div class="event-info"><div class="event-name">TORNEO BEER PONG</div><div class="event-time">Dalle 21:00 · Ingresso libero</div></div>
-          <div class="event-photo" style="background-image:url('evento-torneo-beerpong.jpg')"></div>
+      <!-- Prossimi eventi: solo i 3 più vicini da oggi, il resto sta
+           nella pagina dedicata (stesso pattern delle Offerte). -->
+      <section class="section-block" onclick="goTo('eventi')" style="cursor:pointer">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+          <div class="section-eyebrow" style="margin-bottom:0">Prossimi eventi</div>
+          <span style="font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;letter-spacing:1px;color:#f7cc49;">Vedi tutte ›</span>
         </div>
-        <div class="event-card">
-          <div class="event-date"><div class="event-day">20</div><div class="event-month">GIU</div></div>
-          <div class="event-divider"></div>
-          <div class="event-info"><div class="event-name">NOTTE ERASMUS</div><div class="event-time">Dalle 22:00 · Drink speciali</div></div>
-          <div class="event-photo" style="background-image:url('evento-notte-erasmus.jpg')"></div>
-        </div>
-        <div class="event-card">
-          <div class="event-date"><div class="event-day">28</div><div class="event-month">GIU</div></div>
-          <div class="event-divider"></div>
-          <div class="event-info"><div class="event-name">COCKTAIL BATTLE</div><div class="event-time">Dalle 20:00 · Vinci un mese di drink</div></div>
-          <div class="event-photo" style="background-image:url('evento-cocktail-battle.jpg')"></div>
-        </div>
-        <div class="event-card">
-          <div class="event-date"><div class="event-day">4</div><div class="event-month">LUG</div></div>
-          <div class="event-divider"></div>
-          <div class="event-info"><div class="event-name">SERATA NERD</div><div class="event-time">Dalle 20:00 · Un giovedì al mese</div></div>
-          <div class="event-photo" style="background-image:url('evento-serata-nerd.jpg')"></div>
-        </div>
+        <div id="home-eventi-list"></div>
       </section>
 
       <!-- Come funziona -->
@@ -4215,6 +4196,18 @@
         <button class="offer-cta-btn" onclick="goTo('profile')">Completa il profilo</button>
       </div>
 
+    </div>
+  </div>
+
+  <div class="page" id="page-eventi">
+    <div class="page-header" style="flex-shrink:0">
+      <button class="page-back-btn" onclick="goTo('home')" style="background:rgba(255,255,255,0.07);border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="page-title">PROSSIMI <span>EVENTI</span></div>
+    </div>
+    <div class="scroll-area" style="padding:16px 16px 96px">
+      <div id="eventi-list"></div>
     </div>
   </div>
 
@@ -6947,6 +6940,50 @@
       if (msg && msg.trim()) alert('Grazie! Il tuo feedback è stato inviato al team di CAMON 🙏');
     }, 300);
   }
+
+  /* ===== EVENTI =====
+     Un solo elenco: la home ne mostra solo i 3 più vicini a oggi,
+     la pagina dedicata (page-eventi) li mostra tutti, in ordine
+     cronologico. "Più vicino a oggi" si ricalcola ogni volta che si
+     apre l'app, senza bisogno di aggiornare le date a mano ogni anno
+     (se un giorno/mese è già passato quest'anno, si considera l'anno
+     prossimo). */
+  const MESI_ABBR = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+  const EVENTI_DATA = [
+    { day: 14, month: 6, name: 'TORNEO BEER PONG', time: 'Dalle 21:00 · Ingresso libero',        photo: 'evento-torneo-beerpong.jpg' },
+    { day: 20, month: 6, name: 'NOTTE ERASMUS',     time: 'Dalle 22:00 · Drink speciali',          photo: 'evento-notte-erasmus.jpg' },
+    { day: 28, month: 6, name: 'COCKTAIL BATTLE',   time: 'Dalle 20:00 · Vinci un mese di drink',  photo: 'evento-cocktail-battle.jpg' },
+    { day: 4,  month: 7, name: 'SERATA NERD',       time: 'Dalle 20:00 · Un giovedì al mese',      photo: 'evento-serata-nerd.jpg' }
+  ];
+  function eventiNextDate(ev) {
+    const now = new Date();
+    const anno = now.getFullYear();
+    let d = new Date(anno, ev.month - 1, ev.day, 23, 59, 59);
+    if (d < now) d = new Date(anno + 1, ev.month - 1, ev.day, 23, 59, 59);
+    return d;
+  }
+  function eventiOrdinati() {
+    return EVENTI_DATA.slice().sort(function (a, b) { return eventiNextDate(a) - eventiNextDate(b); });
+  }
+  function eventCardHTML(ev) {
+    return '<div class="event-card">'
+      +   '<div class="event-date"><div class="event-day">' + ev.day + '</div><div class="event-month">' + MESI_ABBR[ev.month - 1] + '</div></div>'
+      +   '<div class="event-divider"></div>'
+      +   '<div class="event-info"><div class="event-name">' + ev.name + '</div><div class="event-time">' + ev.time + '</div></div>'
+      +   '<div class="event-photo" style="background-image:url(\'' + ev.photo + '\')"></div>'
+      + '</div>';
+  }
+  function renderHomeEventi() {
+    const el = document.getElementById('home-eventi-list');
+    if (!el) return;
+    el.innerHTML = eventiOrdinati().slice(0, 3).map(eventCardHTML).join('');
+  }
+  function renderEventiPage() {
+    const el = document.getElementById('eventi-list');
+    if (!el) return;
+    el.innerHTML = eventiOrdinati().map(eventCardHTML).join('');
+  }
+  renderHomeEventi(); // la home parte già attiva, senza passare da mostra('home')
 
   /* ===== OFFERTE: accesso riservato agli iscritti ===== */
   function offerteGate() {
@@ -11238,6 +11275,7 @@
     /* Come nell'app: carta e offerte stanno sotto Menu, i giochi con
        pagina propria sotto Giochi, le schede info sotto Home. */
     var nav = (page === 'carta' || page === 'offerte') ? 'menu'
+            : (page === 'eventi') ? 'home'
             : (page.indexOf('info-') === 0) ? 'home'
             : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
             : page;
@@ -11304,6 +11342,8 @@
     if (storyFab) storyFab.classList.toggle('hidden', page !== 'home' && page !== 'menu');
 
     if (page === 'offerte' && typeof offerteGate === 'function') offerteGate();
+    if (page === 'eventi' && typeof renderEventiPage === 'function') renderEventiPage();
+    if (page === 'home' && typeof renderHomeEventi === 'function') renderHomeEventi();
     if (page === 'story' && typeof storyRender === 'function') storyRender();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
