@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAMON · Pagina test per simulare gli spillatori</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f7cc49;--bg:#0e0e0e;--card:#1a1a1a;--card2:#222;
+  --text:#fff;--muted:rgba(255,255,255,0.4);--border:rgba(255,255,255,0.08);
+  --red:#ff4d4d;--green:#4cd964;--blue:#4a9eff;
+}
+html{font-size:clamp(17px,1.8vw + 0.9vh,32px)}
+body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:2.5em 2em 5.5em;overflow-x:hidden}
+
+/* ── Logo ── */
+.logo{font-family:'Bebas Neue',sans-serif;font-size:3.2em;letter-spacing:0.15em;margin-bottom:0.1em;text-align:center}
+.logo span{color:var(--gold)}
+.tagline{font-size:0.85em;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:0.6em;text-align:center}
+.test-banner{background:rgba(255,77,77,0.12);border:2px solid rgba(255,77,77,0.35);
+  color:var(--red);font-size:0.8em;font-weight:800;letter-spacing:0.05em;
+  text-transform:uppercase;padding:0.6em 1em;border-radius:0.7em;margin-bottom:1.8em;text-align:center}
+
+/* ── Screens ── */
+.screen{display:none;flex-direction:column;align-items:center;gap:1.3em;width:100%;max-width:38em}
+.screen.active{display:flex}
+
+/* ── TAP CARD ── */
+.nfc-ring{width:9em;height:9em;border-radius:50%;border:3px solid rgba(247,204,73,0.25);
+  display:flex;align-items:center;justify-content:center;position:relative}
+.nfc-ring::after{content:'';position:absolute;inset:12px;border-radius:50%;
+  border:2px dashed rgba(247,204,73,0.12);animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(247,204,73,0.3)}50%{box-shadow:0 0 0 18px rgba(247,204,73,0)}}
+.nfc-ring.pulsing{animation:pulse-ring 1.4s ease infinite;border-color:var(--gold)}
+.nfc-icon{width:3.2em;height:3.2em;color:var(--gold)}
+.tap-title{font-family:'Bebas Neue',sans-serif;font-size:1.9em;letter-spacing:0.02em;text-align:center}
+.tap-sub{font-size:0.9em;color:var(--muted);text-align:center;max-width:18em;line-height:1.6}
+.pay-wait-ico{font-size:3.6em}
+
+/* ── PULSANTI AZIONE ── */
+.btn{width:100%;padding:1.1em;border-radius:1em;border:none;cursor:pointer;
+  font-family:'Bebas Neue',sans-serif;font-size:1.4em;letter-spacing:0.02em;
+  transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(0.98)}
+.btn:disabled{opacity:0.35;cursor:not-allowed}
+.btn-gold{background:var(--gold);color:#111}
+.btn-outline{background:none;border:2px solid var(--border);color:var(--muted);font-size:1.1em}
+
+/* ── FEEDBACK ── */
+.fb-icon{width:6.2em;height:6.2em;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:3em}
+.fb-icon.ok{background:rgba(76,217,100,0.15)}
+.fb-icon.err{background:rgba(255,77,77,0.15)}
+.fb-title{font-family:'Bebas Neue',sans-serif;font-size:2.1em;letter-spacing:0.02em;text-align:center}
+.fb-sub{font-size:1em;color:var(--muted);text-align:center;max-width:21em;line-height:1.6}
+.fb-bal{font-family:'Bebas Neue',sans-serif;font-size:1.4em;color:var(--gold)}
+
+/* ── STATUS BAR ── */
+.status-bar{position:fixed;bottom:0;left:0;right:0;padding:0.85em 1.4em;
+  background:rgba(10,10,10,0.9);backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;gap:0.55em;font-size:0.85em;color:var(--muted)}
+.sdot{width:0.5em;height:0.5em;border-radius:50%;background:var(--red);flex-shrink:0}
+.sdot.ok{background:var(--green)}
+
+/* ── DEV PANEL ── */
+#dev{position:fixed;top:0.8em;right:0.8em;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);border-radius:0.85em;padding:0.85em 1em;
+  font-size:0.85em;display:flex;flex-direction:column;gap:0.5em;z-index:200;width:13em}
+#dev .dtit{font-weight:800;letter-spacing:0.05em;text-transform:uppercase;
+  font-size:0.75em;color:var(--muted)}
+#dev input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:0.5em;padding:0.35em 0.6em;color:#fff;font-size:0.85em;font-family:monospace;width:100%}
+#dev button{background:var(--gold);color:#111;border:none;border-radius:0.5em;
+  padding:0.45em 0.7em;font-weight:800;font-size:0.8em;cursor:pointer}
+#dev button.sec{background:rgba(255,255,255,0.08);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="logo">CAM<span>ON</span></div>
+<div class="tagline">Spritz Self-Service</div>
+<div class="test-banner">⚠️ Pagina di test — sarà rimossa quando saranno installati gli spillatori</div>
+
+<!-- ══════════════════════════════════════
+     TAP CARTA
+══════════════════════════════════════ -->
+<div class="screen active" id="s-tap">
+  <div class="nfc-ring pulsing" id="nfc-ring">
+    <svg class="nfc-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="14" width="32" height="22" rx="4"/>
+      <line x1="8" y1="20" x2="40" y2="20"/>
+      <circle cx="16" cy="30" r="2" fill="currentColor"/>
+    </svg>
+  </div>
+  <div class="tap-title" id="tap-title">AVVICINA LA CARTA PER LO SPRITZ</div>
+  <div class="tap-sub" id="tap-sub">Appoggia la tua tessera o portachiavi CAMON al lettore</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SPRITZ — addebito automatico al tap
+══════════════════════════════════════ -->
+<div class="screen" id="s-spritz">
+  <div class="nfc-ring pulsing"><span class="pay-wait-ico">🍹</span></div>
+  <div class="tap-title">ADDEBITO IN CORSO…</div>
+  <div class="tap-sub" id="spritz-wait-sub">Un attimo</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FEEDBACK
+══════════════════════════════════════ -->
+<div class="screen" id="s-feedback">
+  <div class="fb-icon" id="fb-icon"></div>
+  <div class="fb-title" id="fb-title"></div>
+  <div class="fb-sub" id="fb-sub"></div>
+  <div class="fb-bal" id="fb-bal"></div>
+  <button class="btn btn-outline" onclick="goHome()">Torna al tap</button>
+</div>
+
+<!-- ── Status bar ── -->
+<div class="status-bar">
+  <div class="sdot" id="sdot"></div>
+  <span id="stext">Connessione bridge NFC…</span>
+</div>
+
+<!-- ── Pannello di servizio (reset + simulazione tap carta per test) ── -->
+<div id="dev">
+  <button class="sec" onclick="goHome()">Reset</button>
+  <div class="dtit">Simula tap carta</div>
+  <input id="dev-uid" type="text" placeholder="UID carta test">
+  <button onclick="simulateTap()">Simula tap</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  CONFIG — sostituisci con i tuoi valori
+// ════════════════════════════════════════════
+const SUPABASE_URL = 'https://vbwttxfkyvbrmykwodqi.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_7iZyVXYEmYL6Ne1nf5R9Cg_gTgrMKWv';
+const WS_URL       = 'ws://localhost:8765';
+
+// ════════════════════════════════════════════
+//  STATO
+// ════════════════════════════════════════════
+let currentUser      = null; // { uid, user_id, first_name, last_name, balance_cents }
+let idleTO           = null;
+let ws                = null;
+let spritzPriceCents  = null; // cache: letto dalla tabella products (nome 'SPRITZ')
+
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+const cents = c => '€ ' + (c/100).toFixed(2).replace('.',',');
+const el    = id => document.getElementById(id);
+function show(screenId) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  el(screenId).classList.add('active');
+}
+function setStatus(ok, txt) {
+  el('sdot').className = 'sdot' + (ok?' ok':'');
+  el('stext').textContent = txt;
+}
+function resetIdleTO(ms=30000) {
+  clearTimeout(idleTO);
+  idleTO = setTimeout(goHome, ms);
+}
+function goHome() {
+  clearTimeout(idleTO);
+  currentUser = null;
+  show('s-tap');
+}
+async function rpc(fn, params) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+    body: JSON.stringify(params)
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.message||d.hint||JSON.stringify(d));
+  return d;
+}
+
+// Carta identificata → addebita subito lo Spritz
+function onUserIdentified(user) {
+  currentUser = user;
+  resetIdleTO();
+  chargeSpritz();
+}
+
+// ════════════════════════════════════════════
+//  SPRITZ SELF-SERVICE — un tap, un addebito fisso
+// ════════════════════════════════════════════
+async function getSpritzPriceCents() {
+  if (spritzPriceCents !== null) return spritzPriceCents;
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/products?name=eq.SPRITZ&select=price_cents&limit=1`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  const rows = await r.json();
+  if (!r.ok || !rows.length) throw new Error('Prezzo Spritz non trovato nel menu');
+  spritzPriceCents = rows[0].price_cents;
+  return spritzPriceCents;
+}
+
+async function chargeSpritz() {
+  show('s-spritz');
+  try {
+    const priceCents = await getSpritzPriceCents();
+    el('spritz-wait-sub').textContent = 'Addebito ' + cents(priceCents) + ' · ' +
+      [currentUser.first_name, currentUser.last_name].filter(Boolean).join(' ');
+
+    const newBal = await rpc('nfc_spend', {
+      p_uid: currentUser.uid,
+      p_amount_cents: priceCents,
+      p_description: 'Spritz self-service (test)'
+    });
+    feedback(true, '🍹', 'Spritz pagato!', 'Buona bevuta, ' + (currentUser.first_name || ''), newBal);
+  } catch (e) {
+    const msg = e.message || String(e);
+    feedback(false, '❌', msg === 'SALDO_INSUFFICIENTE' ? 'Saldo insufficiente' : 'Errore',
+      msg === 'SALDO_INSUFFICIENTE' ? 'Ricarica la carta al banco.' : msg, null);
+  }
+}
+
+// ════════════════════════════════════════════
+//  FEEDBACK
+// ════════════════════════════════════════════
+function feedback(ok, icon, title, sub, newBal) {
+  el('fb-icon').textContent = icon;
+  el('fb-icon').className   = 'fb-icon '+(ok?'ok':'err');
+  el('fb-title').textContent = title;
+  el('fb-sub').textContent   = sub;
+  el('fb-bal').textContent   = newBal!==null&&newBal!==undefined ? 'Nuovo saldo: '+cents(newBal) : '';
+  show('s-feedback');
+  resetIdleTO(5000);
+}
+
+// ════════════════════════════════════════════
+//  WEBSOCKET (bridge NFC)
+// ════════════════════════════════════════════
+function connectWS() {
+  ws = new WebSocket(WS_URL);
+  ws.onopen  = ()=>{ setStatus(true,'Bridge NFC connesso'); el('nfc-ring').classList.add('pulsing'); };
+  ws.onclose = ()=>{ setStatus(false,'Bridge NFC disconnesso — riconnessione…'); setTimeout(connectWS,3000); };
+  ws.onerror = ()=>{ setStatus(false,'Errore WebSocket — avvia nfc-bridge/server.js'); };
+  ws.onmessage = e=>{ onBridge(JSON.parse(e.data)); };
+}
+function onBridge(msg) {
+  if (msg.type==='user_identified') {
+    onUserIdentified({uid:msg.uid,user_id:msg.user_id,
+      first_name:msg.first_name,last_name:msg.last_name,balance_cents:msg.balance_cents});
+  } else if (msg.type==='card_unknown') {
+    feedback(false,'🤷','Carta non riconosciuta','Registra la tessera tramite il personale.',null);
+  } else if (msg.type==='error') {
+    setStatus(false,'Errore: '+msg.message);
+  }
+}
+
+// ════════════════════════════════════════════
+//  SIMULAZIONE TAP CARTA (pannello di servizio)
+// ════════════════════════════════════════════
+async function simulateTap() {
+  const uid = (el('dev-uid').value || '').trim();
+  if (!uid) { alert('Inserisci un UID carta di test'); return; }
+  try {
+    const rows = await rpc('nfc_lookup', { p_uid: uid });
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    if (!row || !row.user_id) { onBridge({type:'card_unknown'}); return; }
+    onUserIdentified({
+      uid,
+      user_id: row.user_id,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      balance_cents: row.balance_cents
+    });
+  } catch (e) {
+    alert('Errore lookup: ' + (e.message || e));
+  }
+}
+
+// ════════════════════════════════════════════
+//  AVVIO
+// ════════════════════════════════════════════
+connectWS();
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAMON · Totem — Selezione</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f7cc49;--bg:#0e0e0e;--card:#1a1a1a;
+  --text:#fff;--muted:rgba(255,255,255,0.4);--border:rgba(255,255,255,0.08);
+  --red:#ff4d4d;
+}
+html{font-size:clamp(17px,1.8vw + 0.9vh,32px)}
+body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:2.5em 2em;overflow-x:hidden}
+
+.logo{font-family:'Bebas Neue',sans-serif;font-size:3.2em;letter-spacing:0.15em;margin-bottom:0.1em;text-align:center}
+.logo span{color:var(--gold)}
+.tagline{font-size:0.85em;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:2.4em;text-align:center}
+
+.menu-grid{display:flex;flex-direction:column;gap:1em;width:100%;max-width:34em}
+.menu-btn{background:var(--card);border:2px solid var(--border);border-radius:1.4em;
+  padding:2em 1.6em;cursor:pointer;transition:border-color .15s,transform .1s;
+  display:flex;flex-direction:column;align-items:center;gap:0.65em;text-align:center;
+  text-decoration:none;color:var(--text)}
+.menu-btn:active{transform:scale(0.98)}
+.menu-btn.gold{border-color:rgba(247,204,73,0.3)}
+.menu-btn.gold:hover{border-color:var(--gold)}
+.menu-btn.test{border-color:rgba(255,77,77,0.3)}
+.menu-btn.test:hover{border-color:var(--red)}
+.menu-btn-ico{font-size:2.6em}
+.menu-btn-name{font-family:'Bebas Neue',sans-serif;font-size:1.5em;letter-spacing:0.03em}
+.menu-btn-sub{font-size:0.82em;color:var(--muted);line-height:1.5}
+.menu-btn-tag{font-size:0.65em;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--red);margin-top:0.2em}
+</style>
+</head>
+<body>
+
+<div class="logo">CAM<span>ON</span></div>
+<div class="tagline">Totem — Seleziona modalità</div>
+
+<div class="menu-grid">
+  <a class="menu-btn gold" href="totem.html">
+    <div class="menu-btn-ico">🏠</div>
+    <div class="menu-btn-name">Totem Ufficiale</div>
+    <div class="menu-btn-sub">Ricarica Tessera · Ordina dal Menu</div>
+  </a>
+  <a class="menu-btn test" href="pagina-test-spillatori.html">
+    <div class="menu-btn-ico">🍹</div>
+    <div class="menu-btn-name">Pagina Test Spillatori</div>
+    <div class="menu-btn-sub">Solo per simulare l'addebito automatico al tap</div>
+    <div class="menu-btn-tag">⚠️ Da rimuovere dopo l'installazione degli spillatori</div>
+  </a>
+</div>
+
+</body>
+</html>

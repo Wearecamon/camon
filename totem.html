@@ -12,198 +12,253 @@
   --text:#fff;--muted:rgba(255,255,255,0.4);--border:rgba(255,255,255,0.08);
   --red:#ff4d4d;--green:#4cd964;--blue:#4a9eff;
 }
+html{font-size:clamp(17px,1.8vw + 0.9vh,32px)}
 body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  padding:20px 20px 70px;overflow-x:hidden}
+  justify-content:center;padding:2.5em 2em 5.5em;overflow-x:hidden}
 
 /* ── Logo ── */
-.logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;margin-bottom:4px;text-align:center}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:3.2em;letter-spacing:0.15em;margin-bottom:0.1em;text-align:center}
 .logo span{color:var(--gold)}
-.tagline{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
-  color:var(--muted);margin-bottom:32px;text-align:center}
+.tagline{font-size:0.85em;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:2.4em;text-align:center}
 
 /* ── Screens ── */
-.screen{display:none;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:420px}
+.screen{display:none;flex-direction:column;align-items:center;gap:1.3em;width:100%;max-width:38em}
 .screen.active{display:flex}
 
-/* ── HOME: due grandi pulsanti ── */
-.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
-.home-btn{background:var(--card);border:2px solid var(--border);border-radius:20px;
-  padding:28px 16px;cursor:pointer;transition:border-color .15s,transform .1s;
-  display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
-.home-btn:active{transform:scale(0.97)}
-.home-btn.gold{border-color:rgba(247,204,73,0.3)}
-.home-btn.gold:hover{border-color:var(--gold)}
-.home-btn.blue{border-color:rgba(74,158,255,0.3)}
-.home-btn.blue:hover{border-color:var(--blue)}
-.home-btn.green{border-color:rgba(76,217,100,0.3)}
-.home-btn.green:hover{border-color:var(--green)}
-.home-btn-ico{font-size:40px}
-.home-btn-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.5px}
-.home-btn-sub{font-size:11px;color:var(--muted);line-height:1.5}
+/* ── HOME: due card in stile app (header a gradiente + icona lineare) ──
+   Alte quanto lo spazio verticale disponibile fra il logo e la status
+   bar, così il totem non lascia grandi vuoti neri sopra/sotto. */
+#s-home{min-height:60vh}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:1em;width:100%;flex:1;min-height:0}
+.home-card{background:var(--card);border:1px solid var(--border);border-radius:1.4em;
+  cursor:pointer;transition:transform .1s,box-shadow .15s;overflow:hidden;
+  display:flex;flex-direction:column;text-align:left}
+.home-card:active{transform:scale(0.97)}
+.home-card:hover{box-shadow:0 0.6em 1.6em rgba(0,0,0,0.35)}
+.home-card-top{flex:1;min-height:10em;position:relative;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:0.6em}
+/* Solo i due colori del brand: oro pieno per la ricarica (richiama il
+   saldo/i soldi), nero-antracite con dettagli oro per il menu — niente
+   tinte estranee alla palette CAMON. */
+.home-card-top.gold-fill{background:linear-gradient(135deg,#c9902c,var(--gold))}
+.home-card-top.dark-fill{background:linear-gradient(135deg,#161616,#000)}
+.home-card-badge{position:absolute;top:0.9em;left:0.9em;font-family:'Bebas Neue',sans-serif;
+  font-size:0.75em;letter-spacing:0.15em;padding:0.4em 0.9em;border-radius:2em}
+.home-card-top.gold-fill .home-card-badge{color:var(--gold);background:#111}
+.home-card-top.dark-fill .home-card-badge{color:#111;background:var(--gold)}
+.home-card-top.gold-fill .home-card-ico{color:#111}
+.home-card-top.dark-fill .home-card-ico{color:var(--gold)}
+.home-card-top.gold-fill .home-card-top-title{color:#111}
+.home-card-top.dark-fill .home-card-top-title{color:var(--gold)}
+.home-card-top-title{font-family:'Bebas Neue',sans-serif;font-size:1.3em;letter-spacing:0.02em;
+  color:#fff;text-align:center;padding:0 0.6em}
+.home-card-ico{width:4.4em;height:4.4em;color:#fff;opacity:0.95}
+.home-card-body{padding:1.2em 1.3em 1.4em}
+.home-card-sub{font-size:0.9em;color:var(--muted);line-height:1.5}
 
 /* ── TAP CARD ── */
-.nfc-ring{width:140px;height:140px;border-radius:50%;border:3px solid rgba(247,204,73,0.25);
+.nfc-ring{width:9em;height:9em;border-radius:50%;border:3px solid rgba(247,204,73,0.25);
   display:flex;align-items:center;justify-content:center;position:relative}
 .nfc-ring::after{content:'';position:absolute;inset:12px;border-radius:50%;
   border:2px dashed rgba(247,204,73,0.12);animation:spin 8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(247,204,73,0.3)}50%{box-shadow:0 0 0 18px rgba(247,204,73,0)}}
 .nfc-ring.pulsing{animation:pulse-ring 1.4s ease infinite;border-color:var(--gold)}
-.nfc-icon{width:50px;height:50px;color:var(--gold)}
-.tap-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;text-align:center}
-.tap-sub{font-size:13px;color:var(--muted);text-align:center;max-width:260px;line-height:1.6}
+.nfc-icon{width:3.2em;height:3.2em;color:var(--gold)}
+.tap-title{font-family:'Bebas Neue',sans-serif;font-size:1.9em;letter-spacing:0.02em;text-align:center}
+.tap-sub{font-size:0.9em;color:var(--muted);text-align:center;max-width:18em;line-height:1.6}
 
 /* ── USER BADGE ── */
-.user-badge{display:flex;align-items:center;gap:12px;background:var(--card);
-  border:1px solid var(--border);border-radius:14px;padding:12px 16px;width:100%}
-.user-avatar{width:44px;height:44px;border-radius:50%;background:rgba(247,204,73,0.15);
+.user-badge{display:flex;align-items:center;gap:0.85em;background:var(--card);
+  border:1px solid var(--border);border-radius:1em;padding:0.85em 1.1em;width:100%}
+.user-avatar{width:3.1em;height:3.1em;border-radius:50%;background:rgba(247,204,73,0.15);
   border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);flex-shrink:0}
+  font-family:'Bebas Neue',sans-serif;font-size:1.4em;color:var(--gold);flex-shrink:0}
 .user-info{flex:1}
-.user-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.3px}
-.user-bal{font-size:12px;color:var(--muted)}
+.user-name{font-family:'Bebas Neue',sans-serif;font-size:1.25em;letter-spacing:0.02em}
+.user-bal{font-size:0.85em;color:var(--muted)}
 .user-bal b{color:var(--gold)}
 
 /* ── SEZIONE TITOLO ── */
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:1.55em;letter-spacing:0.02em;
   align-self:flex-start;width:100%}
 
 /* ── RICARICA ── */
-.amt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
-.amt-chip{background:var(--card);border:2px solid var(--border);border-radius:12px;
-  padding:16px 8px;text-align:center;cursor:pointer;font-family:'Bebas Neue',sans-serif;
-  font-size:22px;transition:border-color .15s,background .15s}
+.amt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.7em;width:100%}
+.amt-chip{background:var(--card);border:2px solid var(--border);border-radius:0.85em;
+  padding:1.1em 0.5em;text-align:center;cursor:pointer;font-family:'Bebas Neue',sans-serif;
+  font-size:1.55em;transition:border-color .15s,background .15s}
 .amt-chip:active{transform:scale(0.96)}
 .amt-chip.sel{border-color:var(--gold);background:rgba(247,204,73,0.1)}
-.amt-custom{display:flex;align-items:center;gap:8px;width:100%;
-  background:var(--card);border:2px solid var(--border);border-radius:12px;padding:12px 16px}
-.amt-custom span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)}
+.amt-custom{display:flex;align-items:center;gap:0.55em;width:100%;
+  background:var(--card);border:2px solid var(--border);border-radius:0.85em;padding:0.85em 1.1em}
+.amt-custom span{font-family:'Bebas Neue',sans-serif;font-size:1.55em;color:var(--gold)}
 .amt-custom input{flex:1;background:none;border:none;outline:none;color:var(--text);
-  font-size:18px;font-family:'Manrope',sans-serif;font-weight:600}
+  font-size:1.25em;font-family:'Manrope',sans-serif;font-weight:600}
 .amt-custom input::placeholder{color:var(--muted)}
-.recharge-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
+.recharge-note{font-size:0.85em;color:var(--muted);text-align:center;line-height:1.6}
 
 /* ── PAGAMENTO ── */
-.pay-amt{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--gold);letter-spacing:1px}
-.pay-methods{display:flex;flex-direction:column;gap:12px;width:100%}
-.pay-method-btn{display:flex;align-items:center;gap:14px;width:100%;
-  background:var(--card);border:2px solid var(--border);border-radius:14px;
-  padding:18px 20px;color:var(--text);font-family:'Manrope',sans-serif;font-weight:700;font-size:16px}
+.pay-amt{font-family:'Bebas Neue',sans-serif;font-size:2.8em;color:var(--gold);letter-spacing:0.02em}
+.pay-methods{display:flex;flex-direction:column;gap:0.85em;width:100%}
+.pay-method-btn{display:flex;align-items:center;gap:1em;width:100%;
+  background:var(--card);border:2px solid var(--border);border-radius:1em;
+  padding:1.25em 1.4em;color:var(--text);font-family:'Manrope',sans-serif;font-weight:700;font-size:1.1em}
 .pay-method-btn:active{transform:scale(0.97);border-color:var(--gold)}
-.pay-method-ico{font-size:26px}
-.pay-wait-ico{font-size:52px}
+.pay-method-ico{width:1.8em;height:1.8em;flex-shrink:0}
+.pay-wait-ico{font-size:3.6em}
 
-/* ── MENU ── */
-.cat-tabs{display:flex;gap:8px;overflow-x:auto;width:100%;padding-bottom:4px;
+/* ── MENU (stile app: card con immagine, come camon.html) ── */
+#s-ordina{max-width:56em}
+.menu-macro{display:flex;gap:0.6em;width:100%}
+.macro-btn{flex:1;background:var(--card);border:2px solid var(--border);border-radius:1em;
+  padding:0.75em;font-family:'Manrope',sans-serif;font-weight:800;font-size:0.95em;
+  letter-spacing:0.02em;cursor:pointer;transition:border-color .12s,color .12s;color:var(--muted)}
+.macro-btn .mi{margin-right:0.35em}
+.macro-btn.active{border-color:var(--gold);color:var(--gold)}
+.cat-tabs{display:flex;gap:0.55em;overflow-x:auto;width:100%;padding-bottom:0.3em;
   scrollbar-width:none}
 .cat-tabs::-webkit-scrollbar{display:none}
-.cat-tab{background:var(--card);border:2px solid var(--border);border-radius:30px;
-  padding:8px 16px;font-size:12px;font-weight:800;letter-spacing:0.5px;
+.cat-tab{background:var(--card);border:2px solid var(--border);border-radius:2em;
+  padding:0.6em 1.1em;font-size:0.85em;font-weight:800;letter-spacing:0.03em;
   text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:border-color .12s}
 .cat-tab.sel{border-color:var(--gold);color:var(--gold)}
-.menu-list{display:flex;flex-direction:column;gap:10px;width:100%;max-height:360px;
-  overflow-y:auto;scrollbar-width:none}
+.menu-list{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8em;width:100%;
+  max-height:32em;overflow-y:auto;scrollbar-width:none;padding:0.2em 0.1em}
 .menu-list::-webkit-scrollbar{display:none}
-.menu-item{background:var(--card);border:2px solid var(--border);border-radius:14px;
-  padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;
-  transition:border-color .12s}
-.menu-item:active{transform:scale(0.98)}
-.menu-item-info{flex:1}
-.menu-item-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.3px}
-.menu-item-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
-.menu-item-price{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0}
-.menu-item-qty{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.qty-btn{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);
-  background:none;color:var(--text);font-size:16px;cursor:pointer;display:flex;
-  align-items:center;justify-content:center;transition:border-color .12s}
-.qty-btn:active{transform:scale(0.9)}
-.qty-btn.plus{border-color:rgba(247,204,73,0.4);color:var(--gold)}
-.qty-num{font-family:'Bebas Neue',sans-serif;font-size:20px;min-width:20px;text-align:center}
+.menu-item{position:relative;background:var(--card);border:2px solid var(--border);
+  border-radius:1.1em;padding:0.9em 0.7em 0.8em;cursor:pointer;transition:border-color .12s,transform .1s;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.35em}
+.menu-item:active{transform:scale(0.97)}
+.menu-item.has-qty{border-color:var(--gold)}
+.menu-item-img{width:100%;aspect-ratio:1/1;border-radius:0.8em;overflow:hidden;
+  background:var(--card2);margin-bottom:0.2em}
+.menu-item-img img{width:100%;height:100%;object-fit:cover;display:block}
+.menu-item-name{font-family:'Bebas Neue',sans-serif;font-size:1.05em;letter-spacing:0.02em;line-height:1.2}
+.menu-item-price{font-family:'Bebas Neue',sans-serif;font-size:1.2em;color:var(--gold)}
+.menu-item-qty-badge{position:absolute;top:-0.5em;right:-0.5em;background:var(--gold);color:#111;
+  font-family:'Bebas Neue',sans-serif;font-size:1em;min-width:1.9em;height:1.9em;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
+.menu-item-minus{position:absolute;bottom:-0.5em;right:-0.5em;width:1.9em;height:1.9em;border-radius:50%;
+  background:var(--bg);border:2px solid var(--red);color:var(--red);font-size:1.1em;
+  display:flex;align-items:center;justify-content:center;cursor:pointer}
+/* Cocktail solo da spillatore: non aggiungibili al carrello del totem */
+.menu-item.self-only{cursor:default;opacity:0.55}
+.menu-item.self-only .menu-item-img{filter:grayscale(0.4)}
+.menu-item-self-badge{font-size:0.62em;font-weight:800;letter-spacing:0.02em;
+  color:var(--muted);background:rgba(255,255,255,0.06);border-radius:2em;
+  padding:0.3em 0.6em;margin-top:0.1em}
+.menu-empty{width:100%;text-align:center;color:var(--muted);font-size:0.9em;padding:2em 1em;
+  grid-column:1/-1}
 
 /* ── CARRELLO ── */
-.cart-bar{width:100%;background:var(--gold);border-radius:14px;padding:14px 18px;
+.cart-bar{width:100%;background:var(--gold);border-radius:1em;padding:1em 1.3em;
   display:flex;align-items:center;justify-content:space-between;cursor:pointer;
   transition:opacity .15s}
 .cart-bar:active{opacity:0.85}
-.cart-bar-left{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#111}
-.cart-bar-price{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#111}
+.cart-bar-left{font-family:'Bebas Neue',sans-serif;font-size:1.15em;color:#111}
+.cart-bar-price{font-family:'Bebas Neue',sans-serif;font-size:1.55em;color:#111}
 .cart-bar:disabled,.cart-bar[disabled]{opacity:0.3;cursor:not-allowed}
 
+/* ── SERVIZIO: banco / tavolo (come nell'app) ── */
+.serv-opts{display:grid;grid-template-columns:1fr 1fr;gap:0.7em;width:100%}
+.serv-opt{background:var(--card);border:2px solid var(--border);border-radius:1em;
+  padding:1em 0.8em;text-align:center;cursor:pointer;transition:border-color .12s}
+.serv-opt.sel{border-color:var(--gold);background:rgba(247,204,73,0.08)}
+.serv-ico{font-size:1.8em;margin-bottom:0.3em}
+.serv-name{font-family:'Bebas Neue',sans-serif;font-size:1.15em;letter-spacing:0.02em}
+.serv-sub{font-size:0.75em;color:var(--muted);margin-top:0.2em}
+.serv-opt.sel .serv-sub{color:var(--gold)}
+
 /* ── RIEPILOGO ORDINE ── */
-.order-rows{width:100%;display:flex;flex-direction:column;gap:8px}
+.order-rows{width:100%;display:flex;flex-direction:column;gap:0.55em}
 .order-row{display:flex;justify-content:space-between;align-items:center;
-  font-size:14px;padding:10px 14px;background:var(--card);border-radius:10px}
+  font-size:1em;padding:0.7em 1em;background:var(--card);border-radius:0.7em}
+.order-row-img{width:2.4em;height:2.4em;border-radius:0.6em;object-fit:cover;
+  flex-shrink:0;margin-right:0.7em;background:var(--card2)}
 .order-row-name{flex:1;font-weight:600}
-.order-row-qty{color:var(--muted);font-size:13px;margin:0 10px}
-.order-row-price{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold)}
+.order-row-qty-ctrl{display:flex;align-items:center;gap:0.45em;margin:0 0.7em;flex-shrink:0}
+.order-row-qty-btn{width:1.7em;height:1.7em;border-radius:50%;border:2px solid var(--border);
+  background:none;color:var(--text);font-size:1em;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0}
+.order-row-qty-btn:active{transform:scale(0.9)}
+.order-row-qty-btn.plus{border-color:rgba(247,204,73,0.4);color:var(--gold)}
+.order-row-qty-num{font-family:'Bebas Neue',sans-serif;font-size:1.15em;min-width:1em;text-align:center}
+.order-row-price{font-family:'Bebas Neue',sans-serif;font-size:1.2em;color:var(--gold);
+  min-width:4.2em;text-align:right}
+.order-row-remove{width:1.9em;height:1.9em;border-radius:50%;border:2px solid rgba(255,77,77,0.35);
+  background:none;color:var(--red);font-size:1em;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:0.7em}
+.order-row-remove:active{transform:scale(0.9)}
 .order-total{display:flex;justify-content:space-between;align-items:baseline;
-  width:100%;padding:12px 0;border-top:1px solid var(--border);margin-top:4px}
-.order-total-lbl{font-size:13px;color:var(--muted);text-transform:uppercase;
-  letter-spacing:1px;font-weight:800}
-.order-total-val{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--gold)}
+  width:100%;padding:0.85em 0;border-top:1px solid var(--border);margin-top:0.3em}
+.order-total-lbl{font-size:0.9em;color:var(--muted);text-transform:uppercase;
+  letter-spacing:0.05em;font-weight:800}
+.order-total-val{font-family:'Bebas Neue',sans-serif;font-size:2.1em;color:var(--gold)}
 .saldo-row{display:flex;justify-content:space-between;align-items:center;
-  width:100%;font-size:13px;color:var(--muted)}
+  width:100%;font-size:0.9em;color:var(--muted)}
 .saldo-row b{color:var(--text)}
 .saldo-row.warn b{color:var(--red)}
 
 /* ── SPILLA ── */
-.spina-product-tabs{display:flex;gap:8px;overflow-x:auto;width:100%;
-  scrollbar-width:none;padding-bottom:4px}
+.spina-product-tabs{display:flex;gap:0.55em;overflow-x:auto;width:100%;
+  scrollbar-width:none;padding-bottom:0.3em}
 .spina-product-tabs::-webkit-scrollbar{display:none}
-.spina-tab{background:var(--card);border:2px solid var(--border);border-radius:30px;
-  padding:8px 16px;font-size:12px;font-weight:800;letter-spacing:0.5px;
+.spina-tab{background:var(--card);border:2px solid var(--border);border-radius:2em;
+  padding:0.6em 1.1em;font-size:0.85em;font-weight:800;letter-spacing:0.03em;
   text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .spina-tab.sel{border-color:var(--gold);color:var(--gold)}
-.spina-glass-wrap{position:relative;width:120px;height:180px}
+.spina-glass-wrap{position:relative;width:8.5em;height:12.8em}
 .spina-glass-svg{width:100%;height:100%}
-.pour-info{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--green);
-  letter-spacing:1px;min-height:40px;text-align:center}
+.pour-info{font-family:'Bebas Neue',sans-serif;font-size:2.3em;color:var(--green);
+  letter-spacing:0.02em;min-height:1.3em;text-align:center}
 
 /* ── PULSANTI AZIONE ── */
-.btn{width:100%;padding:16px;border-radius:14px;border:none;cursor:pointer;
-  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;
+.btn{width:100%;padding:1.1em;border-radius:1em;border:none;cursor:pointer;
+  font-family:'Bebas Neue',sans-serif;font-size:1.4em;letter-spacing:0.02em;
   transition:opacity .15s,transform .1s}
 .btn:active{transform:scale(0.98)}
 .btn:disabled{opacity:0.35;cursor:not-allowed}
 .btn-gold{background:var(--gold);color:#111}
-.btn-outline{background:none;border:2px solid var(--border);color:var(--muted);font-size:16px}
+.btn-outline{background:none;border:2px solid var(--border);color:var(--muted);font-size:1.1em}
 .btn-red{background:rgba(255,77,77,0.15);color:var(--red);border:2px solid rgba(255,77,77,0.3)}
 
 /* ── POUR BTN ── */
-.pour-btn{width:100%;padding:20px;border-radius:14px;border:none;cursor:pointer;
+.pour-btn{width:100%;padding:1.4em;border-radius:1em;border:none;cursor:pointer;
   background:var(--gold);color:#111;font-family:'Bebas Neue',sans-serif;
-  font-size:22px;letter-spacing:1.5px;user-select:none;-webkit-user-select:none;
+  font-size:1.55em;letter-spacing:0.03em;user-select:none;-webkit-user-select:none;
   transition:background .2s}
 .pour-btn.pouring{background:var(--green)}
 .pour-btn:disabled{opacity:0.35;cursor:not-allowed}
 
 /* ── FEEDBACK ── */
-.fb-icon{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-size:44px}
+.fb-icon{width:6.2em;height:6.2em;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:3em}
 .fb-icon.ok{background:rgba(76,217,100,0.15)}
 .fb-icon.err{background:rgba(255,77,77,0.15)}
-.fb-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;text-align:center}
-.fb-sub{font-size:14px;color:var(--muted);text-align:center;max-width:300px;line-height:1.6}
-.fb-bal{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold)}
+.fb-title{font-family:'Bebas Neue',sans-serif;font-size:2.1em;letter-spacing:0.02em;text-align:center}
+.fb-sub{font-size:1em;color:var(--muted);text-align:center;max-width:21em;line-height:1.6}
+.fb-bal{font-family:'Bebas Neue',sans-serif;font-size:1.4em;color:var(--gold)}
 
 /* ── STATUS BAR ── */
-.status-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 20px;
+.status-bar{position:fixed;bottom:0;left:0;right:0;padding:0.85em 1.4em;
   background:rgba(10,10,10,0.9);backdrop-filter:blur(10px);
-  display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0}
+  display:flex;align-items:center;justify-content:center;gap:0.55em;font-size:0.85em;color:var(--muted)}
+.sdot{width:0.5em;height:0.5em;border-radius:50%;background:var(--red);flex-shrink:0}
 .sdot.ok{background:var(--green)}
 
 /* ── DEV PANEL ── */
-#dev{position:fixed;top:12px;right:12px;background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;
-  font-size:12px;display:flex;flex-direction:column;gap:7px;z-index:200;width:190px}
-#dev .dtit{font-weight:800;letter-spacing:1px;text-transform:uppercase;
-  font-size:10px;color:var(--muted)}
+#dev{position:fixed;top:0.8em;right:0.8em;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);border-radius:0.85em;padding:0.85em 1em;
+  font-size:0.85em;display:flex;flex-direction:column;gap:0.5em;z-index:200;width:13em}
+#dev .dtit{font-weight:800;letter-spacing:0.05em;text-transform:uppercase;
+  font-size:0.75em;color:var(--muted)}
 #dev input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
-  border-radius:7px;padding:5px 9px;color:#fff;font-size:12px;font-family:monospace;width:100%}
-#dev button{background:var(--gold);color:#111;border:none;border-radius:7px;
-  padding:6px 10px;font-weight:800;font-size:11px;cursor:pointer}
+  border-radius:0.5em;padding:0.35em 0.6em;color:#fff;font-size:0.85em;font-family:monospace;width:100%}
+#dev button{background:var(--gold);color:#111;border:none;border-radius:0.5em;
+  padding:0.45em 0.7em;font-weight:800;font-size:0.8em;cursor:pointer}
 #dev button.sec{background:rgba(255,255,255,0.08);color:var(--muted)}
 </style>
 </head>
@@ -217,20 +272,25 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
 ══════════════════════════════════════ -->
 <div class="screen active" id="s-home">
   <div class="home-grid">
-    <button class="home-btn gold" onclick="startFlow('ricarica')">
-      <div class="home-btn-ico">💳</div>
-      <div class="home-btn-name">Ricarica Tessera</div>
-      <div class="home-btn-sub">Aggiungi credito alla tua carta CAMON</div>
+    <button class="home-card" onclick="startFlow('ricarica')">
+      <div class="home-card-top gold-fill">
+        <div class="home-card-badge">TESSERA</div>
+        <div class="home-card-top-title">Ricarica Tessera</div>
+        <svg class="home-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      </div>
+      <div class="home-card-body">
+        <div class="home-card-sub">Aggiungi credito alla tua carta CAMON</div>
+      </div>
     </button>
-    <button class="home-btn blue" onclick="startFlow('ordina')">
-      <div class="home-btn-ico">🍔</div>
-      <div class="home-btn-name">Ordina dal Menu</div>
-      <div class="home-btn-sub">Scegli cibo e drink, paga col saldo</div>
-    </button>
-    <button class="home-btn green" onclick="startFlow('spritz')" style="grid-column:1/-1">
-      <div class="home-btn-ico">🍹</div>
-      <div class="home-btn-name">Spritz Self-Service</div>
-      <div class="home-btn-sub" id="spritz-home-sub">Avvicina la carta e paga uno Spritz</div>
+    <button class="home-card" onclick="startFlow('ordina')">
+      <div class="home-card-top dark-fill">
+        <div class="home-card-badge">MENU</div>
+        <div class="home-card-top-title">Ordina dal Menu</div>
+        <svg class="home-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l7 9 7-9z"/><line x1="12" y1="12" x2="12" y2="19"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+      </div>
+      <div class="home-card-body">
+        <div class="home-card-sub">Scegli cibo e drink, paga col saldo</div>
+      </div>
     </button>
   </div>
 </div>
@@ -248,7 +308,7 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
   </div>
   <div class="tap-title" id="tap-title">AVVICINA LA CARTA</div>
   <div class="tap-sub" id="tap-sub">Appoggia la tua tessera o portachiavi CAMON al lettore</div>
-  <button class="btn btn-outline" onclick="goHome()">← Indietro</button>
+  <button class="btn btn-outline" onclick="goBackFromTap()">← Indietro</button>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -279,11 +339,11 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
   <div class="pay-amt" id="pay-amt-lbl"></div>
   <div class="pay-methods">
     <button class="pay-method-btn" onclick="startPagamento('carta')">
-      <span class="pay-method-ico">💳</span>
+      <svg class="pay-method-ico" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       <span>Carta di credito / debito</span>
     </button>
     <button class="pay-method-btn" onclick="startPagamento('contanti')">
-      <span class="pay-method-ico">💵</span>
+      <svg class="pay-method-ico" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><line x1="6" y1="9" x2="6" y2="9.01"/><line x1="18" y1="15" x2="18" y2="15.01"/></svg>
       <span>Contanti</span>
     </button>
   </div>
@@ -304,6 +364,10 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
 ══════════════════════════════════════ -->
 <div class="screen" id="s-ordina">
   <div class="user-badge" id="ord-badge"></div>
+  <div class="menu-macro">
+    <button class="macro-btn active" id="macro-drink" onclick="setMacro('drink')"><span class="mi">🍹</span>Drink</button>
+    <button class="macro-btn" id="macro-cibo" onclick="setMacro('cibo')"><span class="mi">🍽️</span>Cibo</button>
+  </div>
   <div class="cat-tabs" id="cat-tabs"></div>
   <div class="menu-list" id="menu-list"></div>
   <button class="cart-bar" id="cart-bar" onclick="goConfirm()" disabled>
@@ -320,6 +384,36 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
   <div class="user-badge" id="cf-badge"></div>
   <div class="section-title">Riepilogo ordine</div>
   <div class="order-rows" id="order-rows"></div>
+
+  <div class="section-title" id="serv-title" style="display:none">Come lo vuoi</div>
+  <div class="serv-opts" id="serv-opts" style="display:none">
+    <div class="serv-opt sel" id="serv-banco" onclick="setServizio('banco')">
+      <div class="serv-ico">🥤</div>
+      <div class="serv-name">Ritiro al banco</div>
+      <div class="serv-sub">Nessun supplemento</div>
+    </div>
+    <div class="serv-opt" id="serv-tavolo" onclick="setServizio('tavolo')">
+      <div class="serv-ico">🍽️</div>
+      <div class="serv-name">Al tavolo</div>
+      <div class="serv-sub" id="serv-tavolo-sub">€ 0,50 a prodotto</div>
+    </div>
+  </div>
+  <div class="amt-custom" id="tavolo-num-wrap" style="display:none">
+    <span>#</span>
+    <input id="tavolo-num" type="text" inputmode="numeric" placeholder="Numero tavolo" oninput="renderConfirmTotals()">
+  </div>
+
+  <div class="order-rows" id="order-breakdown" style="display:none">
+    <div class="order-row">
+      <span class="order-row-name">Prodotti</span>
+      <span class="order-row-price" id="order-subtot">€ 0,00</span>
+    </div>
+    <div class="order-row">
+      <span class="order-row-name" id="order-supplemento-lbl">Servizio al tavolo</span>
+      <span class="order-row-price" id="order-supplemento">€ 0,00</span>
+    </div>
+  </div>
+
   <div class="order-total">
     <div class="order-total-lbl">Totale</div>
     <div class="order-total-val" id="order-total">€ 0,00</div>
@@ -332,17 +426,8 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
     <span>Saldo dopo pagamento</span>
     <b id="saldo-after">€ 0,00</b>
   </div>
-  <button class="btn btn-gold" id="confirm-btn" onclick="doOrder()">PAGA E ORDINA</button>
+  <button class="btn btn-gold" id="confirm-btn" onclick="confirmAction()">PAGA E ORDINA</button>
   <button class="btn btn-outline" onclick="show('s-ordina')">← Modifica</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SPRITZ SELF-SERVICE — addebito automatico al tap
-══════════════════════════════════════ -->
-<div class="screen" id="s-spritz">
-  <div class="nfc-ring pulsing"><span class="pay-wait-ico">🍹</span></div>
-  <div class="tap-title">ADDEBITO IN CORSO…</div>
-  <div class="tap-sub" id="spritz-wait-sub">Un attimo</div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -362,9 +447,12 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;
   <span id="stext">Connessione bridge NFC…</span>
 </div>
 
-<!-- ── Pannello di servizio (solo reset, niente simulazione: si usa il lettore reale) ── -->
+<!-- ── Pannello di servizio (reset + simulazione tap carta per test) ── -->
 <div id="dev">
   <button class="sec" onclick="goHome()">Reset home</button>
+  <div class="dtit">Simula tap carta</div>
+  <input id="dev-uid" type="text" placeholder="UID carta test">
+  <button onclick="simulateTap()">Simula tap</button>
 </div>
 
 <script>
@@ -378,7 +466,7 @@ const WS_URL       = 'ws://localhost:8765';
 // ════════════════════════════════════════════
 //  STATO
 // ════════════════════════════════════════════
-let currentFlow   = null;   // 'ricarica' | 'ordina' | 'spritz'
+let currentFlow   = null;   // 'ricarica' | 'ordina'
 let currentUser   = null;   // { uid, user_id, first_name, last_name, balance_cents }
 let selectedAmt   = 20;     // centesimi×100 per ricarica
 let products      = [];     // da Supabase
@@ -386,6 +474,14 @@ let currentCat    = null;
 let cart          = {};     // { product_id: { name, price_cents, qty } }
 let idleTO        = null;
 let ws            = null;
+let serviceMode   = 'banco'; // 'banco' | 'tavolo' — come nell'app
+const SERVIZIO_TAVOLO_CENTS_PER_ITEM = 50; // supplemento "al tavolo": €0,50 per ogni prodotto ordinato
+function cartItemCount() {
+  return Object.values(cart).reduce((s,i)=>s+i.qty,0);
+}
+function tavoloSupplementoCents() {
+  return cartItemCount() * SERVIZIO_TAVOLO_CENTS_PER_ITEM;
+}
 
 // ════════════════════════════════════════════
 //  UTILS
@@ -434,20 +530,35 @@ async function rpc(fn, params) {
 // ════════════════════════════════════════════
 function startFlow(flow) {
   currentFlow = flow;
-  el('tap-title').textContent = flow==='ricarica' ? 'AVVICINA LA CARTA PER RICARICARE'
-    : flow==='ordina' ? 'AVVICINA LA CARTA PER ORDINARE'
-    : 'AVVICINA LA CARTA PER LO SPRITZ';
+  if (flow === 'ordina') {
+    // Il menu si sfoglia subito, senza carta: la tessera si avvicina
+    // solo alla conferma dell'ordine (vedi goConfirm()).
+    openOrdina();
+    return;
+  }
+  el('tap-title').textContent = 'AVVICINA LA CARTA PER RICARICARE';
   el('tap-sub').textContent = 'Appoggia la tua tessera o portachiavi CAMON al lettore';
   show('s-tap');
+}
+
+// Il pulsante "← Indietro" della schermata tap non deve far perdere
+// il carrello/le scelte fatte: torna al riepilogo ordine se si stava
+// per pagare, altrimenti torna semplicemente alla home.
+function goBackFromTap() {
+  if (currentFlow === 'ordina' && Object.keys(cart).length) {
+    show('s-confirm');
+  } else {
+    goHome();
+  }
 }
 
 // Carta identificata → vai al flusso corretto
 function onUserIdentified(user) {
   currentUser = user;
   resetIdleTO();
+  el('ord-badge').innerHTML = userBadgeHTML(currentUser);
   if (currentFlow === 'ricarica') openRicarica();
-  else if (currentFlow === 'ordina') openOrdina();
-  else chargeSpritz();
+  else goConfirm(); // ordina: la carta è stata avvicinata per confermare
 }
 
 // ════════════════════════════════════════════
@@ -520,9 +631,20 @@ async function startPagamento(metodo) {
 // ════════════════════════════════════════════
 //  ORDINA DAL MENU
 // ════════════════════════════════════════════
+let currentMacro = 'drink'; // 'drink' | 'cibo' — come nell'app
+
+function guestBadgeHTML() {
+  return `<div class="user-avatar">🛒</div>
+    <div class="user-info">
+      <div class="user-name">Sfoglia il menu</div>
+      <div class="user-bal">Avvicinerai la carta al momento di pagare</div>
+    </div>`;
+}
 async function openOrdina() {
-  el('ord-badge').innerHTML = userBadgeHTML(currentUser);
-  cart = {};
+  // Il menu è navigabile senza carta: currentUser resta null finché
+  // non si conferma l'ordine (vedi goConfirm() / onUserIdentified()).
+  el('ord-badge').innerHTML = currentUser ? userBadgeHTML(currentUser) : guestBadgeHTML();
+  if (!currentUser) cart = {};
   show('s-ordina');
   if (!products.length) await loadProducts();
   renderCats();
@@ -538,11 +660,19 @@ async function loadProducts() {
     setStatus(false,'Errore caricamento menu: '+e.message);
   }
 }
+function setMacro(macro) {
+  currentMacro = macro;
+  el('macro-drink').classList.toggle('active', macro==='drink');
+  el('macro-cibo').classList.toggle('active', macro==='cibo');
+  currentCat = null;
+  renderCats();
+}
 function renderCats() {
-  const cats = [...new Set(products.map(p=>p.category))];
-  currentCat = currentCat || cats[0];
+  const inMacro = products.filter(p=>(p.macro||'drink')===currentMacro);
+  const cats = [...new Set(inMacro.map(p=>p.category))];
+  currentCat = (currentCat && cats.includes(currentCat)) ? currentCat : cats[0];
   el('cat-tabs').innerHTML = cats.map(c=>`
-    <button class="cat-tab${c===currentCat?' sel':''}" onclick="selectCat('${c}')">${c}</button>
+    <button class="cat-tab${c===currentCat?' sel':''}" onclick="selectCat('${escQ(c)}')">${c}</button>
   `).join('');
   renderMenu();
 }
@@ -550,31 +680,82 @@ function selectCat(cat) {
   currentCat = cat;
   renderCats();
 }
+// Stessa immagine placeholder usata dall'app (picsum seedato sul nome prodotto)
+// quando il prodotto non ha una foto propria.
+function productImg(p) {
+  if (p.image_url) return p.image_url;
+  const seed = encodeURIComponent(p.name.toLowerCase().replace(/\s+/g,'-'));
+  return `https://picsum.photos/seed/${seed}/300/300`;
+}
 function renderMenu() {
-  const items = products.filter(p=>p.category===currentCat);
+  const items = products
+    .filter(p=>(p.macro||'drink')===currentMacro && p.category===currentCat)
+    // Prima quelli ordinabili dal totem (asporto/tavolo), poi quelli solo
+    // da spillatore: così in cima ci sono sempre i prodotti acquistabili.
+    .sort((a,b) => (isTavoloEligible(b)?1:0) - (isTavoloEligible(a)?1:0));
+  if (!items.length) {
+    el('menu-list').innerHTML = `<div class="menu-empty">Nessun prodotto in questa categoria.</div>`;
+    renderCart();
+    return;
+  }
   el('menu-list').innerHTML = items.map(p=>{
     const qty = cart[p.id]?.qty||0;
-    return `<div class="menu-item">
-      <div class="menu-item-info">
-        <div class="menu-item-name">${p.emoji||''} ${p.name}</div>
-        ${p.description?`<div class="menu-item-desc">${p.description}</div>`:''}
-      </div>
+    // I cocktail non pensati per asporto/tavolo si prendono solo agli
+    // spillatori self-service: non si possono aggiungere al carrello del
+    // totem, esattamente come nell'app (vedi isAppOrderable in camon.html).
+    const selfOnly = !isTavoloEligible(p);
+    if (selfOnly) {
+      return `<div class="menu-item self-only">
+        <div class="menu-item-img"><img src="${productImg(p)}" alt="${escQ(p.name)}" loading="lazy"></div>
+        <div class="menu-item-name">${p.emoji?p.emoji+' ':''}${p.name}</div>
+        <div class="menu-item-price">${cents(p.price_cents)}</div>
+        <div class="menu-item-self-badge">🍺 Vai allo spillatore</div>
+      </div>`;
+    }
+    return `<div class="menu-item${qty>0?' has-qty':''}" onclick="changeQty('${p.id}',1,'${escQ(p.name)}',${p.price_cents})">
+      <div class="menu-item-img"><img src="${productImg(p)}" alt="${escQ(p.name)}" loading="lazy"></div>
+      <div class="menu-item-name">${p.emoji?p.emoji+' ':''}${p.name}</div>
       <div class="menu-item-price">${cents(p.price_cents)}</div>
-      <div class="menu-item-qty">
-        ${qty>0?`<button class="qty-btn" onclick="changeQty('${p.id}',-1,'${escQ(p.name)}',${p.price_cents})">−</button>
-        <span class="qty-num">${qty}</span>`:''}
-        <button class="qty-btn plus" onclick="changeQty('${p.id}',1,'${escQ(p.name)}',${p.price_cents})">+</button>
-      </div>
+      ${qty>0?`<div class="menu-item-qty-badge">${qty}</div>
+      <div class="menu-item-minus" onclick="event.stopPropagation();changeQty('${p.id}',-1,'${escQ(p.name)}',${p.price_cents})">−</div>`:''}
     </div>`;
   }).join('');
   renderCart();
 }
-function escQ(s){ return s.replace(/'/g,"\\'") }
+function escQ(s){ return String(s).replace(/'/g,"\\'") }
 function changeQty(id, delta, name, price_cents) {
   if (!cart[id]) cart[id] = {name, price_cents, qty:0};
   cart[id].qty = Math.max(0, cart[id].qty + delta);
   if (cart[id].qty === 0) delete cart[id];
   renderMenu();
+}
+// Alza/abbassa la quantità di un prodotto già nel riepilogo (es. da 2 a
+// 1) senza doverlo rimuovere e riaggiungere dal menu. Se scende a 0 si
+// comporta come una rimozione, senza bisogno di conferma: è un tocco
+// deliberato sullo stesso controllo −/+, non un'azione a sé.
+function changeCartQty(id, delta) {
+  const item = cart[id];
+  if (!item) return;
+  item.qty = Math.max(0, item.qty + delta);
+  if (item.qty === 0) delete cart[id];
+  if (!Object.keys(cart).length) {
+    show('s-ordina');
+    renderMenu();
+    return;
+  }
+  goConfirm();
+}
+// Rimuove del tutto un prodotto dal riepilogo ordine (con conferma, per
+// chi ha aggiunto qualcosa per sbaglio).
+function removeCartItem(id, name) {
+  if (!confirm(`Sei sicuro di voler rimuovere "${name}" dal carrello?`)) return;
+  delete cart[id];
+  if (!Object.keys(cart).length) {
+    show('s-ordina');
+    renderMenu();
+    return;
+  }
+  goConfirm();
 }
 function renderCart() {
   const items = Object.values(cart);
@@ -585,90 +766,137 @@ function renderCart() {
   el('cart-lbl').textContent   = count===0 ? 'Carrello vuoto' : `${count} ${count===1?'prodotto':'prodotti'}`;
   el('cart-price').textContent = cents(total);
 }
+// Un prodotto "portabile al tavolo" è tipicamente un drink pensato per
+// l'app/servizio (spritz, gin...) o un piatto di cibo — non le bevande
+// da prendere direttamente allo spillatore. Stessa euristica di camon.html.
+function isTavoloEligible(p) {
+  if (p.app_orderable != null) return Boolean(p.app_orderable);
+  if ((p.macro||'drink') === 'cibo') return true;
+  const n = (p.name||'').toLowerCase();
+  return n.includes('spritz') || n.includes('gin');
+}
+function cartHasTavoloEligible() {
+  return Object.entries(cart).some(([id,i]) => {
+    const p = products.find(pp=>pp.id===id);
+    return p ? isTavoloEligible(p) : false;
+  });
+}
+function setServizio(mode) {
+  serviceMode = mode;
+  el('serv-banco').classList.toggle('sel', mode==='banco');
+  el('serv-tavolo').classList.toggle('sel', mode==='tavolo');
+  el('tavolo-num-wrap').style.display = mode==='tavolo' ? 'flex' : 'none';
+  renderConfirmTotals();
+}
+// Carrello → riepilogo con scelta banco/tavolo (uguale all'app).
+// La carta si avvicina solo dopo, quando si preme il pulsante finale
+// per pagare: fino a lì si può scegliere/modificare tutto liberamente.
 function goConfirm() {
   if (!Object.keys(cart).length) return;
-  const total = Object.values(cart).reduce((s,i)=>s+i.qty*i.price_cents,0);
-  const after = currentUser.balance_cents - total;
-  el('cf-badge').innerHTML = userBadgeHTML(currentUser);
-  el('order-rows').innerHTML = Object.values(cart).map(i=>`
-    <div class="order-row">
+  currentFlow = 'ordina';
+
+  el('cf-badge').innerHTML = currentUser ? userBadgeHTML(currentUser) : guestBadgeHTML();
+  el('order-rows').innerHTML = Object.entries(cart).map(([id,i])=>{
+    const p = products.find(pp=>pp.id===id);
+    const img = p ? productImg(p) : '';
+    return `<div class="order-row">
+      <img class="order-row-img" src="${img}" alt="">
       <span class="order-row-name">${i.name}</span>
-      <span class="order-row-qty">x${i.qty}</span>
+      <span class="order-row-qty-ctrl">
+        <button class="order-row-qty-btn" onclick="changeCartQty('${id}',-1)">−</button>
+        <span class="order-row-qty-num">${i.qty}</span>
+        <button class="order-row-qty-btn plus" onclick="changeCartQty('${id}',1)">+</button>
+      </span>
       <span class="order-row-price">${cents(i.qty*i.price_cents)}</span>
-    </div>
-  `).join('');
+      <button class="order-row-remove" onclick="removeCartItem('${id}','${escQ(i.name)}')" aria-label="Rimuovi">×</button>
+    </div>`;
+  }).join('');
+
+  // Mostra la scelta banco/tavolo solo se in carrello c'è qualcosa che
+  // si può portare al tavolo (cibo o drink da app tipo Spritz/Gin).
+  serviceMode = 'banco';
+  el('tavolo-num').value = '';
+  const showServ = cartHasTavoloEligible();
+  el('serv-title').style.display = showServ ? '' : 'none';
+  el('serv-opts').style.display  = showServ ? 'grid' : 'none';
+  el('tavolo-num-wrap').style.display = 'none';
+  el('serv-banco').classList.add('sel');
+  el('serv-tavolo').classList.remove('sel');
+
+  renderConfirmTotals();
+  show('s-confirm');
+}
+function renderConfirmTotals() {
+  const subtot = Object.values(cart).reduce((s,i)=>s+i.qty*i.price_cents,0);
+  const supplemento = serviceMode==='tavolo' ? tavoloSupplementoCents() : 0;
+  const total = subtot + supplemento;
+  // Con supplemento si vede il conto scomposto (prodotti + servizio),
+  // così è chiaro cosa si sta pagando in più e non sembra un rincaro nascosto.
+  el('order-breakdown').style.display = supplemento>0 ? 'flex' : 'none';
+  if (supplemento>0) {
+    const n = cartItemCount();
+    el('order-subtot').textContent = cents(subtot);
+    el('order-supplemento-lbl').textContent = `Servizio al tavolo · ${cents(SERVIZIO_TAVOLO_CENTS_PER_ITEM)} × ${n} prodott${n===1?'o':'i'}`;
+    el('order-supplemento').textContent = cents(supplemento);
+  }
   el('order-total').textContent = cents(total);
+  const tavoloOk = serviceMode!=='tavolo' || el('tavolo-num').value.trim().length>0;
+
+  if (!currentUser) {
+    // Utente non ancora identificato: si vede il totale, ma il saldo
+    // e il pulsante diventano noti solo dopo aver avvicinato la carta.
+    el('saldo-row').style.display = 'none';
+    el('saldo-after-row').style.display = 'none';
+    el('confirm-btn').textContent = 'AVVICINA LA CARTA PER PAGARE';
+    el('confirm-btn').disabled = !tavoloOk;
+    return;
+  }
+  const after = currentUser.balance_cents - total;
+  el('saldo-row').style.display = '';
+  el('saldo-after-row').style.display = '';
   el('saldo-disp').textContent  = cents(currentUser.balance_cents);
   el('saldo-after').textContent = after>=0 ? cents(after) : '— saldo insufficiente';
   const sr = el('saldo-after-row');
   sr.className = 'saldo-row' + (after<0?' warn':'');
-  el('confirm-btn').disabled = after<0;
-  show('s-confirm');
+  el('confirm-btn').textContent = 'PAGA E ORDINA';
+  el('confirm-btn').disabled = after<0 || !tavoloOk;
+}
+// Pulsante finale del riepilogo: se manca ancora la carta la chiede
+// ora (senza perdere carrello/scelte), altrimenti procede al pagamento.
+function confirmAction() {
+  if (!currentUser) {
+    el('tap-title').textContent = 'AVVICINA LA CARTA PER PAGARE';
+    el('tap-sub').textContent = 'Appoggia la tua tessera per confermare il tuo ordine';
+    show('s-tap');
+    return;
+  }
+  doOrder();
 }
 async function doOrder() {
   const items = Object.values(cart);
-  const total = items.reduce((s,i)=>s+i.qty*i.price_cents,0);
+  const subtot = items.reduce((s,i)=>s+i.qty*i.price_cents,0);
+  const supplemento = serviceMode==='tavolo' ? tavoloSupplementoCents() : 0;
+  const total = subtot + supplemento;
+  const tavolo = el('tavolo-num').value.trim();
   const desc  = items.map(i=>`${i.qty}x ${i.name}`).join(', ');
+  const modoDesc = serviceMode==='tavolo' ? ` — al tavolo ${tavolo}` : ' — ritiro al banco';
   el('confirm-btn').disabled = true;
   try {
     await rpc('nfc_spend',{
       p_uid: currentUser.uid,
       p_amount_cents: total,
-      p_description: 'Ordine totem: '+desc
+      p_description: 'Ordine totem: '+desc+modoDesc
     });
-    feedback(true,'✅','Ordine confermato!',desc,currentUser.balance_cents-total);
+    const esito = serviceMode==='tavolo' ? `Te lo portiamo al tavolo ${tavolo}.` : 'Ritiralo al banco quando è pronto.';
+    feedback(true,'✅','Ordine confermato!',desc+' — '+esito,currentUser.balance_cents-total);
     cart = {};
+    serviceMode = 'banco';
   } catch(e) {
     const msg = e.message||String(e);
     if (msg==='SALDO_INSUFFICIENTE')
       feedback(false,'❌','Saldo insufficiente','Ricarica la carta al banco.',currentUser.balance_cents);
     else
       feedback(false,'❌','Errore',msg,null);
-  }
-}
-
-// ════════════════════════════════════════════
-//  SPRITZ SELF-SERVICE — un tap, un addebito fisso
-// ════════════════════════════════════════════
-let spritzPriceCents = null; // cache: letto dalla tabella products (nome 'SPRITZ')
-
-async function getSpritzPriceCents() {
-  if (spritzPriceCents !== null) return spritzPriceCents;
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/products?name=eq.SPRITZ&select=price_cents&limit=1`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-  });
-  const rows = await r.json();
-  if (!r.ok || !rows.length) throw new Error('Prezzo Spritz non trovato nel menu');
-  spritzPriceCents = rows[0].price_cents;
-  return spritzPriceCents;
-}
-
-// Aggiorna il sottotitolo del bottone in home con il prezzo reale
-(async function initSpritzLabel() {
-  try {
-    const c = await getSpritzPriceCents();
-    const lbl = el('spritz-home-sub');
-    if (lbl) lbl.textContent = `Avvicina la carta e paga ${cents(c)}`;
-  } catch (e) { console.warn('Prezzo Spritz:', e.message); }
-})();
-
-async function chargeSpritz() {
-  show('s-spritz');
-  try {
-    const priceCents = await getSpritzPriceCents();
-    el('spritz-wait-sub').textContent = 'Addebito ' + cents(priceCents) + ' · ' +
-      [currentUser.first_name, currentUser.last_name].filter(Boolean).join(' ');
-
-    const newBal = await rpc('nfc_spend', {
-      p_uid: currentUser.uid,
-      p_amount_cents: priceCents,
-      p_description: 'Spritz self-service'
-    });
-    feedback(true, '🍹', 'Spritz pagato!', 'Buona bevuta, ' + (currentUser.first_name || ''), newBal);
-  } catch (e) {
-    const msg = e.message || String(e);
-    feedback(false, '❌', msg === 'SALDO_INSUFFICIENTE' ? 'Saldo insufficiente' : 'Errore',
-      msg === 'SALDO_INSUFFICIENTE' ? 'Ricarica la carta al banco.' : msg, null);
   }
 }
 
@@ -703,6 +931,29 @@ function onBridge(msg) {
     feedback(false,'🤷','Carta non riconosciuta','Registra la tessera tramite il personale.',null);
   } else if (msg.type==='error') {
     setStatus(false,'Errore: '+msg.message);
+  }
+}
+
+// ════════════════════════════════════════════
+//  SIMULAZIONE TAP CARTA (pannello di servizio)
+// ════════════════════════════════════════════
+async function simulateTap() {
+  const uid = (el('dev-uid').value || '').trim();
+  if (!uid) { alert('Inserisci un UID carta di test'); return; }
+  if (!currentFlow) { alert('Prima scegli un\'azione (Ricarica / Ordina) dalla home'); return; }
+  try {
+    const rows = await rpc('nfc_lookup', { p_uid: uid });
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    if (!row || !row.user_id) { onBridge({type:'card_unknown'}); return; }
+    onUserIdentified({
+      uid,
+      user_id: row.user_id,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      balance_cents: row.balance_cents
+    });
+  } catch (e) {
+    alert('Errore lookup: ' + (e.message || e));
   }
 }
 

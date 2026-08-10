@@ -2746,6 +2746,18 @@
   .offer-card-top.purple { background: linear-gradient(135deg, #1a0840, #3d1a80); }
   .offer-card-top.green { background: linear-gradient(135deg, #001a0d, #004d2e); }
   .offer-card-top.red { background: linear-gradient(135deg, #2a0000, #6b0a0a); }
+  /* Sfondo fotografico al posto della fascia colorata: l'immagine si
+     passa via style="background-image:url(...)" sull'elemento, questa
+     classe si occupa solo di cover/position + un velo scuro sopra per
+     far restare leggibili badge/emoji qualunque sia la foto. Se il file
+     immagine non esiste ancora resta il grigio di fallback, senza errori. */
+  .offer-card-top.has-photo, .offer-full-top.has-photo {
+    background-color: #1c1c1c; background-size: cover; background-position: center;
+  }
+  .offer-card-top.has-photo::before, .offer-full-top.has-photo::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.75));
+  }
   .offer-badge {
     font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2.5px;
     padding: 4px 10px; border-radius: 30px; color: #111;
@@ -2818,6 +2830,13 @@
   .offer-meta-chip { font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.3px; color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:30px; padding:5px 12px; }
   .offer-cta-btn { display:block; width:calc(100% - 36px); margin:0 18px 18px; background:#f7cc49; color:#111; border:none; border-radius:12px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
   .offer-cta-btn:active { opacity:0.85; }
+  .offer-cta-btn:disabled { opacity:0.55; cursor:default; }
+  .offer-cta-btn.iscritto { background:rgba(76,217,100,0.15); color:#4cd964; border:1px solid rgba(76,217,100,0.4); }
+  /* Lista premi torneo: podio testuale, niente di complicato */
+  .offer-prizes { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .offer-prize-row { display:flex; align-items:baseline; gap:8px; font-family:'Manrope',sans-serif; font-size:13px; }
+  .offer-prize-row b { flex-shrink:0; }
+  .offer-prize-row span { color:rgba(255,255,255,0.55); }
 
 
   /* ===== OFFERTE AUTO-SCROLL ===== */
@@ -3954,7 +3973,7 @@
         <div class="offers-scroll offers-auto-scroll">
 
           <div class="offer-card">
-            <div class="offer-card-top amber">
+            <div class="offer-card-top has-photo" style="background-image:url('happy-hour-bg.png')">
               <div class="offer-badge">HAPPY HOUR</div>
               <div class="offer-emoji">🍺</div>
             </div>
@@ -3966,7 +3985,7 @@
           </div>
 
           <div class="offer-card">
-            <div class="offer-card-top purple">
+            <div class="offer-card-top has-photo" style="background-image:url('beerpong-bg.png')">
               <div class="offer-badge">OGNI MARTEDÌ</div>
               <div class="offer-emoji">🏆</div>
             </div>
@@ -3978,25 +3997,25 @@
           </div>
 
           <div class="offer-card">
-            <div class="offer-card-top green">
-              <div class="offer-badge">BUNDLE</div>
-              <div class="offer-emoji">🎯</div>
+            <div class="offer-card-top has-photo" style="background-image:url('serata-nerd-bg.png')">
+              <div class="offer-badge">1 VOLTA AL MESE</div>
+              <div class="offer-emoji">🎮</div>
             </div>
             <div class="offer-card-body">
-              <div class="offer-name">Drink + Gioco</div>
-              <div class="offer-desc">Una birra alla spina e un posto al tavolo giochi incluso.</div>
-              <div class="offer-meta">Prezzo speciale</div>
+              <div class="offer-name">Serata Nerd</div>
+              <div class="offer-desc">Videogiochi, anime e quiz a tema. Cosplay ben accetto.</div>
+              <div class="offer-meta">Primo giovedì del mese</div>
             </div>
           </div>
 
           <div class="offer-card">
-            <div class="offer-card-top red">
+            <div class="offer-card-top has-photo" style="background-image:url('sconto-profilo-bg.png')">
               <div class="offer-badge">PROFILO</div>
               <div class="offer-emoji">👤</div>
             </div>
             <div class="offer-card-body">
               <div class="offer-name">Sconto Profilo</div>
-              <div class="offer-desc">Completa il profilo e ottieni uno sconto riservato sulla prima ricarica.</div>
+              <div class="offer-desc">Completa il profilo e ottieni il 10% sulla prima ricarica.</div>
               <div class="offer-meta">Solo utenti registrati</div>
             </div>
           </div>
@@ -4139,7 +4158,7 @@
     <div class="scroll-area" id="offerte-list" style="padding:16px 16px 96px; display:flex; flex-direction:column; gap:12px;">
 
       <div class="offer-full-card">
-        <div class="offer-full-top amber">
+        <div class="offer-full-top has-photo" style="background-image:url('happy-hour-bg.png')">
           <div class="offer-badge">HAPPY HOUR</div>
           <div class="offer-full-emoji">🍺</div>
         </div>
@@ -4154,45 +4173,51 @@
       </div>
 
       <div class="offer-full-card">
-        <div class="offer-full-top purple">
+        <div class="offer-full-top has-photo" style="background-image:url('beerpong-bg.png')">
           <div class="offer-badge">OGNI MARTEDÌ</div>
           <div class="offer-full-emoji">🏆</div>
         </div>
         <div class="offer-full-body">
           <div class="offer-name">Torneo Beer Pong</div>
-          <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta. Premi per i vincitori e drink omaggio per tutti i finalisti.</div>
+          <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta.</div>
+          <div class="offer-prizes">
+            <div class="offer-prize-row">🥇 <b>1° posto</b> <span>— coppa Beer Pong + Spritz omaggio per tutta la serata</span></div>
+            <div class="offer-prize-row">🥈 <b>2° posto</b> <span>— shot omaggio per la coppia</span></div>
+            <div class="offer-prize-row">🥉 <b>3° posto</b> <span>— 2×1 sulla prossima birra</span></div>
+          </div>
           <div class="offer-full-meta">
             <span class="offer-meta-chip">🕘 Dalle 21:00</span>
             <span class="offer-meta-chip">🎟 Ingresso libero</span>
           </div>
         </div>
+        <button class="offer-cta-btn" id="beerpong-cta" onclick="beerpongIscriviti()">Iscriviti al torneo</button>
       </div>
 
       <div class="offer-full-card">
-        <div class="offer-full-top green">
-          <div class="offer-badge">BUNDLE</div>
-          <div class="offer-full-emoji">🎯</div>
+        <div class="offer-full-top has-photo" style="background-image:url('serata-nerd-bg.png')">
+          <div class="offer-badge">1 VOLTA AL MESE</div>
+          <div class="offer-full-emoji">🎮</div>
         </div>
         <div class="offer-full-body">
-          <div class="offer-name">Drink + Gioco</div>
-          <div class="offer-full-desc">Una birra alla spina e un posto riservato al tavolo giochi a prezzo combinato. Ideale per chi arriva in piccolo gruppo e vuole iniziare subito a giocare senza pensieri.</div>
+          <div class="offer-name">Serata Nerd</div>
+          <div class="offer-full-desc">Una serata a tema per chi ama videogiochi, anime e cultura pop: tornei ai videogiochi, quiz a tema con la modalità Super Quiz dell'app, musica synthwave/8-bit. Cosplay ben accetto, nessun obbligo.</div>
           <div class="offer-full-meta">
-            <span class="offer-meta-chip">💰 Prezzo speciale</span>
-            <span class="offer-meta-chip">👥 Per gruppi</span>
+            <span class="offer-meta-chip">📅 Primo giovedì del mese</span>
+            <span class="offer-meta-chip">🕗 Dalle 20:00</span>
           </div>
         </div>
       </div>
 
       <div class="offer-full-card">
-        <div class="offer-full-top red">
+        <div class="offer-full-top has-photo" style="background-image:url('sconto-profilo-bg.png')">
           <div class="offer-badge">PROFILO</div>
           <div class="offer-full-emoji">👤</div>
         </div>
         <div class="offer-full-body">
           <div class="offer-name">Sconto Profilo</div>
-          <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni uno sconto riservato sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
+          <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni il 10% di sconto sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
           <div class="offer-full-meta">
-            <span class="offer-meta-chip">🎁 Solo prima ricarica</span>
+            <span class="offer-meta-chip">🎁 10% sulla prima ricarica</span>
             <span class="offer-meta-chip">🔒 Utenti registrati</span>
           </div>
         </div>
@@ -6939,6 +6964,43 @@
     const gate  = document.getElementById('offerte-locked');
     if (lista) lista.style.display = bloccato ? 'none' : 'flex';
     if (gate)  gate.style.display  = bloccato ? 'flex' : 'none';
+    beerpongRefreshBtn();
+  }
+
+  /* ===== ISCRIZIONE TORNEO BEER PONG =====
+     Niente backend dedicato: basta sapere "mi sono iscritto per il
+     torneo di questa settimana", quindi si salva un flag locale legato
+     al lunedì della settimana corrente + all'utente loggato. Si
+     azzera da solo la settimana dopo perché cambia la chiave. */
+  function beerpongWeekKey() {
+    const d = new Date();
+    const day = (d.getDay() + 6) % 7; // 0 = lunedì
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - day);
+    return monday.toISOString().slice(0, 10);
+  }
+  function beerpongIscriviti() {
+    if (!window.camonUser) {
+      camonConfirm('Devi accedere al tuo account per iscriverti al torneo. Accedere ora?', function () {
+        goTo('profile'); if (typeof profShowAuth === 'function') profShowAuth('login');
+      });
+      return;
+    }
+    camonConfirm('Iscriverti al Torneo Beer Pong di martedì? Ti aspettiamo dalle 21:00.', function () {
+      try { localStorage.setItem('camon_beerpong_' + window.camonUser.id + '_' + beerpongWeekKey(), '1'); } catch (e) {}
+      beerpongRefreshBtn();
+    });
+  }
+  function beerpongRefreshBtn() {
+    const btn = document.getElementById('beerpong-cta');
+    if (!btn) return;
+    let iscritto = false;
+    try {
+      if (window.camonUser) iscritto = localStorage.getItem('camon_beerpong_' + window.camonUser.id + '_' + beerpongWeekKey()) === '1';
+    } catch (e) {}
+    btn.textContent = iscritto ? '✅ Iscritto — ti aspettiamo martedì!' : 'Iscriviti al torneo';
+    btn.classList.toggle('iscritto', iscritto);
+    btn.disabled = iscritto;
   }
 
   /* ===== OFFERTE INFINITE SCROLL ===== */
