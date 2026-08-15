@@ -638,6 +638,13 @@
   }
   .drink-card:hover { border-color: rgba(247,204,73,0.5); }
   .drink-card:active { transform: scale(0.98); border-color: rgba(247,204,73,0.6); box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
+  /* Cocktail solo da spillatore: visibili ma disattivati, non si aprono
+     né si possono ordinare dall'app — si prendono solo al self-service. */
+  .drink-card.self-only {
+    cursor: default; opacity: 0.5; filter: grayscale(0.35);
+  }
+  .drink-card.self-only:hover,
+  .drink-card.self-only:active { border-color: rgba(247,204,73,0.18); transform: none; box-shadow: 0 6px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05); }
   .menu-subhead {
     grid-column: 1 / -1;
     font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 1px;
@@ -12241,7 +12248,8 @@
   function camonBuildCard(p) {
     const img = camonProductImg(p);
     const card = document.createElement('div');
-    card.className = 'drink-card';
+    const soloSpillatore = p.macro !== 'cibo' && !isAppOrderable(p);
+    card.className = 'drink-card' + (soloSpillatore ? ' self-only' : '');
     card.dataset.macro = p.macro || '';
     card.dataset.cat = p.category || '';
     card.dataset.available = p.available ? 'true' : 'false';
@@ -12250,14 +12258,18 @@
     if (p.macro !== 'cibo') {
       badge = isAppOrderable(p)
         ? '<div class="drink-badge drink-badge-tavolo">🛎 Al tavolo <span class="drink-badge-sep">·</span> 🥡 Asporto</div>'
-        : '<div class="drink-badge drink-badge-self">🍺 Vai allo spillatore</div>';
+        : '<div class="drink-badge drink-badge-self">🍺 Solo al self-service</div>';
     }
     card.innerHTML =
       `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy"></div>` +
       `<div class="drink-name">${p.name}</div>` +
       `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>` +
       badge;
-    card.addEventListener('click', function() { openProductSheet(p); });
+    // I cocktail solo da spillatore restano visibili ma disattivati:
+    // niente scheda prodotto, niente possibilità di ordinarli dall'app.
+    if (!soloSpillatore) {
+      card.addEventListener('click', function() { openProductSheet(p); });
+    }
     return card;
   }
   /* Quante unita' si stanno per aggiungere dalla scheda */
