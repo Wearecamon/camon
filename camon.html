@@ -3325,12 +3325,13 @@
     font-family: 'Manrope', sans-serif; font-size: 13px; color: #FF6B61;
   }
 
-  /* Hero della scheda dettaglio (offerte/eventi): è uno sfondo, non un
+  /* Hero della pagina dettaglio (offerte/eventi): è uno sfondo, non un
      <img>, così se la foto non c'è ancora resta un colore neutro invece
-     di un'icona "immagine rotta". */
-  .detail-hero {
-    min-height: 220px; background-size: cover; background-position: center;
-    background-color: #1c1c1c; border-radius: 24px 24px 0 0;
+     di un'icona "immagine rotta". Pagina intera → niente angoli
+     arrotondati, va da bordo a bordo sotto l'header. */
+  .detail-page-hero {
+    height: 240px; background-size: cover; background-position: center;
+    background-color: #1c1c1c;
   }
   .detail-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
   .detail-prizes { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
@@ -4220,6 +4221,27 @@
     </div>
     <div class="scroll-area" style="padding:16px 16px 96px">
       <div id="eventi-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ DETTAGLIO — offerta o evento ═══════════
+       Pagina unica, riusata sia per le offerte che per gli eventi:
+       il contenuto lo riempie JS (openOfferDetail / openEventDetail)
+       prima di navigarci con goTo('detail'). -->
+  <div class="page" id="page-detail">
+    <div class="page-header" style="flex-shrink:0">
+      <button class="page-back-btn" onclick="goBack()" style="background:rgba(255,255,255,0.07);border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="page-title" id="detail-page-title">DETTAGLIO</div>
+    </div>
+    <div class="scroll-area" style="padding:0 0 96px">
+      <div class="detail-page-hero" id="detail-hero"></div>
+      <div style="padding:20px 22px 0">
+        <div class="offer-badge" id="detail-badge" style="position:static;display:inline-block;margin-bottom:12px"></div>
+        <div id="detail-name" style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:0.5px;color:#fff;margin-bottom:16px;line-height:1.05"></div>
+        <div id="detail-body"></div>
+      </div>
     </div>
   </div>
 
@@ -6832,23 +6854,6 @@
     </div>
   </div>
 
-  <!-- ═══════════ SCHEDA DETTAGLIO — offerte ed eventi ═══════════
-       Stessa "bottom sheet" grafica della scheda prodotto (product-sheet),
-       riusa le sue classi CSS ma con id propri: si apre da qualunque
-       pagina (Offerte, Eventi, home) senza confliggere col menu. -->
-  <div class="product-overlay" id="detail-overlay" onclick="closeDetailSheet()">
-    <div class="product-sheet" onclick="event.stopPropagation()">
-      <button class="product-sheet-close" onclick="closeDetailSheet()">&times;</button>
-      <div class="ps-hero detail-hero" id="detail-hero">
-        <div class="ps-hero-testo">
-          <div id="detail-badge"></div>
-          <h2 class="product-sheet-name" id="detail-name"></h2>
-        </div>
-      </div>
-      <div class="product-sheet-body" id="detail-body"></div>
-    </div>
-  </div>
-
   <nav class="bottom-nav">
     <button class="nav-btn" id="nav-book" onclick="goTo('book')">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -7051,18 +7056,13 @@
       cta: { label: 'Completa il profilo', onclick: "goTo('profile')" }
     }
   };
-  function detailSheetOpen(photo, badge, name, bodyHTML) {
-    const hero = document.getElementById('detail-hero');
-    hero.style.backgroundImage = photo ? "url('" + photo + "')" : 'none';
-    document.getElementById('detail-badge').innerHTML = badge ? '<span class="ps-badge">' + badge + '</span>' : '';
+  function detailPageOpen(pageLabel, photo, badge, name, bodyHTML) {
+    document.getElementById('detail-page-title').textContent = pageLabel;
+    document.getElementById('detail-hero').style.backgroundImage = photo ? "url('" + photo + "')" : 'none';
+    document.getElementById('detail-badge').innerHTML = badge ? badge : '';
     document.getElementById('detail-name').textContent = name;
     document.getElementById('detail-body').innerHTML = bodyHTML;
-    document.getElementById('detail-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDetailSheet() {
-    document.getElementById('detail-overlay').classList.remove('open');
-    document.body.style.overflow = '';
+    goTo('detail');
   }
   function openOfferDetail(id) {
     const o = OFFERTE_DETAIL[id];
@@ -7071,7 +7071,7 @@
     if (o.prizes) body += '<div class="detail-prizes">' + o.prizes.map(function (p) { return '<div class="detail-prize-row">' + p + '</div>'; }).join('') + '</div>';
     if (o.meta) body += '<div class="detail-meta">' + o.meta.map(function (m) { return '<span class="offer-meta-chip">' + m + '</span>'; }).join('') + '</div>';
     if (o.cta) body += '<button class="offer-cta-btn' + (o.cta.extraClass ? ' ' + o.cta.extraClass : '') + '" style="width:100%;margin-top:20px" onclick="' + o.cta.onclick + '">' + o.cta.label + '</button>';
-    detailSheetOpen(o.photo, o.badge, o.name, body);
+    detailPageOpen('OFFERTA', o.photo, o.badge, o.name, body);
     if (id === 'beerpong' && typeof beerpongRefreshBtn === 'function') beerpongRefreshBtn();
   }
   function openEventDetail(id) {
@@ -7081,7 +7081,7 @@
     const dataFmt = next.getDate() + ' ' + MESI_ABBR[next.getMonth()];
     let body = '<p class="product-sheet-desc">' + (ev.desc || '') + '</p>';
     body += '<div class="detail-meta"><span class="offer-meta-chip">📅 ' + dataFmt + '</span><span class="offer-meta-chip">🕒 ' + ev.time + '</span></div>';
-    detailSheetOpen(ev.photo, 'EVENTO', ev.name, body);
+    detailPageOpen('EVENTO', ev.photo, 'EVENTO', ev.name, body);
   }
 
   /* ===== OFFERTE: accesso riservato agli iscritti ===== */
@@ -11377,15 +11377,19 @@
     /* Il pulsante acceso segue la pagina: offerte e le schede info
        restano sotto Home, che e' da dove ci si arriva. */
     /* Come nell'app: carta e offerte stanno sotto Menu, i giochi con
-       pagina propria sotto Giochi, le schede info sotto Home. */
-    var nav = (page === 'carta' || page === 'offerte') ? 'menu'
-            : (page === 'eventi') ? 'home'
-            : (page.indexOf('info-') === 0) ? 'home'
-            : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
-            : page;
-    document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
-    var btn = document.getElementById('nav-' + nav);
-    if (btn) btn.classList.add('active');
+       pagina propria sotto Giochi, le schede info sotto Home. La pagina
+       dettaglio (offerta/evento) non ha un tab suo: si arriva da posti
+       diversi, quindi si lascia acceso qualunque tab lo fosse già. */
+    if (page !== 'detail') {
+      var nav = (page === 'carta' || page === 'offerte') ? 'menu'
+              : (page === 'eventi') ? 'home'
+              : (page.indexOf('info-') === 0) ? 'home'
+              : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
+              : page;
+      document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
+      var btn = document.getElementById('nav-' + nav);
+      if (btn) btn.classList.add('active');
+    }
     window.scrollTo(0, 0);
 
     /* La lista giochi si costruisce da sola e ricorda dove eri:
