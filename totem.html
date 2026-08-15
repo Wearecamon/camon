@@ -680,10 +680,17 @@ function selectCat(cat) {
   currentCat = cat;
   renderCats();
 }
-// Stessa immagine placeholder usata dall'app (picsum seedato sul nome prodotto)
-// quando il prodotto non ha una foto propria.
+// Stesso file "prodotto-<nome-slug>.jpg" usato dall'app camon.html: se
+// non c'è ancora, il tag <img> lo segnala con onerror (vedi renderMenu)
+// e si passa al placeholder generato dal nome.
+function productSlug(p) {
+  return (p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
 function productImg(p) {
   if (p.image_url) return p.image_url;
+  return `prodotto-${productSlug(p)}.jpg`;
+}
+function productImgFallback(p) {
   const seed = encodeURIComponent(p.name.toLowerCase().replace(/\s+/g,'-'));
   return `https://picsum.photos/seed/${seed}/300/300`;
 }
@@ -706,7 +713,7 @@ function renderMenu() {
     const selfOnly = !isTavoloEligible(p);
     if (selfOnly) {
       return `<div class="menu-item self-only">
-        <div class="menu-item-img"><img src="${productImg(p)}" alt="${escQ(p.name)}" loading="lazy"></div>
+        <div class="menu-item-img"><img src="${productImg(p)}" alt="${escQ(p.name)}" loading="lazy" onerror="this.onerror=null;this.src='${productImgFallback(p)}'"></div>
         <div class="menu-item-name">${p.emoji?p.emoji+' ':''}${p.name}</div>
         <div class="menu-item-price">${cents(p.price_cents)}</div>
         <div class="menu-item-self-badge">🍺 Vai allo spillatore</div>
@@ -766,14 +773,16 @@ function renderCart() {
   el('cart-lbl').textContent   = count===0 ? 'Carrello vuoto' : `${count} ${count===1?'prodotto':'prodotti'}`;
   el('cart-price').textContent = cents(total);
 }
-// Un prodotto "portabile al tavolo" è tipicamente un drink pensato per
-// l'app/servizio (spritz, gin...) o un piatto di cibo — non le bevande
-// da prendere direttamente allo spillatore. Stessa euristica di camon.html.
+// Un prodotto "portabile al tavolo" è un drink dell'elenco esplicito
+// qui sotto, o un piatto di cibo — non le bevande da prendere solo
+// allo spillatore. Elenco esplicito (non "contiene gin/spritz") per
+// distinguere per nome esatto casi come "Bombay Gin Tonic", che pur
+// contenendo "gin" resta solo self-service. Stessa lista di camon.html.
+const DRINK_APP_ORDERABILI = ['SPRITZ', 'GIN TONIC', 'NEGRONI', 'GIN LEMONE', 'BIRRA BIONDA'];
 function isTavoloEligible(p) {
   if (p.app_orderable != null) return Boolean(p.app_orderable);
   if ((p.macro||'drink') === 'cibo') return true;
-  const n = (p.name||'').toLowerCase();
-  return n.includes('spritz') || n.includes('gin');
+  return DRINK_APP_ORDERABILI.includes((p.name||'').toUpperCase());
 }
 function cartHasTavoloEligible() {
   return Object.entries(cart).some(([id,i]) => {
@@ -799,8 +808,9 @@ function goConfirm() {
   el('order-rows').innerHTML = Object.entries(cart).map(([id,i])=>{
     const p = products.find(pp=>pp.id===id);
     const img = p ? productImg(p) : '';
+    const imgFallback = p ? productImgFallback(p) : '';
     return `<div class="order-row">
-      <img class="order-row-img" src="${img}" alt="">
+      <img class="order-row-img" src="${img}" alt="" onerror="this.onerror=null;this.src='${imgFallback}'">
       <span class="order-row-name">${i.name}</span>
       <span class="order-row-qty-ctrl">
         <button class="order-row-qty-btn" onclick="changeCartQty('${id}',-1)">−</button>

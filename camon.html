@@ -12234,15 +12234,29 @@
     if (cents === 0) return 'FREE';
     return '€' + (cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2).replace('.', ','));
   }
+  // Foto vera del prodotto: un file "prodotto-<nome-slug>.jpg" nella
+  // cartella del progetto (stesso sistema già usato per offerte/eventi).
+  // Se manca, l'<img> lo segnala con onerror e si passa al placeholder
+  // generato dal nome — mai un'icona di immagine rotta.
+  function camonProductSlug(p) {
+    return (p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
   function camonProductImg(p) {
     if (p.image_url) return p.image_url;
+    return `prodotto-${camonProductSlug(p)}.jpg`;
+  }
+  function camonProductImgFallback(p) {
     const seed = encodeURIComponent(p.name.toLowerCase().replace(/\s+/g, '-'));
     return `https://picsum.photos/seed/${seed}/400/400`;
   }
+  // Elenco esplicito invece di un controllo "contiene gin/spritz": serve
+  // a distinguere per nome esatto casi come "Gin Tonic" (ordinabile) da
+  // "Bombay Gin Tonic" (solo self-service), che altrimenti finirebbero
+  // nello stesso mucchio solo perché condividono la parola "gin".
+  var DRINK_APP_ORDERABILI = ['SPRITZ', 'GIN TONIC', 'NEGRONI', 'GIN LEMONE', 'BIRRA BIONDA'];
   function isAppOrderable(p) {
     if (p.app_orderable != null) return Boolean(p.app_orderable);
-    var n = (p.name || '').toLowerCase();
-    return n.includes('spritz') || n.includes('gin');
+    return DRINK_APP_ORDERABILI.indexOf((p.name || '').toUpperCase()) !== -1;
   }
 
   function camonBuildCard(p) {
@@ -12261,7 +12275,7 @@
         : '<div class="drink-badge drink-badge-self">🍺 Solo al self-service</div>';
     }
     card.innerHTML =
-      `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy"></div>` +
+      `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='${camonProductImgFallback(p)}'"></div>` +
       `<div class="drink-name">${p.name}</div>` +
       `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>` +
       badge;
@@ -12295,7 +12309,9 @@
     productSheetCurrent = p;
     psQty = 1;
 
-    document.getElementById('product-sheet-img').src = camonProductImg(p);
+    const sheetImg = document.getElementById('product-sheet-img');
+    sheetImg.onerror = function () { this.onerror = null; this.src = camonProductImgFallback(p); };
+    sheetImg.src = camonProductImg(p);
     document.getElementById('product-sheet-name').textContent = p.name;
 
     /* Un solo distintivo, quello che conta di piu': esaurito batte
