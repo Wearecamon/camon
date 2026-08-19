@@ -7436,6 +7436,47 @@
 
   let companionSlots = []; // [{slotId, selectedUser}]
 
+  /* --- Blocca lo scroll a dito quando lo step "tipo di tavolo" (e
+     l'invito segreto, che ci sta dentro) entra tutto in schermo — non ha
+     senso poter trascinare la pagina se non c'e' nulla in piu' da
+     vedere sopra o sotto. Se invece il contenuto e' piu' alto dello
+     schermo (es. tavolo condiviso con tanti compagni), lo scroll
+     normale del documento resta attivo come sempre. */
+  let book2Fits = false;
+  function bookCheckFits() {
+    const stepEl = document.getElementById('book-step2');
+    if (!stepEl || stepEl.style.display !== 'flex') { book2Fits = false; return; }
+    const btn = stepEl.querySelector('.book-confirm-btn');
+    if (!btn) { book2Fits = false; return; }
+    const navClearance = 96; // stesso spazio riservato alla bottom-nav nel padding del form
+    book2Fits = (btn.getBoundingClientRect().bottom + navClearance) <= window.innerHeight;
+  }
+  function bookScrollGuard(e) {
+    if (!book2Fits) return;
+    // le aree con scroll proprio (fasce orarie, risultati ricerca compagni,
+    // controlli nativi) devono continuare a funzionare normalmente
+    if (e.target.closest('.book-time-grid, .add-guest-results, select, textarea, input')) return;
+    e.preventDefault();
+  }
+  (function bookSetupScrollGuard() {
+    const stepEl = document.getElementById('book-step2');
+    if (!stepEl) return;
+    stepEl.addEventListener('touchmove', bookScrollGuard, { passive: false });
+    stepEl.addEventListener('wheel', bookScrollGuard, { passive: false });
+    window.addEventListener('resize', function () { setTimeout(bookCheckFits, 60); });
+    // qualsiasi cambiamento nel form (compagni, occasione, invito...) puo'
+    // cambiare l'altezza del contenuto: si ricontrolla da solo
+    const form = stepEl.querySelector('.book-form-new');
+    if (form && typeof MutationObserver === 'function') {
+      let raf = null;
+      const obs = new MutationObserver(function () {
+        if (raf) return;
+        raf = requestAnimationFrame(function () { raf = null; bookCheckFits(); });
+      });
+      obs.observe(form, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    }
+  })();
+
   /* --- Disponibilità simulata: quante persone → giorni e orari liberi ---
      Non c'è ancora un vero sistema di capienza tavoli collegato: finché non
      c'è, la disponibilità è calcolata in modo deterministico (stesso giorno
@@ -7653,6 +7694,7 @@
     document.getElementById('book-step1').style.display = 'none';
     document.getElementById('book-step2').style.display = 'flex';
     window.scrollTo(0, 0); // la testa ora e' fissa: si riparte da cima pagina, non dal vecchio scroll interno
+    bookCheckFits();
   }
 
   function bookUpdateCompanions(opt) {
