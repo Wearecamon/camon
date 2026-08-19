@@ -1262,7 +1262,7 @@
   .bfield-cal { flex:1; min-width:0; }
   .bfield-cal label span { color:#f7cc49; text-transform:none; letter-spacing:0.3px; font-weight:700; }
   .bfield-time { flex:none; width:108px; }
-  .book-cal-pop { width:100%; max-width:240px; aspect-ratio:1/1; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; }
+  .book-cal-pop { width:100%; max-width:268px; aspect-ratio:1/1; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; }
   .book-cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .book-cal-head span { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:0.5px; color:#f7cc49; text-transform:uppercase; }
   .book-cal-head button { background:rgba(255,255,255,0.06); border:none; color:#fff; width:26px; height:26px; border-radius:8px; font-size:15px; cursor:pointer; line-height:1; }
@@ -1279,7 +1279,7 @@
   .book-cal-day.full { color:rgba(255,255,255,0.15); text-decoration:line-through; pointer-events:none; }
 
   /* Fasce orarie disponibili — barra verticale sempre aperta, di fianco al calendario */
-  .book-time-wrap { height:240px; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:8px; }
+  .book-time-wrap { height:268px; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:8px; }
   .book-time-hint { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; color:rgba(255,255,255,0.35); font-family:'Manrope',sans-serif; font-size:11.5px; padding:8px; }
   .book-time-grid { display:flex; flex-direction:column; gap:5px; overflow-y:auto; flex:1; }
   .book-time-slot { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:8px 4px; border-radius:9px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; cursor:pointer; text-align:center; flex:none; }
@@ -3744,7 +3744,7 @@
 
   /* Una fascia appiccicata non funziona dentro un contenitore che
      taglia il contenuto: qui il documento e' l'unico a scorrere. */
-  #book-step1, #book-active, #page-book .book-scroll {
+  #book-step1, #book-active, #book-step2, #page-book .book-scroll {
     overflow: visible !important;
   }
 
@@ -5559,11 +5559,11 @@
           <!-- Icona mappa del tesoro: rimanda al gioco "trova il tuo tavolo"
                della mappa del locale, al posto della vecchia icona tavolo -->
           <svg class="book-active-table-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-            <line x1="9" y1="3" x2="9" y2="18"/>
-            <line x1="15" y1="6" x2="15" y2="21"/>
-            <path d="M6 15.5c1.4 -2.3 2.8 0.8 4.2 -1.4s1.8 -2.4 3.2 -0.4" stroke-dasharray="1.6 2.2" stroke-width="1.3"/>
-            <path d="M16.2 12.6l2.6 2.6M18.8 12.6l-2.6 2.6" stroke-width="1.6"/>
+            <rect x="3" y="3.5" width="18" height="17" rx="4.5"/>
+            <path d="M9 5v13.5"/>
+            <path d="M15 5v13.5"/>
+            <path d="M6 15c1.4 -2.3 2.8 0.8 4.2 -1.4s1.8 -2.4 3.2 -0.4" stroke-dasharray="1.6 2.2" stroke-width="1.3"/>
+            <path d="M16.2 11.6l2.6 2.6M18.8 11.6l-2.6 2.6" stroke-width="1.6"/>
           </svg>
         </div>
 
@@ -5694,9 +5694,13 @@
 
     <!-- STEP 2: form -->
     <div id="book-step2" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-      <div class="book-step-head">
-        <button class="book-back" onclick="bookGoBack()">←</button>
-        <div class="book-step-title" id="book-step2-title">TAVOLO <span>CONDIVISO</span></div>
+      <!-- Testa fissa: il tipo di tavolo scelto (es. TAVOLO CONDIVISO)
+           resta in alto mentre il form scorre e passa sotto. -->
+      <div class="testa-fissa">
+        <div class="book-step-head">
+          <button class="book-back" onclick="bookGoBack()">←</button>
+          <div class="book-step-title" id="book-step2-title">TAVOLO <span>CONDIVISO</span></div>
+        </div>
       </div>
       <div class="book-scroll">
         <div class="book-form-new">
@@ -7646,7 +7650,7 @@
     // mostra step 2
     document.getElementById('book-step1').style.display = 'none';
     document.getElementById('book-step2').style.display = 'flex';
-    document.querySelector('#book-step2 .book-scroll').scrollTop = 0;
+    window.scrollTo(0, 0); // la testa ora e' fissa: si riparte da cima pagina, non dal vecchio scroll interno
   }
 
   function bookUpdateCompanions(opt) {
@@ -8045,6 +8049,7 @@
       document.getElementById('book-step3').style.display = 'flex';
     } else {
       document.getElementById('book-step2').style.display = 'flex';
+      window.scrollTo(0, 0);
     }
     bookPendingData = null;
     bookPickedTable = null;
