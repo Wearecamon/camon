@@ -1256,6 +1256,27 @@
   .bfield select option { background:#1a1a1a; }
   .bfield textarea { resize:none; height:88px; line-height:1.55; }
   .bfield-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  /* Mini calendario data (sostituisce l'input date nativo) */
+  .bfield-cal { position:relative; }
+  .book-date-btn { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:14px; width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; text-align:left; }
+  .book-date-btn.open, .book-date-btn:focus { border-color:#f7cc49; }
+  .book-date-btn span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .book-date-btn svg { flex:none; opacity:0.55; width:16px; height:16px; }
+  .book-cal-pop { position:absolute; z-index:40; top:calc(100% + 8px); left:0; width:232px; aspect-ratio:1/1; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; box-shadow:0 12px 28px rgba(0,0,0,0.45); }
+  .book-cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .book-cal-head span { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:0.5px; color:#f7cc49; text-transform:uppercase; }
+  .book-cal-head button { background:rgba(255,255,255,0.06); border:none; color:#fff; width:26px; height:26px; border-radius:8px; font-size:15px; cursor:pointer; line-height:1; }
+  .book-cal-head button:active { background:rgba(255,255,255,0.14); }
+  .book-cal-dow { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+  .book-cal-dow span { font-family:'Manrope',sans-serif; font-size:9.5px; font-weight:800; color:rgba(255,255,255,0.3); text-align:center; }
+  .book-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:1fr; gap:2px; flex:1; }
+  .book-cal-day { display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-size:12.5px; color:#fff; border-radius:8px; cursor:pointer; aspect-ratio:1/1; }
+  .book-cal-day:hover { background:rgba(255,255,255,0.08); }
+  .book-cal-day.other { color:rgba(255,255,255,0.15); pointer-events:none; }
+  .book-cal-day.disabled { color:rgba(255,255,255,0.12); pointer-events:none; }
+  .book-cal-day.today { box-shadow:inset 0 0 0 1px rgba(247,204,73,0.4); }
+  .book-cal-day.sel { background:#f7cc49; color:#000; font-weight:800; }
   .book-confirm-btn { background:#f7cc49; color:#111; border:none; border-radius:14px; padding:17px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; margin-top:6px; }
   .book-confirm-btn:active { opacity:0.85; }
 
@@ -5650,25 +5671,29 @@
     <div id="book-step2" style="display:none;flex-direction:column;flex:1;overflow:hidden">
       <div class="book-step-head">
         <button class="book-back" onclick="bookGoBack()">←</button>
-        <div class="book-step-title">DETTAGLI <span>PRENOTAZIONE</span></div>
+        <div class="book-step-title" id="book-step2-title">TAVOLO <span>CONDIVISO</span></div>
       </div>
       <div class="book-scroll">
         <div class="book-form-new">
 
-          <!-- Riepilogo tipo scelto -->
-          <div class="book-summary-card" id="book-summary-card">
-            <div class="book-summary-ico" id="book-sum-ico">👥</div>
-            <div>
-              <div class="book-summary-name" id="book-sum-name">TAVOLO CONDIVISO</div>
-              <div class="book-summary-desc" id="book-sum-desc">Matchato con altri avventori</div>
-            </div>
-          </div>
-
           <!-- Data + Ora -->
           <div class="bfield-row" id="bfield-datetime">
-            <div class="bfield">
+            <div class="bfield bfield-cal">
               <label>Data</label>
-              <input id="book-data" type="date">
+              <button type="button" class="book-date-btn" id="book-date-btn" onclick="bookCalToggle()">
+                <span id="book-date-label">Scegli</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </button>
+              <input type="hidden" id="book-data">
+              <div class="book-cal-pop" id="book-cal-pop" style="display:none">
+                <div class="book-cal-head">
+                  <button type="button" onclick="bookCalNav(-1)">‹</button>
+                  <span id="book-cal-month"></span>
+                  <button type="button" onclick="bookCalNav(1)">›</button>
+                </div>
+                <div class="book-cal-dow"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+                <div class="book-cal-grid" id="book-cal-grid"></div>
+              </div>
             </div>
             <div class="bfield">
               <label>Ora</label>
@@ -7378,23 +7403,87 @@
 
   let companionSlots = []; // [{slotId, selectedUser}]
 
+  /* --- Mini calendario per il campo Data --- */
+  const bookCalGiorni = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  const bookCalMesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  let bookCalView = new Date();       // mese attualmente mostrato nel popover
+  let bookCalSelected = null;         // Date scelta
+
+  function bookCalToggle() {
+    const pop = document.getElementById('book-cal-pop');
+    const open = pop.style.display !== 'none';
+    if (open) { bookCalClose(); return; }
+    if (!bookCalSelected) bookCalView = new Date();
+    bookCalRender();
+    pop.style.display = 'flex';
+    document.getElementById('book-date-btn').classList.add('open');
+    setTimeout(() => document.addEventListener('click', bookCalOutside), 0);
+  }
+  function bookCalClose() {
+    document.getElementById('book-cal-pop').style.display = 'none';
+    document.getElementById('book-date-btn').classList.remove('open');
+    document.removeEventListener('click', bookCalOutside);
+  }
+  function bookCalOutside(e) {
+    const wrap = document.querySelector('.bfield-cal');
+    if (wrap && !wrap.contains(e.target)) bookCalClose();
+  }
+  function bookCalNav(delta) {
+    bookCalView = new Date(bookCalView.getFullYear(), bookCalView.getMonth() + delta, 1);
+    bookCalRender();
+  }
+  function bookCalRender() {
+    document.getElementById('book-cal-month').textContent =
+      bookCalMesi[bookCalView.getMonth()] + ' ' + bookCalView.getFullYear();
+    const grid = document.getElementById('book-cal-grid');
+    grid.innerHTML = '';
+    const year = bookCalView.getFullYear(), month = bookCalView.getMonth();
+    const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // lun=0
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date(); today.setHours(0,0,0,0);
+    for (let i = 0; i < firstDow; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'book-cal-day other';
+      grid.appendChild(cell);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = new Date(year, month, day);
+      const cell = document.createElement('div');
+      cell.className = 'book-cal-day';
+      cell.textContent = day;
+      if (d < today) cell.classList.add('disabled');
+      if (d.getTime() === today.getTime()) cell.classList.add('today');
+      if (bookCalSelected && d.getTime() === bookCalSelected.getTime()) cell.classList.add('sel');
+      cell.onclick = () => bookCalPick(d);
+      grid.appendChild(cell);
+    }
+  }
+  function bookCalPick(d) {
+    bookCalSelected = d;
+    const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+    document.getElementById('book-data').value = y + '-' + m + '-' + day;
+    document.getElementById('book-date-label').textContent =
+      bookCalGiorni[d.getDay()] + ' ' + d.getDate() + ' ' + bookCalMesi[d.getMonth()].slice(0,3).toLowerCase();
+    bookCalClose();
+  }
+  function bookCalReset() {
+    bookCalSelected = null;
+    bookCalView = new Date();
+    document.getElementById('book-data').value = '';
+    document.getElementById('book-date-label').textContent = 'Scegli';
+  }
+
   function bookSelectType(type) {
     bookType = type;
     const cfg = bookTypes[type];
-    document.getElementById('book-sum-ico').textContent   = cfg.ico;
-    document.getElementById('book-sum-name').textContent  = cfg.name;
-    document.getElementById('book-sum-desc').textContent  = cfg.desc;
+    bookCalReset();
     document.getElementById('persone-lbl').textContent    = cfg.personeLbl;
-    // colora summary card in base al tipo
-    const sc = document.getElementById('book-summary-card');
-    const scColors = {
-      room:   ['rgba(247,204,73,0.35)','rgba(247,204,73,0.07)'],
-      shared: ['rgba(100,200,255,0.25)','rgba(100,200,255,0.06)'],
-      invite: ['rgba(244,114,182,0.3)','rgba(244,114,182,0.07)']
-    };
-    const scol = scColors[type] || ['rgba(255,255,255,0.12)','rgba(255,255,255,0.04)'];
-    sc.style.borderColor = scol[0];
-    sc.style.background  = scol[1];
+    // titolo dello step 2 = tipo di tavolo scelto (es. "TAVOLO CONDIVISO"),
+    // con l'ultima parola in oro, al posto del vecchio "Dettagli prenotazione"
+    const titleEl = document.getElementById('book-step2-title');
+    const words = cfg.name.split(' ');
+    const last = words.pop();
+    titleEl.innerHTML = (words.length ? words.join(' ') + ' ' : '') + '<span>' + last + '</span>';
     // costruisci pill persone
     companionSlots = [];
     const grid = document.getElementById('persone-grid');
