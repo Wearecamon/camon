@@ -1121,16 +1121,19 @@
   /* Grafite: comunica riservatezza/discrezione (chiuso alla vista) senza
      scaldare come il terracotta ne' sembrare "premium" come l'oro della
      stanza privata — vedi palette tipi tavolo discussa con l'utente. */
-  .book-type-card.private { border-color:rgba(160,160,160,0.22); background:linear-gradient(135deg,#242424,#1a1a1a); }
-  .book-type-card.room { border-color:rgba(247,204,73,0.28); background:linear-gradient(135deg,#231c00,#1a1a1a); }
+  .book-type-card.private { border-color:rgba(247,204,73,0.28); background:linear-gradient(135deg,#231c00,#1a1a1a); }
+  /* Grafite sulla STANZA privata (non sul tavolo): comunica riservatezza
+     silenziosa/esclusiva stile "black card", coerente col fatto che e'
+     il livello piu' riservato/premium tra i tavoli. */
+  .book-type-card.room { border-color:rgba(160,160,160,0.22); background:linear-gradient(135deg,#242424,#1a1a1a); }
   .book-type-glow { position:absolute; top:-40%; right:-15%; width:180px; height:180px; border-radius:50%; pointer-events:none; opacity:0.18; }
   .book-type-card.shared .book-type-glow { background:radial-gradient(circle,#64c8ff,transparent 70%); }
-  .book-type-card.private .book-type-glow { background:radial-gradient(circle,#9a9a9a,transparent 70%); }
-  .book-type-card.room .book-type-glow { background:radial-gradient(circle,#f7cc49,transparent 70%); }
+  .book-type-card.private .book-type-glow { background:radial-gradient(circle,#f7cc49,transparent 70%); }
+  .book-type-card.room .book-type-glow { background:radial-gradient(circle,#9a9a9a,transparent 70%); }
   .book-type-badge { display:inline-flex; align-items:center; gap:7px; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; padding:5px 12px; border-radius:30px; margin-bottom:16px; }
   .book-type-card.shared .book-type-badge { background:rgba(100,200,255,0.12); color:#64c8ff; }
-  .book-type-card.private .book-type-badge { background:rgba(160,160,160,0.16); color:#a0a0a0; }
-  .book-type-card.room .book-type-badge { background:rgba(247,204,73,0.15); color:#f7cc49; }
+  .book-type-card.private .book-type-badge { background:rgba(247,204,73,0.15); color:#f7cc49; }
+  .book-type-card.room .book-type-badge { background:rgba(160,160,160,0.16); color:#a0a0a0; }
   .book-type-card.invite { border-color:rgba(244,114,182,0.28); background:linear-gradient(135deg,#2a1322,#1a1a1a); }
   .book-type-card.invite .book-type-glow { background:radial-gradient(circle,#F472B6,transparent 70%); }
   .book-type-card.invite .book-type-badge { background:rgba(244,114,182,0.15); color:#F472B6; }
@@ -7425,13 +7428,13 @@
       ico: '🔒', name: 'TAVOLO PRIVATO', desc: 'Riservato al tuo gruppo',
       personeLbl: 'Numero di persone',
       personeOpts: ['2','3','4','5','6','7','8+'],
-      showOccasione: false, color: '#a0a0a0'
+      showOccasione: false, color: '#f7cc49'
     },
     room: {
       ico: '👑', name: 'STANZA PRIVATA', desc: 'Esperienza esclusiva · Premium',
       personeLbl: 'Numero di persone',
       personeOpts: ['2','3','4','5','6','8','10','12+'],
-      showOccasione: true, color: '#f7cc49'
+      showOccasione: true, color: '#a0a0a0'
     },
     invite: {
       ico: '💌', name: 'INVITO SEGRETO', desc: 'Proposta anonima a qualcuno',
@@ -7682,6 +7685,9 @@
     const words = cfg.name.split(' ');
     const last = words.pop();
     titleEl.innerHTML = (words.length ? words.join(' ') + ' ' : '') + '<span style="color:' + cfg.color + '">' + last + '</span>';
+    // sfondo della pagina intonato al colore del tipo scelto (leggera
+    // sfumatura, non un colore pieno: il testo deve restare leggibile)
+    bookTintStepBg(cfg.color);
     // costruisci pill persone
     companionSlots = [];
     const grid = document.getElementById('persone-grid');
@@ -8573,13 +8579,23 @@
   // Colore del bordo/sfondo dei "Dettagli" nella prenotazione attiva,
   // in tinta col tipo di tavolo prenotato (stessa palette delle card).
   const BOOK_EVENT_COLOR = '#a78bfa'; // festa privata: non in bookTypes, ha un flusso a parte
+  function bookHexToRgb(hex) { return hex.match(/\w\w/g).map(h => parseInt(h, 16)).join(','); }
   function bookApplyTypeColor(bookType) {
     const hero = document.querySelector('#book-active .book-active-hero');
     if (!hero) return;
     const color = (bookTypes[bookType] && bookTypes[bookType].color) || BOOK_EVENT_COLOR;
-    const rgb = color.match(/\w\w/g).map(h => parseInt(h, 16)).join(',');
+    const rgb = bookHexToRgb(color);
     hero.style.background = `linear-gradient(135deg, rgba(${rgb},0.15), rgba(${rgb},0.05))`;
     hero.style.borderColor = `rgba(${rgb},0.35)`;
+  }
+  // Sfondo dello step "tipo di tavolo" (sotto la testa fissa) intonato al
+  // colore scelto: una sfumatura leggera che si spegne verso il basso, non
+  // un colore pieno, cosi' il testo bianco/le card restano leggibili.
+  function bookTintStepBg(color) {
+    const step = document.getElementById('book-step2');
+    if (!step) return;
+    const rgb = bookHexToRgb(color);
+    step.style.background = `linear-gradient(180deg, rgba(${rgb},0.16), rgba(${rgb},0.04) 45%, #111 100%)`;
   }
   function bookReset() {
     document.getElementById('book-step3').style.display = 'none';
