@@ -240,6 +240,27 @@
   .settings-row-sub { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.38); margin-top:1px; }
   .settings-row-val { font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; color:rgba(255,255,255,0.4); display:flex; align-items:center; gap:6px; flex-shrink:0; }
   .settings-divider { height:1px; background:rgba(255,255,255,0.06); margin:4px 0; }
+  /* ── PAGINE LEGALI (Privacy / Termini) ── */
+  .legale-body {
+    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    padding: 0 22px var(--nav-clearance);
+    font-family: 'Manrope', sans-serif; font-size: 13.5px; line-height: 1.65;
+    color: rgba(255,255,255,0.62);
+  }
+  .legale-body::-webkit-scrollbar { display: none; }
+  .legale-body h3 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 1px;
+    color: #f7cc49; margin: 22px 0 8px; font-weight: normal;
+  }
+  .legale-body p { margin: 0 0 10px; }
+  .legale-body ul { margin: 0 0 10px; padding-left: 18px; }
+  .legale-body li { margin-bottom: 5px; }
+  .legale-body b { color: rgba(255,255,255,0.85); }
+  .legale-nota {
+    background: rgba(247,204,73,0.08); border: 1px solid rgba(247,204,73,0.28);
+    border-radius: 12px; padding: 13px 15px; font-size: 12.5px; margin-bottom: 6px;
+  }
+  .legale-agg { font-size: 11.5px; color: rgba(255,255,255,0.3); margin-top: 22px; }
   /* toggle switch */
   .s-toggle { position:relative; width:44px; height:26px; flex-shrink:0; }
   .s-toggle input { opacity:0; width:0; height:0; position:absolute; }
@@ -499,7 +520,7 @@
     padding: 16px;
     margin-bottom: 10px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
     cursor: pointer;
     transition: border-color 0.2s;
@@ -507,6 +528,15 @@
   }
   .event-card:hover { border-color: rgba(247,204,73,0.35); }
   .event-date { text-align: center; min-width: 38px; }
+  .event-info { flex: 1; min-width: 0; }
+  /* Quadrato foto a destra, stessa idea delle card offerte: se il file
+     non c'e' ancora resta un placeholder neutro, nessuna icona rotta. */
+  .event-photo {
+    width: 56px; height: 56px; flex-shrink: 0; border-radius: 10px;
+    background-color: rgba(255,255,255,0.05);
+    background-size: cover; background-position: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
   .event-day {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 32px;
@@ -608,6 +638,13 @@
   }
   .drink-card:hover { border-color: rgba(247,204,73,0.5); }
   .drink-card:active { transform: scale(0.98); border-color: rgba(247,204,73,0.6); box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
+  /* Cocktail solo da spillatore: visibili ma disattivati, non si aprono
+     né si possono ordinare dall'app — si prendono solo al self-service. */
+  .drink-card.self-only {
+    cursor: default; opacity: 0.5; filter: grayscale(0.35);
+  }
+  .drink-card.self-only:hover,
+  .drink-card.self-only:active { border-color: rgba(247,204,73,0.18); transform: none; box-shadow: 0 6px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05); }
   .menu-subhead {
     grid-column: 1 / -1;
     font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 1px;
@@ -810,65 +847,6 @@
     font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.3);
     text-align:center; padding:16px 2px; border:1px dashed rgba(255,255,255,0.1); border-radius:14px; margin-top:14px;
   }
-
-  /* Pulsante demo spina */
-  .spina-demo-btn {
-    width:100%; margin-top:16px; display:flex; flex-direction:column; align-items:flex-start; gap:2px;
-    background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.14); border-radius:14px;
-    padding:14px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s;
-  }
-  .spina-demo-btn:active { background:rgba(255,255,255,0.08); }
-  .spina-demo-btn span { font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; color:#fff; }
-  .spina-demo-btn small { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.4); }
-
-  /* ===== SPINA SELF-SERVICE (demo) ===== */
-  #page-spina-demo { background:#0f0f10; }
-  #page-spina-demo .gd-title span { color:#f7cc49; }
-  .spina-wrap { flex:1; display:flex; flex-direction:column; align-items:center; padding:8px 24px 100px; overflow-y:auto; }
-  .spina-tap-name { font-family:'Manrope',sans-serif; font-size:15px; color:rgba(255,255,255,0.65); margin-top:6px; }
-  .spina-tap-name b { color:#fff; font-weight:800; }
-  .spina-price { font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; color:#f7cc49; margin-top:3px; }
-  /* bicchiere */
-  .spina-glass {
-    position:relative; width:120px; height:170px; margin:22px 0 14px;
-    border:3px solid rgba(255,255,255,0.25); border-top:none;
-    border-radius:8px 8px 16px 16px; overflow:hidden;
-    background:rgba(255,255,255,0.03);
-  }
-  .spina-fill {
-    position:absolute; left:0; right:0; bottom:0; height:0%;
-    background:linear-gradient(180deg,#FFC433,#E89010);
-    transition:height 0.05s linear;
-  }
-  .spina-foam {
-    position:absolute; left:0; right:0; bottom:0%; height:0; opacity:0;
-    background:#FFF7E0; border-radius:50% 50% 0 0;
-    transition:bottom 0.05s linear;
-  }
-  .spina-counters {
-    display:flex; align-items:baseline; gap:16px; margin-top:4px;
-    font-family:'Manrope',sans-serif; color:rgba(255,255,255,0.6); font-size:14px; font-weight:700;
-  }
-  .spina-cost { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:1px; color:#fff; }
-  .spina-band {
-    margin-top:18px; font-family:'Manrope',sans-serif; font-size:13px; font-weight:700;
-    padding:9px 16px; border-radius:30px; text-align:center;
-  }
-  .spina-band.ok { background:rgba(76,217,100,0.14); color:#4CD964; }
-  .spina-band.warn { background:rgba(239,68,68,0.14); color:#F87171; }
-  .spina-pour-btn {
-    width:100%; max-width:300px; margin-top:16px;
-    background:#f7cc49; border:none; border-radius:16px; padding:20px;
-    cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:none;
-    transition:transform 0.1s, background 0.15s, opacity 0.15s;
-  }
-  .spina-pour-btn.pouring { background:#E8530E; transform:scale(0.98); }
-  .spina-pour-btn:disabled { opacity:0.4; cursor:not-allowed; }
-  .spina-pour-lbl { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1.5px; color:#111; }
-  .spina-saldo { margin-top:12px; font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.45); }
-  .spina-product-tabs { display:flex; gap:8px; margin-top:8px; margin-bottom:2px; }
-  .spina-tab { flex:1; padding:9px 0; border:1.5px solid rgba(255,255,255,0.13); border-radius:12px; background:rgba(255,255,255,0.04); font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1px; color:rgba(255,255,255,0.45); cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
-  .spina-tab.active { background:rgba(247,204,73,0.15); border-color:#f7cc49; color:#f7cc49; }
 
   .wallet-hist-empty { font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.3); padding:6px 2px; }
   .wallet-tx { display:flex; align-items:center; justify-content:space-between; padding:14px 2px; border-bottom:1px solid rgba(255,255,255,0.06); }
@@ -1153,6 +1131,9 @@
   .book-type-card.invite { border-color:rgba(244,114,182,0.28); background:linear-gradient(135deg,#2a1322,#1a1a1a); }
   .book-type-card.invite .book-type-glow { background:radial-gradient(circle,#F472B6,transparent 70%); }
   .book-type-card.invite .book-type-badge { background:rgba(244,114,182,0.15); color:#F472B6; }
+  .book-type-card.event { border-color:rgba(167,139,250,0.28); background:linear-gradient(135deg,#1e1533,#1a1a1a); }
+  .book-type-card.event .book-type-glow { background:radial-gradient(circle,#A78BFA,transparent 70%); }
+  .book-type-card.event .book-type-badge { background:rgba(167,139,250,0.15); color:#A78BFA; }
 
   /* form invito anonimo */
   .invite-concept { display:flex; gap:11px; align-items:flex-start; background:rgba(244,114,182,0.1); border:1px solid rgba(244,114,182,0.25); border-radius:12px; padding:13px 15px; margin-bottom:4px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.72); line-height:1.5; }
@@ -1190,6 +1171,83 @@
   .people-pill { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; padding:9px 16px; border-radius:30px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; white-space:nowrap; }
   .people-pill.active { background:rgba(247,204,73,0.14); border-color:#f7cc49; color:#f7cc49; }
 
+  /* --- Festa privata: calendario --- */
+  .evcal { background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 12px 10px; }
+  .evcal-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .evcal-month { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:1px; color:#fff; text-transform:capitalize; }
+  .evcal-nav { width:30px; height:30px; flex-shrink:0; border:none; border-radius:9px; background:rgba(255,255,255,0.07); color:#fff; font-size:19px; line-height:1; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .evcal-nav:disabled { opacity:0.25; cursor:default; }
+  .evcal-dows, .evcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .evcal-dows span { text-align:center; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; color:rgba(255,255,255,0.3); padding-bottom:4px; }
+  .evcal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border:none; border-radius:9px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.75); font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
+  .evcal-day.empty { background:none; cursor:default; }
+  .evcal-day.off { background:none; color:rgba(255,255,255,0.15); cursor:default; text-decoration:line-through; }
+  .evcal-day.active { background:#A78BFA; color:#1a1a1a; }
+  .evcal-legend { font-family:'Manrope',sans-serif; font-size:10.5px; color:rgba(255,255,255,0.3); text-align:center; margin-top:9px; }
+
+  /* --- Festa privata: campo "serata ideale" in evidenza --- */
+  .evnote { background:rgba(167,139,250,0.07); border:1px solid rgba(167,139,250,0.3); border-radius:14px; padding:14px; }
+  .evnote .evnote-lbl { font-size:11px; color:#A78BFA; letter-spacing:1.5px; }
+  .evnote-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.5); line-height:1.5; margin:-2px 0 2px; }
+  .evnote textarea { height:120px; }
+
+  /* --- Festa privata: atmosfere ---
+     Da selezionata la pastiglia non e' piu' scura: sotto al testo
+     scorre un'immagine sfocata che evoca quel tipo di serata. */
+  .mood-pill { position:relative; overflow:hidden; }
+  .mood-pill > span { position:relative; z-index:2; }
+  .mood-pill::before {
+    content:''; position:absolute; inset:-40%;
+    background-size:cover; background-position:center;
+    filter:blur(7px) saturate(1.45);
+    opacity:0; transition:opacity 0.25s; z-index:0;
+  }
+  .mood-pill::after {
+    content:''; position:absolute; inset:0;
+    background:rgba(0,0,0,0.3); opacity:0; transition:opacity 0.25s; z-index:1;
+  }
+  .mood-pill.active::before, .mood-pill.active::after { opacity:1; }
+  .mood-pill.active {
+    background:transparent !important;
+    border-color:rgba(255,255,255,0.6) !important;
+    color:#fff !important;
+    text-shadow:0 1px 7px rgba(0,0,0,0.8);
+  }
+  :root {
+    --mood-elegante:  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><rect width='100' height='60' fill='%232b1d06'/><circle cx='18' cy='18' r='19' fill='%23f7cc49' opacity='.6'/><circle cx='72' cy='40' r='23' fill='%23c9902c' opacity='.5'/><circle cx='47' cy='8' r='13' fill='%23fff1c4' opacity='.4'/><circle cx='90' cy='12' r='10' fill='%23ffe08a' opacity='.35'/></svg>");
+    --mood-chill:     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><defs><linearGradient id='c' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231d4470'/><stop offset='1' stop-color='%2385c9ec'/></linearGradient></defs><rect width='100' height='60' fill='url(%23c)'/><ellipse cx='28' cy='40' rx='26' ry='11' fill='%23ffffff' opacity='.55'/><ellipse cx='74' cy='48' rx='22' ry='9' fill='%23ffffff' opacity='.45'/><circle cx='82' cy='14' r='9' fill='%23ffeeb8' opacity='.6'/></svg>");
+    --mood-scatenata: url("foto%20scatenata.jpg");
+    --mood-tema:      url("foto%20a%20tema.jpg");
+    --mood-aperto:    url("foto%20scegliamo%20assieme.jpg");
+  }
+  .mood-elegante  { --mood-img:var(--mood-elegante); }
+  .mood-chill     { --mood-img:var(--mood-chill); }
+  .mood-scatenata { --mood-img:var(--mood-scatenata); }
+  .mood-tema      { --mood-img:var(--mood-tema); }
+  .mood-aperto    { --mood-img:var(--mood-aperto); }
+  .mood-pill::before { background-image:var(--mood-img); }
+
+  /* --- Sfondo della pagina festa privata, intonato all'atmosfera scelta --- */
+  #page-event { position:relative; z-index:0; isolation:isolate; }
+  #page-event.evmood-elegante  { --mood-img:var(--mood-elegante); }
+  #page-event.evmood-chill     { --mood-img:var(--mood-chill); }
+  #page-event.evmood-scatenata { --mood-img:var(--mood-scatenata); }
+  #page-event.evmood-tema      { --mood-img:var(--mood-tema); }
+  #page-event.evmood-aperto    { --mood-img:var(--mood-aperto); }
+  #page-event::before {
+    content:''; position:fixed; inset:0; z-index:-2;
+    background-image:var(--mood-img);
+    background-size:cover; background-position:center;
+    filter:blur(5px) saturate(1.15); transform:scale(1.08);
+    opacity:0; transition:opacity 0.45s ease; pointer-events:none;
+  }
+  #page-event::after {
+    content:''; position:fixed; inset:0; z-index:-1;
+    background:linear-gradient(180deg,rgba(8,8,10,0.52),rgba(8,8,10,0.68) 55%,rgba(8,8,10,0.78));
+    opacity:0; transition:opacity 0.45s ease; pointer-events:none;
+  }
+  #page-event.evmood-on::before, #page-event.evmood-on::after { opacity:1; }
+
   /* Campo form nuovo */
   .bfield { display:flex; flex-direction:column; gap:7px; }
   .bfield label { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
@@ -1198,6 +1256,35 @@
   .bfield select option { background:#1a1a1a; }
   .bfield textarea { resize:none; height:88px; line-height:1.55; }
   .bfield-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  /* Mini calendario data — sempre aperto, quadrato, niente click-per-aprire */
+  .bfield-row-cal { display:flex; align-items:stretch; gap:10px; }
+  .bfield-cal { flex:1; min-width:0; }
+  .bfield-cal label span { color:#f7cc49; text-transform:none; letter-spacing:0.3px; font-weight:700; }
+  .bfield-time { flex:none; width:108px; }
+  .book-cal-pop { width:100%; max-width:240px; aspect-ratio:1/1; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; }
+  .book-cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .book-cal-head span { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:0.5px; color:#f7cc49; text-transform:uppercase; }
+  .book-cal-head button { background:rgba(255,255,255,0.06); border:none; color:#fff; width:26px; height:26px; border-radius:8px; font-size:15px; cursor:pointer; line-height:1; }
+  .book-cal-head button:active { background:rgba(255,255,255,0.14); }
+  .book-cal-dow { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+  .book-cal-dow span { font-family:'Manrope',sans-serif; font-size:9.5px; font-weight:800; color:rgba(255,255,255,0.3); text-align:center; }
+  .book-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:1fr; gap:2px; flex:1; }
+  .book-cal-day { display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-size:12.5px; color:#fff; border-radius:8px; cursor:pointer; aspect-ratio:1/1; }
+  .book-cal-day:hover { background:rgba(255,255,255,0.08); }
+  .book-cal-day.other { color:rgba(255,255,255,0.15); pointer-events:none; }
+  .book-cal-day.disabled { color:rgba(255,255,255,0.12); pointer-events:none; }
+  .book-cal-day.today { box-shadow:inset 0 0 0 1px rgba(247,204,73,0.4); }
+  .book-cal-day.sel { background:#f7cc49; color:#000; font-weight:800; }
+  .book-cal-day.full { color:rgba(255,255,255,0.15); text-decoration:line-through; pointer-events:none; }
+
+  /* Fasce orarie disponibili — barra verticale sempre aperta, di fianco al calendario */
+  .book-time-wrap { height:240px; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:8px; }
+  .book-time-hint { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; color:rgba(255,255,255,0.35); font-family:'Manrope',sans-serif; font-size:11.5px; padding:8px; }
+  .book-time-grid { display:flex; flex-direction:column; gap:5px; overflow-y:auto; flex:1; }
+  .book-time-slot { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:8px 4px; border-radius:9px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; cursor:pointer; text-align:center; flex:none; }
+  .book-time-slot.sel { background:rgba(247,204,73,0.14); border-color:#f7cc49; color:#f7cc49; }
+  .book-time-slot.full { opacity:0.3; text-decoration:line-through; pointer-events:none; }
   .book-confirm-btn { background:#f7cc49; color:#111; border:none; border-radius:14px; padding:17px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; margin-top:6px; }
   .book-confirm-btn:active { opacity:0.85; }
 
@@ -2704,6 +2791,18 @@
   .offer-card-top.purple { background: linear-gradient(135deg, #1a0840, #3d1a80); }
   .offer-card-top.green { background: linear-gradient(135deg, #001a0d, #004d2e); }
   .offer-card-top.red { background: linear-gradient(135deg, #2a0000, #6b0a0a); }
+  /* Sfondo fotografico al posto della fascia colorata: l'immagine si
+     passa via style="background-image:url(...)" sull'elemento, questa
+     classe si occupa solo di cover/position + un velo scuro sopra per
+     far restare leggibili badge/emoji qualunque sia la foto. Se il file
+     immagine non esiste ancora resta il grigio di fallback, senza errori. */
+  .offer-card-top.has-photo, .offer-full-top.has-photo {
+    background-color: #1c1c1c; background-size: cover; background-position: center;
+  }
+  .offer-card-top.has-photo::before, .offer-full-top.has-photo::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.75));
+  }
   .offer-badge {
     font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2.5px;
     padding: 4px 10px; border-radius: 30px; color: #111;
@@ -2776,6 +2875,13 @@
   .offer-meta-chip { font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.3px; color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:30px; padding:5px 12px; }
   .offer-cta-btn { display:block; width:calc(100% - 36px); margin:0 18px 18px; background:#f7cc49; color:#111; border:none; border-radius:12px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
   .offer-cta-btn:active { opacity:0.85; }
+  .offer-cta-btn:disabled { opacity:0.55; cursor:default; }
+  .offer-cta-btn.iscritto { background:rgba(76,217,100,0.15); color:#4cd964; border:1px solid rgba(76,217,100,0.4); }
+  /* Lista premi torneo: podio testuale, niente di complicato */
+  .offer-prizes { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .offer-prize-row { display:flex; align-items:baseline; gap:8px; font-family:'Manrope',sans-serif; font-size:13px; }
+  .offer-prize-row b { flex-shrink:0; }
+  .offer-prize-row span { color:rgba(255,255,255,0.55); }
 
 
   /* ===== OFFERTE AUTO-SCROLL ===== */
@@ -2915,7 +3021,6 @@
   .wallet-card,
   .companion-chip,
   .companion-search input,
-  .spina-band,
   .amt-chip,
   .bfield input, .bfield select, .bfield textarea,
   .people-pill,
@@ -3159,31 +3264,299 @@
     transition: transform 0.3s cubic-bezier(.22,.68,0,1);
   }
   .product-overlay.open .product-sheet { transform: translateY(0); }
+  /* immagine con sfumatura: il titolo ci si appoggia sopra */
+  .ps-hero { position: relative; }
   .product-sheet-img {
-    width: 100%; height: 260px; object-fit: cover;
+    width: 100%; height: auto;
     border-radius: 24px 24px 0 0; display: block;
   }
-  .product-sheet-body { padding: 20px 20px 32px; }
+  .ps-hero::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(24,18,0,0) 38%, rgba(24,18,0,0.75) 78%, #181200 100%);
+    border-radius: 24px 24px 0 0; pointer-events: none;
+  }
+  .ps-hero-testo { position: absolute; left: 20px; right: 20px; bottom: 14px; z-index: 2; }
+  .ps-badge {
+    display: inline-block; font-family: 'Manrope', sans-serif;
+    font-size: 10px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+    background: rgba(247,204,73,0.9); color: #14110A;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 8px;
+  }
+  .ps-badge.grigio { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); }
   .product-sheet-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 26px; font-weight: 900; color: #f7cc49;
-    margin: 0 0 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px; letter-spacing: 1px; color: #fff;
+    margin: 0; line-height: 1.02;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
   }
-  .product-sheet-price {
-    font-size: 18px; font-weight: 800; color: rgba(247,204,73,0.7);
-    margin: 0 0 14px;
-  }
+
+  .product-sheet-body { padding: 16px 20px 26px; }
   .product-sheet-desc {
-    font-size: 15px; line-height: 1.5; color: rgba(255,255,255,0.75);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.66);
     margin: 0;
   }
+
+  /* riga di dati veloci: gradazione, volume, attesa */
+  .ps-specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .ps-spec {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 11px; padding: 8px 12px;
+    font-family: 'Manrope', sans-serif; font-size: 12px; color: rgba(255,255,255,0.7);
+  }
+  .ps-spec b { color: #fff; font-weight: 800; }
+  .ps-spec.verde { background: rgba(76,217,100,0.1); border-color: rgba(76,217,100,0.28); color: #7BE08F; }
+
+  .ps-sez { margin-top: 20px; }
+  .ps-sez-lbl {
+    font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255,255,255,0.32); margin-bottom: 7px;
+  }
+  .ps-sez-testo { font-family: 'Manrope', sans-serif; font-size: 13.5px; line-height: 1.55; color: rgba(255,255,255,0.72); }
+
+  .ps-allergeni {
+    display: flex; gap: 11px; align-items: flex-start;
+    background: rgba(255,159,10,0.09); border: 1px solid rgba(255,159,10,0.3);
+    border-radius: 13px; padding: 12px 14px; margin-top: 18px;
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; line-height: 1.5;
+    color: rgba(255,255,255,0.72);
+  }
+  .ps-allergeni b { color: #FFB443; }
+
+  /* quantita' + aggiungi, appaiati in fondo */
+  .ps-azioni { display: flex; gap: 11px; align-items: center; margin-top: 22px; }
+  .ps-qty {
+    display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 13px; padding: 5px;
+  }
+  .ps-qty button {
+    width: 34px; height: 34px; border: none; border-radius: 9px;
+    background: none; color: #fff; font-size: 19px; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .ps-qty button:active { background: rgba(255,255,255,0.08); }
+  .ps-qty span {
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: #f7cc49;
+    min-width: 24px; text-align: center;
+  }
+  .sheet-add { flex: 1; margin-top: 0 !important; }
+
+  .ps-self-info {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 13px; padding: 14px 16px; margin-top: 22px;
+    font-family: 'Manrope', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.5); line-height: 1.55;
+  }
+  .ps-self-info .ps-si-ico { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .ps-self-info b { color: rgba(255,255,255,0.75); font-weight: 700; }
+
+  .ps-esaurito {
+    text-align: center; background: rgba(255,69,58,0.1);
+    border: 1px solid rgba(255,69,58,0.32); border-radius: 13px;
+    padding: 14px; margin-top: 22px;
+    font-family: 'Manrope', sans-serif; font-size: 13px; color: #FF6B61;
+  }
+
+  /* Hero della pagina dettaglio (offerte/eventi): è uno sfondo, non un
+     <img>, così se la foto non c'è ancora resta un colore neutro invece
+     di un'icona "immagine rotta". Pagina intera → niente angoli
+     arrotondati, va da bordo a bordo sotto l'header. */
+  .detail-page-hero {
+    height: 240px; background-size: cover; background-position: center;
+    background-color: #1c1c1c;
+  }
+  .detail-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .detail-prizes { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .detail-prize-row { display:flex; align-items:baseline; gap:8px; font-family:'Manrope',sans-serif; font-size:13.5px; }
+  .detail-prize-row b { flex-shrink:0; }
+  .detail-prize-row span { color:rgba(255,255,255,0.55); }
   .product-sheet-close {
-    position: absolute; top: 12px; right: 12px;
+    position: absolute; top: 12px; right: 12px; z-index: 3;
     width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(0,0,0,0.5); border: none;
+    background: rgba(0,0,0,0.55); border: none;
     color: #fff; font-size: 20px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   }
+
+  /* ============================================================
+     CARRELLO / ORDINE AL TAVOLO
+     ============================================================ */
+  .cart-fab {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(96px + var(--safe-bottom) - var(--vp-gap));
+    z-index: 210; display: flex; align-items: center; gap: 10px;
+    background: #f7cc49; color: #111; border: none; border-radius: 30px;
+    padding: 13px 20px; font-family: 'Manrope', sans-serif; font-size: 13.5px;
+    font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 8px 26px rgba(247,204,73,0.4);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .cart-fab.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) scale(0.85); }
+  .cart-fab-count {
+    background: #111; color: #f7cc49; border-radius: 20px;
+    padding: 2px 8px; font-size: 12px; font-weight: 800;
+  }
+
+  .cart-overlay {
+    position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.82);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .cart-overlay.open { opacity: 1; pointer-events: auto; }
+  .cart-sheet {
+    width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto;
+    background: #141416; border-radius: 24px 24px 0 0;
+    padding: 20px 20px calc(28px + var(--safe-bottom));
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(.22,.68,0,1);
+    scrollbar-width: none;
+  }
+  .cart-sheet::-webkit-scrollbar { display: none; }
+  .cart-overlay.open .cart-sheet { transform: translateY(0); }
+  .cart-handle { width: 38px; height: 4px; background: rgba(255,255,255,0.16); border-radius: 2px; margin: 0 auto 18px; }
+  .cart-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; color: #fff; margin-bottom: 14px; }
+  .cart-title span { color: #f7cc49; }
+  .cart-line { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .cart-line-name { flex: 1; min-width: 0; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+  .cart-line-price { font-family: 'Manrope', sans-serif; font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .cart-qty { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .cart-qty button {
+    width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06); color: #fff; font-size: 17px; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .cart-qty span { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #f7cc49; min-width: 18px; text-align: center; }
+  /* scelta banco / tavolo */
+  .cart-serv-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin:20px 0 9px; }
+  .cart-serv { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .cart-serv-opt {
+    background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1);
+    border-radius:13px; padding:13px 11px; cursor:pointer; text-align:center;
+    -webkit-tap-highlight-color:transparent; transition:all 0.15s;
+  }
+  .cart-serv-opt.active { background:rgba(247,204,73,0.12); border-color:#f7cc49; }
+  .cart-serv-ico { font-size:21px; line-height:1; }
+  .cart-serv-nome { font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; color:#fff; margin-top:6px; }
+  .cart-serv-sub { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+  .cart-serv-opt.active .cart-serv-sub { color:#f7cc49; }
+
+  /* riepilogo importi */
+  .cart-riga { display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.55); padding:3px 0; }
+
+  /* modalita' di pagamento */
+  .cart-pay { display:flex; flex-direction:column; gap:9px; margin-top:6px; }
+  .cart-pay-btn {
+    display:flex; align-items:center; gap:12px; width:100%; padding:15px 16px;
+    border:1.5px solid rgba(255,255,255,0.12); border-radius:14px;
+    background:rgba(255,255,255,0.05); color:#fff; cursor:pointer;
+    font-family:'Manrope',sans-serif; font-size:14px; font-weight:700;
+    text-align:left; -webkit-tap-highlight-color:transparent;
+  }
+  .cart-pay-btn.primary { background:#f7cc49; border-color:#f7cc49; color:#111; font-weight:800; }
+  .cart-pay-btn:disabled { opacity:0.4; cursor:default; }
+  .cart-pay-ico { font-size:19px; flex-shrink:0; }
+  .cart-pay-testo { flex:1; min-width:0; }
+  .cart-pay-sub { font-size:11.5px; font-weight:600; opacity:0.65; margin-top:2px; }
+  .cart-pay-presto { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:20px; flex-shrink:0; }
+
+  .cart-total { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 4px; }
+  .cart-total-lbl { font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .cart-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 1px; color: #f7cc49; }
+  .cart-saldo { font-family: 'Manrope', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+  .cart-send {
+    width: 100%; padding: 17px; border: none; border-radius: 14px; background: #f7cc49; color: #111;
+    font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.5px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .cart-send:disabled { opacity: 0.45; cursor: default; }
+  .cart-err { background: rgba(255,69,58,0.1); border: 1px solid rgba(255,69,58,0.35); border-radius: 12px; padding: 12px 14px; font-family: 'Manrope', sans-serif; font-size: 12.5px; color: #FF6B61; line-height: 1.5; margin-bottom: 12px; }
+  .cart-empty { text-align: center; font-family: 'Manrope', sans-serif; font-size: 13.5px; color: rgba(255,255,255,0.35); padding: 28px 10px; }
+  .sheet-add {
+    width: 100%; margin-top: 6px; padding: 15px; border: none; border-radius: 13px;
+    background: #f7cc49; color: #111; font-family: 'Manrope', sans-serif;
+    font-size: 14px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* distintivo tavolo/asporto sulle card del menu */
+  .drink-badge {
+    display: inline-block; font-family: 'Manrope', sans-serif;
+    font-size: 9px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px; margin-top: 7px;
+  }
+  .drink-badge-tavolo {
+    background: rgba(247,204,73,0.14); color: #f7cc49;
+    border: 1px solid rgba(247,204,73,0.32);
+  }
+  .drink-badge-self {
+    background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.32);
+    border: 1px solid rgba(255,255,255,0.09);
+  }
+  .drink-badge-sep {
+    color: rgba(247,204,73,0.35); margin: 0 2px;
+  }
+
+  /* ============================================================
+     AREA TITOLARE
+     ============================================================ */
+  #page-admin { background:#0d0d0f; }
+  .adm-tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:4px 18px 12px; flex-shrink:0; }
+  .adm-tabs::-webkit-scrollbar { display:none; }
+  .adm-tab { flex-shrink:0; padding:8px 15px; border-radius:30px; border:1.5px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.55); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .adm-tab.active { background:rgba(247,204,73,0.14); border-color:#f7cc49; color:#f7cc49; }
+  .adm-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:0 18px var(--nav-clearance); }
+  .adm-body::-webkit-scrollbar { display:none; }
+
+  .adm-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+  .adm-search { flex:1; min-width:140px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:10px 13px; border-radius:11px; font-family:'Manrope',sans-serif; font-size:13px; outline:none; }
+  .adm-search:focus { border-color:#f7cc49; }
+  .adm-select { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:10px 12px; border-radius:11px; font-family:'Manrope',sans-serif; font-size:12.5px; outline:none; appearance:none; }
+  .adm-select option { background:#1a1a1a; }
+
+  .adm-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:9px; margin-bottom:14px; }
+  .adm-stat { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:13px 14px; }
+  .adm-stat-lbl { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+  .adm-stat-val { font-family:'Bebas Neue',sans-serif; font-size:27px; letter-spacing:1px; color:#f7cc49; line-height:1.1; margin-top:3px; }
+
+  .adm-row { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:11px 13px; margin-bottom:8px; }
+  .adm-avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; flex-shrink:0; background:rgba(255,255,255,0.08); }
+  .adm-avatar-empty { width:42px; height:42px; border-radius:50%; flex-shrink:0; background:rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .adm-grow { flex:1; min-width:0; }
+  .adm-name { font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .adm-sub { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.45); margin-top:2px; overflow:hidden; text-overflow:ellipsis; }
+  .adm-amount { font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:0.5px; color:#f7cc49; flex-shrink:0; }
+
+  .adm-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:15px; padding:14px; margin-bottom:10px; }
+  .adm-card-head { display:flex; align-items:center; gap:9px; margin-bottom:9px; flex-wrap:wrap; }
+  .adm-card-title { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.5px; color:#fff; flex:1; min-width:0; }
+  .adm-chip { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; padding:4px 9px; border-radius:20px; flex-shrink:0; }
+  .adm-chip.nuova      { background:rgba(247,204,73,0.16); color:#f7cc49; }
+  .adm-chip.contattato { background:rgba(100,200,255,0.16); color:#64c8ff; }
+  .adm-chip.confermata { background:rgba(76,217,100,0.16); color:#4CD964; }
+  .adm-chip.annullata  { background:rgba(255,69,58,0.14); color:#FF6B61; }
+  .adm-chip.attiva     { background:rgba(76,217,100,0.16); color:#4CD964; }
+  .adm-chip.completata { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); }
+  .adm-kv { display:flex; gap:8px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.6); line-height:1.5; padding:2px 0; }
+  .adm-kv b { color:rgba(255,255,255,0.4); font-weight:700; min-width:78px; flex-shrink:0; }
+  .adm-note { background:rgba(255,255,255,0.04); border-radius:10px; padding:10px 12px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.7); line-height:1.55; margin-top:9px; white-space:pre-wrap; }
+  .adm-actions { display:flex; gap:7px; flex-wrap:wrap; margin-top:11px; }
+  .adm-btn { flex:1; min-width:88px; padding:9px; border:none; border-radius:10px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.75); }
+  .adm-btn.primary { background:#f7cc49; color:#111; }
+  .adm-btn.danger  { background:rgba(255,69,58,0.14); color:#FF6B61; }
+  .adm-btn:disabled { opacity:0.45; cursor:default; }
+  .adm-link { color:#f7cc49; text-decoration:none; }
+
+  .adm-switch { position:relative; width:44px; height:25px; flex-shrink:0; border:none; border-radius:20px; background:rgba(255,255,255,0.13); cursor:pointer; transition:background 0.18s; -webkit-tap-highlight-color:transparent; }
+  .adm-switch::after { content:''; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%; background:#fff; transition:transform 0.18s; }
+  .adm-switch.on { background:#4CD964; }
+  .adm-switch.on::after { transform:translateX(19px); }
+
+  .adm-empty { text-align:center; font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.3); padding:34px 20px; line-height:1.6; }
+  .adm-group-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1.6px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin:16px 0 9px; }
+  .adm-err { background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.35); border-radius:12px; padding:12px 14px; font-family:'Manrope',sans-serif; font-size:12.5px; color:#FF6B61; line-height:1.5; margin-bottom:12px; }
 
   /* intestazioni di sotto-sezione */
   #page-menu .menu-subhead {
@@ -3562,7 +3935,7 @@
 
       <!-- LEGALE -->
       <div class="settings-section-lbl">Legale</div>
-      <div class="settings-row" onclick="alert('Termini e condizioni di utilizzo.')">
+      <div class="settings-row" onclick="settingsClose(); goTo('legale-termini')">
         <div class="settings-row-left">
           <div class="settings-row-ico">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -3571,7 +3944,7 @@
         </div>
         <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
-      <div class="settings-row" onclick="alert('Privacy policy di CAMON.')">
+      <div class="settings-row" onclick="settingsClose(); goTo('legale-privacy')">
         <div class="settings-row-left">
           <div class="settings-row-ico">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -3579,6 +3952,46 @@
           <div><div class="settings-row-lbl">Privacy policy</div></div>
         </div>
         <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+
+      <div class="settings-row" id="settings-admin" style="display:none" onclick="settingsClose(); goTo('admin')">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl" style="color:#f7cc49">Area titolare</div>
+            <div class="settings-row-sub" id="settings-admin-sub">Clienti, prenotazioni, menu e dati</div>
+          </div>
+        </div>
+        <div class="settings-row-val">
+          <span id="admin-badge" style="display:none;background:#ff453a;color:#fff;font-family:Manrope,sans-serif;font-size:11px;font-weight:800;border-radius:20px;padding:3px 8px;margin-right:6px"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="settings-row" id="settings-export" style="display:none" onclick="camonScaricaDati()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl">Scarica i miei dati</div>
+            <div class="settings-row-sub">Copia di tutto quello che abbiamo su di te</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row" id="settings-delete" style="display:none" onclick="camonEliminaAccount()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl" style="color:#ff6b6b">Elimina account</div>
+            <div class="settings-row-sub">Cancella profilo, foto e credito residuo</div>
+          </div>
+        </div>
       </div>
 
       <div class="settings-row" id="settings-logout" style="display:none" onclick="camonLogout()">
@@ -3618,7 +4031,7 @@
         <div class="offers-scroll offers-auto-scroll">
 
           <div class="offer-card">
-            <div class="offer-card-top amber">
+            <div class="offer-card-top has-photo" style="background-image:url('happy-hour-bg.png')">
               <div class="offer-badge">HAPPY HOUR</div>
               <div class="offer-emoji">🍺</div>
             </div>
@@ -3630,7 +4043,7 @@
           </div>
 
           <div class="offer-card">
-            <div class="offer-card-top purple">
+            <div class="offer-card-top has-photo" style="background-image:url('beerpong2-bg.png')">
               <div class="offer-badge">OGNI MARTEDÌ</div>
               <div class="offer-emoji">🏆</div>
             </div>
@@ -3642,25 +4055,13 @@
           </div>
 
           <div class="offer-card">
-            <div class="offer-card-top green">
-              <div class="offer-badge">BUNDLE</div>
-              <div class="offer-emoji">🎯</div>
-            </div>
-            <div class="offer-card-body">
-              <div class="offer-name">Drink + Gioco</div>
-              <div class="offer-desc">Una birra alla spina e un posto al tavolo giochi incluso.</div>
-              <div class="offer-meta">Prezzo speciale</div>
-            </div>
-          </div>
-
-          <div class="offer-card">
-            <div class="offer-card-top red">
+            <div class="offer-card-top has-photo" style="background-image:url('sconto-profilo-bg.png')">
               <div class="offer-badge">PROFILO</div>
               <div class="offer-emoji">👤</div>
             </div>
             <div class="offer-card-body">
               <div class="offer-name">Sconto Profilo</div>
-              <div class="offer-desc">Completa il profilo e ottieni uno sconto riservato sulla prima ricarica.</div>
+              <div class="offer-desc">Completa il profilo e ottieni il 10% sulla prima ricarica.</div>
               <div class="offer-meta">Solo utenti registrati</div>
             </div>
           </div>
@@ -3669,38 +4070,15 @@
         </div><!-- end wrap -->
       </div>
 
-      <!-- Info locale -->
-      <!-- Info locale -->
-      <div class="home-info-card">
-        <div class="home-info-head">
-          Info locale
-          <span class="home-info-status" id="home-open-status">
-            <span class="home-info-dot"></span>
-            <span id="home-open-txt">—</span>
-          </span>
+      <!-- Prossimi eventi: solo i 3 più vicini da oggi, il resto sta
+           nella pagina dedicata (stesso pattern delle Offerte). -->
+      <section class="section-block" onclick="goTo('eventi')" style="cursor:pointer">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+          <div class="section-eyebrow" style="margin-bottom:0">Prossimi eventi</div>
+          <span style="font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;letter-spacing:1px;color:#f7cc49;">Vedi tutte ›</span>
         </div>
-        <div class="home-info-row">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <div class="home-info-txt">
-            Mar–Dom: 18:00 – 03:00
-            <span>Lunedì: chiuso</span>
-          </div>
-        </div>
-        <div class="home-info-row">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <div class="home-info-txt">
-            Via Catania 4, Torino
-          </div>
-        </div>
-        <div class="home-info-row">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.47 2 2 0 0 1 3.54 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.54a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <div class="home-info-txt">+39 011 000 0000</div>
-        </div>
-        <div class="home-info-row">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-          <div class="home-info-txt">@camon.bar</div>
-        </div>
-      </div>
+        <div id="home-eventi-list"></div>
+      </section>
 
       <!-- Come funziona -->
       <div class="hiw-section">
@@ -3749,25 +4127,38 @@
         </div>
       </div>
 
-      <!-- Prossimi eventi -->
-      <section class="section-block" style="padding-bottom:100px">
-        <div class="section-eyebrow">Prossimi eventi</div>
-        <div class="event-card">
-          <div class="event-date"><div class="event-day">14</div><div class="event-month">GIU</div></div>
-          <div class="event-divider"></div>
-          <div><div class="event-name">TORNEO BEER PONG</div><div class="event-time">Dalle 21:00 · Ingresso libero</div></div>
+      <!-- Info locale -->
+      <!-- Info locale -->
+      <div class="home-info-card">
+        <div class="home-info-head">
+          Info locale
+          <span class="home-info-status" id="home-open-status">
+            <span class="home-info-dot"></span>
+            <span id="home-open-txt">—</span>
+          </span>
         </div>
-        <div class="event-card">
-          <div class="event-date"><div class="event-day">20</div><div class="event-month">GIU</div></div>
-          <div class="event-divider"></div>
-          <div><div class="event-name">NOTTE ERASMUS</div><div class="event-time">Dalle 22:00 · Drink speciali</div></div>
+        <div class="home-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div class="home-info-txt">
+            Mar–Dom: 18:00 – 03:00
+            <span>Lunedì: chiuso</span>
+          </div>
         </div>
-        <div class="event-card">
-          <div class="event-date"><div class="event-day">28</div><div class="event-month">GIU</div></div>
-          <div class="event-divider"></div>
-          <div><div class="event-name">COCKTAIL BATTLE</div><div class="event-time">Dalle 20:00 · Vinci un mese di drink</div></div>
+        <div class="home-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div class="home-info-txt">
+            Via Catania 4, Torino
+          </div>
         </div>
-      </section>
+        <div class="home-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.47 2 2 0 0 1 3.54 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.54a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <div class="home-info-txt">+39 011 000 0000</div>
+        </div>
+        <div class="home-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          <div class="home-info-txt">@camon.bar</div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -3802,8 +4193,8 @@
 
     <div class="scroll-area" id="offerte-list" style="padding:16px 16px 96px; display:flex; flex-direction:column; gap:12px;">
 
-      <div class="offer-full-card">
-        <div class="offer-full-top amber">
+      <div class="offer-full-card" onclick="openOfferDetail('happy-hour')" style="cursor:pointer">
+        <div class="offer-full-top has-photo" style="background-image:url('happy-hour-bg.png')">
           <div class="offer-badge">HAPPY HOUR</div>
           <div class="offer-full-emoji">🍺</div>
         </div>
@@ -3817,52 +4208,76 @@
         </div>
       </div>
 
-      <div class="offer-full-card">
-        <div class="offer-full-top purple">
+      <div class="offer-full-card" onclick="openOfferDetail('beerpong')" style="cursor:pointer">
+        <div class="offer-full-top has-photo" style="background-image:url('beerpong2-bg.png')">
           <div class="offer-badge">OGNI MARTEDÌ</div>
           <div class="offer-full-emoji">🏆</div>
         </div>
         <div class="offer-full-body">
           <div class="offer-name">Torneo Beer Pong</div>
-          <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta. Premi per i vincitori e drink omaggio per tutti i finalisti.</div>
+          <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta.</div>
+          <div class="offer-prizes">
+            <div class="offer-prize-row">🥇 <b>1° posto</b> <span>— coppa Beer Pong + Spritz omaggio per tutta la serata</span></div>
+            <div class="offer-prize-row">🥈 <b>2° posto</b> <span>— shot omaggio per la coppia</span></div>
+            <div class="offer-prize-row">🥉 <b>3° posto</b> <span>— 2×1 sulla prossima birra</span></div>
+          </div>
           <div class="offer-full-meta">
             <span class="offer-meta-chip">🕘 Dalle 21:00</span>
             <span class="offer-meta-chip">🎟 Ingresso libero</span>
           </div>
         </div>
+        <button class="offer-cta-btn beerpong-cta" onclick="event.stopPropagation();beerpongIscriviti()">Iscriviti al torneo</button>
       </div>
 
-      <div class="offer-full-card">
-        <div class="offer-full-top green">
-          <div class="offer-badge">BUNDLE</div>
-          <div class="offer-full-emoji">🎯</div>
-        </div>
-        <div class="offer-full-body">
-          <div class="offer-name">Drink + Gioco</div>
-          <div class="offer-full-desc">Una birra alla spina e un posto riservato al tavolo giochi a prezzo combinato. Ideale per chi arriva in piccolo gruppo e vuole iniziare subito a giocare senza pensieri.</div>
-          <div class="offer-full-meta">
-            <span class="offer-meta-chip">💰 Prezzo speciale</span>
-            <span class="offer-meta-chip">👥 Per gruppi</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="offer-full-card">
-        <div class="offer-full-top red">
+      <div class="offer-full-card" onclick="openOfferDetail('sconto-profilo')" style="cursor:pointer">
+        <div class="offer-full-top has-photo" style="background-image:url('sconto-profilo-bg.png')">
           <div class="offer-badge">PROFILO</div>
           <div class="offer-full-emoji">👤</div>
         </div>
         <div class="offer-full-body">
           <div class="offer-name">Sconto Profilo</div>
-          <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni uno sconto riservato sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
+          <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni il 10% di sconto sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
           <div class="offer-full-meta">
-            <span class="offer-meta-chip">🎁 Solo prima ricarica</span>
+            <span class="offer-meta-chip">🎁 10% sulla prima ricarica</span>
             <span class="offer-meta-chip">🔒 Utenti registrati</span>
           </div>
         </div>
-        <button class="offer-cta-btn" onclick="goTo('profile')">Completa il profilo</button>
+        <button class="offer-cta-btn" onclick="event.stopPropagation();goTo('profile')">Completa il profilo</button>
       </div>
 
+    </div>
+  </div>
+
+  <div class="page" id="page-eventi">
+    <div class="page-header" style="flex-shrink:0">
+      <button class="page-back-btn" onclick="goTo('home')" style="background:rgba(255,255,255,0.07);border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="page-title">PROSSIMI <span>EVENTI</span></div>
+    </div>
+    <div class="scroll-area" style="padding:16px 16px 96px">
+      <div id="eventi-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ DETTAGLIO — offerta o evento ═══════════
+       Pagina unica, riusata sia per le offerte che per gli eventi:
+       il contenuto lo riempie JS (openOfferDetail / openEventDetail)
+       prima di navigarci con goTo('detail'). -->
+  <div class="page" id="page-detail">
+    <div class="page-header" style="flex-shrink:0">
+      <button class="page-back-btn" onclick="goBack()" style="background:rgba(255,255,255,0.07);border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="page-title" id="detail-page-title">DETTAGLIO</div>
+    </div>
+    <div class="scroll-area" style="padding:0 0 96px">
+      <div class="detail-page-hero" id="detail-hero"></div>
+      <div style="padding:20px 22px 0">
+        <div class="offer-badge" id="detail-badge" style="position:static;display:inline-block;margin-bottom:12px"></div>
+        <div id="detail-name" style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:0.5px;color:#fff;margin-bottom:16px;line-height:1.05"></div>
+        <div id="detail-body"></div>
+      </div>
     </div>
   </div>
 
@@ -5008,12 +5423,14 @@
       <div class="product-overlay" id="product-overlay" onclick="closeProductSheet()">
         <div class="product-sheet" onclick="event.stopPropagation()">
           <button class="product-sheet-close" onclick="closeProductSheet()">&times;</button>
-          <img class="product-sheet-img" id="product-sheet-img" src="" alt="">
-          <div class="product-sheet-body">
-            <h2 class="product-sheet-name" id="product-sheet-name"></h2>
-            <p class="product-sheet-price" id="product-sheet-price"></p>
-            <p class="product-sheet-desc" id="product-sheet-desc"></p>
+          <div class="ps-hero">
+            <img class="product-sheet-img" id="product-sheet-img" src="" alt="">
+            <div class="ps-hero-testo">
+              <div id="product-sheet-badge"></div>
+              <h2 class="product-sheet-name" id="product-sheet-name"></h2>
+            </div>
           </div>
+          <div class="product-sheet-body" id="product-sheet-body"></div>
         </div>
       </div>
 
@@ -5030,6 +5447,24 @@
       <div class="gd-title">LA TUA <span>CARTA</span></div>
     </div>
     <div class="carta-scroll">
+
+      <!-- Blocco per chi non ha fatto l'accesso: niente saldo/carta finché non sei loggato -->
+      <div class="offers-gate" id="carta-locked" style="display:none">
+        <div class="offers-gate-ico">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f7cc49" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="offers-gate-title">ACCEDI PER<br><span>VEDERE LA CARTA</span></div>
+        <div class="offers-gate-txt">
+          Saldo, ricariche e braccialetti sono legati al tuo account.
+          Accedi o crea un account per continuare.
+        </div>
+        <button class="offers-gate-btn" onclick="goTo('profile'); profShowAuth('login')">Accedi</button>
+        <div class="offers-gate-alt">Non hai un account? <b onclick="goTo('profile'); profShowAuth('signup')">Iscriviti</b></div>
+      </div>
+
+      <div id="carta-content">
 
       <!-- Carta virtuale -->
       <div class="wallet-card">
@@ -5080,56 +5515,11 @@
         <div id="band-list" class="band-list"></div>
       </div>
 
-      <!-- Demo spina self-service -->
-      <button class="spina-demo-btn" onclick="goTo('spina-demo')">
-        <span>🍺 Prova la spina self-service</span>
-        <small>Demo: avvicina il braccialetto e spilla</small>
-      </button>
-
       <!-- Storico movimenti -->
       <div class="wallet-lbl">Movimenti</div>
       <div id="wallet-history"></div>
 
-    </div>
-  </div>
-
-
-  <!-- ============================
-       SPINA SELF-SERVICE (demo)
-  ============================ -->
-  <div class="page" id="page-spina-demo">
-    <div class="gd-header">
-      <button class="back-btn" onclick="goTo('carta')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">SPINA <span>SELF-SERVICE</span></div>
-    </div>
-    <div class="spina-wrap">
-
-      <div class="spina-product-tabs">
-        <button class="spina-tab active" id="spina-tab-ipa" onclick="spinaSelectProduct('IPA')">🍺 IPA</button>
-        <button class="spina-tab" id="spina-tab-mojito" onclick="spinaSelectProduct('Mojito')">🍹 Mojito</button>
-      </div>
-      <div class="spina-tap-name" id="spina-tap-name">Spina 1 · <b>IPA del Birrificio</b></div>
-      <div class="spina-price" id="spina-tap-price">€10,00 / litro</div>
-
-      <!-- bicchiere -->
-      <div class="spina-glass">
-        <div class="spina-fill" id="spina-fill"></div>
-        <div class="spina-foam" id="spina-foam"></div>
-      </div>
-
-      <div class="spina-counters">
-        <div><span id="spina-ml">0</span> ml</div>
-        <div class="spina-cost">€ <span id="spina-cost">0,00</span></div>
-      </div>
-
-      <!-- stato braccialetto -->
-      <div class="spina-band" id="spina-band">—</div>
-
-      <!-- pulsante spilla -->
-      <button class="spina-pour-btn" id="spina-pour-btn">
-        <span class="spina-pour-lbl">TIENI PREMUTO PER SPILLARE</span>
-      </button>
-      <div class="spina-saldo" id="spina-saldo">Saldo: € 0,00</div>
+      </div><!-- /carta-content -->
 
     </div>
   </div>
@@ -5253,6 +5643,20 @@
             </div>
           </div>
 
+          <!-- Festa privata -->
+          <div class="book-type-card event" onclick="goTo('event')">
+            <div class="book-type-glow"></div>
+            <div class="book-type-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+              Eventi
+            </div>
+            <div class="book-type-name">FESTA<br>PRIVATA</div>
+            <div class="book-type-desc">Laurea, compleanno o festa a tema: organizziamo la serata su misura per te e i tuoi invitati.</div>
+            <div class="book-type-arrow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
           <!-- Invito anonimo -->
           <div class="book-type-card invite" onclick="bookSelectType('invite')">
             <div class="book-type-glow"></div>
@@ -5275,36 +5679,42 @@
     <div id="book-step2" style="display:none;flex-direction:column;flex:1;overflow:hidden">
       <div class="book-step-head">
         <button class="book-back" onclick="bookGoBack()">←</button>
-        <div class="book-step-title">DETTAGLI <span>PRENOTAZIONE</span></div>
+        <div class="book-step-title" id="book-step2-title">TAVOLO <span>CONDIVISO</span></div>
       </div>
       <div class="book-scroll">
         <div class="book-form-new">
 
-          <!-- Riepilogo tipo scelto -->
-          <div class="book-summary-card" id="book-summary-card">
-            <div class="book-summary-ico" id="book-sum-ico">👥</div>
-            <div>
-              <div class="book-summary-name" id="book-sum-name">TAVOLO CONDIVISO</div>
-              <div class="book-summary-desc" id="book-sum-desc">Matchato con altri avventori</div>
-            </div>
-          </div>
-
-          <!-- Data + Ora -->
-          <div class="bfield-row" id="bfield-datetime">
-            <div class="bfield">
-              <label>Data</label>
-              <input id="book-data" type="date">
-            </div>
-            <div class="bfield">
-              <label>Ora</label>
-              <input id="book-ora" type="time" value="21:00">
-            </div>
-          </div>
-
-          <!-- Quante persone -->
+          <!-- Quante persone (prima di data/ora: filtra le disponibilità) -->
           <div class="bfield" id="bfield-persone">
             <label id="persone-lbl">Quante persone porti?</label>
             <div class="people-grid" id="persone-grid"></div>
+          </div>
+
+          <!-- Data + Ora: sempre aperti (niente click-per-aprire). Il calendario
+               disattiva i giorni pieni per il numero di persone scelto, la
+               barra oraria mostra solo le fasce libere di quel giorno. -->
+          <div class="bfield-row bfield-row-cal" id="bfield-datetime">
+            <div class="bfield bfield-cal">
+              <label>Data — <span id="book-date-label">…</span></label>
+              <input type="hidden" id="book-data">
+              <div class="book-cal-pop" id="book-cal-pop">
+                <div class="book-cal-head">
+                  <button type="button" onclick="bookCalNav(-1)">‹</button>
+                  <span id="book-cal-month"></span>
+                  <button type="button" onclick="bookCalNav(1)">›</button>
+                </div>
+                <div class="book-cal-dow"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+                <div class="book-cal-grid" id="book-cal-grid"></div>
+              </div>
+            </div>
+            <div class="bfield bfield-time">
+              <label>Ora</label>
+              <div class="book-time-wrap">
+                <div class="book-time-hint" id="book-time-hint">Scegli prima la data</div>
+                <div class="book-time-grid" id="book-time-grid" style="display:none"></div>
+              </div>
+              <input type="hidden" id="book-ora">
+            </div>
           </div>
 
           <!-- Compagni (solo tavolo condiviso, se > 1 persona) -->
@@ -5492,6 +5902,116 @@
 
   </div>
 
+  <!-- ============================
+       FESTA PRIVATA
+  ============================ -->
+  <div class="page" id="page-event">
+
+    <!-- FORM -->
+    <div id="event-form-wrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="book-step-head">
+        <button class="book-back" onclick="goTo('book')">←</button>
+        <div class="book-step-title">FESTA <span>PRIVATA</span></div>
+      </div>
+      <div class="book-scroll">
+        <div class="book-form-new">
+
+          <div class="book-summary-card" id="event-summary-card" style="border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.07)">
+            <div class="book-summary-ico">🎉</div>
+            <div>
+              <div class="book-summary-name">FESTA PRIVATA</div>
+              <div class="book-summary-desc">Ti richiamiamo per definire i dettagli</div>
+            </div>
+          </div>
+
+          <!-- Calendario date disponibili -->
+          <div class="bfield">
+            <label>Scegli il giorno</label>
+            <div class="evcal">
+              <div class="evcal-head">
+                <button type="button" class="evcal-nav" id="evcal-prev" onclick="eventCalMove(-1)" aria-label="Mese precedente">‹</button>
+                <div class="evcal-month" id="evcal-month"></div>
+                <button type="button" class="evcal-nav" id="evcal-next" onclick="eventCalMove(1)" aria-label="Mese successivo">›</button>
+              </div>
+              <div class="evcal-dows"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+              <div class="evcal-grid" id="evcal-grid"></div>
+              <div class="evcal-legend">Il lunedì il locale è chiuso</div>
+            </div>
+          </div>
+
+          <!-- Orario -->
+          <div class="bfield">
+            <label>Orario indicativo</label>
+            <div class="people-grid" id="event-times"></div>
+          </div>
+
+          <!-- Occasione -->
+          <div class="bfield">
+            <label>Occasione</label>
+            <select id="event-occasione">
+              <option value="">Seleziona occasione</option>
+              <option>Festa di laurea 🎓</option>
+              <option>Compleanno 🎂</option>
+              <option>Festa a tema 🎭</option>
+              <option>Addio al celibato/nubilato 🎉</option>
+              <option>Altro</option>
+            </select>
+          </div>
+
+          <!-- Atmosfera -->
+          <div class="bfield">
+            <label>Che atmosfera vuoi?</label>
+            <div class="people-grid" id="event-mood"></div>
+          </div>
+
+          <!-- Invitati -->
+          <div class="bfield">
+            <label>Quanti invitati?</label>
+            <div class="people-grid" id="event-guests"></div>
+          </div>
+
+          <!-- Dati personali -->
+          <div class="bfield">
+            <label>Nome e cognome</label>
+            <input id="event-nome" type="text" placeholder="Mario Rossi" autocomplete="name">
+          </div>
+          <div class="bfield">
+            <label>Telefono</label>
+            <input id="event-tel" type="tel" placeholder="333 000 0000" autocomplete="tel">
+          </div>
+          <div class="bfield">
+            <label>Email</label>
+            <input id="event-email" type="email" placeholder="mario@email.com" autocomplete="email">
+          </div>
+
+          <!-- Come vuole la serata: e' il campo che ci fa capire davvero
+               cosa organizzare, quindi sta in evidenza ed e' obbligatorio. -->
+          <div class="bfield evnote">
+            <label class="evnote-lbl">Raccontaci com'è la tua serata ideale</label>
+            <div class="evnote-hint">Più dettagli ci dai, più la serata sarà come te la immagini: musica, allestimento, torta, brindisi, giochi, allergie, sorprese…</div>
+            <textarea id="event-note" placeholder="Es. Vorrei una laurea a tema anni '90, musica dal vivo fino a mezzanotte, torta a sorpresa verso le 23 e un angolo foto per gli invitati."></textarea>
+          </div>
+
+          <div id="event-error" style="display:none;font-family:'Manrope',sans-serif;font-size:12.5px;color:#FF6B61;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.35);border-radius:12px;padding:12px 14px"></div>
+
+          <button class="book-confirm-btn" onclick="eventSubmit()">Invia richiesta</button>
+          <div style="font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.5">
+            Non è una prenotazione confermata: ti ricontattiamo entro 24h per definire i dettagli.
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFERMA INVIO -->
+    <div id="event-done" style="display:none;flex-direction:column;flex:1;align-items:center;justify-content:center;text-align:center;padding:32px 30px">
+      <div style="font-size:60px;line-height:1">🎉</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;color:#fff;line-height:1;margin-top:16px">RICHIESTA<br><span style="color:#A78BFA">INVIATA</span></div>
+      <div style="font-family:'Manrope',sans-serif;font-size:14px;color:rgba(255,255,255,0.55);line-height:1.55;margin-top:14px;max-width:300px" id="event-done-sub"></div>
+      <button class="book-confirm-btn" style="max-width:320px;margin-top:28px" onclick="goTo('book')">Torna alle prenotazioni</button>
+    </div>
+  </div>
+
 
   <!-- ============================
        PROFILO PAGE
@@ -5521,6 +6041,768 @@
     </div>
   </div>
 
+  <!-- ============================
+       LEGALE — PRIVACY POLICY
+  ============================ -->
+  <div class="page" id="page-legale-privacy">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">PRIVACY <span style="color:#f7cc49">POLICY</span></div>
+    </div>
+    <div class="legale-body">
+      <div class="legale-nota">
+        <b>Da completare prima dell'apertura al pubblico.</b> Vanno inseriti ragione sociale,
+        partita IVA, indirizzo e un contatto del titolare del trattamento nei punti segnati
+        con <b>[…]</b>, e il testo va fatto rivedere da un consulente privacy.
+      </div>
+
+      <h3>Chi tratta i tuoi dati</h3>
+      <p>Il titolare del trattamento è <b>[ragione sociale]</b>, con sede in <b>[indirizzo]</b>,
+      P.IVA <b>[…]</b>. Per qualsiasi richiesta puoi scrivere a <b>[email]</b>.</p>
+
+      <h3>Quali dati raccogliamo</h3>
+      <ul>
+        <li><b>Account</b>: email, numero di telefono, password (che non vediamo: è conservata cifrata).</li>
+        <li><b>Profilo</b>: nome, cognome, età, genere, lingue, biografia, se sei in Erasmus e la <b>foto</b> che carichi.</li>
+        <li><b>Attività nel locale</b>: prenotazioni, richieste per feste private, ordinazioni, ricariche e consumi della tessera, codici dello shot omaggio.</li>
+        <li><b>Dati tecnici</b>: informazioni minime necessarie a far funzionare l'app e mantenerti collegato.</li>
+      </ul>
+
+      <h3>Perché li usiamo</h3>
+      <ul>
+        <li>Per darti il servizio che hai chiesto: prenotare, ordinare, usare la tessera.</li>
+        <li>Per abbinarti agli altri avventori se scegli un <b>tavolo condiviso</b>: in quel caso nome, età e foto sono visibili alle persone sedute con te.</li>
+        <li>Per gestire i bonus, come lo shot omaggio, ed evitarne l'uso ripetuto.</li>
+        <li>Per obblighi di legge, come la conservazione dei documenti contabili.</li>
+      </ul>
+
+      <h3>La foto del profilo</h3>
+      <p>La foto è <b>facoltativa</b>: puoi usare l'app senza. È conservata in un archivio privato
+      e viene mostrata solo a te e, se scegli un tavolo condiviso, a chi siede con te.
+      Puoi sostituirla o rimuoverla quando vuoi dal tuo profilo.</p>
+
+      <h3>Chi altro li vede</h3>
+      <p>I dati sono conservati sui server di <b>Supabase</b>, che li ospita per nostro conto
+      all'interno dell'Unione Europea. Il personale del locale vede le informazioni necessarie
+      a servirti. <b>Non vendiamo i tuoi dati a nessuno.</b></p>
+
+      <h3>Per quanto tempo</h3>
+      <p>Finché tieni l'account. Se lo cancelli, profilo e foto vengono eliminati; restano solo
+      i documenti che la legge ci obbliga a conservare, come le ricevute.</p>
+
+      <h3>I tuoi diritti</h3>
+      <p>Puoi chiedere di <b>accedere</b> ai tuoi dati, <b>correggerli</b>, <b>cancellarli</b>,
+      <b>limitarne l'uso</b> o <b>riceverne una copia</b>. La cancellazione la fai da solo dalle
+      impostazioni, alla voce <b>Elimina account</b>. Per il resto scrivi a <b>[email]</b>.
+      Se ritieni che qualcosa non vada, puoi rivolgerti al Garante per la protezione dei dati personali.</p>
+
+      <h3>Età minima</h3>
+      <p>CAMON è riservata ai <b>maggiorenni</b>, perché il locale somministra alcolici.
+      Iscrivendoti dichiari di avere almeno 18 anni.</p>
+
+      <div class="legale-agg">Ultimo aggiornamento: agosto 2026</div>
+    </div>
+  </div>
+
+  <!-- ============================
+       LEGALE — TERMINI E CONDIZIONI
+  ============================ -->
+  <div class="page" id="page-legale-termini">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">TERMINI E <span style="color:#f7cc49">CONDIZIONI</span></div>
+    </div>
+    <div class="legale-body">
+      <div class="legale-nota">
+        <b>Da completare prima dell'apertura al pubblico.</b> Vanno inseriti i dati dell'attività
+        nei punti <b>[…]</b> e il testo va fatto rivedere da un consulente legale.
+      </div>
+
+      <h3>Cos'è CAMON</h3>
+      <p>CAMON è l'app di <b>[ragione sociale]</b> per il locale di Via Catania 4, Torino.
+      Serve a prenotare un posto, consultare il menu, ordinare, usare la tessera e partecipare
+      ai giochi e alle iniziative del locale.</p>
+
+      <h3>Chi può usarla</h3>
+      <p>Devi avere <b>almeno 18 anni</b>. L'account è personale: sei responsabile di quello
+      che accade con le tue credenziali. Non cedere l'account ad altri.</p>
+
+      <h3>La tessera</h3>
+      <ul>
+        <li>Il credito caricato è <b>spendibile solo all'interno del locale</b> e non è convertibile in denaro.</li>
+        <li>La ricarica minima dall'app è di €10; importi inferiori si ricaricano al banco.</li>
+        <li>Il credito residuo resta disponibile finché l'account è attivo.</li>
+      </ul>
+
+      <h3>Prenotazioni e ordinazioni</h3>
+      <p>Una prenotazione confermata riserva il tavolo per l'orario indicato; oltre una ragionevole
+      attesa il posto può essere riassegnato. Le <b>richieste per feste private non sono prenotazioni</b>:
+      diventano un impegno solo dopo la nostra conferma. Gli ordini dal tavolo sono addebitati
+      subito sul credito della tessera.</p>
+
+      <h3>Shot omaggio</h3>
+      <p>Uno a serata per ciascun account. Il codice vale <b>15 minuti</b> e va mostrato allo staff
+      con la storia ancora pubblicata. Se la storia viene rimossa in anticipo, l'offerta non sarà
+      disponibile per i 30 giorni successivi.</p>
+
+      <h3>Comportamento</h3>
+      <p>Ai tavoli condivisi ci si siede con persone che non conosci: pretendiamo rispetto.
+      Possiamo sospendere l'account di chi tiene comportamenti molesti o offensivi, o abusa
+      delle promozioni.</p>
+
+      <h3>Bevi responsabilmente</h3>
+      <p>I giochi presenti nell'app prevedono il consumo di alcolici. Sono pensati per divertirsi,
+      non per eccedere: bevi con la testa e non metterti alla guida dopo aver bevuto.
+      Lo staff può rifiutare la somministrazione.</p>
+
+      <h3>Se qualcosa non funziona</h3>
+      <p>Facciamo il possibile perché l'app sia sempre disponibile, ma può capitare che sia
+      interrotta per manutenzione o guasti. In quel caso puoi sempre ordinare e prenotare
+      direttamente al locale.</p>
+
+      <h3>Modifiche</h3>
+      <p>Se cambiamo queste condizioni te lo segnaliamo nell'app. Per contestazioni si applica
+      la legge italiana; per i consumatori resta competente il giudice del luogo di residenza.</p>
+
+      <div class="legale-agg">Ultimo aggiornamento: agosto 2026 · Contatti: <b>[email]</b></div>
+    </div>
+  </div>
+
+  <!-- ============================
+       AREA TITOLARE
+  ============================ -->
+  <div class="page" id="page-admin">
+    <div class="gd-header">
+      <button class="back-btn" onclick="goTo('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">AREA <span style="color:#f7cc49">TITOLARE</span></div>
+    </div>
+    <div class="adm-tabs" id="adm-tabs">
+      <button class="adm-tab active" onclick="admGo('clienti')">Clienti</button>
+      <button class="adm-tab" onclick="admGo('prenotazioni')">Prenotazioni</button>
+      <button class="adm-tab" onclick="admGo('comande')">Comande</button>
+      <button class="adm-tab" onclick="admGo('shot')">Shot</button>
+      <button class="adm-tab" onclick="admGo('menu')">Menu</button>
+      <button class="adm-tab" onclick="admGo('giochi')">Giochi</button>
+      <button class="adm-tab" onclick="admGo('dati')">Dati</button>
+    </div>
+    <div class="adm-body" id="adm-body"></div>
+  </div>
+  <script>
+    /* ===================== AREA TITOLARE =====================
+       Tutto quello che si vede qui passa comunque dalle regole del
+       database: se chi guarda non e' segnato come staff, le query
+       tornano vuote. Nascondere la voce non e' la protezione. */
+
+    var admSec = 'clienti';
+    var admStaff = false;
+
+    async function camonAvatarUrl(valore) {
+      if (!valore) return null;
+      if (valore.indexOf('data:') === 0) return valore;
+      if (/^https?:/i.test(valore)) return valore;
+      const { data, error } = await window.sb.storage.from('avatars')
+        .createSignedUrl(valore, 3600);
+      return (!error && data) ? data.signedUrl : null;
+    }
+
+    function admEsc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+    function admEuro(cents) {
+      if (cents == null) return '€0';
+      return '€' + (cents / 100).toFixed(2).replace('.', ',');
+    }
+    function admData(iso) {
+      if (!iso) return '—';
+      try {
+        return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'short', year:'numeric' });
+      } catch (e) { return iso; }
+    }
+    function admBody() { return document.getElementById('adm-body'); }
+    function admCarico(msg) {
+      admBody().innerHTML = '<div class="adm-empty">' + admEsc(msg || 'Carico…') + '</div>';
+    }
+    function admErrore(e) {
+      admBody().innerHTML = '<div class="adm-err">Non riesco a caricare i dati.<br>'
+        + admEsc((e && e.message) || e) + '</div>';
+    }
+
+    function admGo(sec) {
+      admSec = sec;
+      var tabs = document.querySelectorAll('#adm-tabs .adm-tab');
+      var nomi = ['clienti','prenotazioni','comande','shot','menu','giochi','dati'];
+      tabs.forEach(function (t, i) { t.classList.toggle('active', nomi[i] === sec); });
+      admRender();
+    }
+
+    /* Chiamata all'ingresso nella pagina */
+    async function admEnter() {
+      if (!window.sb) { admErrore(new Error('Nessuna connessione al database.')); return; }
+      try {
+        var u = await window.sb.auth.getUser();
+        var user = u && u.data ? u.data.user : null;
+        if (!user) { admErrore(new Error('Devi accedere con il tuo account.')); return; }
+        var p = await window.sb.from('profiles').select('is_staff').eq('id', user.id).maybeSingle();
+        admStaff = !!(p.data && p.data.is_staff);
+        if (!admStaff) {
+          admBody().innerHTML = '<div class="adm-err">Questo account non è abilitato come staff.</div>';
+          return;
+        }
+      } catch (e) { admErrore(e); return; }
+      admRender();
+    }
+
+    function admRender() {
+      if (!admStaff) return;
+      if (admSec === 'clienti')       admClienti();
+      else if (admSec === 'prenotazioni') admPrenotazioni();
+      else if (admSec === 'comande')  admComande();
+      else if (admSec === 'shot')     admShot();
+      else if (admSec === 'menu')     admMenu();
+      else if (admSec === 'giochi')   admGiochi();
+      else                            admDati();
+    }
+
+    /* ---------------- CLIENTI + SALDI ---------------- */
+    var admClientiCache = null;
+
+    async function admClienti() {
+      admCarico();
+      try {
+        if (!admClientiCache) {
+          var pr = await window.sb.from('profiles').select('*');
+          if (pr.error) throw pr.error;
+          var wl = await window.sb.from('wallets').select('*');
+          if (wl.error) throw wl.error;
+
+          var saldi = {};
+          (wl.data || []).forEach(function (w) { saldi[w.user_id] = w; });
+
+          admClientiCache = await Promise.all((pr.data || []).map(async function (p) {
+            var foto = null;
+            try { foto = await camonAvatarUrl(p.photo_url); } catch (e) {}
+            var w = saldi[p.id];
+            return {
+              id: p.id,
+              nome: [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Senza nome',
+              eta: p.age, telefono: p.phone, lingue: p.languages,
+              erasmus: p.erasmus, staff: p.is_staff, creato: p.created_at,
+              foto: foto,
+              saldo: w ? w.balance_cents : 0,
+              ultimoMov: w ? w.updated_at : null
+            };
+          }));
+        }
+        admClientiDisegna();
+      } catch (e) { admErrore(e); }
+    }
+
+    function admClientiDisegna() {
+      var lista = admClientiCache || [];
+      var q = (document.getElementById('adm-q') || {}).value || '';
+      var ordine = (document.getElementById('adm-ord') || {}).value || 'saldo';
+
+      var filtrata = lista.filter(function (c) {
+        if (!q.trim()) return true;
+        var t = (c.nome + ' ' + (c.telefono || '')).toLowerCase();
+        return t.indexOf(q.trim().toLowerCase()) >= 0;
+      });
+
+      filtrata.sort(function (a, b) {
+        if (ordine === 'saldo')   return b.saldo - a.saldo;
+        if (ordine === 'nome')    return a.nome.localeCompare(b.nome);
+        if (ordine === 'recenti') return new Date(b.creato || 0) - new Date(a.creato || 0);
+        return new Date(b.ultimoMov || 0) - new Date(a.ultimoMov || 0);
+      });
+
+      var totale = lista.reduce(function (s, c) { return s + (c.saldo || 0); }, 0);
+
+      var h = ''
+        + '<div class="adm-stats">'
+        +   '<div class="adm-stat"><div class="adm-stat-lbl">Clienti</div><div class="adm-stat-val">' + lista.length + '</div></div>'
+        +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + admEuro(totale) + '</div></div>'
+        + '</div>'
+        + '<div class="adm-toolbar">'
+        +   '<input class="adm-search" id="adm-q" placeholder="Cerca nome o telefono…" oninput="admClientiDisegna()" value="' + admEsc(q) + '">'
+        +   '<select class="adm-select" id="adm-ord" onchange="admClientiDisegna()">'
+        +     '<option value="saldo">Saldo</option>'
+        +     '<option value="movimento">Ultimo movimento</option>'
+        +     '<option value="recenti">Iscritti di recente</option>'
+        +     '<option value="nome">Nome</option>'
+        +   '</select>'
+        + '</div>';
+
+      if (!filtrata.length) {
+        h += '<div class="adm-empty">Nessun cliente trovato.</div>';
+      } else {
+        filtrata.forEach(function (c) {
+          var dettagli = [];
+          if (c.eta) dettagli.push(c.eta + ' anni');
+          if (c.telefono) dettagli.push(c.telefono);
+          if (c.erasmus) dettagli.push('Erasmus');
+          if (c.staff) dettagli.push('STAFF');
+          h += '<div class="adm-row">'
+            + (c.foto
+                ? '<img class="adm-avatar" src="' + admEsc(c.foto) + '" alt="">'
+                : '<div class="adm-avatar-empty">👤</div>')
+            + '<div class="adm-grow">'
+            +   '<div class="adm-name">' + admEsc(c.nome) + '</div>'
+            +   '<div class="adm-sub">' + admEsc(dettagli.join(' · ') || '—') + '</div>'
+            + '</div>'
+            + '<div class="adm-amount">' + admEuro(c.saldo) + '</div>'
+            + '</div>';
+        });
+      }
+      admBody().innerHTML = h;
+
+      var sel = document.getElementById('adm-ord');
+      if (sel) sel.value = ordine;
+    }
+
+    /* ---------------- PRENOTAZIONI + RICHIESTE ---------------- */
+    async function admPrenotazioni() {
+      admCarico();
+      try {
+        var rq = await window.sb.from('event_requests').select('*').order('created_at', { ascending: false });
+        if (rq.error) throw rq.error;
+        var bk = await window.sb.from('bookings').select('*').order('created_at', { ascending: false });
+        if (bk.error) throw bk.error;
+
+        var richieste = rq.data || [], prenotazioni = bk.data || [];
+        var nuove = richieste.filter(function (r) { return r.status === 'nuova'; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Richieste nuove</div><div class="adm-stat-val">' + nuove + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Prenotazioni</div><div class="adm-stat-val">' + prenotazioni.length + '</div></div>'
+          + '</div>';
+
+        h += '<div class="adm-group-title">Richieste feste private</div>';
+        if (!richieste.length) {
+          h += '<div class="adm-empty">Nessuna richiesta ricevuta.</div>';
+        } else {
+          richieste.forEach(function (r) {
+            h += '<div class="adm-card">'
+              + '<div class="adm-card-head">'
+              +   '<div class="adm-card-title">' + admEsc(r.full_name) + '</div>'
+              +   '<span class="adm-chip ' + admEsc(r.status) + '">' + admEsc(r.status) + '</span>'
+              + '</div>'
+              + '<div class="adm-kv"><b>Quando</b><span>' + admData(r.event_date) + (r.event_time ? ' · ' + admEsc(r.event_time) : '') + '</span></div>'
+              + '<div class="adm-kv"><b>Occasione</b><span>' + admEsc(r.occasion || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Atmosfera</b><span>' + admEsc(r.mood || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Invitati</b><span>' + admEsc(r.guests || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Contatti</b><span><a class="adm-link" href="tel:' + admEsc(r.phone) + '">' + admEsc(r.phone) + '</a> · <a class="adm-link" href="mailto:' + admEsc(r.email) + '">' + admEsc(r.email) + '</a></span></div>'
+              + (r.notes ? '<div class="adm-note">' + admEsc(r.notes) + '</div>' : '')
+              + '<div class="adm-actions">'
+              +   '<button class="adm-btn" onclick="admStatoRichiesta(\'' + r.id + '\',\'contattato\')">Contattato</button>'
+              +   '<button class="adm-btn primary" onclick="admStatoRichiesta(\'' + r.id + '\',\'confermata\')">Confermata</button>'
+              +   '<button class="adm-btn danger" onclick="admStatoRichiesta(\'' + r.id + '\',\'annullata\')">Annulla</button>'
+              + '</div>'
+              + '</div>';
+          });
+        }
+
+        h += '<div class="adm-group-title">Prenotazioni tavoli</div>';
+        if (!prenotazioni.length) {
+          h += '<div class="adm-empty">Nessuna prenotazione salvata.<br>Il flusso dei tavoli non scrive ancora sul database.</div>';
+        } else {
+          var etichetta = { shared:'Tavolo condiviso', private:'Tavolo privato', room:'Stanza privata', invite:'Invito segreto' };
+          prenotazioni.forEach(function (b) {
+            h += '<div class="adm-card">'
+              + '<div class="adm-card-head">'
+              +   '<div class="adm-card-title">' + admEsc(etichetta[b.booking_type] || b.booking_type) + '</div>'
+              +   '<span class="adm-chip ' + admEsc(b.status) + '">' + admEsc(b.status) + '</span>'
+              + '</div>'
+              + '<div class="adm-kv"><b>Quando</b><span>' + admData(b.booking_date) + (b.booking_time ? ' · ' + admEsc(b.booking_time) : '') + '</span></div>'
+              + '<div class="adm-kv"><b>Fascia</b><span>' + admEsc(
+                  { cena:'🍽️ Solo cena', cena_dopocena:'🍸 Cena e dopocena', dopocena:'🌙 Solo dopocena' }[b.dining_slot] || '—'
+                ) + '</span></div>'
+              + '<div class="adm-kv"><b>Persone</b><span>' + admEsc(b.people || '—') + '</span></div>'
+              + '<div class="adm-kv"><b>Tavolo</b><span>' + admEsc(b.table_code || '—') + '</span></div>'
+              + (b.notes ? '<div class="adm-note">' + admEsc(b.notes) + '</div>' : '')
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admStatoRichiesta(id, stato) {
+      try {
+        var r = await window.sb.from('event_requests').update({ status: stato }).eq('id', id);
+        if (r.error) throw r.error;
+        admPrenotazioni();
+      } catch (e) { admErrore(e); }
+    }
+
+    /* ---------------- COMANDE ----------------
+       Le righe dell'ordine stanno in una tabella a parte: si
+       leggono insieme e si raggruppano per ordine. */
+    async function admComande() {
+      admCarico();
+      try {
+        var o = await window.sb.from('orders')
+          .select('*').order('created_at', { ascending: false }).limit(60);
+        if (o.error) throw o.error;
+        var ordini = o.data || [];
+
+        var righe = [];
+        if (ordini.length) {
+          var ri = await window.sb.from('order_items')
+            .select('order_id,name,quantity,unit_cents')
+            .in('order_id', ordini.map(function (x) { return x.id; }));
+          if (ri.error) throw ri.error;
+          righe = ri.data || [];
+        }
+        var perOrdine = {};
+        righe.forEach(function (r) {
+          (perOrdine[r.order_id] = perOrdine[r.order_id] || []).push(r);
+        });
+
+        var daServire = ordini.filter(function (x) { return x.status === 'paid'; });
+        var incassoOggi = ordini
+          .filter(function (x) { return new Date(x.created_at).toDateString() === new Date().toDateString(); })
+          .reduce(function (s, x) { return s + (x.total_cents || 0); }, 0);
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Da servire</div><div class="adm-stat-val">' + daServire.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Incasso oggi</div><div class="adm-stat-val">' + admEuro(incassoOggi) + '</div></div>'
+          + '</div>';
+
+        if (!ordini.length) {
+          h += '<div class="adm-empty">Nessun ordine ricevuto.</div>';
+        } else {
+          ordini.forEach(function (x) {
+            var lista = perOrdine[x.id] || [];
+            var quando = new Date(x.created_at).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+            var dove = x.service_mode === 'tavolo'
+              ? (x.table_code ? '🍽️ Tavolo ' + admEsc(x.table_code) : '🍽️ Al tavolo')
+              : '🥤 Ritiro al banco';
+            h += '<div class="adm-card">'
+              + '<div class="adm-card-head">'
+              +   '<div class="adm-card-title">' + dove + ' · ' + quando + '</div>'
+              +   '<span class="adm-chip ' + (x.status === 'served' ? 'completata' : x.status === 'cancelled' ? 'annullata' : 'nuova') + '">'
+              +     (x.status === 'served' ? 'Servito' : x.status === 'cancelled' ? 'Annullato' : 'Da servire') + '</span>'
+              + '</div>'
+              + lista.map(function (r) {
+                  return '<div class="adm-kv"><b>' + r.quantity + '×</b><span>' + admEsc(r.name)
+                    + ' — ' + admEuro(r.unit_cents * r.quantity) + '</span></div>';
+                }).join('')
+              + (x.service_fee_cents ? '<div class="adm-kv"><b>Servizio</b><span>' + admEuro(x.service_fee_cents) + '</span></div>' : '')
+              + '<div class="adm-kv"><b>Totale</b><span style="color:#f7cc49;font-weight:800">' + admEuro(x.total_cents) + '</span></div>'
+              + (x.note ? '<div class="adm-note">' + admEsc(x.note) + '</div>' : '')
+              + (x.status === 'paid'
+                  ? '<div class="adm-actions">'
+                    + '<button class="adm-btn primary" onclick="admStatoOrdine(\'' + x.id + '\',\'served\')">Servito</button>'
+                    + '<button class="adm-btn danger" onclick="admStatoOrdine(\'' + x.id + '\',\'cancelled\')">Annulla</button>'
+                    + '</div>'
+                  : '')
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admStatoOrdine(id, stato) {
+      try {
+        var r = await window.sb.from('orders').update({ status: stato }).eq('id', id);
+        if (r.error) throw r.error;
+        admComande();
+      } catch (e) { admErrore(e); }
+    }
+
+    /* ---------------- SHOT OMAGGIO ---------------- */
+    function admShot() {
+      admBody().innerHTML = ''
+        + '<div class="adm-group-title">Verifica codice</div>'
+        + '<div class="adm-card">'
+        +   '<div class="adm-toolbar">'
+        +     '<input class="adm-search" id="adm-shot-code" placeholder="CMN-0000" '
+        +       'autocomplete="off" maxlength="8" '
+        +       'oninput="this.value=this.value.toUpperCase()" '
+        +       'onkeydown="if(event.key===\'Enter\')admShotVerifica()">'
+        +     '<button class="adm-btn primary" style="flex:0 0 auto;min-width:100px" onclick="admShotVerifica()">Controlla</button>'
+        +   '</div>'
+        +   '<div id="adm-shot-esito"></div>'
+        + '</div>'
+        + '<div id="adm-shot-oggi"></div>';
+      admShotStorico();
+    }
+
+    function admShotEtichetta(stato) {
+      if (stato === 'valido')     return { chip:'confermata', testo:'Valido',            nota:'Controlla che la storia sia ancora online, poi consegna.' };
+      if (stato === 'gia_usato')  return { chip:'annullata',  testo:'Già consegnato',    nota:'Questo codice è stato ritirato.' };
+      if (stato === 'scaduto')    return { chip:'annullata',  testo:'Scaduto',           nota:'La finestra di 15 minuti è finita.' };
+      return { chip:'annullata', testo:'Inesistente', nota:'Nessun codice con questo numero.' };
+    }
+
+    async function admShotVerifica() {
+      var campo = document.getElementById('adm-shot-code');
+      var esito = document.getElementById('adm-shot-esito');
+      var codice = (campo.value || '').trim();
+      if (!codice) { esito.innerHTML = ''; return; }
+      esito.innerHTML = '<div class="adm-empty">Controllo…</div>';
+      try {
+        var r = await window.sb.rpc('shot_verify', { p_code: codice });
+        if (r.error) throw r.error;
+        var d = Array.isArray(r.data) ? r.data[0] : r.data;
+        if (!d) { esito.innerHTML = '<div class="adm-err">Nessuna risposta.</div>'; return; }
+        var e = admShotEtichetta(d.stato);
+        esito.innerHTML = ''
+          + '<div class="adm-card-head" style="margin-top:10px">'
+          +   '<div class="adm-card-title">' + admEsc(d.cliente || '—') + '</div>'
+          +   '<span class="adm-chip ' + e.chip + '">' + e.testo + '</span>'
+          + '</div>'
+          + '<div class="adm-kv"><b>Nota</b><span>' + admEsc(e.nota) + '</span></div>'
+          + (d.scade ? '<div class="adm-kv"><b>Scade</b><span>' + admEsc(new Date(d.scade).toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'})) + '</span></div>' : '')
+          + (d.stato === 'valido'
+              ? '<div class="adm-actions"><button class="adm-btn primary" onclick="admShotRitira()">Segna come consegnato</button></div>'
+              : '');
+      } catch (err) {
+        esito.innerHTML = '<div class="adm-err">' + admEsc((err && err.message) || err) + '</div>';
+      }
+    }
+
+    async function admShotRitira() {
+      var codice = (document.getElementById('adm-shot-code').value || '').trim();
+      try {
+        var r = await window.sb.rpc('shot_redeem', { p_code: codice });
+        if (r.error) throw r.error;
+        document.getElementById('adm-shot-esito').innerHTML =
+          '<div class="adm-card-head" style="margin-top:10px">'
+          + '<div class="adm-card-title">Shot consegnato 🥃</div>'
+          + '<span class="adm-chip confermata">Fatto</span></div>';
+        document.getElementById('adm-shot-code').value = '';
+        admShotStorico();
+      } catch (err) {
+        document.getElementById('adm-shot-esito').innerHTML =
+          '<div class="adm-err">' + admEsc((err && err.message) || err) + '</div>';
+      }
+    }
+
+    /* Quadro della serata: utile per capire quanti bonus stanno girando */
+    async function admShotStorico() {
+      var box = document.getElementById('adm-shot-oggi');
+      if (!box) return;
+      try {
+        var da = new Date(); da.setHours(da.getHours() - 24);
+        var r = await window.sb.from('shot_codes')
+          .select('code,created_at,expires_at,redeemed_at')
+          .gte('created_at', da.toISOString())
+          .order('created_at', { ascending: false });
+        if (r.error) throw r.error;
+        var lista = r.data || [];
+        var ritirati = lista.filter(function (c) { return c.redeemed_at; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Richiesti (24h)</div><div class="adm-stat-val">' + lista.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Consegnati</div><div class="adm-stat-val">' + ritirati + '</div></div>'
+          + '</div>';
+        h += '<div class="adm-group-title">Ultimi codici</div>';
+        if (!lista.length) {
+          h += '<div class="adm-empty">Nessun codice richiesto nelle ultime 24 ore.</div>';
+        } else {
+          lista.slice(0, 20).forEach(function (c) {
+            var stato = c.redeemed_at ? 'Consegnato'
+                      : (new Date(c.expires_at) < new Date() ? 'Scaduto' : 'In attesa');
+            var chip  = c.redeemed_at ? 'completata'
+                      : (new Date(c.expires_at) < new Date() ? 'annullata' : 'nuova');
+            h += '<div class="adm-row">'
+              + '<div class="adm-grow"><div class="adm-name">' + admEsc(c.code) + '</div>'
+              + '<div class="adm-sub">' + admEsc(new Date(c.created_at).toLocaleString('it-IT', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})) + '</div></div>'
+              + '<span class="adm-chip ' + chip + '">' + stato + '</span>'
+              + '</div>';
+          });
+        }
+        box.innerHTML = h;
+      } catch (e) {
+        box.innerHTML = '<div class="adm-err">' + admEsc((e && e.message) || e) + '</div>';
+      }
+    }
+
+    /* ---------------- MENU ---------------- */
+    async function admMenu() {
+      admCarico();
+      try {
+        var r = await window.sb.from('products').select('*').order('macro').order('category').order('sort');
+        if (r.error) throw r.error;
+        var prodotti = r.data || [];
+        var attivi = prodotti.filter(function (p) { return p.available; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">In carta</div><div class="adm-stat-val">' + attivi + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Esauriti</div><div class="adm-stat-val">' + (prodotti.length - attivi) + '</div></div>'
+          + '</div>';
+
+        if (!prodotti.length) {
+          h += '<div class="adm-empty">Nessun prodotto nel database.</div>';
+        } else {
+          var categoriaCorrente = '';
+          prodotti.forEach(function (p) {
+            var cat = p.macro + ' · ' + p.category;
+            if (cat !== categoriaCorrente) {
+              categoriaCorrente = cat;
+              h += '<div class="adm-group-title">' + admEsc(cat) + '</div>';
+            }
+            h += '<div class="adm-row">'
+              + '<div class="adm-avatar-empty">' + admEsc(p.emoji || '🍸') + '</div>'
+              + '<div class="adm-grow">'
+              +   '<div class="adm-name">' + admEsc(p.name) + '</div>'
+              +   '<div class="adm-sub">' + admEuro(p.price_cents) + (p.available ? '' : ' · esaurito') + '</div>'
+              + '</div>'
+              + '<button class="adm-switch' + (p.available ? ' on' : '') + '" onclick="admToggleProdotto(this,\'' + p.id + '\')" aria-label="Disponibile"></button>'
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admToggleProdotto(btn, id) {
+      var acceso = !btn.classList.contains('on');
+      btn.classList.toggle('on', acceso);       // risposta immediata al tocco
+      btn.disabled = true;
+      try {
+        var r = await window.sb.from('products').update({ available: acceso }).eq('id', id);
+        if (r.error) throw r.error;
+        if (typeof camonSyncMenu === 'function') { try { camonSyncMenu(); } catch (e) {} }
+      } catch (e) {
+        btn.classList.toggle('on', !acceso);    // il database ha rifiutato: torno indietro
+        alert('Non sono riuscito a salvare: ' + ((e && e.message) || e));
+      } finally { btn.disabled = false; }
+    }
+
+    /* ---------------- GIOCHI ---------------- */
+    function admChiaveGioco(nome) {
+      return nome.toLowerCase()
+        .replace(/[àáâä]/g,'a').replace(/[èéêë]/g,'e').replace(/[ìíîï]/g,'i')
+        .replace(/[òóôö]/g,'o').replace(/[ùúûü]/g,'u')
+        .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    }
+
+    async function admGiochi() {
+      admCarico();
+      try {
+        var r = await window.sb.from('games').select('*');
+        if (r.error) throw r.error;
+        var salvati = {};
+        (r.data || []).forEach(function (g) { salvati[g.key] = g; });
+
+        var elenco = (typeof GAMES !== 'undefined' ? GAMES : []).map(function (g, i) {
+          var k = admChiaveGioco(g.name);
+          return {
+            key: k, nome: g.name, emoji: g.emoji, sub: g.sub, ordine: i,
+            attivo: salvati[k] ? salvati[k].enabled : true,
+            registrato: !!salvati[k]
+          };
+        });
+        var spenti = elenco.filter(function (g) { return !g.attivo; }).length;
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Giochi</div><div class="adm-stat-val">' + elenco.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Nascosti</div><div class="adm-stat-val">' + spenti + '</div></div>'
+          + '</div>';
+
+        elenco.forEach(function (g) {
+          h += '<div class="adm-row">'
+            + '<div class="adm-avatar-empty">' + admEsc(g.emoji || '🎲') + '</div>'
+            + '<div class="adm-grow">'
+            +   '<div class="adm-name">' + admEsc(g.nome) + '</div>'
+            +   '<div class="adm-sub">' + admEsc(g.sub || '') + '</div>'
+            + '</div>'
+            + '<button class="adm-switch' + (g.attivo ? ' on' : '') + '" onclick="admToggleGioco(this,\'' + admEsc(g.key) + '\',\'' + admEsc(g.nome).replace(/'/g, "\\'") + '\',' + g.ordine + ')"></button>'
+            + '</div>';
+        });
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+
+    async function admToggleGioco(btn, key, nome, ordine) {
+      var acceso = !btn.classList.contains('on');
+      btn.classList.toggle('on', acceso);
+      btn.disabled = true;
+      try {
+        /* upsert: la riga nasce solo quando il titolare tocca il gioco,
+           cosi' il database non deve conoscere in anticipo l'elenco. */
+        var r = await window.sb.from('games').upsert({
+          key: key, name: nome, enabled: acceso, sort_order: ordine, updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
+        if (r.error) throw r.error;
+      } catch (e) {
+        btn.classList.toggle('on', !acceso);
+        alert('Non sono riuscito a salvare: ' + ((e && e.message) || e));
+      } finally { btn.disabled = false; }
+    }
+
+    /* ---------------- DATI ---------------- */
+    async function admDati() {
+      admCarico();
+      try {
+        var ordini = await window.sb.from('orders').select('total_cents,status,created_at');
+        if (ordini.error) throw ordini.error;
+        var righe = await window.sb.from('order_items').select('name,quantity,unit_cents');
+        if (righe.error) throw righe.error;
+        var mov = await window.sb.from('transactions').select('*').order('created_at', { ascending: false }).limit(20);
+        if (mov.error) throw mov.error;
+
+        var incasso = (ordini.data || []).reduce(function (s, o) { return s + (o.total_cents || 0); }, 0);
+
+        // classifica prodotti per pezzi venduti
+        var perProdotto = {};
+        (righe.data || []).forEach(function (r) {
+          if (!perProdotto[r.name]) perProdotto[r.name] = { pezzi: 0, incasso: 0 };
+          perProdotto[r.name].pezzi += r.quantity;
+          perProdotto[r.name].incasso += r.quantity * r.unit_cents;
+        });
+        var classifica = Object.keys(perProdotto)
+          .map(function (n) { return { nome: n, pezzi: perProdotto[n].pezzi, incasso: perProdotto[n].incasso }; })
+          .sort(function (a, b) { return b.pezzi - a.pezzi; })
+          .slice(0, 10);
+
+        var h = '<div class="adm-stats">'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Ordini</div><div class="adm-stat-val">' + (ordini.data || []).length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Incassato</div><div class="adm-stat-val">' + admEuro(incasso) + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Movimenti</div><div class="adm-stat-val">' + (mov.data || []).length + '</div></div>'
+          + '</div>';
+
+        h += '<div class="adm-group-title">Prodotti più venduti</div>';
+        if (!classifica.length) {
+          h += '<div class="adm-empty">Ancora nessuna vendita registrata.<br>I dati compaiono quando l\'app inizierà a salvare gli ordini.</div>';
+        } else {
+          classifica.forEach(function (p, i) {
+            h += '<div class="adm-row">'
+              + '<div class="adm-avatar-empty">' + (i + 1) + '</div>'
+              + '<div class="adm-grow"><div class="adm-name">' + admEsc(p.nome) + '</div>'
+              + '<div class="adm-sub">' + p.pezzi + ' pezzi</div></div>'
+              + '<div class="adm-amount">' + admEuro(p.incasso) + '</div>'
+              + '</div>';
+          });
+        }
+
+        h += '<div class="adm-group-title">Ultimi movimenti</div>';
+        if (!(mov.data || []).length) {
+          h += '<div class="adm-empty">Nessun movimento sul portafoglio.</div>';
+        } else {
+          /* gli importi sono sempre positivi: e' "type" a dire se il
+             movimento entra o esce */
+          mov.data.forEach(function (t) {
+            var entrata = t.type === 'recharge';
+            h += '<div class="adm-row">'
+              + '<div class="adm-grow"><div class="adm-name">'
+              +   admEsc(t.description || (entrata ? 'Ricarica' : 'Consumazione')) + '</div>'
+              + '<div class="adm-sub">' + admData(t.created_at) + '</div></div>'
+              + '<div class="adm-amount" style="color:' + (entrata ? '#4CD964' : 'rgba(255,255,255,0.6)') + '">'
+              +   (entrata ? '+' : '−') + admEuro(t.amount_cents) + '</div>'
+              + '</div>';
+          });
+        }
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+  </script>
+
   <!-- OVERLAY + BOTTOM SHEET AGGIUNGI PARTECIPANTE -->
   <!-- Modal conferma rimozione partecipante -->
   <div id="remove-guest-overlay" onclick="closeRemoveGuest()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)"></div>
@@ -5548,6 +6830,22 @@
       </div>
     </div>
     <button class="add-guest-close" onclick="closeAddGuest()">Annulla</button>
+  </div>
+
+  <!-- CARRELLO ORDINE -->
+  <button class="cart-fab hidden" id="cart-fab" onclick="cartOpen()">
+    <span class="cart-fab-count" id="cart-count">0</span>
+    <span>Ordina · <span id="cart-fab-total">€0</span></span>
+  </button>
+
+  <div class="cart-overlay" id="cart-overlay" onclick="cartClose()">
+    <div class="cart-sheet" onclick="event.stopPropagation()">
+      <div class="cart-handle"></div>
+      <div class="cart-title">IL TUO <span>ORDINE</span></div>
+      <div id="cart-err"></div>
+      <div id="cart-lines"></div>
+      <div id="cart-foot"></div>
+    </div>
   </div>
 
   <!-- BOLLINO CARTA (presente su tutte le pagine) -->
@@ -5719,6 +7017,115 @@
     }, 300);
   }
 
+  /* ===== EVENTI =====
+     Un solo elenco: la home ne mostra solo i 3 più vicini a oggi,
+     la pagina dedicata (page-eventi) li mostra tutti, in ordine
+     cronologico. "Più vicino a oggi" si ricalcola ogni volta che si
+     apre l'app, senza bisogno di aggiornare le date a mano ogni anno
+     (se un giorno/mese è già passato quest'anno, si considera l'anno
+     prossimo). */
+  const MESI_ABBR = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+  const EVENTI_DATA = [
+    { id: 'beerpong-torneo', day: 14, month: 6, name: 'TORNEO BEER PONG', time: 'Dalle 21:00 · Ingresso libero',        photo: 'evento-torneo-beerpong.jpg',
+      desc: 'Il nostro torneo settimanale di Beer Pong: si gioca a coppie, bracket a eliminazione diretta, musica alta e tanta gente a fare il tifo attorno al tavolo. Iscriviti gratis dalla scheda del Torneo Beer Pong nelle Offerte — trovi anche i premi in palio per il podio.' },
+    { id: 'erasmus',         day: 20, month: 6, name: 'NOTTE ERASMUS',     time: 'Dalle 22:00 · Drink speciali',          photo: 'evento-notte-erasmus.jpg',
+      desc: 'Una serata pensata per chi è appena arrivato a Torino con l\'Erasmus: drink a prezzo speciale, musica internazionale e tanta gente nuova da conoscere. Perfetta anche se non conosci ancora nessuno — è proprio il punto della serata.' },
+    { id: 'cocktail-battle', day: 28, month: 6, name: 'COCKTAIL BATTLE',   time: 'Dalle 20:00 · Vinci un mese di drink',  photo: 'evento-cocktail-battle.jpg',
+      desc: 'I nostri bartender si sfidano a colpi di cocktail originali davanti al pubblico: tu assaggi e voti il tuo preferito. Chi vince porta a casa un mese di drink omaggio. Ingresso libero, si può votare più volte durante la serata.' },
+    { id: 'serata-nerd',     day: 4,  month: 7, name: 'SERATA NERD',       time: 'Dalle 20:00 · Un giovedì al mese',      photo: 'evento-serata-nerd.jpg',
+      desc: 'Una serata a tema per chi ama videogiochi, anime e cultura pop: tornei ai videogiochi, quiz a tema con la modalità Super Quiz dell\'app, musica synthwave/8-bit. Cosplay ben accetto, nessun obbligo. Si ripete il primo giovedì di ogni mese.' }
+  ];
+  function eventiNextDate(ev) {
+    const now = new Date();
+    const anno = now.getFullYear();
+    let d = new Date(anno, ev.month - 1, ev.day, 23, 59, 59);
+    if (d < now) d = new Date(anno + 1, ev.month - 1, ev.day, 23, 59, 59);
+    return d;
+  }
+  function eventiOrdinati() {
+    return EVENTI_DATA.slice().sort(function (a, b) { return eventiNextDate(a) - eventiNextDate(b); });
+  }
+  // clickable=true → apre la scheda dettaglio (usato nella pagina Eventi
+  // completa). Nell'anteprima home resta senza onclick proprio: il tap
+  // sulla card lì deve continuare a portare alla lista completa (bubbling
+  // fino alla sezione), non aprire subito il dettaglio.
+  function eventCardHTML(ev, clickable) {
+    const click = clickable ? ' onclick="openEventDetail(\'' + ev.id + '\')" style="cursor:pointer"' : '';
+    return '<div class="event-card"' + click + '>'
+      +   '<div class="event-date"><div class="event-day">' + ev.day + '</div><div class="event-month">' + MESI_ABBR[ev.month - 1] + '</div></div>'
+      +   '<div class="event-divider"></div>'
+      +   '<div class="event-info"><div class="event-name">' + ev.name + '</div><div class="event-time">' + ev.time + '</div></div>'
+      +   '<div class="event-photo" style="background-image:url(\'' + ev.photo + '\')"></div>'
+      + '</div>';
+  }
+  function renderHomeEventi() {
+    const el = document.getElementById('home-eventi-list');
+    if (!el) return;
+    el.innerHTML = eventiOrdinati().slice(0, 3).map(function (ev) { return eventCardHTML(ev, false); }).join('');
+  }
+  function renderEventiPage() {
+    const el = document.getElementById('eventi-list');
+    if (!el) return;
+    el.innerHTML = eventiOrdinati().map(function (ev) { return eventCardHTML(ev, true); }).join('');
+  }
+  renderHomeEventi(); // la home parte già attiva, senza passare da mostra('home')
+
+  /* ===== SCHEDA DETTAGLIO — offerte ed eventi =====
+     Stessa "bottom sheet" della scheda prodotto, contenuto diverso a
+     seconda che si apra un'offerta o un evento. */
+  const OFFERTE_DETAIL = {
+    'happy-hour': {
+      badge: 'HAPPY HOUR', photo: 'happy-hour-bg.png', name: 'Birre a €3',
+      desc: 'Ogni giorno, dalle 18:00 alle 20:00, tutte le birre alla spina passano a un prezzo fisso di 3€, qualunque sia lo stile o la gradazione. Basta avvicinare la tessera CAMON a uno dei nostri spillatori self-service: nessuna fila al banco, nessun limite di quantità durante l\'orario. È il momento perfetto per un aperitivo lungo prima di cena, da soli o in compagnia.',
+      meta: ['🕕 18:00 – 20:00', '📅 Ogni giorno', '🍻 Nessun limite di quantità'],
+      cta: { label: 'Vai al menu', onclick: "goTo('menu')" }
+    },
+    'beerpong': {
+      badge: 'OGNI MARTEDÌ', photo: 'beerpong2-bg.png', name: 'Torneo Beer Pong',
+      desc: 'Ogni martedì dalle 21:00 organizziamo il nostro torneo di Beer Pong: iscrizione gratuita, si gioca a coppie con bracket a eliminazione diretta. Vieni con un amico o iscriviti da solo e ti abbiniamo noi — l\'importante è esserci in orario, i quarti di finale partono puntuali.',
+      prizes: [
+        '🥇 <b>1° posto</b> <span>— coppa Beer Pong + Spritz omaggio per tutta la serata</span>',
+        '🥈 <b>2° posto</b> <span>— shot omaggio per la coppia</span>',
+        '🥉 <b>3° posto</b> <span>— 2×1 sulla prossima birra</span>'
+      ],
+      meta: ['🕘 Dalle 21:00', '🎟 Ingresso libero'],
+      cta: { label: 'Iscriviti al torneo', onclick: 'beerpongIscriviti()', extraClass: 'beerpong-cta' }
+    },
+    'sconto-profilo': {
+      badge: 'PROFILO', photo: 'sconto-profilo-bg.png', name: 'Sconto Profilo',
+      desc: 'Completa il tuo profilo nell\'app — nome, età, interessi, una foto — e ottieni subito il 10% di sconto sulla tua prima ricarica della tessera. Non è solo uno sconto: più informazioni ci dai, meglio possiamo abbinarti al tavolo giusto se scegli un tavolo condiviso.',
+      meta: ['🎁 10% sulla prima ricarica', '🔒 Utenti registrati'],
+      cta: { label: 'Completa il profilo', onclick: "goTo('profile')" }
+    }
+  };
+  function detailPageOpen(pageLabel, photo, badge, name, bodyHTML) {
+    document.getElementById('detail-page-title').textContent = pageLabel;
+    document.getElementById('detail-hero').style.backgroundImage = photo ? "url('" + photo + "')" : 'none';
+    document.getElementById('detail-badge').innerHTML = badge ? badge : '';
+    document.getElementById('detail-name').textContent = name;
+    document.getElementById('detail-body').innerHTML = bodyHTML;
+    goTo('detail');
+  }
+  function openOfferDetail(id) {
+    const o = OFFERTE_DETAIL[id];
+    if (!o) return;
+    let body = '<p class="product-sheet-desc">' + o.desc + '</p>';
+    if (o.prizes) body += '<div class="detail-prizes">' + o.prizes.map(function (p) { return '<div class="detail-prize-row">' + p + '</div>'; }).join('') + '</div>';
+    if (o.meta) body += '<div class="detail-meta">' + o.meta.map(function (m) { return '<span class="offer-meta-chip">' + m + '</span>'; }).join('') + '</div>';
+    if (o.cta) body += '<button class="offer-cta-btn' + (o.cta.extraClass ? ' ' + o.cta.extraClass : '') + '" style="width:100%;margin-top:20px" onclick="' + o.cta.onclick + '">' + o.cta.label + '</button>';
+    detailPageOpen('OFFERTA', o.photo, o.badge, o.name, body);
+    if (id === 'beerpong' && typeof beerpongRefreshBtn === 'function') beerpongRefreshBtn();
+  }
+  function openEventDetail(id) {
+    const ev = EVENTI_DATA.find(function (e) { return e.id === id; });
+    if (!ev) return;
+    const next = eventiNextDate(ev);
+    const dataFmt = next.getDate() + ' ' + MESI_ABBR[next.getMonth()];
+    let body = '<p class="product-sheet-desc">' + (ev.desc || '') + '</p>';
+    body += '<div class="detail-meta"><span class="offer-meta-chip">📅 ' + dataFmt + '</span><span class="offer-meta-chip">🕒 ' + ev.time + '</span></div>';
+    detailPageOpen('EVENTO', ev.photo, 'EVENTO', ev.name, body);
+  }
+
   /* ===== OFFERTE: accesso riservato agli iscritti ===== */
   function offerteGate() {
     const bloccato = !profHasProfile();
@@ -5726,6 +7133,48 @@
     const gate  = document.getElementById('offerte-locked');
     if (lista) lista.style.display = bloccato ? 'none' : 'flex';
     if (gate)  gate.style.display  = bloccato ? 'flex' : 'none';
+    beerpongRefreshBtn();
+  }
+
+  /* ===== ISCRIZIONE TORNEO BEER PONG =====
+     Niente backend dedicato: basta sapere "mi sono iscritto per il
+     torneo di questa settimana", quindi si salva un flag locale legato
+     al lunedì della settimana corrente + all'utente loggato. Si
+     azzera da solo la settimana dopo perché cambia la chiave. */
+  function beerpongWeekKey() {
+    const d = new Date();
+    const day = (d.getDay() + 6) % 7; // 0 = lunedì
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - day);
+    return monday.toISOString().slice(0, 10);
+  }
+  function beerpongIscriviti() {
+    if (!window.camonUser) {
+      camonConfirm('Devi accedere al tuo account per iscriverti al torneo. Accedere ora?', function () {
+        goTo('profile'); if (typeof profShowAuth === 'function') profShowAuth('login');
+      });
+      return;
+    }
+    camonConfirm('Iscriverti al Torneo Beer Pong di martedì? Ti aspettiamo dalle 21:00.', function () {
+      try { localStorage.setItem('camon_beerpong_' + window.camonUser.id + '_' + beerpongWeekKey(), '1'); } catch (e) {}
+      beerpongRefreshBtn();
+    });
+  }
+  function beerpongRefreshBtn() {
+    // Il pulsante può comparire due volte (pagina Offerte + scheda
+    // dettaglio): si aggiornano tutti quelli con questa classe, invece
+    // di legarsi a un singolo id.
+    const btns = document.querySelectorAll('.beerpong-cta');
+    if (!btns.length) return;
+    let iscritto = false;
+    try {
+      if (window.camonUser) iscritto = localStorage.getItem('camon_beerpong_' + window.camonUser.id + '_' + beerpongWeekKey()) === '1';
+    } catch (e) {}
+    btns.forEach(function (btn) {
+      btn.textContent = iscritto ? '✅ Iscritto — ti aspettiamo martedì!' : 'Iscriviti al torneo';
+      btn.classList.toggle('iscritto', iscritto);
+      btn.disabled = iscritto;
+    });
   }
 
   /* ===== OFFERTE INFINITE SCROLL ===== */
@@ -5964,23 +7413,186 @@
 
   let companionSlots = []; // [{slotId, selectedUser}]
 
+  /* --- Disponibilità simulata: quante persone → giorni e orari liberi ---
+     Non c'è ancora un vero sistema di capienza tavoli collegato: finché non
+     c'è, la disponibilità è calcolata in modo deterministico (stesso giorno
+     + stesso numero di persone = stesso risultato) così il totem/l'app si
+     comporta in modo coerente, ma è pronta per essere sostituita da una
+     vera query al backend (RPC tipo bookAvailability(data, persone)). */
+  function bookHash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return h;
+  }
+  function bookGetPersoneNum() {
+    const pill = document.querySelector('#persone-grid .people-pill.active');
+    const val = pill ? pill.textContent.replace(' pers.', '').replace('+', '').trim() : '1';
+    return val === 'Solo io' ? 1 : (parseInt(val) || 1);
+  }
+  function bookPersoneBucket(n) { return n <= 2 ? 'S' : n <= 4 ? 'M' : 'L'; }
+  const BOOK_TIME_SLOTS = ['19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30','23:00','23:30'];
+  // Un gruppo grande "chiude" più facilmente l'intera giornata (tavolo/stanza
+  // grande già occupato), mentre per 1-2 persone è raro non trovare posto.
+  function bookDayFull(dateStr, bucket) {
+    const threshold = bucket === 'S' ? 8 : bucket === 'M' ? 20 : 38; // % giorni completamente pieni
+    return (bookHash(dateStr + '|DAYFULL|' + bucket) % 100) < threshold;
+  }
+  function bookTimeSlotsFor(dateStr, persone) {
+    const bucket = bookPersoneBucket(persone);
+    if (bookDayFull(dateStr, bucket)) return BOOK_TIME_SLOTS.map(t => ({ time: t, available: false }));
+    const threshold = bucket === 'S' ? 10 : bucket === 'M' ? 20 : 35; // % fasce piene quel giorno
+    return BOOK_TIME_SLOTS.map(t => ({
+      time: t,
+      available: (bookHash(dateStr + '|' + t + '|' + bucket) % 100) >= threshold
+    }));
+  }
+  function bookDateStr(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function bookIsDateAvailable(d, persone) {
+    return bookTimeSlotsFor(bookDateStr(d), persone).some(s => s.available);
+  }
+
+  /* --- Mini calendario per il campo Data --- */
+  const bookCalGiorni = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  const bookCalMesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  let bookCalView = new Date();       // mese attualmente mostrato nel popover
+  let bookCalSelected = null;         // Date scelta
+
+  function bookCalNav(delta) {
+    bookCalView = new Date(bookCalView.getFullYear(), bookCalView.getMonth() + delta, 1);
+    bookCalRender();
+  }
+  function bookCalRender() {
+    document.getElementById('book-cal-month').textContent =
+      bookCalMesi[bookCalView.getMonth()] + ' ' + bookCalView.getFullYear();
+    const grid = document.getElementById('book-cal-grid');
+    grid.innerHTML = '';
+    const year = bookCalView.getFullYear(), month = bookCalView.getMonth();
+    const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // lun=0
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date(); today.setHours(0,0,0,0);
+    for (let i = 0; i < firstDow; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'book-cal-day other';
+      grid.appendChild(cell);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = new Date(year, month, day);
+      const cell = document.createElement('div');
+      cell.className = 'book-cal-day';
+      cell.textContent = day;
+      const persone = bookGetPersoneNum();
+      if (d < today) cell.classList.add('disabled');
+      else if (!bookIsDateAvailable(d, persone)) cell.classList.add('full');
+      if (d.getTime() === today.getTime()) cell.classList.add('today');
+      if (bookCalSelected && d.getTime() === bookCalSelected.getTime()) cell.classList.add('sel');
+      cell.onclick = () => bookCalPick(d);
+      grid.appendChild(cell);
+    }
+  }
+  function bookCalPick(d) {
+    bookCalSelected = d;
+    const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+    document.getElementById('book-data').value = y + '-' + m + '-' + day;
+    document.getElementById('book-date-label').textContent =
+      bookCalGiorni[d.getDay()] + ' ' + d.getDate() + ' ' + bookCalMesi[d.getMonth()].slice(0,3).toLowerCase();
+    bookCalRender(); // aggiorna la selezione evidenziata, resta sempre aperto
+    bookTimeRender();
+  }
+  function bookCalReset() {
+    bookCalSelected = null;
+    bookCalView = new Date();
+    document.getElementById('book-data').value = '';
+    document.getElementById('book-date-label').textContent = '…';
+    bookTimeReset();
+    bookCalRender();
+    // il calendario resta sempre aperto: al posto di uno stato vuoto,
+    // seleziona subito il primo giorno disponibile
+    bookCalAutoPick();
+  }
+  // Cerca in avanti (fino a ~2 mesi) il primo giorno libero per il numero
+  // di persone corrente e lo seleziona automaticamente, così calendario e
+  // fasce orarie appaiono già "aperti" con una scelta pronta, senza
+  // costringere l'utente a cliccare per forza.
+  function bookCalAutoPick() {
+    const persone = bookGetPersoneNum();
+    const today = new Date(); today.setHours(0,0,0,0);
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+      if (bookIsDateAvailable(d, persone)) {
+        bookCalView = new Date(d.getFullYear(), d.getMonth(), 1);
+        bookCalPick(d);
+        return;
+      }
+    }
+  }
+
+  /* --- Fasce orarie disponibili per la data scelta --- */
+  function bookTimeReset() {
+    document.getElementById('book-ora').value = '';
+    document.getElementById('book-time-grid').style.display = 'none';
+    document.getElementById('book-time-grid').innerHTML = '';
+    document.getElementById('book-time-hint').style.display = 'flex';
+    document.getElementById('book-time-hint').textContent = 'Scegli prima la data';
+  }
+  function bookTimeRender() {
+    const dataVal = document.getElementById('book-data').value;
+    document.getElementById('book-ora').value = '';
+    if (!dataVal) { bookTimeReset(); return; }
+    const persone = bookGetPersoneNum();
+    const slots = bookTimeSlotsFor(dataVal, persone);
+    const grid = document.getElementById('book-time-grid');
+    grid.innerHTML = '';
+    let firstAvailBtn = null;
+    slots.forEach(s => {
+      const b = document.createElement('div');
+      b.className = 'book-time-slot' + (s.available ? '' : ' full');
+      b.textContent = s.time;
+      if (s.available) {
+        b.onclick = () => bookTimePick(s.time, b);
+        if (!firstAvailBtn) firstAvailBtn = b;
+      }
+      grid.appendChild(b);
+    });
+    grid.style.display = 'flex';
+    const hint = document.getElementById('book-time-hint');
+    if (firstAvailBtn) {
+      hint.style.display = 'none';
+      // la barra oraria è già "aperta" con una scelta pronta: seleziona
+      // subito la prima fascia libera, l'utente può comunque cambiarla
+      bookTimePick(firstAvailBtn.textContent, firstAvailBtn);
+    } else {
+      hint.style.display = 'flex';
+      hint.textContent = 'Nessun orario libero questo giorno';
+    }
+  }
+  function bookTimePick(time, btn) {
+    document.getElementById('book-ora').value = time;
+    document.querySelectorAll('#book-time-grid .book-time-slot').forEach(x => x.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+  // Cambiando il numero di persone la disponibilità cambia: se la data
+  // scelta non è più valida per il nuovo numero, si torna a sceglierla.
+  function bookOnPersoneChange() {
+    if (bookCalSelected && !bookIsDateAvailable(bookCalSelected, bookGetPersoneNum())) {
+      bookCalReset();
+    } else {
+      bookCalRender();
+      if (bookCalSelected) bookTimeRender();
+    }
+  }
+
   function bookSelectType(type) {
     bookType = type;
     const cfg = bookTypes[type];
-    document.getElementById('book-sum-ico').textContent   = cfg.ico;
-    document.getElementById('book-sum-name').textContent  = cfg.name;
-    document.getElementById('book-sum-desc').textContent  = cfg.desc;
     document.getElementById('persone-lbl').textContent    = cfg.personeLbl;
-    // colora summary card in base al tipo
-    const sc = document.getElementById('book-summary-card');
-    const scColors = {
-      room:   ['rgba(247,204,73,0.35)','rgba(247,204,73,0.07)'],
-      shared: ['rgba(100,200,255,0.25)','rgba(100,200,255,0.06)'],
-      invite: ['rgba(244,114,182,0.3)','rgba(244,114,182,0.07)']
-    };
-    const scol = scColors[type] || ['rgba(255,255,255,0.12)','rgba(255,255,255,0.04)'];
-    sc.style.borderColor = scol[0];
-    sc.style.background  = scol[1];
+    // titolo dello step 2 = tipo di tavolo scelto (es. "TAVOLO CONDIVISO"),
+    // con l'ultima parola in oro, al posto del vecchio "Dettagli prenotazione"
+    const titleEl = document.getElementById('book-step2-title');
+    const words = cfg.name.split(' ');
+    const last = words.pop();
+    titleEl.innerHTML = (words.length ? words.join(' ') + ' ' : '') + '<span>' + last + '</span>';
     // costruisci pill persone
     companionSlots = [];
     const grid = document.getElementById('persone-grid');
@@ -5993,9 +7605,13 @@
         grid.querySelectorAll('.people-pill').forEach(x => x.classList.remove('active'));
         p.classList.add('active');
         if (type === 'shared') bookUpdateCompanions(opt);
+        bookOnPersoneChange();
       };
       grid.appendChild(p);
     });
+    // ora che le pill persone esistono (con il default attivo), calendario
+    // e fasce orarie possono auto-selezionare il primo giorno/orario libero
+    bookCalReset();
     // occasione solo per stanza privata
     document.getElementById('bfield-occasione').style.display = cfg.showOccasione ? 'flex' : 'none';
     // compagni solo per shared, nascosto di default (richiede > 1 pers)
@@ -6005,7 +7621,7 @@
     document.getElementById('bfield-persone').style.display = isInvite ? 'none' : 'flex';
     document.getElementById('bfield-invite').style.display = isInvite ? 'flex' : 'none';
     // nell'invito segreto nascondiamo data/ora e note (nome e tel rimossi dal form)
-    document.getElementById('bfield-datetime').style.display = isInvite ? 'none' : 'grid';
+    document.getElementById('bfield-datetime').style.display = isInvite ? 'none' : 'flex';
     document.getElementById('bfield-note').style.display     = isInvite ? 'none' : 'flex';
     const confirmBtn = document.querySelector('.book-confirm-btn');
     if (confirmBtn) confirmBtn.textContent = isInvite ? 'Invia invito segreto' : 'Conferma prenotazione';
@@ -6298,9 +7914,7 @@
     if (!data) { alert('Scegli una data.'); return; }
     if (!ora)  { alert('Scegli un orario.'); return; }
 
-    var activePersonePill = document.querySelector('#persone-grid .people-pill.active');
-    var personeVal = activePersonePill ? activePersonePill.textContent.replace(' pers.','').replace('+','').trim() : '1';
-    var personeNum = personeVal === 'Solo io' ? 1 : (parseInt(personeVal) || 1);
+    var personeNum = bookGetPersoneNum();
 
     var d = new Date(data + 'T12:00:00');
     var giorni = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
@@ -6942,9 +8556,41 @@
     });
 
     const vuoto = document.getElementById('menu-empty');
-    if (vuoto) vuoto.style.display = visibili ? 'none' : 'block';
+    if (vuoto) {
+      if (visibili) vuoto.style.display = 'none';
+      else menuMostraStato();
+    }
 
     return visibili;
+  }
+
+  /* 'attesa' finché i prodotti non sono arrivati, 'errore' se non ce
+     l'hanno fatta. Serve a non dire "nessun risultato" quando il vero
+     motivo è che il menu non è ancora stato scaricato. */
+  let menuStato = 'attesa';
+
+  function menuMostraStato() {
+    const vuoto = document.getElementById('menu-empty');
+    if (!vuoto) return;
+    if (menuStato === 'attesa') {
+      vuoto.innerHTML = '<strong>Un attimo…</strong>Stiamo caricando il menu.';
+    } else if (menuStato === 'errore') {
+      vuoto.innerHTML = '<strong>Menu non disponibile</strong>'
+        + 'Controlla la connessione e riprova.<br>'
+        + '<button onclick="menuRiprova(this)" style="margin-top:14px;padding:10px 20px;border:none;'
+        + 'border-radius:10px;background:#f7cc49;color:#111;font-family:Manrope,sans-serif;'
+        + 'font-size:13px;font-weight:800;cursor:pointer">Riprova</button>';
+    } else {
+      vuoto.innerHTML = '<strong>Nessun risultato</strong>Prova con un altro nome o cambia categoria.';
+    }
+    vuoto.style.display = 'block';
+  }
+
+  async function menuRiprova(btn) {
+    if (btn) { btn.disabled = true; btn.textContent = 'Carico…'; }
+    menuStato = 'attesa';
+    menuMostraStato();
+    await camonSyncMenu();
   }
 
   /* quante corrispondenze ci sono nell'altra sezione (drink <-> cibo) */
@@ -7028,45 +8674,198 @@
     } catch (e) {}
   }
 
-  /* ===== BRACCIALETTI ===== */
-  let bands = []; // { code, active }
+  /* Accesso alla Carta riservato: senza una sessione reale (non basta
+     il "profilo" locale) si vede solo l'invito ad accedere, mai un
+     saldo. Controlla auth.getSession() ogni volta — niente stato
+     locale che possa dire "sei loggato" per errore. */
+  async function cartaGate() {
+    const locked  = document.getElementById('carta-locked');
+    const content = document.getElementById('carta-content');
+    if (!locked || !content) return;
+    const user = window.sb ? (await window.sb.auth.getSession()).data?.session?.user : null;
+    const bloccato = !user;
+    locked.style.display  = bloccato ? 'flex' : 'none';
+    content.style.display = bloccato ? 'none' : 'block';
+    if (user) {
+      walletSyncFromServer();
+      walletSubscribeRealtime(user.id);
+    }
+  }
 
-  function bandsLoad() {
-    try {
-      const b = localStorage.getItem('camon_bands');
-      bands = b ? JSON.parse(b) : [];
-    } catch (e) { bands = []; }
+  /* Data di un movimento in formato leggibile: "Oggi, 13:37" / "Ieri, 21:50"
+     / "3 ago, 17:28" — stesso stile usato nei dati dimostrativi. */
+  function fmtTxDate(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const hm = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    const sameDay = d.toDateString() === now.toDateString();
+    const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+    if (sameDay) return 'Oggi, ' + hm;
+    if (d.toDateString() === yesterday.toDateString()) return 'Ieri, ' + hm;
+    return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + ', ' + hm;
   }
-  function bandsSave() {
-    try { localStorage.setItem('camon_bands', JSON.stringify(bands)); } catch (e) {}
+
+  /* Saldo e movimenti VERI, letti dalle tabelle wallets/transactions —
+     sostituiscono i dati demo locali per chi è loggato. */
+  async function walletSyncFromServer() {
+    if (!window.sb) return;
+    const { data: { user } } = await window.sb.auth.getUser();
+    if (!user) return;
+
+    const [walletRes, txRes] = await Promise.all([
+      window.sb.from('wallets').select('balance_cents').eq('user_id', user.id).maybeSingle(),
+      window.sb.from('transactions').select('type,amount_cents,description,created_at')
+        .eq('user_id', user.id).order('created_at', { ascending: false }).limit(30)
+    ]);
+
+    if (walletRes.error) { console.error('[wallet] select wallets:', walletRes.error.message); return; }
+    if (txRes.error)     { console.error('[wallet] select transactions:', txRes.error.message); return; }
+
+    cardBalance = (walletRes.data?.balance_cents ?? 0) / 100;
+    cardTx = (txRes.data || []).map(t => ({
+      type: t.type === 'spend' ? 'out' : 'in',
+      label: t.description || (t.type === 'spend' ? 'Spesa' : 'Ricarica'),
+      amount: t.amount_cents / 100,
+      date: fmtTxDate(t.created_at)
+    }));
+    renderWallet();
   }
-  function bandLink() {
+
+  /* Ascolto in tempo reale: appena wallets/transactions cambiano per
+     questo utente (es. una ricarica fatta al totem con il braccialetto),
+     l'app si aggiorna da sola — non serve uscire e rientrare dalla Carta. */
+  let walletChannel = null;
+  function walletSubscribeRealtime(userId) {
+    if (walletChannel || !window.sb) return; // già in ascolto
+    walletChannel = window.sb.channel('wallet-' + userId)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'wallets', filter: 'user_id=eq.' + userId },
+        () => walletSyncFromServer())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions', filter: 'user_id=eq.' + userId },
+        () => walletSyncFromServer())
+      .subscribe();
+  }
+
+  /* ===== BRACCIALETTI =====
+     Nessuno stato locale: ogni azione (collega/attiva/rimuovi) scrive
+     su Supabase e poi rilegge la tabella nfc_cards, quindi quello che
+     vedi in UI è sempre esattamente quello che c'è sul server per il
+     tuo account. */
+  let bands = []; // ultima lettura da Supabase: { code, active }
+  let bandsState = 'idle'; // idle | loading | logged-out | error | ready
+
+  /* Attende (fino a 5s) che ci sia una sessione Supabase valida.
+     Necessario perché appena la pagina si apre il client può metterci
+     un istante a ripristinare la sessione salvata: se interrogassimo
+     subito rischieremmo di vederci "non loggati" per errore. */
+  async function bandsWaitForUser(timeoutMs) {
+    if (!window.sb) return null;
+    const deadline = Date.now() + (timeoutMs || 5000);
+    while (Date.now() < deadline) {
+      try {
+        const { data, error } = await window.sb.auth.getSession();
+        if (error) { console.error('[braccialetti] getSession:', error.message); return null; }
+        if (data?.session?.user) return data.session.user;
+      } catch (e) { console.error('[braccialetti] getSession exception:', e); return null; }
+      await new Promise(r => setTimeout(r, 200));
+    }
+    return null;
+  }
+
+  /* Legge da zero i braccialetti dell'account loggato. Fonte unica di
+     verità: tabella public.nfc_cards, filtrata per user_id (RLS la
+     limita comunque alle sole righe dell'utente che chiama). */
+  async function bandsSync() {
+    bandsState = 'loading';
+    bandRender();
+
+    const user = await bandsWaitForUser();
+    if (!user) {
+      console.warn('[braccialetti] nessuna sessione: non posso leggere nfc_cards');
+      bands = [];
+      bandsState = 'logged-out';
+      bandRender();
+      return;
+    }
+
+    const { data, error } = await window.sb
+      .from('nfc_cards')
+      .select('uid,active')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('[braccialetti] select nfc_cards:', error.message);
+      bandsState = 'error';
+      bandRender();
+      return;
+    }
+
+    bands = (data || []).map(r => ({ code: r.uid, active: !!r.active }));
+    bandsState = 'ready';
+    bandRender();
+  }
+
+  async function bandLink() {
     const input = document.getElementById('band-code-input');
     const code = (input.value || '').trim().toUpperCase();
     if (code.length < 4) { alert('Inserisci un codice valido (almeno 4 caratteri), lo trovi stampato sul braccialetto.'); return; }
     if (bands.some(b => b.code === code)) { alert('Questo braccialetto è già collegato al tuo conto.'); return; }
-    // un solo braccialetto attivo per volta: il nuovo diventa attivo, gli altri si disattivano
-    bands.forEach(b => b.active = false);
-    bands.push({ code, active: true });
-    bandsSave();
+
+    const user = await bandsWaitForUser(3000);
+    if (!user) {
+      alert('Devi accedere al tuo account per collegare un braccialetto.');
+      return;
+    }
+
+    const btn = document.querySelector('.band-add-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    const { error } = await window.sb.rpc('nfc_register', { p_uid: code, p_user_id: user.id });
+    if (btn) { btn.disabled = false; btn.textContent = 'Collega'; }
+
+    if (error) {
+      console.error('[braccialetti] nfc_register:', error);
+      alert('Errore collegamento carta: ' + error.message);
+      return;
+    }
+
     input.value = '';
-    bandRender();
+    await bandsSync(); // rilegge dal server: la UI mostra solo dati confermati
   }
-  function bandActivate(code) {
-    bands.forEach(b => b.active = (b.code === code));
-    bandsSave();
-    bandRender();
+
+  async function bandActivate(code) {
+    const user = await bandsWaitForUser(3000);
+    if (!user) { alert('Devi accedere al tuo account.'); return; }
+    const { error } = await window.sb.rpc('nfc_set_active', { p_uid: code, p_user_id: user.id });
+    if (error) { console.error('[braccialetti] nfc_set_active:', error); alert('Errore attivazione carta: ' + error.message); return; }
+    await bandsSync();
   }
+
   function bandRemove(code) {
-    camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', function() {
-      bands = bands.filter(b => b.code !== code);
-      bandsSave();
-      bandRender();
+    camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', async function() {
+      const user = await bandsWaitForUser(3000);
+      if (!user) { alert('Devi accedere al tuo account.'); return; }
+      const { error } = await window.sb.rpc('nfc_unlink', { p_uid: code, p_user_id: user.id });
+      if (error) { console.error('[braccialetti] nfc_unlink:', error); alert('Errore rimozione carta: ' + error.message); return; }
+      await bandsSync();
     });
   }
+
   function bandRender() {
     const list = document.getElementById('band-list');
     if (!list) return;
+
+    if (bandsState === 'loading') {
+      list.innerHTML = '<div class="band-empty">Carico i tuoi braccialetti…</div>';
+      return;
+    }
+    if (bandsState === 'logged-out') {
+      list.innerHTML = '<div class="band-empty">Accedi al tuo account per vedere i braccialetti collegati.</div>';
+      return;
+    }
+    if (bandsState === 'error') {
+      list.innerHTML = '<div class="band-empty">Errore nel caricamento. Riprova tra poco.</div>';
+      return;
+    }
     if (!bands.length) {
       list.innerHTML = '<div class="band-empty">Nessun braccialetto collegato.<br>Inserisci un codice qui sopra per aggiungerne uno.</div>';
       return;
@@ -7095,109 +8894,6 @@
   function bandActiveCode() {
     const b = bands.find(x => x.active);
     return b ? b.code : null;
-  }
-
-  /* ===== SPINA SELF-SERVICE (demo) ===== */
-  const SPINA_PRODUCTS = {
-    'IPA':    { pricePerMl: 0.01, label: 'Spina 1 · IPA del Birrificio', priceLabel: '€10,00 / litro', fillColor: 'linear-gradient(180deg,#FFC433,#E89010)' },
-    'Mojito': { pricePerMl: 0.015, label: 'Spina 2 · Mojito Classico', priceLabel: '€15,00 / litro', fillColor: 'linear-gradient(180deg,#4CD964,#2A9D4E)' },
-  };
-  let spinaProduct = 'IPA';
-  let spinaMl = 0, spinaCost = 0, spinaTimer = null, spinaReady = false;
-
-  function spinaSelectProduct(product) {
-    if (spinaTimer) return; // non cambiare mentre stai spillando
-    spinaProduct = product;
-    document.querySelectorAll('.spina-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('spina-tab-' + product.toLowerCase()).classList.add('active');
-    const p = SPINA_PRODUCTS[product];
-    document.getElementById('spina-tap-name').innerHTML = p.label.replace(' · ', ' · <b>').replace(/(<b>.*)$/, '$1</b>');
-    document.getElementById('spina-tap-price').textContent = p.priceLabel;
-    document.getElementById('spina-fill').style.background = p.fillColor;
-    spinaMl = 0; spinaCost = 0; spinaRenderGlass();
-  }
-
-  function spinaInit() {
-    spinaStopPour();
-    spinaMl = 0; spinaCost = 0;
-    spinaRenderGlass();
-    const bandEl = document.getElementById('spina-band');
-    const btn = document.getElementById('spina-pour-btn');
-    const code = bandActiveCode();
-    if (!code) {
-      bandEl.className = 'spina-band warn';
-      bandEl.textContent = '⚠ Nessun braccialetto attivo — attivane uno nella Carta';
-      btn.disabled = true; spinaReady = false;
-    } else if (cardBalance <= 0) {
-      bandEl.className = 'spina-band warn';
-      bandEl.textContent = '⚠ Saldo esaurito — ricarica la carta';
-      btn.disabled = true; spinaReady = false;
-    } else {
-      bandEl.className = 'spina-band ok';
-      bandEl.textContent = '● Braccialetto ' + code + ' attivo';
-      btn.disabled = false; spinaReady = true;
-    }
-    document.getElementById('spina-saldo').textContent = 'Saldo: ' + fmtEuro(cardBalance);
-  }
-  function spinaRenderGlass() {
-    // mostra il bicchiere in loop: ogni 500ml ricomincia visivamente
-    const DISPLAY_ML = 500;
-    const pct = Math.min(100, (spinaMl % DISPLAY_ML || (spinaMl > 0 && spinaMl % DISPLAY_ML === 0 ? DISPLAY_ML : 0)) / DISPLAY_ML * 100);
-    document.getElementById('spina-fill').style.height = pct + '%';
-    const foam = document.getElementById('spina-foam');
-    foam.style.bottom = pct + '%'; foam.style.height = (pct > 0 ? 10 : 0) + 'px'; foam.style.opacity = pct > 0 ? 1 : 0;
-    document.getElementById('spina-ml').textContent = Math.round(spinaMl);
-    document.getElementById('spina-cost').textContent = spinaCost.toFixed(2).replace('.', ',');
-  }
-  function spinaStartPour() {
-    if (!spinaReady || spinaTimer) return;
-    const pricePerMl = SPINA_PRODUCTS[spinaProduct].pricePerMl;
-    spinaMl = 0; spinaCost = 0; spinaRenderGlass();
-    document.getElementById('spina-pour-btn').classList.add('pouring');
-    document.querySelector('.spina-pour-lbl').textContent = 'STO SPILLANDO…';
-    spinaTimer = setInterval(() => {
-      const maxByBalance = cardBalance / pricePerMl;
-      const next = Math.min(spinaMl + 16, maxByBalance);
-      spinaMl = next;
-      spinaCost = spinaMl * pricePerMl;
-      spinaRenderGlass();
-      if (spinaMl >= maxByBalance - 0.1) {
-        spinaStopPour(); // saldo finito
-      }
-    }, 60);
-  }
-  function spinaStopPour() {
-    if (spinaTimer) { clearInterval(spinaTimer); spinaTimer = null; }
-    const btn = document.getElementById('spina-pour-btn');
-    if (btn) btn.classList.remove('pouring');
-    const lbl = document.querySelector('.spina-pour-lbl');
-    if (lbl) lbl.textContent = 'TIENI PREMUTO PER SPILLARE';
-    spinaCommit();
-  }
-  function spinaCommit() {
-    if (spinaCost <= 0) return;
-    const cost = Math.round(spinaCost * 100) / 100;
-    const ml = Math.round(spinaMl);
-    const product = spinaProduct;
-    cardBalance = Math.max(0, cardBalance - cost);
-    // accorpa solo se stesso prodotto e ultima spillata < 30 secondi fa
-    const MERGE_TIMEOUT_MS = 30000;
-    const now = Date.now();
-    const last = cardTx[0];
-    if (last && last.spina && last.product === product && (now - (last.ts || 0)) < MERGE_TIMEOUT_MS) {
-      last.ml += ml;
-      last.amount = Math.round((last.amount + cost) * 100) / 100;
-      last.label = 'Spina · ' + product + ' (' + last.ml + ' ml)';
-      last.date = nowLabel();
-      last.ts = now;
-    } else {
-      cardTx.unshift({ type:'out', spina:true, product, ml, label:'Spina · ' + product + ' (' + ml + ' ml)', amount:cost, date:nowLabel(), ts:now });
-    }
-    walletSave();
-    renderWallet();
-    document.getElementById('spina-saldo').textContent = 'Saldo: ' + fmtEuro(cardBalance);
-    spinaCost = 0; // evita doppio addebito
-    if (cardBalance <= 0) spinaInit();
   }
 
   function renderWallet() {
@@ -7255,23 +8951,48 @@
     return 'Oggi, ' + hh + ':' + mm;
   }
 
-  function doRecharge() {
+  /* Ricarica vera: chiama la funzione server wallet_recharge (in
+     supabase/03_wallet_functions.sql) che scala/aggiunge sul saldo
+     reale — non più un numero finto tenuto solo in locale. */
+  async function doRecharge() {
     const input = document.getElementById('recharge-input');
     let amt = rechargeAmount;
     if (input.value) amt = parseFloat(input.value.replace(',', '.'));
     if (!amt || amt <= 0) { alert('Scegli o inserisci un importo valido.'); return; }
     if (amt < RECHARGE_MIN) { alert('La ricarica minima da app è €' + RECHARGE_MIN + '. Per importi inferiori puoi ricaricare al banco.'); return; }
     if (amt > 500) { amt = 500; }
-    cardBalance += amt;
-    cardTx.unshift({ type:'in', label:'Ricarica', amount:amt, date:nowLabel() });
-    walletSave();
-    renderWallet();
+
+    const btn = document.querySelector('.wallet-recharge-btn');
+    const old = btn.textContent;
+
+    if (window.sb) {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) { alert('Devi accedere al tuo account per ricaricare.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Attendi…';
+      const { error } = await window.sb.rpc('wallet_recharge', {
+        p_amount_cents: Math.round(amt * 100),
+        p_description: 'Ricarica da app'
+      });
+      btn.disabled = false;
+      if (error) {
+        btn.textContent = old;
+        alert('Ricarica non riuscita: ' + error.message);
+        return;
+      }
+      await walletSyncFromServer(); // rilegge saldo/movimenti veri
+    } else {
+      // offline/demo: nessuna connessione a Supabase, resta la sola copia locale
+      cardBalance += amt;
+      cardTx.unshift({ type:'in', label:'Ricarica', amount:amt, date:nowLabel() });
+      walletSave();
+      renderWallet();
+    }
+
     // reset selezione
     clearAmtChips();
     input.value = '';
     // feedback sul pulsante
-    const btn = document.querySelector('.wallet-recharge-btn');
-    const old = btn.textContent;
     btn.textContent = '✓ Ricaricato ' + fmtEuro(amt).replace('€ ','€') + '!';
     btn.style.background = '#4CD964';
     setTimeout(() => { btn.textContent = old; btn.style.background = '#f7cc49'; }, 1600);
@@ -7279,8 +9000,7 @@
 
   walletLoad();
   renderWallet();
-  bandsLoad();
-  bandRender();
+  bandRender(); // stato iniziale ("Carico…" o "accedi") finché bandsSync() non risponde
   homeUpdateStatus();
   homeUpdateTile();
   // mostra il bollino shot nella home al caricamento iniziale
@@ -7402,18 +9122,6 @@
     } catch(e) { /* libreria non disponibile, le foto rimangono */ }
   })();
 
-  // eventi pulsante "tieni premuto per spillare"
-  (function () {
-    const btn = document.getElementById('spina-pour-btn');
-    if (!btn) return;
-    const start = (e) => { e.preventDefault(); spinaStartPour(); };
-    const stop  = (e) => { e.preventDefault(); spinaStopPour(); };
-    btn.addEventListener('pointerdown', start);
-    btn.addEventListener('pointerup', stop);
-    btn.addEventListener('pointerleave', stop);
-    btn.addEventListener('pointercancel', stop);
-  })();
-
   /* ===== SVG: hit-area + tap delegation per tavoli su iOS ===== */
   (function () {
     var ns = 'http://www.w3.org/2000/svg';
@@ -7461,6 +9169,226 @@
 </script>
 
 <script>
+  /* ===== FESTA PRIVATA (richiesta evento) ===== */
+  var eventSel = { data: null, dataFmt: '', ora: null, invitati: null, mood: null };
+  var evCalCursor = null;   // primo giorno del mese mostrato
+  var EV_MESI_AVANTI = 3;   // fin dove si puo' sfogliare
+
+  function evStripTime(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+
+  /* Si parte da domani: una festa non si organizza per stasera. */
+  function evPrimoGiorno() {
+    var d = evStripTime(new Date());
+    d.setDate(d.getDate() + 1);
+    return d;
+  }
+  function evUltimoGiorno() {
+    var d = evPrimoGiorno();
+    d.setMonth(d.getMonth() + EV_MESI_AVANTI);
+    return d;
+  }
+
+  /* Il lunedi' il locale e' chiuso, e nel passato non si prenota. */
+  function evGiornoValido(d) {
+    if (d.getDay() === 1) return false;
+    return d >= evPrimoGiorno() && d <= evUltimoGiorno();
+  }
+
+  function eventCalMove(delta) {
+    evCalCursor.setMonth(evCalCursor.getMonth() + delta);
+    eventCalRender();
+  }
+
+  function eventCalRender() {
+    var grid = document.getElementById('evcal-grid');
+    if (!grid) return;
+    var anno = evCalCursor.getFullYear(), mese = evCalCursor.getMonth();
+
+    document.getElementById('evcal-month').textContent =
+      evCalCursor.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+
+    /* niente frecce oltre l'intervallo prenotabile */
+    var min = evPrimoGiorno(), max = evUltimoGiorno();
+    document.getElementById('evcal-prev').disabled =
+      (anno === min.getFullYear() && mese === min.getMonth()) ||
+      new Date(anno, mese, 1) <= new Date(min.getFullYear(), min.getMonth(), 1);
+    document.getElementById('evcal-next').disabled =
+      new Date(anno, mese, 1) >= new Date(max.getFullYear(), max.getMonth(), 1);
+
+    grid.innerHTML = '';
+    /* la griglia parte da lunedi': domenica (0) va in fondo */
+    var primo = new Date(anno, mese, 1);
+    var offset = (primo.getDay() + 6) % 7;
+    for (var i = 0; i < offset; i++) {
+      var vuoto = document.createElement('div');
+      vuoto.className = 'evcal-day empty';
+      grid.appendChild(vuoto);
+    }
+
+    var giorniNelMese = new Date(anno, mese + 1, 0).getDate();
+    for (var g = 1; g <= giorniNelMese; g++) {
+      (function (giorno) {
+        var d = new Date(anno, mese, giorno);
+        var iso = anno + '-' + String(mese + 1).padStart(2, '0') + '-' + String(giorno).padStart(2, '0');
+        var cell = document.createElement('button');
+        cell.type = 'button';
+        cell.textContent = giorno;
+        if (!evGiornoValido(d)) {
+          cell.className = 'evcal-day off';
+          cell.disabled = true;
+        } else {
+          cell.className = 'evcal-day' + (eventSel.data === iso ? ' active' : '');
+          cell.onclick = function () {
+            eventSel.data = iso;
+            eventSel.dataFmt = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+            grid.querySelectorAll('.evcal-day').forEach(function (x) { x.classList.remove('active'); });
+            cell.classList.add('active');
+            eventHideError();
+          };
+        }
+        grid.appendChild(cell);
+      })(g);
+    }
+  }
+
+  function eventAddPill(grid, label, value, campo, fmt, cls) {
+    var b = document.createElement('button');
+    b.className = 'people-pill' + (cls ? ' ' + cls : '');
+    b.type = 'button';
+    /* testo in un elemento a parte: sulle atmosfere deve stare
+       sopra l'immagine di sfondo e il suo velo */
+    var s = document.createElement('span');
+    s.textContent = label;
+    b.appendChild(s);
+    b.onclick = function () {
+      grid.querySelectorAll('.people-pill').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      eventSel[campo] = value;
+      if (campo === 'data') eventSel.dataFmt = fmt || label;
+      if (campo === 'mood') eventApplyMood(b.dataset.mood);
+      eventHideError();
+    };
+    grid.appendChild(b);
+    return b;
+  }
+
+  /* Tinge l'intera pagina con l'atmosfera scelta. */
+  function eventApplyMood(chiave) {
+    var pg = document.getElementById('page-event');
+    if (!pg) return;
+    pg.className = pg.className.replace(/\s*evmood-\S+/g, '');
+    if (chiave) pg.classList.add('evmood-' + chiave, 'evmood-on');
+  }
+
+  function eventBuildFixed() {
+    var t = document.getElementById('event-times');
+    var g = document.getElementById('event-guests');
+    var m = document.getElementById('event-mood');
+    if (!t || !g || !m) return;
+    t.innerHTML = ''; g.innerHTML = ''; m.innerHTML = '';
+    ['19:00', '20:00', '21:00', '22:00'].forEach(function (o) { eventAddPill(t, o, o, 'ora'); });
+    ['10', '15', '20', '30', '40', '50+'].forEach(function (o) { eventAddPill(g, o, o, 'invitati'); });
+    [{ l: '✨ Elegante', k: 'elegante' },
+     { l: '🛋️ Chill', k: 'chill' },
+     { l: '🔥 Scatenata', k: 'scatenata' },
+     { l: '🎭 A tema', k: 'tema' },
+     { l: '🤷 Decidiamo insieme', k: 'aperto' }]
+      .forEach(function (o) {
+        eventAddPill(m, o.l, o.l, 'mood', null, 'mood-pill mood-' + o.k).dataset.mood = o.k;
+      });
+  }
+
+  function eventShowError(msg) {
+    var e = document.getElementById('event-error');
+    e.textContent = msg;
+    e.style.display = 'block';
+    e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function eventHideError() {
+    var e = document.getElementById('event-error');
+    if (e) e.style.display = 'none';
+  }
+
+  /* Rientrando si riparte dal modulo pulito, non dalla conferma
+     della richiesta precedente. */
+  function eventEnter() {
+    eventSel = { data: null, dataFmt: '', ora: null, invitati: null, mood: null };
+    document.getElementById('event-form-wrap').style.display = 'flex';
+    document.getElementById('event-done').style.display = 'none';
+    ['event-nome', 'event-tel', 'event-email', 'event-note'].forEach(function (id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('event-occasione').value = '';
+    eventApplyMood(null);
+    eventHideError();
+    evCalCursor = evStripTime(evPrimoGiorno());
+    evCalCursor.setDate(1);
+    eventCalRender();
+    eventBuildFixed();
+  }
+
+  async function eventSubmit() {
+    var nome  = document.getElementById('event-nome').value.trim();
+    var tel   = document.getElementById('event-tel').value.trim();
+    var email = document.getElementById('event-email').value.trim();
+    var occ   = document.getElementById('event-occasione').value;
+    var note  = document.getElementById('event-note').value.trim();
+
+    if (!eventSel.data)      return eventShowError('Scegli il giorno della festa.');
+    if (!eventSel.ora)       return eventShowError('Scegli un orario indicativo.');
+    if (!occ)                return eventShowError('Seleziona l’occasione.');
+    if (!eventSel.mood)      return eventShowError('Dicci che atmosfera vuoi.');
+    if (!eventSel.invitati)  return eventShowError('Indica quanti invitati sarete.');
+    /* serve una descrizione vera, non due parole: e' su questa che
+       costruiamo la proposta per la serata */
+    if (note.length < 20)    return eventShowError('Raccontaci come immagini la serata: bastano due righe.');
+    if (nome.length < 3)     return eventShowError('Inserisci nome e cognome.');
+    /* almeno 8 cifre: filtra i numeri palesemente incompleti */
+    if (tel.replace(/\D/g, '').length < 8) return eventShowError('Inserisci un numero di telefono valido.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return eventShowError('Inserisci un’email valida.');
+
+    eventHideError();
+
+    /* La richiesta va salvata davvero: senza database non si puo'
+       dire "ti richiamiamo", perche' nessuno la vedrebbe mai. */
+    var btn = document.querySelector('#event-form-wrap .book-confirm-btn');
+    var testoBtn = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Invio…'; }
+    try {
+      if (!window.sb) throw new Error('offline');
+      var utente = null;
+      try {
+        var ris = await window.sb.auth.getUser();
+        utente = ris && ris.data ? ris.data.user : null;
+      } catch (e) { /* richiesta valida anche senza account */ }
+
+      var esito = await window.sb.from('event_requests').insert({
+        user_id:    utente ? utente.id : null,
+        event_date: eventSel.data,
+        event_time: eventSel.ora,
+        occasion:   occ,
+        mood:       eventSel.mood,
+        guests:     eventSel.invitati,
+        full_name:  nome,
+        phone:      tel,
+        email:      email,
+        notes:      note
+      });
+      if (esito.error) throw esito.error;
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.textContent = testoBtn; }
+      return eventShowError('Non siamo riusciti a inviare la richiesta. Controlla la connessione e riprova.');
+    }
+    if (btn) { btn.disabled = false; btn.textContent = testoBtn; }
+
+    document.getElementById('event-done-sub').innerHTML =
+      '<b style="color:#fff">' + eventSel.dataFmt + '</b> alle <b style="color:#fff">' + eventSel.ora + '</b><br>'
+      + eventSel.invitati + ' invitati · ' + eventSel.mood + '<br><br>'
+      + 'Ti richiamiamo al <b style="color:#fff">' + tel + '</b> entro 24h per confermare i dettagli.';
+    document.getElementById('event-form-wrap').style.display = 'none';
+    document.getElementById('event-done').style.display = 'flex';
+    window.scrollTo(0, 0);
+  }
 </script>
 <script>
   /* ===== SHOT QUEST (stile Picolo) ===== */
@@ -9206,12 +11134,43 @@
     window.open('https://instagram.com/' + STORY_IG, '_blank');
   }
 
-  // genera il codice della serata (parte il limite fino alle 8:00 e la finestra di ritiro)
-  function storyClaim() {
+  /* Genera il codice della serata. Lo decide il server (funzione
+     shot_claim in supabase/08_shot_omaggio.sql): così non è
+     prevedibile — un codice calcolato solo in locale si potrebbe
+     ricostruire senza aver davvero diritto al bonus — e allo staff
+     resta traccia del ritiro. */
+  async function storyClaim() {
     if (!storyHasProfile()) { storyRender(); return; } // sicurezza: serve il profilo
+
+    if (window.sb) {
+      try {
+        const { data, error } = await window.sb.rpc('shot_claim');
+        if (error) throw error;
+        const riga = Array.isArray(data) ? data[0] : data;
+        if (!riga || !riga.code) throw new Error('Risposta inattesa');
+        localStorage.setItem(storyKeyLast(), String(Date.now()));
+        localStorage.setItem(storyKeyCode(), riga.code);
+        storyRender();
+        return;
+      } catch (e) {
+        const msg = (e && e.message) || '';
+        if (/gi[aà] richiesto/i.test(msg)) {
+          // il server sa che il bonus è già stato preso: allineo la vista
+          localStorage.setItem(storyKeyLast(), String(Date.now()));
+          storyRender();
+          return;
+        }
+        if (!/find the function/i.test(msg)) {
+          alert('Non riesco a generare il codice: ' + (msg || e));
+          return;
+        }
+        // funzione non ancora installata sul database: ripiego sul codice locale
+      }
+    }
+
     const now = Date.now();
     localStorage.setItem(storyKeyLast(), String(now));
-    // codice deterministico (giorno + profilo), comodo da verificare allo staff
+    // codice deterministico (giorno + profilo) — solo di riserva, se il server non risponde
     const d = new Date(now);
     const seed = '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate() + storyProfileId();
     let code = 0;
@@ -9625,14 +11584,19 @@
     /* Il pulsante acceso segue la pagina: offerte e le schede info
        restano sotto Home, che e' da dove ci si arriva. */
     /* Come nell'app: carta e offerte stanno sotto Menu, i giochi con
-       pagina propria sotto Giochi, le schede info sotto Home. */
-    var nav = (page === 'carta' || page === 'offerte') ? 'menu'
-            : (page.indexOf('info-') === 0) ? 'home'
-            : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
-            : page;
-    document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
-    var btn = document.getElementById('nav-' + nav);
-    if (btn) btn.classList.add('active');
+       pagina propria sotto Giochi, le schede info sotto Home. La pagina
+       dettaglio (offerta/evento) non ha un tab suo: si arriva da posti
+       diversi, quindi si lascia acceso qualunque tab lo fosse già. */
+    if (page !== 'detail') {
+      var nav = (page === 'carta' || page === 'offerte') ? 'menu'
+              : (page === 'eventi') ? 'home'
+              : (page.indexOf('info-') === 0) ? 'home'
+              : (typeof gamePages !== 'undefined' && gamePages.indexOf(page) >= 0) ? 'games'
+              : page;
+      document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
+      var btn = document.getElementById('nav-' + nav);
+      if (btn) btn.classList.add('active');
+    }
     window.scrollTo(0, 0);
 
     /* La lista giochi si costruisce da sola e ricorda dove eri:
@@ -9654,7 +11618,9 @@
       if (typeof camonSyncMenu === 'function') camonSyncMenu();
       if (typeof renderWallet === 'function') renderWallet();
     }
+    if (page === 'carta' && typeof cartaGate === 'function') cartaGate();
     if (page === 'carta' && typeof renderWallet === 'function') renderWallet();
+    if (page === 'carta' && typeof bandsSync === 'function') bandsSync();
 
     /* Prenotazione: si riparte dal primo passo, a meno che non ci sia
        gia' un tavolo prenotato, nel qual caso si mostra il riepilogo. */
@@ -9691,10 +11657,16 @@
     if (storyFab) storyFab.classList.toggle('hidden', page !== 'home' && page !== 'menu');
 
     if (page === 'offerte' && typeof offerteGate === 'function') offerteGate();
+    if (page === 'eventi' && typeof renderEventiPage === 'function') renderEventiPage();
+    if (page === 'home' && typeof renderHomeEventi === 'function') renderHomeEventi();
+    if (page === 'story' && typeof storyRender === 'function') storyRender();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
+    if (page === 'event' && typeof eventEnter === 'function') eventEnter();
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
+    if (page === 'admin' && typeof admEnter === 'function') admEnter();
+    if (typeof cartRenderFab === 'function') cartRenderFab();
 
     /* Due passaggi: subito, e dopo un attimo perche' alcune fasce
        cambiano altezza quando i loro contenuti finiscono di disporsi. */
@@ -10258,6 +12230,97 @@
   function camonSyncAuthUI() {
     const row = document.getElementById('settings-logout');
     if (row) row.style.display = profileCreated ? 'flex' : 'none';
+    const exportRow = document.getElementById('settings-export');
+    if (exportRow) exportRow.style.display = profileCreated ? 'flex' : 'none';
+    const deleteRow = document.getElementById('settings-delete');
+    if (deleteRow) deleteRow.style.display = profileCreated ? 'flex' : 'none';
+    camonSyncStaffUI();
+  }
+
+  /* Diritto di accesso: scarica una copia di tutto quello che
+     sappiamo sull'utente, in un file json. */
+  async function camonScaricaDati() {
+    if (!window.sb) { alert('Serve la connessione.'); return; }
+    try {
+      const { data, error } = await window.sb.rpc('export_my_data');
+      if (error) throw error;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'camon-miei-dati.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      alert('Non riesco a preparare i dati: ' + ((e && e.message) || e));
+    }
+  }
+
+  /* Cancellazione: irreversibile, quindi si chiede conferma due
+     volte e si avvisa del credito che va perso. */
+  function camonEliminaAccount() {
+    const saldo = (typeof cardBalance === 'number' && cardBalance > 0)
+      ? '<br><br>Hai ancora ' + fmtEuro(cardBalance) + ' sulla tessera: quel credito andrà perso.'
+      : '';
+    camonConfirm('Vuoi eliminare il tuo account CAMON?<br><br>'
+      + 'Spariscono profilo, foto e tessera. È definitivo.'
+      + saldo, function () {
+      camonConfirm('Confermi davvero? Non si torna indietro.', async function () {
+        try {
+          const { error } = await window.sb.rpc('delete_my_account');
+          if (error) throw error;
+          try { await window.sb.auth.signOut(); } catch (e) {}
+          try { localStorage.clear(); } catch (e) {}
+          alert('Account eliminato. Ci dispiace vederti andare.');
+          location.reload();
+        } catch (e) {
+          alert('Non riesco a eliminare l\'account: ' + ((e && e.message) || e));
+        }
+      });
+    });
+  }
+
+  /* La voce "Area titolare" compare solo allo staff. E' solo cortesia
+     verso gli altri utenti: a proteggere i dati sono le regole del
+     database, non il fatto che il pulsante sia nascosto. */
+  async function camonSyncStaffUI() {
+    const row = document.getElementById('settings-admin');
+    if (!row) return;
+    row.style.display = 'none';
+    if (!window.sb || !profileCreated) return;
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) return;
+      const { data } = await window.sb.from('profiles').select('is_staff').eq('id', user.id).maybeSingle();
+      if (data && data.is_staff) { row.style.display = 'flex'; camonContaDaFare(); }
+    } catch (e) { /* nel dubbio resta nascosta */ }
+  }
+
+  /* Quante cose aspettano il titolare: senza un numero in vista
+     bisognerebbe ricordarsi di aprire la dashboard per scoprirlo. */
+  async function camonContaDaFare() {
+    const badge = document.getElementById('admin-badge');
+    const sub   = document.getElementById('settings-admin-sub');
+    if (!badge || !window.sb) return;
+    try {
+      const feste = await window.sb.from('event_requests')
+        .select('id', { count: 'exact', head: true }).eq('status', 'nuova');
+      const ordini = await window.sb.from('orders')
+        .select('id', { count: 'exact', head: true }).eq('status', 'paid');
+
+      const nFeste  = feste.count  || 0;
+      const nOrdini = ordini.count || 0;
+      const totale  = nFeste + nOrdini;
+
+      badge.style.display = totale ? 'inline-block' : 'none';
+      badge.textContent = totale;
+
+      if (sub) {
+        const pezzi = [];
+        if (nFeste)  pezzi.push(nFeste  + (nFeste  === 1 ? ' richiesta festa' : ' richieste feste'));
+        if (nOrdini) pezzi.push(nOrdini + (nOrdini === 1 ? ' ordine da servire' : ' ordini da servire'));
+        sub.textContent = pezzi.length ? pezzi.join(' · ') : 'Clienti, prenotazioni, menu e dati';
+      }
+    } catch (e) { /* tabelle non ancora create: nessun avviso */ }
   }
 
   /* Chiave localStorage per la foto, legata all'utente */
@@ -10371,31 +12434,159 @@
     if (cents === 0) return 'FREE';
     return '€' + (cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2).replace('.', ','));
   }
+  // Foto vera del prodotto: un file "prodotto-<nome-slug>.jpg" nella
+  // cartella del progetto (stesso sistema già usato per offerte/eventi).
+  // Se manca, l'<img> lo segnala con onerror e si passa al placeholder
+  // generato dal nome — mai un'icona di immagine rotta.
+  function camonProductSlug(p) {
+    return (p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
   function camonProductImg(p) {
     if (p.image_url) return p.image_url;
+    return `prodotto-${camonProductSlug(p)}.jpg`;
+  }
+  function camonProductImgFallback(p) {
     const seed = encodeURIComponent(p.name.toLowerCase().replace(/\s+/g, '-'));
     return `https://picsum.photos/seed/${seed}/400/400`;
   }
+  // Elenco esplicito invece di un controllo "contiene gin/spritz": serve
+  // a distinguere per nome esatto casi come "Gin Tonic" (ordinabile) da
+  // "Bombay Gin Tonic" (solo self-service), che altrimenti finirebbero
+  // nello stesso mucchio solo perché condividono la parola "gin".
+  var DRINK_APP_ORDERABILI = ['SPRITZ', 'GIN TONIC', 'NEGRONI', 'GIN LEMONE', 'BIRRA BIONDA'];
+  function isAppOrderable(p) {
+    if (p.app_orderable != null) return Boolean(p.app_orderable);
+    return DRINK_APP_ORDERABILI.indexOf((p.name || '').toUpperCase()) !== -1;
+  }
+
   function camonBuildCard(p) {
     const img = camonProductImg(p);
     const card = document.createElement('div');
-    card.className = 'drink-card';
+    const soloSpillatore = p.macro !== 'cibo' && !isAppOrderable(p);
+    card.className = 'drink-card' + (soloSpillatore ? ' self-only' : '');
     card.dataset.macro = p.macro || '';
     card.dataset.cat = p.category || '';
     card.dataset.available = p.available ? 'true' : 'false';
     if (p.macro === 'cibo') card.style.display = 'none';
+    var badge = '';
+    if (p.macro !== 'cibo') {
+      badge = isAppOrderable(p)
+        ? '<div class="drink-badge drink-badge-tavolo">🛎 Al tavolo <span class="drink-badge-sep">·</span> 🥡 Asporto</div>'
+        : '<div class="drink-badge drink-badge-self">🍺 Solo al self-service</div>';
+    }
     card.innerHTML =
-      `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy"></div>` +
+      `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='${camonProductImgFallback(p)}'"></div>` +
       `<div class="drink-name">${p.name}</div>` +
-      `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>`;
-    card.addEventListener('click', function() { openProductSheet(p); });
+      `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>` +
+      badge;
+    // I cocktail solo da spillatore restano visibili ma disattivati:
+    // niente scheda prodotto, niente possibilità di ordinarli dall'app.
+    if (!soloSpillatore) {
+      card.addEventListener('click', function() { openProductSheet(p); });
+    }
     return card;
   }
+  /* Quante unita' si stanno per aggiungere dalla scheda */
+  var psQty = 1;
+
+  function psSetQty(delta) {
+    psQty = Math.max(1, Math.min(20, psQty + delta));
+    var el = document.getElementById('ps-qty-val');
+    if (el) el.textContent = psQty;
+    var btn = document.getElementById('product-sheet-add');
+    if (btn && productSheetCurrent) {
+      btn.textContent = 'Aggiungi · ' + camonFmtPrice(productSheetCurrent.price_cents * psQty);
+    }
+  }
+
+  function psEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c];
+    });
+  }
+
   function openProductSheet(p) {
-    document.getElementById('product-sheet-img').src = camonProductImg(p);
+    productSheetCurrent = p;
+    psQty = 1;
+
+    const sheetImg = document.getElementById('product-sheet-img');
+    sheetImg.onerror = function () { this.onerror = null; this.src = camonProductImgFallback(p); };
+    sheetImg.src = camonProductImg(p);
     document.getElementById('product-sheet-name').textContent = p.name;
-    document.getElementById('product-sheet-price').textContent = camonFmtPrice(p.price_cents);
-    document.getElementById('product-sheet-desc').textContent = p.description || '';
+
+    /* Un solo distintivo, quello che conta di piu': esaurito batte
+       "la casa consiglia", che a sua volta batte la categoria. */
+    var badge = p.available === false
+      ? '<span class="ps-badge grigio">Esaurito</span>'
+      : p.is_signature
+        ? '<span class="ps-badge">⭐ La casa consiglia</span>'
+        : (p.category ? '<span class="ps-badge grigio">' + psEsc(p.category) + '</span>' : '');
+    document.getElementById('product-sheet-badge').innerHTML = badge;
+
+    var h = '';
+    if (p.description) h += '<p class="product-sheet-desc">' + psEsc(p.description) + '</p>';
+
+    // dati veloci: si mostrano solo quelli compilati
+    var specs = [];
+    if (p.macro === 'cibo') {
+      // campi specifici per il cibo
+      if (p.portion_size)  specs.push('<div class="ps-spec">⚖️ <b>' + psEsc(p.portion_size) + '</b></div>');
+      if (p.serving_temp === 'caldo')    specs.push('<div class="ps-spec">🔥 Servito <b>caldo</b></div>');
+      if (p.serving_temp === 'freddo')   specs.push('<div class="ps-spec">❄️ Servito <b>freddo</b></div>');
+      if (p.serving_temp === 'ambiente') specs.push('<div class="ps-spec">🌡️ Temperatura <b>ambiente</b></div>');
+      if (p.prep_minutes)  specs.push('<div class="ps-spec">⏱ <b>' + p.prep_minutes + '</b> min</div>');
+      if (p.is_vegetarian) specs.push('<div class="ps-spec verde">🥦 Vegetariano</div>');
+      if (p.is_vegan)      specs.push('<div class="ps-spec verde">🌱 Vegano</div>');
+      if (p.is_gluten_free)specs.push('<div class="ps-spec verde">🌾 Senza glutine</div>');
+      if (p.is_halal)      specs.push('<div class="ps-spec verde">☪️ Halal</div>');
+    } else {
+      // campi specifici per i drink
+      if (p.volume_ml)     specs.push('<div class="ps-spec">🥃 <b>' + p.volume_ml + '</b> ml</div>');
+      if (p.abv != null)   specs.push('<div class="ps-spec">🍸 <b>' + String(p.abv).replace('.', ',') + '%</b> vol</div>');
+      if (p.prep_minutes)  specs.push('<div class="ps-spec">⏱ <b>' + p.prep_minutes + '</b> min</div>');
+      if (p.is_vegan)      specs.push('<div class="ps-spec verde">🌱 Vegano</div>');
+      if (p.is_gluten_free)specs.push('<div class="ps-spec verde">🌾 Senza glutine</div>');
+    }
+    if (specs.length) h += '<div class="ps-specs">' + specs.join('') + '</div>';
+
+    if (p.ingredients) {
+      h += '<div class="ps-sez"><div class="ps-sez-lbl">Ingredienti</div>'
+        +  '<div class="ps-sez-testo">' + psEsc(p.ingredients) + '</div></div>';
+    }
+    if (p.origin) {
+      h += '<div class="ps-sez"><div class="ps-sez-lbl">Provenienza</div>'
+        +  '<div class="ps-sez-testo">' + psEsc(p.origin) + '</div></div>';
+    }
+
+    /* Gli allergeni si segnalano sempre: se il dato manca lo si dice,
+       invece di lasciar credere che non ce ne siano. */
+    var all = (p.allergens && p.allergens.length)
+      ? '<b>Contiene:</b> ' + p.allergens.map(psEsc).join(', ') + '.'
+      : 'Informazioni sugli allergeni non ancora inserite.';
+    h += '<div class="ps-allergeni"><span>⚠️</span><div>' + all
+      +  ' Per intolleranze o allergie chiedi allo staff prima di ordinare.</div></div>';
+
+    if (p.available === false) {
+      h += '<div class="ps-esaurito">Per stasera è finito. Torna a trovarci!</div>';
+    } else if (p.macro !== 'cibo' && !isAppOrderable(p)) {
+      h += '<div class="ps-self-info">'
+        +    '<span class="ps-si-ico">🍺</span>'
+        +    '<div>Questo cocktail è disponibile agli <b>spillatori self-service</b>. '
+        +    'Serviti direttamente — è più veloce!</div>'
+        +  '</div>';
+    } else {
+      h += '<div class="ps-azioni">'
+        +    '<div class="ps-qty">'
+        +      '<button onclick="psSetQty(-1)">−</button>'
+        +      '<span id="ps-qty-val">1</span>'
+        +      '<button onclick="psSetQty(1)">+</button>'
+        +    '</div>'
+        +    '<button class="sheet-add" id="product-sheet-add" onclick="cartAddCurrent()">'
+        +      'Aggiungi · ' + camonFmtPrice(p.price_cents) + '</button>'
+        +  '</div>';
+    }
+
+    document.getElementById('product-sheet-body').innerHTML = h;
     document.getElementById('product-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -10404,18 +12595,260 @@
     document.body.style.overflow = '';
   }
   window.closeProductSheet = closeProductSheet;
-  async function camonSyncMenu() {
-    if (!window.sb) return;
+
+  /* ===================== CARRELLO =====================
+     Qui si tiene solo l'elenco di cosa e quanto. Il conto lo rifa'
+     il server sui prezzi veri al momento dell'invio: quello mostrato
+     e' un'anteprima, non il valore su cui si paga. */
+  var cart = [];                 // [{ id, name, price_cents, qty }]
+  var productSheetCurrent = null;
+
+  var cartServizio = 'banco';        // 'banco' | 'tavolo'
+  var SERVIZIO_TAVOLO = 100;         // supplemento in centesimi
+  var SOGLIA_CARTA    = 1000;        // sotto i 10 € le commissioni non ripagano: si ricarica
+
+  function cartSubtotale() {
+    return cart.reduce(function (s, r) { return s + r.price_cents * r.qty; }, 0);
+  }
+  function cartSupplemento() {
+    return cartServizio === 'tavolo' ? SERVIZIO_TAVOLO : 0;
+  }
+  function cartTotale() {
+    return cartSubtotale() + cartSupplemento();
+  }
+  function cartSetServizio(modo) {
+    cartServizio = modo;
+    cartRender();
+    cartRenderFab();
+  }
+  function cartPezzi() {
+    return cart.reduce(function (s, r) { return s + r.qty; }, 0);
+  }
+
+  function cartAdd(p, quante) {
+    var n = quante || 1;
+    var riga = cart.filter(function (r) { return r.id === p.id; })[0];
+    if (riga) riga.qty += n;
+    else cart.push({ id: p.id, name: p.name, price_cents: p.price_cents, qty: n });
+    cartRenderFab();
+  }
+
+  function cartAddCurrent() {
+    if (!productSheetCurrent) return;
+    cartAdd(productSheetCurrent, psQty);
+    closeProductSheet();
+  }
+
+  function cartSetQty(id, delta) {
+    var riga = cart.filter(function (r) { return r.id === id; })[0];
+    if (!riga) return;
+    riga.qty += delta;
+    if (riga.qty <= 0) cart = cart.filter(function (r) { return r.id !== id; });
+    cartRenderFab();
+    cartRender();
+  }
+
+  /* Il pulsante compare solo dove ha senso ordinare */
+  function cartRenderFab() {
+    var fab = document.getElementById('cart-fab');
+    if (!fab) return;
+    var attiva = document.querySelector('.page.active');
+    var suMenu = attiva && (attiva.id === 'page-menu' || attiva.id === 'page-carta');
+    if (!cart.length || !suMenu) { fab.classList.add('hidden'); return; }
+    fab.classList.remove('hidden');
+    document.getElementById('cart-count').textContent = cartPezzi();
+    document.getElementById('cart-fab-total').textContent = camonFmtPrice(cartTotale());
+  }
+  window.cartRenderFab = cartRenderFab;
+
+  function cartOpen() { cartRender(); document.getElementById('cart-overlay').classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function cartClose() { document.getElementById('cart-overlay').classList.remove('open'); document.body.style.overflow = ''; }
+
+  function cartErrore(msg) {
+    var el = document.getElementById('cart-err');
+    el.innerHTML = msg ? '<div class="cart-err">' + msg + '</div>' : '';
+  }
+
+  function cartRender() {
+    var righe = document.getElementById('cart-lines');
+    var piede = document.getElementById('cart-foot');
+    if (!cart.length) {
+      righe.innerHTML = '<div class="cart-empty">Il carrello è vuoto.<br>Scegli qualcosa dal menu.</div>';
+      piede.innerHTML = '';
+      return;
+    }
+    righe.innerHTML = cart.map(function (r) {
+      return '<div class="cart-line">'
+        + '<div style="flex:1;min-width:0">'
+        +   '<div class="cart-line-name">' + r.name + '</div>'
+        +   '<div class="cart-line-price">' + camonFmtPrice(r.price_cents) + ' · ' + camonFmtPrice(r.price_cents * r.qty) + '</div>'
+        + '</div>'
+        + '<div class="cart-qty">'
+        +   '<button onclick="cartSetQty(\'' + r.id + '\',-1)">−</button>'
+        +   '<span>' + r.qty + '</span>'
+        +   '<button onclick="cartSetQty(\'' + r.id + '\',1)">+</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    var subtotale = cartSubtotale();
+    var supplemento = cartSupplemento();
+    var totale = cartTotale();
+    var saldoCents = Math.round(cardBalance * 100);
+    var bastano = saldoCents >= totale;
+    var mancano = totale - saldoCents;
+
+    var h = ''
+      + '<div class="cart-serv-lbl">Come lo vuoi</div>'
+      + '<div class="cart-serv">'
+      +   '<div class="cart-serv-opt' + (cartServizio === 'banco' ? ' active' : '') + '" onclick="cartSetServizio(\'banco\')">'
+      +     '<div class="cart-serv-ico">🥤</div>'
+      +     '<div class="cart-serv-nome">Ritiro al banco</div>'
+      +     '<div class="cart-serv-sub">Nessun supplemento</div>'
+      +   '</div>'
+      +   '<div class="cart-serv-opt' + (cartServizio === 'tavolo' ? ' active' : '') + '" onclick="cartSetServizio(\'tavolo\')">'
+      +     '<div class="cart-serv-ico">🍽️</div>'
+      +     '<div class="cart-serv-nome">Al tavolo</div>'
+      +     '<div class="cart-serv-sub">+ ' + camonFmtPrice(SERVIZIO_TAVOLO) + '</div>'
+      +   '</div>'
+      + '</div>';
+
+    if (supplemento) {
+      h += '<div style="margin-top:16px">'
+        +   '<div class="cart-riga"><span>Prodotti</span><span>' + camonFmtPrice(subtotale) + '</span></div>'
+        +   '<div class="cart-riga"><span>Servizio al tavolo</span><span>' + camonFmtPrice(supplemento) + '</span></div>'
+        + '</div>';
+    }
+
+    h += '<div class="cart-total"><span class="cart-total-lbl">Totale</span>'
+      +    '<span class="cart-total-val">' + camonFmtPrice(totale) + '</span></div>'
+      +  '<div class="cart-saldo">Saldo disponibile: ' + fmtEuro(cardBalance)
+      +    (bastano ? '' : ' — mancano ' + camonFmtPrice(mancano)) + '</div>';
+
+    /* La carta si offre solo da 10 € in su: sotto, le commissioni si
+       mangiano l'incasso, quindi si passa dalla ricarica. */
+    var cartaAmmessa = totale >= SOGLIA_CARTA;
+
+    h += '<div class="cart-pay">';
+    if (bastano) {
+      h += '<button class="cart-pay-btn primary" id="cart-send" onclick="cartInvia()">'
+        +    '<span class="cart-pay-ico">🎫</span>'
+        +    '<span class="cart-pay-testo">Ordina e paga col saldo'
+        +      '<div class="cart-pay-sub">Restano ' + camonFmtPrice(saldoCents - totale) + '</div></span>'
+        +  '</button>';
+    }
+
+    if (cartaAmmessa) {
+      h += '<button class="cart-pay-btn' + (bastano ? '' : ' primary') + '" onclick="cartPagamentoPresto()">'
+        +    '<span class="cart-pay-ico">💳</span>'
+        +    '<span class="cart-pay-testo">Paga con carta'
+        +      '<div class="cart-pay-sub">Carta, Apple Pay o PayPal</div></span>'
+        +    '<span class="cart-pay-presto">Presto</span>'
+        +  '</button>';
+    }
+
+    if (!bastano) {
+      h += '<button class="cart-pay-btn' + (cartaAmmessa ? '' : ' primary') + '" onclick="cartVaiARicarica()">'
+        +    '<span class="cart-pay-ico">➕</span>'
+        +    '<span class="cart-pay-testo">Ricarica la tessera'
+        +      '<div class="cart-pay-sub">'
+        +        (cartaAmmessa
+                   ? 'Poi torni qui e paghi in un tocco'
+                   : 'Sotto ' + camonFmtPrice(SOGLIA_CARTA) + ' si paga dal saldo')
+        +      '</div></span>'
+        +  '</button>';
+    }
+    h += '</div>';
+
+    piede.innerHTML = h;
+  }
+
+  function cartPagamentoPresto() {
+    cartErrore('Il pagamento con carta non è ancora attivo. Per ora ricarica la tessera e paghi dal saldo.');
+  }
+
+  /* L'ordine resta nel carrello: dopo la ricarica si riapre e si paga */
+  function cartVaiARicarica() {
+    cartClose();
+    goTo('carta');
+  }
+
+  async function cartInvia() {
+    cartErrore('');
+    if (!cart.length) return;
+    if (!window.sb) { cartErrore('Serve la connessione per ordinare.'); return; }
+    const { data: { user: cartUser } } = await window.sb.auth.getUser();
+    if (!cartUser) { cartErrore('Accedi al tuo account per ordinare dal tavolo.'); return; }
+
+    var btn = document.getElementById('cart-send');
+    var testo = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Invio…';
+    try {
+      var tavolo = (typeof currentBooking !== 'undefined' && currentBooking) ? currentBooking.table : null;
+      var r = await window.sb.rpc('order_create', {
+        p_items: cart.map(function (x) { return { product_id: x.id, quantity: x.qty }; }),
+        p_table_code: cartServizio === 'tavolo' ? tavolo : null,
+        p_note: null,
+        p_service_mode: cartServizio
+      });
+      if (r.error) throw r.error;
+      var esito = Array.isArray(r.data) ? r.data[0] : r.data;
+
+      var alTavolo = cartServizio === 'tavolo';
+      cart = [];
+      cartServizio = 'banco';
+      cartRenderFab();
+      if (typeof walletSyncFromServer === 'function') await walletSyncFromServer();
+      document.getElementById('cart-lines').innerHTML =
+        '<div class="cart-empty">✅ Ordine inviato!<br>'
+        + (alTavolo ? 'Te lo portiamo al tavolo.' : 'Ritiralo al banco quando è pronto.')
+        + '<br><br>'
+        + 'Scalati ' + camonFmtPrice(esito.total_cents) + ' · nuovo saldo ' + camonFmtPrice(esito.new_balance)
+        + '</div>';
+      document.getElementById('cart-foot').innerHTML = '';
+      setTimeout(cartClose, 2600);
+    } catch (e) {
+      btn.disabled = false; btn.textContent = testo;
+      var m = (e && e.message) || String(e);
+      if (/Saldo insufficiente/i.test(m)) m = 'Saldo insufficiente: ricarica la tessera.';
+      else if (/non e.* piu.* disponibile|disponibile/i.test(m)) m = 'Un prodotto è appena finito: togli e riprova.';
+      else if (/find the function/i.test(m)) m = 'Le ordinazioni non sono ancora attive sul database.';
+      cartErrore(m);
+    }
+  }
+
+  /* I prodotti non stanno nell'HTML: arrivano tutti da qui. Se questa
+     chiamata fallisce e nessuno riprova, il menu resta vuoto per tutta
+     la sessione — succede aprendo l'app da bookmark con la rete ancora
+     incerta. Quindi si ritenta, e nel frattempo si dice che sta
+     caricando invece di annunciare "nessun risultato". */
+  async function camonSyncMenu(tentativiRimasti) {
+    if (!window.sb) return false;
+    if (tentativiRimasti == null) tentativiRimasti = 3;
+
     try {
       const { data, error } = await window.sb.from('products').select('*').order('sort');
-      if (error || !data || !data.length) return;
+      if (error) throw error;
+      if (!data || !data.length) throw new Error('Menu vuoto');
+
       const grid = document.getElementById('drinks-grid');
-      if (!grid) return;
-      const empty = document.getElementById('menu-empty');
+      if (!grid) return false;
       grid.querySelectorAll('.drink-card').forEach(c => c.remove());
       data.forEach(p => grid.appendChild(camonBuildCard(p)));
+
+      menuStato = 'ok';
       if (typeof applyMenuFilter === 'function') applyMenuFilter();
-    } catch (e) { console.warn('Sync menu:', e); }
+      return true;
+    } catch (e) {
+      if (tentativiRimasti > 0) {
+        await new Promise(r => setTimeout(r, (4 - tentativiRimasti) * 1000));
+        return camonSyncMenu(tentativiRimasti - 1);
+      }
+      console.warn('Sync menu:', e);
+      menuStato = 'errore';
+      menuMostraStato();
+      return false;
+    }
   }
   window.camonSyncMenu = camonSyncMenu;
 
@@ -10437,19 +12870,25 @@
     if (!window.sb) return;
     try {
       const { data: { session } } = await window.sb.auth.getSession();
+      window.camonUser = session ? session.user : null;
       profileCreated = !!session;
       camonSyncAuthUI();
       camonSyncMenu();   // prezzi/disponibilità del menu (non serve login)
       if (session) {
         await camonLoadProfile();
+        if (typeof bandsSync === 'function') bandsSync();
         // se sei fermo sulla pagina profilo, aggiorna la vista
         if (document.getElementById('page-profile') &&
             document.getElementById('page-profile').classList.contains('active') &&
             typeof profEnter === 'function') profEnter();
       }
+      if (typeof cartaGate === 'function') cartaGate();
       window.sb.auth.onAuthStateChange(function (_event, session) {
+        window.camonUser = session ? session.user : null;
         profileCreated = !!session;
         camonSyncAuthUI();
+        if (session && typeof bandsSync === 'function') bandsSync();
+        if (typeof cartaGate === 'function') cartaGate(); // login/logout mentre sei sulla Carta
       });
     } catch (e) { console.warn('Init auth:', e); }
   }

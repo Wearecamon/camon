@@ -1257,13 +1257,12 @@
   .bfield textarea { resize:none; height:88px; line-height:1.55; }
   .bfield-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-  /* Mini calendario data (sostituisce l'input date nativo) */
-  .bfield-cal { position:relative; }
-  .book-date-btn { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:14px; width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; text-align:left; }
-  .book-date-btn.open, .book-date-btn:focus { border-color:#f7cc49; }
-  .book-date-btn span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .book-date-btn svg { flex:none; opacity:0.55; width:16px; height:16px; }
-  .book-cal-pop { position:absolute; z-index:40; top:calc(100% + 8px); left:0; width:232px; aspect-ratio:1/1; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; box-shadow:0 12px 28px rgba(0,0,0,0.45); }
+  /* Mini calendario data — sempre aperto, quadrato, niente click-per-aprire */
+  .bfield-row-cal { display:flex; align-items:stretch; gap:10px; }
+  .bfield-cal { flex:1; min-width:0; }
+  .bfield-cal label span { color:#f7cc49; text-transform:none; letter-spacing:0.3px; font-weight:700; }
+  .bfield-time { flex:none; width:108px; }
+  .book-cal-pop { width:100%; max-width:240px; aspect-ratio:1/1; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; }
   .book-cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .book-cal-head span { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:0.5px; color:#f7cc49; text-transform:uppercase; }
   .book-cal-head button { background:rgba(255,255,255,0.06); border:none; color:#fff; width:26px; height:26px; border-radius:8px; font-size:15px; cursor:pointer; line-height:1; }
@@ -1279,10 +1278,11 @@
   .book-cal-day.sel { background:#f7cc49; color:#000; font-weight:800; }
   .book-cal-day.full { color:rgba(255,255,255,0.15); text-decoration:line-through; pointer-events:none; }
 
-  /* Fasce orarie disponibili (sostituiscono l'input time nativo) */
-  .book-time-hint { background:rgba(255,255,255,0.05); border:1.5px dashed rgba(255,255,255,0.12); color:rgba(255,255,255,0.35); padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:12.5px; text-align:center; }
-  .book-time-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
-  .book-time-slot { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:9px 6px; border-radius:10px; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; text-align:center; }
+  /* Fasce orarie disponibili — barra verticale sempre aperta, di fianco al calendario */
+  .book-time-wrap { height:240px; display:flex; flex-direction:column; background:#1c1c1c; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:8px; }
+  .book-time-hint { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; color:rgba(255,255,255,0.35); font-family:'Manrope',sans-serif; font-size:11.5px; padding:8px; }
+  .book-time-grid { display:flex; flex-direction:column; gap:5px; overflow-y:auto; flex:1; }
+  .book-time-slot { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:8px 4px; border-radius:9px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; cursor:pointer; text-align:center; flex:none; }
   .book-time-slot.sel { background:rgba(247,204,73,0.14); border-color:#f7cc49; color:#f7cc49; }
   .book-time-slot.full { opacity:0.3; text-decoration:line-through; pointer-events:none; }
   .book-confirm-btn { background:#f7cc49; color:#111; border:none; border-radius:14px; padding:17px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; margin-top:6px; }
@@ -5690,17 +5690,14 @@
             <div class="people-grid" id="persone-grid"></div>
           </div>
 
-          <!-- Data + Ora: il calendario disattiva i giorni pieni per il numero
-               di persone scelto, e l'orario mostra solo le fasce libere quel giorno -->
-          <div class="bfield-row" id="bfield-datetime">
+          <!-- Data + Ora: sempre aperti (niente click-per-aprire). Il calendario
+               disattiva i giorni pieni per il numero di persone scelto, la
+               barra oraria mostra solo le fasce libere di quel giorno. -->
+          <div class="bfield-row bfield-row-cal" id="bfield-datetime">
             <div class="bfield bfield-cal">
-              <label>Data</label>
-              <button type="button" class="book-date-btn" id="book-date-btn" onclick="bookCalToggle()">
-                <span id="book-date-label">Scegli</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-              </button>
+              <label>Data — <span id="book-date-label">…</span></label>
               <input type="hidden" id="book-data">
-              <div class="book-cal-pop" id="book-cal-pop" style="display:none">
+              <div class="book-cal-pop" id="book-cal-pop">
                 <div class="book-cal-head">
                   <button type="button" onclick="bookCalNav(-1)">‹</button>
                   <span id="book-cal-month"></span>
@@ -5710,7 +5707,7 @@
                 <div class="book-cal-grid" id="book-cal-grid"></div>
               </div>
             </div>
-            <div class="bfield">
+            <div class="bfield bfield-time">
               <label>Ora</label>
               <div class="book-time-wrap">
                 <div class="book-time-hint" id="book-time-hint">Scegli prima la data</div>
@@ -7462,25 +7459,6 @@
   let bookCalView = new Date();       // mese attualmente mostrato nel popover
   let bookCalSelected = null;         // Date scelta
 
-  function bookCalToggle() {
-    const pop = document.getElementById('book-cal-pop');
-    const open = pop.style.display !== 'none';
-    if (open) { bookCalClose(); return; }
-    if (!bookCalSelected) bookCalView = new Date();
-    bookCalRender();
-    pop.style.display = 'flex';
-    document.getElementById('book-date-btn').classList.add('open');
-    setTimeout(() => document.addEventListener('click', bookCalOutside), 0);
-  }
-  function bookCalClose() {
-    document.getElementById('book-cal-pop').style.display = 'none';
-    document.getElementById('book-date-btn').classList.remove('open');
-    document.removeEventListener('click', bookCalOutside);
-  }
-  function bookCalOutside(e) {
-    const wrap = document.querySelector('.bfield-cal');
-    if (wrap && !wrap.contains(e.target)) bookCalClose();
-  }
   function bookCalNav(delta) {
     bookCalView = new Date(bookCalView.getFullYear(), bookCalView.getMonth() + delta, 1);
     bookCalRender();
@@ -7519,15 +7497,35 @@
     document.getElementById('book-data').value = y + '-' + m + '-' + day;
     document.getElementById('book-date-label').textContent =
       bookCalGiorni[d.getDay()] + ' ' + d.getDate() + ' ' + bookCalMesi[d.getMonth()].slice(0,3).toLowerCase();
-    bookCalClose();
+    bookCalRender(); // aggiorna la selezione evidenziata, resta sempre aperto
     bookTimeRender();
   }
   function bookCalReset() {
     bookCalSelected = null;
     bookCalView = new Date();
     document.getElementById('book-data').value = '';
-    document.getElementById('book-date-label').textContent = 'Scegli';
+    document.getElementById('book-date-label').textContent = '…';
     bookTimeReset();
+    bookCalRender();
+    // il calendario resta sempre aperto: al posto di uno stato vuoto,
+    // seleziona subito il primo giorno disponibile
+    bookCalAutoPick();
+  }
+  // Cerca in avanti (fino a ~2 mesi) il primo giorno libero per il numero
+  // di persone corrente e lo seleziona automaticamente, così calendario e
+  // fasce orarie appaiono già "aperti" con una scelta pronta, senza
+  // costringere l'utente a cliccare per forza.
+  function bookCalAutoPick() {
+    const persone = bookGetPersoneNum();
+    const today = new Date(); today.setHours(0,0,0,0);
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+      if (bookIsDateAvailable(d, persone)) {
+        bookCalView = new Date(d.getFullYear(), d.getMonth(), 1);
+        bookCalPick(d);
+        return;
+      }
+    }
   }
 
   /* --- Fasce orarie disponibili per la data scelta --- */
@@ -7535,7 +7533,7 @@
     document.getElementById('book-ora').value = '';
     document.getElementById('book-time-grid').style.display = 'none';
     document.getElementById('book-time-grid').innerHTML = '';
-    document.getElementById('book-time-hint').style.display = 'block';
+    document.getElementById('book-time-hint').style.display = 'flex';
     document.getElementById('book-time-hint').textContent = 'Scegli prima la data';
   }
   function bookTimeRender() {
@@ -7546,19 +7544,26 @@
     const slots = bookTimeSlotsFor(dataVal, persone);
     const grid = document.getElementById('book-time-grid');
     grid.innerHTML = '';
+    let firstAvailBtn = null;
     slots.forEach(s => {
       const b = document.createElement('div');
       b.className = 'book-time-slot' + (s.available ? '' : ' full');
       b.textContent = s.time;
-      if (s.available) b.onclick = () => bookTimePick(s.time, b);
+      if (s.available) {
+        b.onclick = () => bookTimePick(s.time, b);
+        if (!firstAvailBtn) firstAvailBtn = b;
+      }
       grid.appendChild(b);
     });
-    grid.style.display = 'grid';
+    grid.style.display = 'flex';
     const hint = document.getElementById('book-time-hint');
-    if (slots.some(s => s.available)) {
+    if (firstAvailBtn) {
       hint.style.display = 'none';
+      // la barra oraria è già "aperta" con una scelta pronta: seleziona
+      // subito la prima fascia libera, l'utente può comunque cambiarla
+      bookTimePick(firstAvailBtn.textContent, firstAvailBtn);
     } else {
-      hint.style.display = 'block';
+      hint.style.display = 'flex';
       hint.textContent = 'Nessun orario libero questo giorno';
     }
   }
@@ -7572,15 +7577,15 @@
   function bookOnPersoneChange() {
     if (bookCalSelected && !bookIsDateAvailable(bookCalSelected, bookGetPersoneNum())) {
       bookCalReset();
-    } else if (bookCalSelected) {
-      bookTimeRender();
+    } else {
+      bookCalRender();
+      if (bookCalSelected) bookTimeRender();
     }
   }
 
   function bookSelectType(type) {
     bookType = type;
     const cfg = bookTypes[type];
-    bookCalReset();
     document.getElementById('persone-lbl').textContent    = cfg.personeLbl;
     // titolo dello step 2 = tipo di tavolo scelto (es. "TAVOLO CONDIVISO"),
     // con l'ultima parola in oro, al posto del vecchio "Dettagli prenotazione"
@@ -7604,6 +7609,9 @@
       };
       grid.appendChild(p);
     });
+    // ora che le pill persone esistono (con il default attivo), calendario
+    // e fasce orarie possono auto-selezionare il primo giorno/orario libero
+    bookCalReset();
     // occasione solo per stanza privata
     document.getElementById('bfield-occasione').style.display = cfg.showOccasione ? 'flex' : 'none';
     // compagni solo per shared, nascosto di default (richiede > 1 pers)
@@ -7613,7 +7621,7 @@
     document.getElementById('bfield-persone').style.display = isInvite ? 'none' : 'flex';
     document.getElementById('bfield-invite').style.display = isInvite ? 'flex' : 'none';
     // nell'invito segreto nascondiamo data/ora e note (nome e tel rimossi dal form)
-    document.getElementById('bfield-datetime').style.display = isInvite ? 'none' : 'grid';
+    document.getElementById('bfield-datetime').style.display = isInvite ? 'none' : 'flex';
     document.getElementById('bfield-note').style.display     = isInvite ? 'none' : 'flex';
     const confirmBtn = document.querySelector('.book-confirm-btn');
     if (confirmBtn) confirmBtn.textContent = isInvite ? 'Invia invito segreto' : 'Conferma prenotazione';
