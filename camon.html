@@ -7685,9 +7685,6 @@
     const words = cfg.name.split(' ');
     const last = words.pop();
     titleEl.innerHTML = (words.length ? words.join(' ') + ' ' : '') + '<span style="color:' + cfg.color + '">' + last + '</span>';
-    // sfondo della pagina intonato al colore del tipo scelto (leggera
-    // sfumatura, non un colore pieno: il testo deve restare leggibile)
-    bookTintStepBg(cfg.color);
     // costruisci pill persone
     companionSlots = [];
     const grid = document.getElementById('persone-grid');
@@ -8587,15 +8584,6 @@
     const rgb = bookHexToRgb(color);
     hero.style.background = `linear-gradient(135deg, rgba(${rgb},0.15), rgba(${rgb},0.05))`;
     hero.style.borderColor = `rgba(${rgb},0.35)`;
-  }
-  // Sfondo dello step "tipo di tavolo" (sotto la testa fissa) intonato al
-  // colore scelto: una sfumatura leggera che si spegne verso il basso, non
-  // un colore pieno, cosi' il testo bianco/le card restano leggibili.
-  function bookTintStepBg(color) {
-    const step = document.getElementById('book-step2');
-    if (!step) return;
-    const rgb = bookHexToRgb(color);
-    step.style.background = `linear-gradient(180deg, rgba(${rgb},0.16), rgba(${rgb},0.04) 45%, #111 100%)`;
   }
   function bookReset() {
     document.getElementById('book-step3').style.display = 'none';
