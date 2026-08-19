@@ -2953,7 +2953,6 @@
     pointer-events: none;
   }
   .card-fab {
-    pointer-events: auto;
     width: 60px; height: 60px; border-radius: 50%;
     background: #f7cc49; border: 2px solid #111;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -2969,6 +2968,9 @@
   }
   .card-fab-wrap { transition: opacity 0.2s, transform 0.2s; }
   .card-fab-wrap.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) scale(0.8); }
+  /* stesso problema del bollino Free Shot: senza questo il cerchio
+     restava cliccabile anche da nascosto (vedi .story-fab piu' sopra) */
+  .card-fab-wrap:not(.hidden) .card-fab { pointer-events: auto; }
 
   /* ===== BOLLINO STORIA (solo home, lato sinistro) ===== */
   .story-fab-wrap {
@@ -2979,8 +2981,14 @@
     transition: opacity 0.2s, transform 0.2s;
   }
   .story-fab-wrap.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) scale(0.8); }
+  /* Il bollino e' cliccabile solo quando il contenitore NON e' nascosto:
+     prima ".story-fab" riabilitava da solo i click con "pointer-events:
+     auto", scavalcando il "none" del genitore ".hidden" — restava un
+     cerchio invisibile ma toccabile in quel punto fisso su ogni pagina
+     (giochi, prenotazioni...), che mandava comunque a "Free Shot". */
+  .story-fab-wrap:not(.hidden) .story-fab { pointer-events: auto; }
   .story-fab {
-    pointer-events: auto; position: relative;
+    position: relative;
     width: 60px; height: 60px; border-radius: 50%;
     background: #f7cc49; border: 2px solid #111;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
