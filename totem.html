@@ -468,6 +468,7 @@ const WS_URL       = 'ws://localhost:8765';
 // ════════════════════════════════════════════
 let currentFlow   = null;   // 'ricarica' | 'ordina'
 let currentUser   = null;   // { uid, user_id, first_name, last_name, balance_cents }
+let awaitingCardForPay = false; // true quando la carta è attesa per confermare un pagamento già richiesto
 let selectedAmt   = 20;     // centesimi×100 per ricarica
 let products      = [];     // da Supabase
 let currentCat    = null;
@@ -545,6 +546,7 @@ function startFlow(flow) {
 // il carrello/le scelte fatte: torna al riepilogo ordine se si stava
 // per pagare, altrimenti torna semplicemente alla home.
 function goBackFromTap() {
+  awaitingCardForPay = false;
   if (currentFlow === 'ordina' && Object.keys(cart).length) {
     show('s-confirm');
   } else {
@@ -558,7 +560,14 @@ function onUserIdentified(user) {
   resetIdleTO();
   el('ord-badge').innerHTML = userBadgeHTML(currentUser);
   if (currentFlow === 'ricarica') openRicarica();
-  else goConfirm(); // ordina: la carta è stata avvicinata per confermare
+  else if (awaitingCardForPay) {
+    // La carta è stata avvicinata dopo aver già premuto "PAGA E ORDINA":
+    // si paga subito, senza tornare al riepilogo.
+    awaitingCardForPay = false;
+    doOrder();
+  } else {
+    goConfirm(); // prima identificazione: mostra il riepilogo con saldo
+  }
 }
 
 // ════════════════════════════════════════════
@@ -875,6 +884,7 @@ function renderConfirmTotals() {
 // ora (senza perdere carrello/scelte), altrimenti procede al pagamento.
 function confirmAction() {
   if (!currentUser) {
+    awaitingCardForPay = true;
     el('tap-title').textContent = 'AVVICINA LA CARTA PER PAGARE';
     el('tap-sub').textContent = 'Appoggia la tua tessera per confermare il tuo ordine';
     show('s-tap');
