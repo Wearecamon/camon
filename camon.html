@@ -1277,6 +1277,14 @@
   .book-cal-day.disabled { color:rgba(255,255,255,0.12); pointer-events:none; }
   .book-cal-day.today { box-shadow:inset 0 0 0 1px rgba(247,204,73,0.4); }
   .book-cal-day.sel { background:#f7cc49; color:#000; font-weight:800; }
+  .book-cal-day.full { color:rgba(255,255,255,0.15); text-decoration:line-through; pointer-events:none; }
+
+  /* Fasce orarie disponibili (sostituiscono l'input time nativo) */
+  .book-time-hint { background:rgba(255,255,255,0.05); border:1.5px dashed rgba(255,255,255,0.12); color:rgba(255,255,255,0.35); padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:12.5px; text-align:center; }
+  .book-time-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+  .book-time-slot { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:9px 6px; border-radius:10px; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; text-align:center; }
+  .book-time-slot.sel { background:rgba(247,204,73,0.14); border-color:#f7cc49; color:#f7cc49; }
+  .book-time-slot.full { opacity:0.3; text-decoration:line-through; pointer-events:none; }
   .book-confirm-btn { background:#f7cc49; color:#111; border:none; border-radius:14px; padding:17px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; width:100%; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; margin-top:6px; }
   .book-confirm-btn:active { opacity:0.85; }
 
@@ -5676,7 +5684,14 @@
       <div class="book-scroll">
         <div class="book-form-new">
 
-          <!-- Data + Ora -->
+          <!-- Quante persone (prima di data/ora: filtra le disponibilità) -->
+          <div class="bfield" id="bfield-persone">
+            <label id="persone-lbl">Quante persone porti?</label>
+            <div class="people-grid" id="persone-grid"></div>
+          </div>
+
+          <!-- Data + Ora: il calendario disattiva i giorni pieni per il numero
+               di persone scelto, e l'orario mostra solo le fasce libere quel giorno -->
           <div class="bfield-row" id="bfield-datetime">
             <div class="bfield bfield-cal">
               <label>Data</label>
@@ -5697,14 +5712,12 @@
             </div>
             <div class="bfield">
               <label>Ora</label>
-              <input id="book-ora" type="time" value="21:00">
+              <div class="book-time-wrap">
+                <div class="book-time-hint" id="book-time-hint">Scegli prima la data</div>
+                <div class="book-time-grid" id="book-time-grid" style="display:none"></div>
+              </div>
+              <input type="hidden" id="book-ora">
             </div>
-          </div>
-
-          <!-- Quante persone -->
-          <div class="bfield" id="bfield-persone">
-            <label id="persone-lbl">Quante persone porti?</label>
-            <div class="people-grid" id="persone-grid"></div>
           </div>
 
           <!-- Compagni (solo tavolo condiviso, se > 1 persona) -->
@@ -7403,6 +7416,46 @@
 
   let companionSlots = []; // [{slotId, selectedUser}]
 
+  /* --- Disponibilità simulata: quante persone → giorni e orari liberi ---
+     Non c'è ancora un vero sistema di capienza tavoli collegato: finché non
+     c'è, la disponibilità è calcolata in modo deterministico (stesso giorno
+     + stesso numero di persone = stesso risultato) così il totem/l'app si
+     comporta in modo coerente, ma è pronta per essere sostituita da una
+     vera query al backend (RPC tipo bookAvailability(data, persone)). */
+  function bookHash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return h;
+  }
+  function bookGetPersoneNum() {
+    const pill = document.querySelector('#persone-grid .people-pill.active');
+    const val = pill ? pill.textContent.replace(' pers.', '').replace('+', '').trim() : '1';
+    return val === 'Solo io' ? 1 : (parseInt(val) || 1);
+  }
+  function bookPersoneBucket(n) { return n <= 2 ? 'S' : n <= 4 ? 'M' : 'L'; }
+  const BOOK_TIME_SLOTS = ['19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30','23:00','23:30'];
+  // Un gruppo grande "chiude" più facilmente l'intera giornata (tavolo/stanza
+  // grande già occupato), mentre per 1-2 persone è raro non trovare posto.
+  function bookDayFull(dateStr, bucket) {
+    const threshold = bucket === 'S' ? 8 : bucket === 'M' ? 20 : 38; // % giorni completamente pieni
+    return (bookHash(dateStr + '|DAYFULL|' + bucket) % 100) < threshold;
+  }
+  function bookTimeSlotsFor(dateStr, persone) {
+    const bucket = bookPersoneBucket(persone);
+    if (bookDayFull(dateStr, bucket)) return BOOK_TIME_SLOTS.map(t => ({ time: t, available: false }));
+    const threshold = bucket === 'S' ? 10 : bucket === 'M' ? 20 : 35; // % fasce piene quel giorno
+    return BOOK_TIME_SLOTS.map(t => ({
+      time: t,
+      available: (bookHash(dateStr + '|' + t + '|' + bucket) % 100) >= threshold
+    }));
+  }
+  function bookDateStr(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function bookIsDateAvailable(d, persone) {
+    return bookTimeSlotsFor(bookDateStr(d), persone).some(s => s.available);
+  }
+
   /* --- Mini calendario per il campo Data --- */
   const bookCalGiorni = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
   const bookCalMesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
@@ -7451,7 +7504,9 @@
       const cell = document.createElement('div');
       cell.className = 'book-cal-day';
       cell.textContent = day;
+      const persone = bookGetPersoneNum();
       if (d < today) cell.classList.add('disabled');
+      else if (!bookIsDateAvailable(d, persone)) cell.classList.add('full');
       if (d.getTime() === today.getTime()) cell.classList.add('today');
       if (bookCalSelected && d.getTime() === bookCalSelected.getTime()) cell.classList.add('sel');
       cell.onclick = () => bookCalPick(d);
@@ -7465,12 +7520,61 @@
     document.getElementById('book-date-label').textContent =
       bookCalGiorni[d.getDay()] + ' ' + d.getDate() + ' ' + bookCalMesi[d.getMonth()].slice(0,3).toLowerCase();
     bookCalClose();
+    bookTimeRender();
   }
   function bookCalReset() {
     bookCalSelected = null;
     bookCalView = new Date();
     document.getElementById('book-data').value = '';
     document.getElementById('book-date-label').textContent = 'Scegli';
+    bookTimeReset();
+  }
+
+  /* --- Fasce orarie disponibili per la data scelta --- */
+  function bookTimeReset() {
+    document.getElementById('book-ora').value = '';
+    document.getElementById('book-time-grid').style.display = 'none';
+    document.getElementById('book-time-grid').innerHTML = '';
+    document.getElementById('book-time-hint').style.display = 'block';
+    document.getElementById('book-time-hint').textContent = 'Scegli prima la data';
+  }
+  function bookTimeRender() {
+    const dataVal = document.getElementById('book-data').value;
+    document.getElementById('book-ora').value = '';
+    if (!dataVal) { bookTimeReset(); return; }
+    const persone = bookGetPersoneNum();
+    const slots = bookTimeSlotsFor(dataVal, persone);
+    const grid = document.getElementById('book-time-grid');
+    grid.innerHTML = '';
+    slots.forEach(s => {
+      const b = document.createElement('div');
+      b.className = 'book-time-slot' + (s.available ? '' : ' full');
+      b.textContent = s.time;
+      if (s.available) b.onclick = () => bookTimePick(s.time, b);
+      grid.appendChild(b);
+    });
+    grid.style.display = 'grid';
+    const hint = document.getElementById('book-time-hint');
+    if (slots.some(s => s.available)) {
+      hint.style.display = 'none';
+    } else {
+      hint.style.display = 'block';
+      hint.textContent = 'Nessun orario libero questo giorno';
+    }
+  }
+  function bookTimePick(time, btn) {
+    document.getElementById('book-ora').value = time;
+    document.querySelectorAll('#book-time-grid .book-time-slot').forEach(x => x.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+  // Cambiando il numero di persone la disponibilità cambia: se la data
+  // scelta non è più valida per il nuovo numero, si torna a sceglierla.
+  function bookOnPersoneChange() {
+    if (bookCalSelected && !bookIsDateAvailable(bookCalSelected, bookGetPersoneNum())) {
+      bookCalReset();
+    } else if (bookCalSelected) {
+      bookTimeRender();
+    }
   }
 
   function bookSelectType(type) {
@@ -7496,6 +7600,7 @@
         grid.querySelectorAll('.people-pill').forEach(x => x.classList.remove('active'));
         p.classList.add('active');
         if (type === 'shared') bookUpdateCompanions(opt);
+        bookOnPersoneChange();
       };
       grid.appendChild(p);
     });
@@ -7801,9 +7906,7 @@
     if (!data) { alert('Scegli una data.'); return; }
     if (!ora)  { alert('Scegli un orario.'); return; }
 
-    var activePersonePill = document.querySelector('#persone-grid .people-pill.active');
-    var personeVal = activePersonePill ? activePersonePill.textContent.replace(' pers.','').replace('+','').trim() : '1';
-    var personeNum = personeVal === 'Solo io' ? 1 : (parseInt(personeVal) || 1);
+    var personeNum = bookGetPersoneNum();
 
     var d = new Date(data + 'T12:00:00');
     var giorni = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
