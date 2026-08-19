@@ -1118,15 +1118,18 @@
   }
   .book-type-card:active { transform:scale(0.98); }
   .book-type-card.shared { border-color:rgba(100,200,255,0.2); background:linear-gradient(135deg,#0d1f2d,#1a1a1a); }
-  .book-type-card.private { border-color:rgba(255,255,255,0.1); background:linear-gradient(135deg,#1f1f1f,#1a1a1a); }
+  /* Grafite: comunica riservatezza/discrezione (chiuso alla vista) senza
+     scaldare come il terracotta ne' sembrare "premium" come l'oro della
+     stanza privata — vedi palette tipi tavolo discussa con l'utente. */
+  .book-type-card.private { border-color:rgba(160,160,160,0.22); background:linear-gradient(135deg,#242424,#1a1a1a); }
   .book-type-card.room { border-color:rgba(247,204,73,0.28); background:linear-gradient(135deg,#231c00,#1a1a1a); }
   .book-type-glow { position:absolute; top:-40%; right:-15%; width:180px; height:180px; border-radius:50%; pointer-events:none; opacity:0.18; }
   .book-type-card.shared .book-type-glow { background:radial-gradient(circle,#64c8ff,transparent 70%); }
-  .book-type-card.private .book-type-glow { background:radial-gradient(circle,#ffffff,transparent 70%); }
+  .book-type-card.private .book-type-glow { background:radial-gradient(circle,#9a9a9a,transparent 70%); }
   .book-type-card.room .book-type-glow { background:radial-gradient(circle,#f7cc49,transparent 70%); }
   .book-type-badge { display:inline-flex; align-items:center; gap:7px; font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; padding:5px 12px; border-radius:30px; margin-bottom:16px; }
   .book-type-card.shared .book-type-badge { background:rgba(100,200,255,0.12); color:#64c8ff; }
-  .book-type-card.private .book-type-badge { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); }
+  .book-type-card.private .book-type-badge { background:rgba(160,160,160,0.16); color:#a0a0a0; }
   .book-type-card.room .book-type-badge { background:rgba(247,204,73,0.15); color:#f7cc49; }
   .book-type-card.invite { border-color:rgba(244,114,182,0.28); background:linear-gradient(135deg,#2a1322,#1a1a1a); }
   .book-type-card.invite .book-type-glow { background:radial-gradient(circle,#F472B6,transparent 70%); }
@@ -5951,7 +5954,7 @@
     <div id="event-form-wrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
       <div class="book-step-head">
         <button class="book-back" onclick="goTo('book')">←</button>
-        <div class="book-step-title">FESTA <span>PRIVATA</span></div>
+        <div class="book-step-title">FESTA <span style="color:#a78bfa">PRIVATA</span></div>
       </div>
       <div class="book-scroll">
         <div class="book-form-new">
@@ -7407,28 +7410,32 @@
   /* ===== PRENOTAZIONE ===== */
   let bookType = null;
 
+  /* Un colore per tipo, scelto per l'emozione che comunica (non a caso):
+     blu = sociale/aperto, grafite = riservato/discreto (non "premium":
+     quello e' l'oro della stanza), oro = esclusivo, viola = festoso,
+     rosa = romantico/leggero. Guida titolo step2 e dettagli prenotazione. */
   const bookTypes = {
     shared: {
       ico: '👥', name: 'TAVOLO CONDIVISO', desc: 'Matchato con altri avventori',
       personeLbl: 'Quante persone porti? (anche solo tu)',
       personeOpts: ['Solo io','2','3','4'],
-      showOccasione: false
+      showOccasione: false, color: '#64c8ff'
     },
     private: {
       ico: '🔒', name: 'TAVOLO PRIVATO', desc: 'Riservato al tuo gruppo',
       personeLbl: 'Numero di persone',
       personeOpts: ['2','3','4','5','6','7','8+'],
-      showOccasione: false
+      showOccasione: false, color: '#a0a0a0'
     },
     room: {
       ico: '👑', name: 'STANZA PRIVATA', desc: 'Esperienza esclusiva · Premium',
       personeLbl: 'Numero di persone',
       personeOpts: ['2','3','4','5','6','8','10','12+'],
-      showOccasione: true
+      showOccasione: true, color: '#f7cc49'
     },
     invite: {
       ico: '💌', name: 'INVITO SEGRETO', desc: 'Proposta anonima a qualcuno',
-      personeLbl: '', personeOpts: [], showOccasione: false, isInvite: true
+      personeLbl: '', personeOpts: [], showOccasione: false, isInvite: true, color: '#f472b6'
     }
   };
 
@@ -7669,11 +7676,12 @@
     const cfg = bookTypes[type];
     document.getElementById('persone-lbl').textContent    = cfg.personeLbl;
     // titolo dello step 2 = tipo di tavolo scelto (es. "TAVOLO CONDIVISO"),
-    // con l'ultima parola in oro, al posto del vecchio "Dettagli prenotazione"
+    // con l'ultima parola nel colore del tipo, al posto del vecchio
+    // "Dettagli prenotazione"
     const titleEl = document.getElementById('book-step2-title');
     const words = cfg.name.split(' ');
     const last = words.pop();
-    titleEl.innerHTML = (words.length ? words.join(' ') + ' ' : '') + '<span>' + last + '</span>';
+    titleEl.innerHTML = (words.length ? words.join(' ') + ' ' : '') + '<span style="color:' + cfg.color + '">' + last + '</span>';
     // costruisci pill persone
     companionSlots = [];
     const grid = document.getElementById('persone-grid');
@@ -8562,6 +8570,17 @@
     });
   }
 
+  // Colore del bordo/sfondo dei "Dettagli" nella prenotazione attiva,
+  // in tinta col tipo di tavolo prenotato (stessa palette delle card).
+  const BOOK_EVENT_COLOR = '#a78bfa'; // festa privata: non in bookTypes, ha un flusso a parte
+  function bookApplyTypeColor(bookType) {
+    const hero = document.querySelector('#book-active .book-active-hero');
+    if (!hero) return;
+    const color = (bookTypes[bookType] && bookTypes[bookType].color) || BOOK_EVENT_COLOR;
+    const rgb = color.match(/\w\w/g).map(h => parseInt(h, 16)).join(',');
+    hero.style.background = `linear-gradient(135deg, rgba(${rgb},0.15), rgba(${rgb},0.05))`;
+    hero.style.borderColor = `rgba(${rgb},0.35)`;
+  }
   function bookReset() {
     document.getElementById('book-step3').style.display = 'none';
     if (currentBooking) {
@@ -8570,6 +8589,7 @@
       document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
       document.getElementById('ba-type').textContent = currentBooking.type;
       document.getElementById('ba-nome').textContent = currentBooking.nome;
+      bookApplyTypeColor(currentBooking.bookType);
       document.getElementById('book-active').style.display = 'flex';
       bookRenderFill(currentBooking.table);
       bookUpdateMinimap(currentBooking.table);
@@ -11719,6 +11739,7 @@
         document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
         document.getElementById('ba-type').textContent = currentBooking.type;
         document.getElementById('ba-nome').textContent = currentBooking.nome;
+        if (typeof bookApplyTypeColor === 'function') bookApplyTypeColor(currentBooking.bookType);
         if (attiva) attiva.style.display = 'flex';
         if (passo1) passo1.style.display = 'none';
         if (typeof bookRenderFill === 'function') bookRenderFill(currentBooking.table);
