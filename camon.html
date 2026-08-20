@@ -1548,6 +1548,10 @@
      margine in % della larghezza non bastava e lasciava un angolo
      scoperto (si vedeva lo sfondo della pagina, non un colore). */
   .ot-reel-skew { position:absolute; top:0; bottom:0; left:-30vh; width:calc(100% + 60vh); overflow:hidden; transform:skewX(-12deg); }
+  /* Rimette la larghezza vera dello schermo (i 30vh in piu' per lato
+     dati sopra si cancellano qui): i blocchi vanno misurati su QUESTA,
+     non su quella allargata per lo skew, altrimenti risultano enormi. */
+  .ot-reel-viewport { position:absolute; top:0; bottom:0; left:30vh; right:30vh; overflow:hidden; }
   .ot-reel-strip-full { position:absolute; inset:0; display:flex; will-change:transform; }
   /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
      mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
@@ -4915,11 +4919,16 @@
         <!-- Il taglio obliquo (alto-destra verso basso-sinistra) e' uno
              skew applicato a TUTTA la striscia insieme: cosi' il confine
              tra due blocchi qualsiasi resta sempre perfettamente allineato
-             durante lo scorrimento. Il wrapper e' piu' largo/alto dello
-             schermo apposta, altrimenti lo skew lascerebbe due angoli
-             scoperti. Il testo dentro ha lo skew opposto per restare dritto. -->
+             durante lo scorrimento. ".ot-reel-skew" e' piu' largo dello
+             schermo apposta (altrimenti lo skew lascerebbe un angolo
+             scoperto), ma ".ot-reel-viewport" dentro lo "restringe" di
+             nuovo alla larghezza vera dello schermo: e' su QUESTA misura
+             vera che si calcolano i blocchi (meta' schermo ciascuno), non
+             su quella allargata — altrimenti risultavano troppo grandi. -->
         <div class="ot-reel-skew">
-          <div class="ot-reel-strip-full" id="ot-reel-full"></div>
+          <div class="ot-reel-viewport">
+            <div class="ot-reel-strip-full" id="ot-reel-full"></div>
+          </div>
         </div>
       </div>
 
@@ -10853,7 +10862,7 @@
   // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
   const OT_ROULETTE = ['#F43F5E','#F59E0B','#EAB308','#3B82F6','#8B5CF6','#EC4899','#FB923C','#06B6D4'];
   const OT_REEL_BLOCKS = 34; // blocchi larghi meta' schermo: piu' blocchi per una corsa piu' lunga e visibile
-  const OT_SPIN_MS = 6500; // molto piu' lento: alla velocita' di prima i blocchi si vedevano scattare tutti interi invece che affiancati
+  const OT_SPIN_MS = 19500; // 3 volte piu' lento di prima (6500ms), su richiesta esplicita
   function obbligoSpin() {
     if (otSpinning || otPlayers.length < 2) return;
     otSpinning = true;
