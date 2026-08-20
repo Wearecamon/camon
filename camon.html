@@ -1535,7 +1535,8 @@
   .ot-play-back { position:absolute; top:calc(14px + var(--safe-top)); left:16px; z-index:6; background:rgba(0,0,0,0.35); border:none; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-play-back:active { background:rgba(0,0,0,0.5); }
   .ot-reveal-full { position:absolute; inset:0; overflow:hidden; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-reveal-full.spinning { pointer-events:none; }
+  /* NON si disattiva il tocco mentre gira: un secondo tocco durante lo
+     spin deve poter saltare subito al risultato (vedi obbligoSkipToEnd). */
   /* Un'unica striscia a tutto schermo: mentre gira si vedono solo colori
      pieni scorrere (nessuna divisione visibile). Solo l'ultimo blocco,
      quello su cui si ferma, e' diviso in due meta' con i nomi. */
@@ -1563,10 +1564,18 @@
   .ot-reel-half.answer { background:#B45309; }
   /* Contro-skew: il blocco e' un parallelogramma (eredita lo skew del
      wrapper), ma testo ed etichetta devono restare dritti e leggibili. */
-  .ot-reel-half-inner { transform:skewX(12deg); display:flex; flex-direction:column; align-items:center; }
+  /* Il rullo si ferma prima "vuoto" (solo colori, niente scritte): quando
+     arriva il risultato, etichetta+nome insieme fanno un piccolo "pop"
+     invece di limitarsi ad apparire piatti con un fade. */
+  .ot-reel-half-inner { transform:skewX(12deg); display:flex; flex-direction:column; align-items:center; opacity:0; }
+  .ot-reel-half-inner.show { animation:otNamePop 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+  @keyframes otNamePop {
+    0%   { opacity:0; transform:skewX(12deg) translateY(12px) scale(0.8); }
+    65%  { opacity:1; transform:skewX(12deg) translateY(-3px) scale(1.06); }
+    100% { opacity:1; transform:skewX(12deg) translateY(0) scale(1); }
+  }
   .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
-  .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); opacity:0; transition:opacity 0.3s ease; }
-  .ot-reel-half-name.show { opacity:1; }
+  .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
   .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 24px calc(28px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 45%); }
   .ot-consiglio-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:30px; padding:9px 18px; color:#fff; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-consiglio-btn:active { background:rgba(255,255,255,0.2); }
@@ -10822,6 +10831,9 @@
     document.getElementById('ot-suggest-card').style.display = 'none';
     document.getElementById('ot-tap-hint').textContent = 'Tocca per scegliere';
     document.getElementById('ot-reel-full').innerHTML = '';
+    if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
+    otSpinning = false;
+    otPendingNames = null;
     otAsk = otAnswer = null;
   }
   function obbligoEditPlayers() {
@@ -10839,7 +10851,9 @@
     }
   }
   function obbligoReset() {
+    if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
     otSpinning = false;
+    otPendingNames = null;
     otPlayers = [];
     otAsk = otAnswer = null;
     document.getElementById('ot-play').style.display = 'none';
@@ -10858,10 +10872,16 @@
   // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
   const OT_ROULETTE = ['#F43F5E','#F59E0B','#EAB308','#3B82F6','#8B5CF6','#EC4899','#FB923C','#06B6D4'];
   const OT_REEL_BLOCKS = 34; // blocchi larghi meta' schermo: piu' blocchi per una corsa piu' lunga e visibile
-  const OT_SPIN_MS = 13000; // 2 volte piu' lento della base (6500ms)
+  const OT_SPIN_MS = 4500; // piu' breve della base (era 6500ms)
   const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
+  let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
+  let otPendingNames = null;  // {ask, answer} dello spin in corso, per il salto immediato
+  function obbligoClearSpinTimers() { otSpinTimers.forEach(clearTimeout); otSpinTimers = []; }
   function obbligoSpin() {
-    if (otSpinning || otPlayers.length < 2) return;
+    if (otPlayers.length < 2) return;
+    // si tocca di nuovo mentre gira: salta subito al risultato, non
+    // aspetta che il rullo rallenti da solo
+    if (otSpinning) { obbligoSkipToEnd(); return; }
     otSpinning = true;
     document.getElementById('ot-reveal').classList.add('spinning');
     document.getElementById('ot-tap-hint').textContent = '';
@@ -10872,14 +10892,44 @@
     let iAnswer;
     do { iAnswer = Math.floor(Math.random() * otPlayers.length); } while (iAnswer === iAsk && otPlayers.length > 1);
     otAsk = iAsk; otAnswer = iAnswer;
+    otPendingNames = { ask: otPlayers[iAsk].name, answer: otPlayers[iAnswer].name };
 
-    obbligoSpinReel(otPlayers[iAsk].name, otPlayers[iAnswer].name, OT_SPIN_MS);
+    obbligoSpinReel(otPendingNames.ask, otPendingNames.answer, OT_SPIN_MS);
 
-    setTimeout(function () {
-      otSpinning = false;
-      document.getElementById('ot-reveal').classList.remove('spinning');
-      document.getElementById('ot-tap-hint').textContent = 'Tocca per rigirare';
-    }, OT_SPIN_MS + 150);
+    otSpinTimers.push(setTimeout(obbligoFinishSpin, OT_SPIN_MS + 150));
+  }
+  function obbligoFinishSpin() {
+    otSpinning = false;
+    otSpinTimers = [];
+    document.getElementById('ot-reveal').classList.remove('spinning');
+    document.getElementById('ot-tap-hint').textContent = 'Tocca per rigirare';
+  }
+  // Tocco durante lo spin: ferma subito la striscia ESATTAMENTE al
+  // centro (translateX 0, la stessa posizione di arrivo naturale — cosi'
+  // chiede/risponde sono sempre centrati, mai "sballati" a meta' corsa)
+  // e mostra subito i nomi gia' estratti per questo giro.
+  function obbligoSkipToEnd() {
+    obbligoClearSpinTimers();
+    const strip = document.getElementById('ot-reel-full');
+    strip.style.transition = 'none';
+    strip.style.transform = OT_SKEW + 'translateX(0px)';
+    void strip.offsetWidth;
+    if (otPendingNames) obbligoShowNames(otPendingNames.ask, otPendingNames.answer);
+    obbligoFinishSpin();
+  }
+  function obbligoShowNames(askName, answerName) {
+    const nameAsk = document.getElementById('ot-name-ask');
+    const nameAnswer = document.getElementById('ot-name-answer');
+    if (nameAsk) {
+      nameAsk.textContent = askName;
+      nameAsk.parentElement.classList.remove('show'); void nameAsk.parentElement.offsetWidth;
+      nameAsk.parentElement.classList.add('show');
+    }
+    if (nameAnswer) {
+      nameAnswer.textContent = answerName;
+      nameAnswer.parentElement.classList.remove('show'); void nameAnswer.parentElement.offsetWidth;
+      nameAnswer.parentElement.classList.add('show');
+    }
   }
   // Blocchi larghi meta' schermo: se ne vedono sempre DUE affiancati alla
   // volta mentre il rullo scorre (non un colore pieno alla volta), quindi
@@ -10914,12 +10964,9 @@
       strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.32,0.42,0.14,1)';
       strip.style.transform = OT_SKEW + 'translateX(0px)';
     });
-    setTimeout(function () {
-      const nameAsk = document.getElementById('ot-name-ask');
-      const nameAnswer = document.getElementById('ot-name-answer');
-      if (nameAsk) { nameAsk.textContent = askName; nameAsk.classList.add('show'); }
-      if (nameAnswer) { nameAnswer.textContent = answerName; nameAnswer.classList.add('show'); }
-    }, durationMs - 100);
+    otSpinTimers.push(setTimeout(function () {
+      obbligoShowNames(askName, answerName);
+    }, durationMs - 100));
   }
 
   function obbligoOpenSuggest() {
