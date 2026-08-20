@@ -1502,24 +1502,31 @@
   /* ---- Obbligo o Verità (spinner a due frecce) ---- */
   #page-obbligo { background:#3A0A1E; }
   .ot-area { flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:14px 24px 130px; text-align:center; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-  .ot-intro { font-family:'Manrope',sans-serif; font-size:12.5px; line-height:1.5; color:rgba(255,255,255,0.75); max-width:340px; margin-bottom:16px; }
-  .ot-intro b { font-weight:800; }
-  .ot-spinner-wrap { width:min(78vw,310px); aspect-ratio:1; margin:4px auto 16px; flex-shrink:0; }
-  .ot-disc { position:relative; width:100%; height:100%; border-radius:50%;
+  /* Icona info nell'header: le istruzioni non stanno piu' fisse sopra la
+     ruota, sono qui per chi non conosce gia' il gioco. */
+  .gd-info-btn { margin-left:auto; background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.8); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s; flex-shrink:0; }
+  .gd-info-btn:active { background:rgba(255,255,255,0.16); }
+  .ot-spinner-wrap { width:min(78vw,310px); aspect-ratio:1; margin:4px auto 0; flex-shrink:0; }
+  /* Il disco stesso e' il bottone: si tocca direttamente lui per girare,
+     niente piu' scritta "GIRA" separata sotto. */
+  .ot-disc { position:relative; width:100%; height:100%; border-radius:50%; border:none; padding:0;
     background: radial-gradient(circle at 50% 46%, #5A1233 0%, #33091D 68%, #1E0611 100%);
-    box-shadow: inset 0 0 0 3px rgba(249,168,212,0.28), inset 0 0 55px rgba(0,0,0,0.55), 0 14px 42px rgba(0,0,0,0.5), 0 0 26px rgba(249,168,212,0.15); }
-  .ot-bottle { position:absolute; inset:0; display:flex; justify-content:center; align-items:center;
-    transform-origin:center center; transform:rotate(0deg); transition:transform 3.4s cubic-bezier(0.12,0.85,0.18,1); will-change:transform; z-index:2; }
-  .ot-bottle svg { height:74%; width:auto; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.55)); }
-  /* tappo staccato: indicatore indipendente vicino al bordo */
-  .ot-cap { position:absolute; inset:0; display:flex; justify-content:center; align-items:flex-start; padding-top:3%;
-    transform-origin:center center; transform:rotate(0deg); transition:transform 3.7s cubic-bezier(0.1,0.82,0.16,1); will-change:transform; z-index:4; pointer-events:none; }
-  .ot-cap svg { filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
-  .ot-spin-btn { width:100%; max-width:300px; border:none; border-radius:15px; padding:16px; background:#F9A8D4; color:#3A0A1E;
-    font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1.5px; cursor:pointer; -webkit-tap-highlight-color:transparent;
-    box-shadow:0 6px 18px rgba(249,168,212,0.3); transition:transform 0.12s, opacity 0.2s; flex-shrink:0; }
-  .ot-spin-btn:active { transform:scale(0.97); }
-  .ot-spin-btn:disabled { opacity:0.5; box-shadow:none; }
+    box-shadow: inset 0 0 0 3px rgba(249,168,212,0.28), inset 0 0 55px rgba(0,0,0,0.55), 0 14px 42px rgba(0,0,0,0.5), 0 0 26px rgba(249,168,212,0.15);
+    cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.15s; }
+  .ot-disc:active { transform:scale(0.98); }
+  .ot-disc:disabled { cursor:default; }
+  /* Le due lancette: forme astratte a goccia invece della bottiglia/tappo
+     illustrati, stesso codice colore di prima (verde = domanda, arancio =
+     risponde) cosi' il significato resta immediato. */
+  .ot-needle { position:absolute; inset:0; display:flex; justify-content:center; align-items:center;
+    transform-origin:center center; transform:rotate(0deg); transition:transform 3.4s cubic-bezier(0.12,0.85,0.18,1); will-change:transform; pointer-events:none; }
+  .ot-needle svg { width:100%; height:100%; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+  .ot-needle.a { z-index:2; }
+  .ot-needle.b { z-index:3; transform:rotate(160deg); transition-duration:3.7s; }
+  .ot-hub { position:absolute; top:50%; left:50%; width:15%; height:15%; transform:translate(-50%,-50%); border-radius:50%; z-index:4;
+    background:conic-gradient(#2DD4BF 0deg 180deg, #FDBA74 180deg 360deg);
+    box-shadow:0 0 0 3px rgba(249,168,212,0.4), 0 3px 10px rgba(0,0,0,0.5); }
+  .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.4); margin-top:14px; }
   .ot-legend { display:flex; gap:16px; justify-content:center; margin:14px 0 2px; font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.8); }
   .ot-legend-item { display:inline-flex; align-items:center; gap:6px; }
   .ot-legend-item i { width:11px; height:11px; border-radius:50%; display:inline-block; }
@@ -4835,46 +4842,49 @@
     <div class="gd-header">
       <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">OBBLIGO <span style="color:#F9A8D4">O VERITÀ</span></div>
+      <button class="gd-info-btn" onclick="obbligoInfoOpen()" aria-label="Come si gioca">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg>
+      </button>
     </div>
     <div class="ot-area">
-      <div class="ot-intro">📱 Telefono al centro del tavolo: gira! Il <b style="color:#2DD4BF">tappo</b> indica chi <b>fa la domanda</b>, il <b style="color:#FDBA74">collo della bottiglia</b> chi <b>risponde / esegue</b>. Girano separati: qualsiasi coppia è possibile.</div>
 
+      <!-- Niente piu' bottiglia/tappo disegnati: due lancette astratte,
+           una per ruolo, che girano indipendenti sullo stesso disco.
+           Si tocca il disco stesso per farlo girare (niente bottone). -->
       <div class="ot-spinner-wrap">
-        <div class="ot-disc">
-          <!-- bottiglia (il collo indica chi RISPONDE) -->
-          <div class="ot-bottle" id="ot-bottle">
-            <svg viewBox="0 0 60 216" preserveAspectRatio="xMidYMid meet">
+        <button class="ot-disc" id="ot-disc" onclick="obbligoSpin()" aria-label="Tocca per girare">
+          <div class="ot-needle a" id="ot-needle-a">
+            <svg viewBox="0 0 100 100">
               <defs>
-                <linearGradient id="otGlass" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stop-color="#6B3310"/>
-                  <stop offset="0.42" stop-color="#C87B36"/>
-                  <stop offset="0.58" stop-color="#E6AB63"/>
-                  <stop offset="1" stop-color="#5C2B0D"/>
+                <linearGradient id="otNeedleA" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0" stop-color="#0C6E60"/>
+                  <stop offset="1" stop-color="#5EEAD4"/>
                 </linearGradient>
               </defs>
-              <path d="M24 22 L24 16 Q24 13 27 13 L33 13 Q36 13 36 16 L36 22 Q36 34 39 44 Q47 60 47 92 L47 196 Q47 208 35 208 L25 208 Q13 208 13 196 L13 92 Q13 60 21 44 Q24 34 24 22 Z" fill="url(#otGlass)" stroke="rgba(0,0,0,0.3)" stroke-width="1.4"/>
-              <ellipse cx="30" cy="15" rx="6" ry="2.4" fill="#241017"/>
-              <rect x="17" y="120" width="26" height="54" rx="5" fill="#F4ECD8"/>
-              <rect x="17" y="120" width="26" height="15" rx="5" fill="#B23A2E"/>
-              <circle cx="30" cy="153" r="8.5" fill="none" stroke="#B23A2E" stroke-width="2.2"/>
-              <path d="M21 66 Q18 130 22 192" stroke="rgba(255,255,255,0.4)" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <path d="M46 54 Q44 54 44.4 50 L48 21 Q50 17 52 21 L55.6 50 Q56 54 54 54 Z" fill="url(#otNeedleA)"/>
+              <circle cx="50" cy="15.5" r="7" fill="#2DD4BF"/>
             </svg>
           </div>
-          <!-- tappo staccato (indica chi FA LA DOMANDA) -->
-          <div class="ot-cap" id="ot-cap">
-            <svg viewBox="0 0 44 44" width="36" height="36">
-              <circle cx="22" cy="22" r="15" fill="none" stroke="#2DD4BF" stroke-width="5" stroke-dasharray="3.4 2.6"/>
-              <circle cx="22" cy="22" r="12.5" fill="#2DD4BF"/>
-              <circle cx="22" cy="22" r="7" fill="#0C6E60"/>
+          <div class="ot-needle b" id="ot-needle-b">
+            <svg viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="otNeedleB" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0" stop-color="#B45309"/>
+                  <stop offset="1" stop-color="#FDBA74"/>
+                </linearGradient>
+              </defs>
+              <path d="M46 54 Q44 54 44.4 50 L48 21 Q50 17 52 21 L55.6 50 Q56 54 54 54 Z" fill="url(#otNeedleB)"/>
+              <circle cx="50" cy="15.5" r="7" fill="#FDBA74"/>
             </svg>
           </div>
-        </div>
+          <div class="ot-hub"></div>
+        </button>
       </div>
+      <div class="ot-tap-hint">Tocca la ruota per girare</div>
 
-      <button class="ot-spin-btn" id="ot-spin-btn" onclick="obbligoSpin()">GIRA</button>
       <div class="ot-legend">
-        <span class="ot-legend-item"><i class="a"></i> tappo: <b>domanda</b></span>
-        <span class="ot-legend-item"><i class="c"></i> bottiglia: <b>risponde</b></span>
+        <span class="ot-legend-item"><i class="a"></i> chi <b>fa la domanda</b></span>
+        <span class="ot-legend-item"><i class="c"></i> chi <b>risponde / esegue</b></span>
       </div>
 
       <div class="ot-suggest">
@@ -4889,6 +4899,22 @@
           <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Info "come si gioca": prima era un paragrafo fisso sempre visibile
+       sopra la ruota, ora e' a parte, per chi non conosce gia' il gioco. -->
+  <div class="game-modal-overlay" id="ot-info-overlay" onclick="if(event.target===this) obbligoInfoClose()">
+    <div class="game-modal">
+      <div class="game-modal-grab"></div>
+      <div class="game-modal-name">COME SI GIOCA</div>
+      <div class="game-modal-rules">
+        Metti il telefono al centro del tavolo e tocca la ruota per farla girare.
+        La lancetta <b style="color:#2DD4BF">verde acqua</b> indica chi <b>fa la domanda</b>,
+        quella <b style="color:#FDBA74">arancione</b> chi <b>risponde o esegue</b>.
+        Girano separate: può uscire qualsiasi coppia, anche la stessa persona su entrambe.
+      </div>
+      <button class="game-modal-btn" onclick="obbligoInfoClose()">Ho capito</button>
     </div>
   </div>
 
@@ -10685,29 +10711,31 @@
     otSpinning = false;
     const card = document.getElementById('ot-suggest-card');
     if (card) card.style.display = 'none';
-    const btn = document.getElementById('ot-spin-btn');
-    if (btn) { btn.disabled = false; btn.textContent = 'GIRA'; }
+    const disc = document.getElementById('ot-disc');
+    if (disc) disc.disabled = false;
   }
 
-  // gira bottiglia e tappo SEPARATAMENTE: il collo indica chi risponde, il tappo chi fa la domanda
+  // gira le due lancette SEPARATAMENTE: una indica chi risponde, l'altra chi fa la domanda
   function obbligoSpin() {
     if (otSpinning) return;
     otSpinning = true;
-    const btn = document.getElementById('ot-spin-btn');
-    btn.disabled = true;
+    const disc = document.getElementById('ot-disc');
+    disc.disabled = true;
     // arrivi casuali, con almeno ~40° di distanza così non indicano la stessa persona
     const bottleTarget = Math.floor(Math.random() * 360);
     const capTarget = (bottleTarget + 40 + Math.floor(Math.random() * 280)) % 360;
     otRotBottle += (5 + Math.floor(Math.random() * 4)) * 360 + (((bottleTarget - (otRotBottle % 360)) % 360) + 360) % 360;
     otRotCap    += (6 + Math.floor(Math.random() * 4)) * 360 + (((capTarget - (otRotCap % 360)) % 360) + 360) % 360;
-    document.getElementById('ot-bottle').style.transform = 'rotate(' + otRotBottle + 'deg)';
-    document.getElementById('ot-cap').style.transform = 'rotate(' + otRotCap + 'deg)';
+    document.getElementById('ot-needle-a').style.transform = 'rotate(' + otRotBottle + 'deg)';
+    document.getElementById('ot-needle-b').style.transform = 'rotate(' + otRotCap + 'deg)';
     setTimeout(function(){
       otSpinning = false;
-      btn.disabled = false;
-      btn.textContent = 'GIRA DI NUOVO';
+      disc.disabled = false;
     }, 3800);
   }
+
+  function obbligoInfoOpen() { document.getElementById('ot-info-overlay').classList.add('open'); }
+  function obbligoInfoClose() { document.getElementById('ot-info-overlay').classList.remove('open'); }
 
   // suggerimento OPZIONALE: estrae una verità o un obbligo di esempio
   function obbligoSuggest(kind) {
