@@ -1536,9 +1536,10 @@
      pieni scorrere (nessuna divisione visibile). Solo l'ultimo blocco,
      quello su cui si ferma, e' diviso in due meta' con i nomi. */
   .ot-reel-strip-full { position:absolute; inset:0; display:flex; will-change:transform; }
-  .ot-reel-block-full { flex:none; width:100%; height:100%; }
-  .ot-reel-block-full.final { display:flex; }
-  .ot-reel-half { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 16px; }
+  /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
+     mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
+     finale (due colori affiancati) e' quindi naturale, non un salto. */
+  .ot-reel-half { flex:none; width:50%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
   .ot-reel-half.ask { background:#0C6E60; }
   .ot-reel-half.answer { background:#B45309; }
   .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
@@ -10825,7 +10826,7 @@
      diviso in due meta' (chiede/risponde) coi nomi. Le due scelte sono
      sempre persone diverse (se ci sono almeno 2). --- */
   const OT_ROULETTE = ['#F43F5E','#F59E0B','#84CC16','#10B981','#06B6D4','#3B82F6','#8B5CF6','#EC4899','#EF4444','#14B8A6'];
-  const OT_REEL_BLOCKS = 14;
+  const OT_REEL_BLOCKS = 26; // blocchi larghi meta' schermo: piu' del prima per la stessa distanza percorsa
   const OT_SPIN_MS = 3200; // piu' lento di prima
   function obbligoSpin() {
     if (otSpinning || otPlayers.length < 2) return;
@@ -10848,24 +10849,24 @@
       document.getElementById('ot-tap-hint').textContent = 'Tocca per rigirare';
     }, OT_SPIN_MS + 150);
   }
-  // Costruisce il rullo con il blocco finale (diviso in due meta') per
-  // primo, poi tanti blocchi colorati casuali dopo: si parte mostrando
-  // l'ULTIMO blocco (a destra nella striscia) e si anima verso il PRIMO
-  // (translateX verso 0), cosi' il movimento visivo va da sinistra a
-  // destra e finisce sempre sul blocco giusto.
+  // Blocchi larghi meta' schermo: se ne vedono sempre DUE affiancati alla
+  // volta mentre il rullo scorre (non un colore pieno alla volta), quindi
+  // l'arrivo sui due colori finali e' continuo, non un cambio improvviso.
+  // I due blocchi "chiede"/"risponde" sono i PRIMI della striscia, tanti
+  // blocchi casuali dopo: si parte mostrando gli ULTIMI due (a destra) e
+  // si anima verso i PRIMI due (translateX verso 0) — movimento da
+  // sinistra a destra, finisce sempre sulla coppia giusta.
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
-    let html = '<div class="ot-reel-block-full final">'
-      + '<div class="ot-reel-half ask"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div>'
-      + '<div class="ot-reel-half answer"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div>'
-      + '</div>';
-    for (let i = 1; i < OT_REEL_BLOCKS; i++) {
-      html += '<div class="ot-reel-block-full" style="background:' + OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)] + '"></div>';
+    let html = '<div class="ot-reel-half ask"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div>'
+      + '<div class="ot-reel-half answer"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div>';
+    for (let i = 2; i < OT_REEL_BLOCKS; i++) {
+      html += '<div class="ot-reel-half" style="background:' + OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)] + '"></div>';
     }
     strip.innerHTML = html;
     strip.style.transition = 'none';
-    const width = strip.parentElement.clientWidth;
-    strip.style.transform = 'translateX(-' + ((OT_REEL_BLOCKS - 1) * width) + 'px)';
+    const halfWidth = strip.parentElement.clientWidth / 2;
+    strip.style.transform = 'translateX(-' + ((OT_REEL_BLOCKS - 2) * halfWidth) + 'px)';
     void strip.offsetWidth; // forza il reflow: senza, il browser potrebbe animare anche la posizione di partenza
     requestAnimationFrame(function () {
       strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.13,0.62,0.18,1)';
