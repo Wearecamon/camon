@@ -1543,16 +1543,18 @@
      a tutta la striscia in un colpo solo: piu' largo dello schermo cosi'
      lo skew non lascia scoperti i due angoli. */
   /* Lo sconfinamento necessario a coprire gli angoli dipende dall'ALTEZZA
-     (piu' e' alto lo schermo, piu' lo skew sposta il bordo in orizzontale)
-     non dalla larghezza: su telefono, molto piu' alto che largo, un
-     margine in % della larghezza non bastava e lasciava un angolo
-     scoperto (si vedeva lo sfondo della pagina, non un colore). */
-  .ot-reel-skew { position:absolute; top:0; bottom:0; left:-30vh; width:calc(100% + 60vh); overflow:hidden; transform:skewX(-12deg); }
-  /* Rimette la larghezza vera dello schermo (i 30vh in piu' per lato
-     dati sopra si cancellano qui): i blocchi vanno misurati su QUESTA,
-     non su quella allargata per lo skew, altrimenti risultano enormi. */
-  .ot-reel-viewport { position:absolute; top:0; bottom:0; left:30vh; right:30vh; overflow:hidden; }
-  .ot-reel-strip-full { position:absolute; inset:0; display:flex; will-change:transform; }
+     (piu' e' alto lo schermo, piu' lo skew sposta il bordo in orizzontale).
+     La striscia e' ampiamente piu' larga dello schermo da sola (tanti
+     blocchi in fila, vedi JS), quindi lo skew applicato a lei stessa ha
+     sempre margine a sufficienza — niente contenitori "allargati" a
+     parte (che venivano inclinati anche loro e non coprivano piu' nulla
+     di reale: gli angoli restavano scoperti comunque). */
+  /* Perno dell'inclinazione in ALTO (non al centro): cosi' il bordo
+     sinistro del primissimo blocco — che e' anche l'inizio vero della
+     striscia, senza altro contenuto prima a fare da margine — resta
+     sempre allineato esatto allo schermo in alto, senza lasciare
+     scoperto quell'angolo. */
+  .ot-reel-strip-full { position:absolute; inset:0; display:flex; transform-origin:top; will-change:transform; }
   /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
      mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
      finale (due colori affiancati) e' quindi naturale, non un salto. */
@@ -4916,20 +4918,14 @@
       </button>
 
       <div class="ot-reveal-full" id="ot-reveal" onclick="obbligoSpin()" role="button" aria-label="Tocca per scegliere chi chiede e chi risponde">
-        <!-- Il taglio obliquo (alto-destra verso basso-sinistra) e' uno
-             skew applicato a TUTTA la striscia insieme: cosi' il confine
-             tra due blocchi qualsiasi resta sempre perfettamente allineato
-             durante lo scorrimento. ".ot-reel-skew" e' piu' largo dello
-             schermo apposta (altrimenti lo skew lascerebbe un angolo
-             scoperto), ma ".ot-reel-viewport" dentro lo "restringe" di
-             nuovo alla larghezza vera dello schermo: e' su QUESTA misura
-             vera che si calcolano i blocchi (meta' schermo ciascuno), non
-             su quella allargata — altrimenti risultavano troppo grandi. -->
-        <div class="ot-reel-skew">
-          <div class="ot-reel-viewport">
-            <div class="ot-reel-strip-full" id="ot-reel-full"></div>
-          </div>
-        </div>
+        <!-- Il taglio obliquo e' lo skew applicato DIRETTAMENTE alla
+             striscia (insieme allo scroll, nello stesso transform, via
+             JS): la striscia e' gia' molto piu' larga dello schermo da
+             sola (tanti blocchi in fila), quindi lo skew ha sempre
+             margine a sufficienza per coprire gli angoli senza bisogno
+             di contenitori "allargati" a parte — che infatti venivano
+             inclinati anch'essi e non coprivano piu' nulla di reale. -->
+        <div class="ot-reel-strip-full" id="ot-reel-full"></div>
       </div>
 
       <div class="ot-play-bottom">
@@ -10862,7 +10858,8 @@
   // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
   const OT_ROULETTE = ['#F43F5E','#F59E0B','#EAB308','#3B82F6','#8B5CF6','#EC4899','#FB923C','#06B6D4'];
   const OT_REEL_BLOCKS = 34; // blocchi larghi meta' schermo: piu' blocchi per una corsa piu' lunga e visibile
-  const OT_SPIN_MS = 19500; // 3 volte piu' lento di prima (6500ms), su richiesta esplicita
+  const OT_SPIN_MS = 13000; // 2 volte piu' lento della base (6500ms)
+  const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   function obbligoSpin() {
     if (otSpinning || otPlayers.length < 2) return;
     otSpinning = true;
@@ -10908,14 +10905,14 @@
     strip.innerHTML = html;
     strip.style.transition = 'none';
     const halfWidth = strip.parentElement.clientWidth / 2;
-    strip.style.transform = 'translateX(-' + ((OT_REEL_BLOCKS - 2) * halfWidth) + 'px)';
+    strip.style.transform = OT_SKEW + 'translateX(-' + ((OT_REEL_BLOCKS - 2) * halfWidth) + 'px)';
     void strip.offsetWidth; // forza il reflow: senza, il browser potrebbe animare anche la posizione di partenza
     requestAnimationFrame(function () {
       // curva piu' morbida in partenza (prima saliva troppo di scatto,
       // a velocita' cosi' alta i blocchi sembravano interi invece che
       // affiancati a due a due): accelera gradualmente, poi frena a lungo
       strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.32,0.42,0.14,1)';
-      strip.style.transform = 'translateX(0px)';
+      strip.style.transform = OT_SKEW + 'translateX(0px)';
     });
     setTimeout(function () {
       const nameAsk = document.getElementById('ot-name-ask');
