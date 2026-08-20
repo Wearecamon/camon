@@ -1521,28 +1521,34 @@
   /* -- Gioco: due carte che scorrono in fretta tra i nomi (come uno slot)
      e si fermano su chi chiede/chi risponde, invece della vecchia ruota
      e delle scritte "Truth/Dare" spezzate in due colori. -- */
-  .ot-area { flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:0 0 130px; text-align:center; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-  /* Schermo diviso in due meta': durante il tocco i colori di sfondo
-     scorrono veloci (roulette), poi rallentano e si fermano sui due
-     colori di ruolo con il nome sopra — non piu' due card affiancate. */
-  .ot-reveal { width:100%; flex-shrink:0; display:flex; align-items:stretch; height:min(48vh,340px); cursor:pointer; -webkit-tap-highlight-color:transparent; position:relative; }
-  .ot-reveal.spinning { pointer-events:none; }
-  .ot-reveal-card { position:relative; flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 14px; background:#5A1233; transition:transform 0.12s; overflow:hidden; }
-  .ot-reveal:active .ot-reveal-card { transform:scale(0.99); }
-  .ot-reveal-div { flex-shrink:0; width:3px; background:rgba(0,0,0,0.35); z-index:1; }
-  .ot-reveal-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.7); z-index:1; }
-  /* Rullo orizzontale: una fila di blocchi colorati larga quanto la
-     carta, che scorre verso destra (translateX positivo, blocchi in
-     ordine inverso) e rallenta fino a fermarsi sul colore di ruolo. */
-  .ot-reel-viewport { position:absolute; inset:0; overflow:hidden; z-index:0; }
-  .ot-reel-strip { position:absolute; inset:0; display:flex; will-change:transform; }
-  .ot-reel-block { flex:none; width:100%; height:100%; }
-  .ot-reveal-name { position:relative; z-index:1; font-family:'Bebas Neue',sans-serif; font-size:34px; letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); opacity:0; transition:opacity 0.25s ease; }
-  .ot-reveal-name.show { opacity:1; }
-  .ot-consiglio-btn { margin-top:16px; display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.16); border-radius:30px; padding:9px 18px; color:rgba(255,255,255,0.8); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-consiglio-btn:active { background:rgba(255,255,255,0.14); }
-  .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.4); margin-top:16px; }
-  .ot-suggest { width:100%; max-width:340px; margin-top:24px; flex-shrink:0; }
+  /* -- Gioco a schermo intero: l'header sparisce, un unico rullo occupa
+     tutta l'area, i controlli (tocca-per-girare/Consiglio/Cambia
+     giocatori) stanno in una barra sovrapposta in basso. -- */
+  /* Le pagine dell'app scorrono nel flusso normale del documento (non
+     flex), quindi "flex:1" qui non baste-rebbe: serve un'altezza vera,
+     altrimenti i figli position:absolute (inset:0) collassano a 0. */
+  .ot-play { height:100dvh; position:relative; display:none; overflow:hidden; }
+  .ot-play-back { position:absolute; top:calc(14px + var(--safe-top)); left:16px; z-index:6; background:rgba(0,0,0,0.35); border:none; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-play-back:active { background:rgba(0,0,0,0.5); }
+  .ot-reveal-full { position:absolute; inset:0; overflow:hidden; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-reveal-full.spinning { pointer-events:none; }
+  /* Un'unica striscia a tutto schermo: mentre gira si vedono solo colori
+     pieni scorrere (nessuna divisione visibile). Solo l'ultimo blocco,
+     quello su cui si ferma, e' diviso in due meta' con i nomi. */
+  .ot-reel-strip-full { position:absolute; inset:0; display:flex; will-change:transform; }
+  .ot-reel-block-full { flex:none; width:100%; height:100%; }
+  .ot-reel-block-full.final { display:flex; }
+  .ot-reel-half { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 16px; }
+  .ot-reel-half.ask { background:#0C6E60; }
+  .ot-reel-half.answer { background:#B45309; }
+  .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
+  .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); opacity:0; transition:opacity 0.3s ease; }
+  .ot-reel-half-name.show { opacity:1; }
+  .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 24px calc(28px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 45%); }
+  .ot-consiglio-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:30px; padding:9px 18px; color:#fff; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-consiglio-btn:active { background:rgba(255,255,255,0.2); }
+  .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.65); text-shadow:0 1px 4px rgba(0,0,0,0.4); }
+  .ot-suggest { width:100%; max-width:340px; flex-shrink:0; }
   .ot-suggest-btns { display:flex; gap:10px; }
   .ot-sg { flex:1; border-radius:13px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.8px; cursor:pointer; -webkit-tap-highlight-color:transparent; border:1px solid transparent; transition:transform 0.12s; }
   .ot-sg:active { transform:scale(0.97); }
@@ -1556,7 +1562,7 @@
   .ot-prompt { font-family:'Bebas Neue',sans-serif; font-size:25px; line-height:1.15; letter-spacing:0.3px; color:#fff; margin-bottom:14px; }
   .ot-redraw { background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:10px; padding:10px 16px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-redraw:active { background:rgba(255,255,255,0.18); }
-  .ot-edit-players { margin-top:28px; background:none; border:none; color:rgba(255,255,255,0.4); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-edit-players { margin-top:2px; background:none; border:none; color:rgba(255,255,255,0.6); text-shadow:0 1px 4px rgba(0,0,0,0.4); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-edit-players:active { color:rgba(255,255,255,0.7); }
 
   /* ---- Heads Up! (nome in fronte) ---- */
@@ -4848,7 +4854,9 @@
        OBBLIGO O VERITÀ
   ============================ -->
   <div class="page game-detail" id="page-obbligo" style="background:#3A0A1E">
-    <div class="gd-header">
+    <!-- Solo nel setup: durante il gioco sparisce del tutto, cosi' il
+         rullo occupa davvero tutto lo schermo (vedi .ot-play-back sotto). -->
+    <div class="gd-header" id="ot-header">
       <button class="back-btn" onclick="obbligoBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">OBBLIGO <span style="color:#F9A8D4">O VERITÀ</span></div>
       <button class="gd-info-btn" onclick="obbligoInfoOpen()" aria-label="Come si gioca">
@@ -4875,43 +4883,42 @@
       <button class="sq-start-btn" id="ot-start-btn" onclick="obbligoStart()" disabled>Inizia →</button>
     </div>
 
-    <!-- 2. GIOCO: schermo diviso in due meta' che durante il tocco
-         scorrono veloci tra tanti colori (effetto roulette) e rallentano
-         fino a fermarsi sui due colori di ruolo, coi nomi sopra;
-         "Consiglio" apre verita'/obbligo suggeriti, sotto. -->
-    <div class="ot-area" id="ot-play" style="display:none">
-      <div class="ot-reveal" id="ot-reveal" onclick="obbligoSpin()" role="button" aria-label="Tocca per scegliere chi chiede e chi risponde">
-        <div class="ot-reveal-card ask">
-          <div class="ot-reveal-lbl">chiede</div>
-          <div class="ot-reel-viewport"><div class="ot-reel-strip" id="ot-reel-ask"></div></div>
-          <div class="ot-reveal-name" id="ot-name-ask"></div>
-        </div>
-        <div class="ot-reveal-div"></div>
-        <div class="ot-reveal-card answer">
-          <div class="ot-reveal-lbl">risponde</div>
-          <div class="ot-reel-viewport"><div class="ot-reel-strip" id="ot-reel-answer"></div></div>
-          <div class="ot-reveal-name" id="ot-name-answer"></div>
-        </div>
-      </div>
-      <div class="ot-tap-hint" id="ot-tap-hint">Tocca per scegliere</div>
-      <button class="ot-consiglio-btn" onclick="obbligoOpenSuggest()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.55 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.55 1-2.1A6 6 0 0 0 12 3z"/></svg>
-        Consiglio
+    <!-- 2. GIOCO, a schermo intero (l'header sopra sparisce): un'unica
+         striscia che scorre — mentre gira si vedono solo colori pieni
+         passare, nessuna divisione visibile — e quando rallenta e si
+         ferma, l'ultimo blocco è diviso in due metà (chiede/risponde)
+         coi nomi sopra. "Consiglio" e i controlli stanno in una barra
+         in basso, sovrapposta. -->
+    <div class="ot-play" id="ot-play" style="display:none">
+      <button class="ot-play-back" onclick="obbligoBack()" aria-label="Indietro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
 
-      <div class="ot-suggest" id="ot-suggest" style="display:none">
-        <div class="ot-suggest-btns">
-          <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
-          <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
-        </div>
-        <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
-          <div class="ot-cat" id="ot-cat">VERITÀ</div>
-          <div class="ot-prompt" id="ot-prompt">—</div>
-          <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
-        </div>
+      <div class="ot-reveal-full" id="ot-reveal" onclick="obbligoSpin()" role="button" aria-label="Tocca per scegliere chi chiede e chi risponde">
+        <div class="ot-reel-strip-full" id="ot-reel-full"></div>
       </div>
 
-      <button class="ot-edit-players" onclick="obbligoEditPlayers()">↺ Cambia giocatori</button>
+      <div class="ot-play-bottom">
+        <div class="ot-tap-hint" id="ot-tap-hint">Tocca per scegliere</div>
+        <button class="ot-consiglio-btn" onclick="event.stopPropagation(); obbligoOpenSuggest()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.55 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.55 1-2.1A6 6 0 0 0 12 3z"/></svg>
+          Consiglio
+        </button>
+
+        <div class="ot-suggest" id="ot-suggest" style="display:none" onclick="event.stopPropagation()">
+          <div class="ot-suggest-btns">
+            <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
+            <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
+          </div>
+          <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
+            <div class="ot-cat" id="ot-cat">VERITÀ</div>
+            <div class="ot-prompt" id="ot-prompt">—</div>
+            <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
+          </div>
+        </div>
+
+        <button class="ot-edit-players" onclick="event.stopPropagation(); obbligoEditPlayers()">↺ Cambia giocatori</button>
+      </div>
     </div>
   </div>
 
@@ -10778,25 +10785,22 @@
   }
   function obbligoStart() {
     if (otPlayers.length < 2 || !otPlayers.every(p => !!p.gender)) return;
+    document.getElementById('ot-header').style.display = 'none'; // gioco a schermo intero
     document.getElementById('ot-setup').style.display = 'none';
-    document.getElementById('ot-play').style.display = 'flex';
+    document.getElementById('ot-play').style.display = 'block';
     document.getElementById('ot-suggest').style.display = 'none';
     document.getElementById('ot-suggest-card').style.display = 'none';
     document.getElementById('ot-tap-hint').textContent = 'Tocca per scegliere';
-    ['ot-name-ask','ot-name-answer'].forEach(id => {
-      const n = document.getElementById(id);
-      n.textContent = '';
-      n.classList.remove('show');
-    });
-    ['ot-reel-ask','ot-reel-answer'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+    document.getElementById('ot-reel-full').innerHTML = '';
     otAsk = otAnswer = null;
   }
   function obbligoEditPlayers() {
     document.getElementById('ot-play').style.display = 'none';
+    document.getElementById('ot-header').style.display = 'flex';
     document.getElementById('ot-setup').style.display = 'flex';
     obbligoRenderSetup();
   }
-  // tasto INDIETRO dell'header: dal gioco torna al setup, dal setup esce
+  // tasto INDIETRO: dal gioco torna al setup, dal setup esce
   function obbligoBack() {
     if (document.getElementById('ot-play').style.display !== 'none') {
       obbligoEditPlayers();
@@ -10809,18 +10813,20 @@
     otPlayers = [];
     otAsk = otAnswer = null;
     document.getElementById('ot-play').style.display = 'none';
+    document.getElementById('ot-header').style.display = 'flex';
     document.getElementById('ot-setup').style.display = 'flex';
     document.getElementById('ot-name-input').value = '';
     obbligoRenderSetup();
   }
 
-  /* --- Gioco: un vero rullo orizzontale per carta — una fila di blocchi
-     colorati scorre da sinistra verso destra (come in "Truth or Dare"),
-     veloce all'inizio e via via piu' lenta, fino a fermarsi sul colore
-     di ruolo. Il nome compare sotto solo quando il rullo si e' fermato.
-     Le due scelte sono sempre persone diverse (se ci sono almeno 2). --- */
+  /* --- Gioco: un unico rullo a tutto schermo — mentre gira si vedono
+     solo colori pieni passare da sinistra verso destra (nessuna
+     divisione visibile), poi rallenta e si ferma: l'ultimo blocco e'
+     diviso in due meta' (chiede/risponde) coi nomi. Le due scelte sono
+     sempre persone diverse (se ci sono almeno 2). --- */
   const OT_ROULETTE = ['#F43F5E','#F59E0B','#84CC16','#10B981','#06B6D4','#3B82F6','#8B5CF6','#EC4899','#EF4444','#14B8A6'];
-  const OT_REEL_BLOCKS = 16; // quanti blocchi scorrono prima di fermarsi
+  const OT_REEL_BLOCKS = 14;
+  const OT_SPIN_MS = 3200; // piu' lento di prima
   function obbligoSpin() {
     if (otSpinning || otPlayers.length < 2) return;
     otSpinning = true;
@@ -10834,42 +10840,43 @@
     do { iAnswer = Math.floor(Math.random() * otPlayers.length); } while (iAnswer === iAsk && otPlayers.length > 1);
     otAsk = iAsk; otAnswer = iAnswer;
 
-    const durAsk = 1300, durAnswer = 1750;
-    obbligoSpinReel('ot-reel-ask', 'ot-name-ask', '#0C6E60', otPlayers[iAsk].name, durAsk);
-    obbligoSpinReel('ot-reel-answer', 'ot-name-answer', '#B45309', otPlayers[iAnswer].name, durAnswer);
+    obbligoSpinReel(otPlayers[iAsk].name, otPlayers[iAnswer].name, OT_SPIN_MS);
 
     setTimeout(function () {
       otSpinning = false;
       document.getElementById('ot-reveal').classList.remove('spinning');
       document.getElementById('ot-tap-hint').textContent = 'Tocca per rigirare';
-    }, durAnswer + 150);
+    }, OT_SPIN_MS + 150);
   }
-  // Costruisce il rullo con il colore finale come primo blocco, poi tanti
-  // blocchi casuali dopo: si parte mostrando l'ULTIMO blocco (a destra
-  // nella striscia) e si anima verso il PRIMO (translateX verso 0), cosi'
-  // il movimento visivo va da sinistra a destra e finisce sempre sul
-  // blocco giusto.
-  function obbligoSpinReel(stripId, nameId, finalColor, finalName, durationMs) {
-    const strip = document.getElementById(stripId);
-    const nameEl = document.getElementById(nameId);
-    nameEl.classList.remove('show');
-    let html = '<div class="ot-reel-block" style="background:' + finalColor + '"></div>';
+  // Costruisce il rullo con il blocco finale (diviso in due meta') per
+  // primo, poi tanti blocchi colorati casuali dopo: si parte mostrando
+  // l'ULTIMO blocco (a destra nella striscia) e si anima verso il PRIMO
+  // (translateX verso 0), cosi' il movimento visivo va da sinistra a
+  // destra e finisce sempre sul blocco giusto.
+  function obbligoSpinReel(askName, answerName, durationMs) {
+    const strip = document.getElementById('ot-reel-full');
+    let html = '<div class="ot-reel-block-full final">'
+      + '<div class="ot-reel-half ask"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div>'
+      + '<div class="ot-reel-half answer"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div>'
+      + '</div>';
     for (let i = 1; i < OT_REEL_BLOCKS; i++) {
-      html += '<div class="ot-reel-block" style="background:' + OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)] + '"></div>';
+      html += '<div class="ot-reel-block-full" style="background:' + OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)] + '"></div>';
     }
     strip.innerHTML = html;
     strip.style.transition = 'none';
-    const cardWidth = strip.parentElement.clientWidth;
-    strip.style.transform = 'translateX(-' + ((OT_REEL_BLOCKS - 1) * cardWidth) + 'px)';
+    const width = strip.parentElement.clientWidth;
+    strip.style.transform = 'translateX(-' + ((OT_REEL_BLOCKS - 1) * width) + 'px)';
     void strip.offsetWidth; // forza il reflow: senza, il browser potrebbe animare anche la posizione di partenza
     requestAnimationFrame(function () {
-      strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.1,0.7,0.15,1)';
+      strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.13,0.62,0.18,1)';
       strip.style.transform = 'translateX(0px)';
     });
     setTimeout(function () {
-      nameEl.textContent = finalName;
-      nameEl.classList.add('show');
-    }, durationMs - 60);
+      const nameAsk = document.getElementById('ot-name-ask');
+      const nameAnswer = document.getElementById('ot-name-answer');
+      if (nameAsk) { nameAsk.textContent = askName; nameAsk.classList.add('show'); }
+      if (nameAnswer) { nameAnswer.textContent = answerName; nameAnswer.classList.add('show'); }
+    }, durationMs - 100);
   }
 
   function obbligoOpenSuggest() {
