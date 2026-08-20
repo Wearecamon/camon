@@ -1706,20 +1706,35 @@
   .story-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:4px 22px calc(110px + var(--safe-bottom)); scrollbar-width:none; }
   .story-body::-webkit-scrollbar { display:none; }
   .story-hero { position:relative; text-align:center; padding:14px 0 22px; }
-  .story-hero-emoji { font-size:64px; line-height:1; filter:drop-shadow(0 8px 20px rgba(221,42,123,0.45)); }
-  .story-hero-title { font-family:'Bebas Neue',sans-serif; font-size:38px; line-height:0.95; letter-spacing:1px; color:#fff; margin-top:12px; }
+  /* Badge disegnato al posto dell'emoji bicchierino: stessa palette
+     Instagram del bottone sotto, cosi' il "premio" e il "come ottenerlo"
+     si leggono come un unico sistema visivo invece di due stili diversi. */
+  .story-hero-badge { width:84px; height:84px; margin:0 auto; border-radius:50%; background:linear-gradient(135deg,#F58529,#DD2A7B 55%,#8134AF); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 28px rgba(221,42,123,0.4); }
+  .story-hero-badge svg { width:36px; height:36px; color:#fff; }
+  .story-hero-title { font-family:'Bebas Neue',sans-serif; font-size:38px; line-height:0.95; letter-spacing:1px; color:#fff; margin-top:14px; }
   .story-hero-sub { font-family:'Manrope',sans-serif; font-size:13.5px; color:rgba(255,255,255,0.55); line-height:1.5; margin-top:10px; max-width:300px; margin-left:auto; margin-right:auto; }
-  .story-steps { display:flex; flex-direction:column; gap:11px; margin:8px 0 22px; }
-  .story-step { display:flex; align-items:flex-start; gap:12px; font-family:'Manrope',sans-serif; font-size:13.5px; color:rgba(255,255,255,0.72); line-height:1.45; }
+  .story-steps { display:flex; flex-direction:column; gap:13px; margin:8px 0 22px; }
+  .story-step { display:flex; align-items:flex-start; gap:13px; font-family:'Manrope',sans-serif; font-size:13.5px; color:rgba(255,255,255,0.72); line-height:1.45; }
   .story-step b { color:#F9A8D4; font-weight:700; }
-  .story-step-n { flex-shrink:0; width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,#F58529,#DD2A7B); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  /* Numeri in Bebas Neue (il font "personalita'" dell'app, gia' usato nei
+     titoli) dentro un anello a gradiente, invece della cifra piccola in
+     Manrope su cerchio pieno — piu' in linea col resto della grafica. */
+  .story-step-n {
+    flex-shrink:0; width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:0.5px; color:#fff;
+    border:2px solid transparent;
+    background: linear-gradient(#1A0A1E,#1A0A1E) padding-box,
+                linear-gradient(135deg,#F58529,#DD2A7B) border-box;
+  }
   .story-fineprint { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.35); line-height:1.5; text-align:center; margin-top:14px; }
   .story-warn { display:flex; gap:11px; align-items:flex-start; background:rgba(247,204,73,0.1); border:1px solid rgba(247,204,73,0.3); border-radius:12px; padding:13px 15px; margin-top:16px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.78); line-height:1.5; }
-  .story-warn-ico { font-size:18px; flex-shrink:0; }
+  .story-warn-ico { flex-shrink:0; margin-top:1px; color:#FFD27A; }
   .story-warn b { color:#FFD27A; font-weight:700; }
   /* bottoni azione */
   .story-btn { display:flex; align-items:center; justify-content:center; gap:9px; width:100%; border:none; border-radius:14px; padding:16px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:0.5px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.12s, opacity 0.15s; }
   .story-btn:active { transform:scale(0.98); }
+  .story-btn svg { flex-shrink:0; }
   .story-btn.ig { background:linear-gradient(135deg,#F58529,#DD2A7B 55%,#8134AF); color:#fff; box-shadow:0 8px 24px rgba(221,42,123,0.35); }
   .story-btn.go { background:#f7cc49; color:#111; margin-top:11px; }
   .story-btn.ghost { background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.16); margin-top:11px; }
@@ -1730,10 +1745,11 @@
   .story-code-val { font-family:'Bebas Neue',sans-serif; font-size:46px; letter-spacing:4px; color:#fff; line-height:1; margin:8px 0 6px; }
   .story-code-timer { font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.6); }
   .story-code-timer b { color:#fff; }
-  .story-code-note { font-family:'Manrope',sans-serif; font-size:12px; color:#F9A8D4; line-height:1.45; margin-top:14px; background:rgba(244,114,182,0.1); border-radius:10px; padding:10px 12px; }
+  .story-code-note { display:flex; align-items:flex-start; gap:8px; text-align:left; font-family:'Manrope',sans-serif; font-size:12px; color:#F9A8D4; line-height:1.45; margin-top:14px; background:rgba(244,114,182,0.1); border-radius:10px; padding:10px 12px; }
+  .story-code-note svg { flex-shrink:0; margin-top:1px; }
   /* cooldown */
   .story-cool { text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:20px; }
-  .story-cool-ico { font-size:34px; }
+  .story-cool-ico { width:32px; height:32px; color:#F9A8D4; }
   .story-cool-title { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:0.5px; color:#fff; margin-top:6px; }
   .story-cool-timer { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:2px; color:#F9A8D4; margin-top:6px; line-height:1; }
   .story-cool-sub { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.45); margin-top:8px; }
@@ -6076,7 +6092,9 @@
     </div>
     <div class="story-body">
       <div class="story-hero">
-        <div class="story-hero-emoji">🥃</div>
+        <div class="story-hero-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12l-1.6 13.5a2 2 0 0 1-2 1.5H9.6a2 2 0 0 1-2-1.5L6 4z"/><path d="M7 8h10"/></svg>
+        </div>
         <div class="story-hero-title">UNO SHOT GRATIS<br>PER UNA STORIA</div>
         <div class="story-hero-sub">Tagga il CAMON nella tua storia Instagram e l'aperitivo lo offriamo noi.</div>
       </div>
@@ -6087,7 +6105,7 @@
       </div>
       <div class="story-action" id="story-action"></div>
       <div class="story-warn">
-        <span class="story-warn-ico">ℹ️</span>
+        <svg class="story-warn-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg>
         <div>Perché l'offerta sia valida, la storia deve restare pubblicata fino alla scadenza. Qualora ne venisse rilevata la rimozione anticipata, l'offerta non sarà disponibile per i prossimi 30 giorni.</div>
       </div>
       <div class="story-fineprint">1 storia a serata, si azzera ogni mattina alle 8:00. Lo staff verifica la storia al momento del ritiro.</div>
@@ -11313,7 +11331,7 @@
     if (!storyHasProfile()) {
       action.innerHTML =
         '<div class="story-cool">'
-        + '<div class="story-cool-ico">🔒</div>'
+        + '<svg class="story-cool-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
         + '<div class="story-cool-title">Accedi per il tuo shot omaggio</div>'
         + '<div class="story-cool-sub">Il bonus è legato al tuo profilo CAMON — bastano pochi secondi.</div>'
         + '<button class="story-btn go" onclick="goTo(\'profile\')" style="margin-top:14px">Vai al profilo</button>'
@@ -11333,7 +11351,7 @@
         + '<div class="story-code-lbl">Il tuo codice di oggi</div>'
         + '<div class="story-code-val">' + code + '</div>'
         + '<div class="story-code-timer">Valido ancora <b id="story-code-left">' + fmtHMS(STORY_CODE_MS - sinceClaim) + '</b></div>'
-        + '<div class="story-code-note">📲 Mostra questo codice allo staff <b>con la storia ancora pubblicata</b>. La controllano dal vivo prima di versare.</div>'
+        + '<div class="story-code-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M10 18h4"/></svg><span>Mostra questo codice allo staff <b>con la storia ancora pubblicata</b>. La controllano dal vivo prima di versare.</span></div>'
         + '</div>';
       storyTimer = setInterval(function () {
         const left = STORY_CODE_MS - (Date.now() - last);
@@ -11349,7 +11367,7 @@
       // già usato in questa serata: countdown all'azzeramento delle 8:00
       action.innerHTML =
         '<div class="story-cool">'
-        + '<div class="story-cool-ico">⏳</div>'
+        + '<svg class="story-cool-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>'
         + '<div class="story-cool-title">Bonus di stasera già usato</div>'
         + '<div class="story-cool-timer" id="story-cool-left">' + fmtHMS(resetAt - now) + '</div>'
         + '<div class="story-cool-sub">Si azzera alle 8:00 — una storia a serata.</div>'
@@ -11365,7 +11383,7 @@
 
     // disponibile
     action.innerHTML =
-      '<button class="story-btn ig" onclick="storyOpenIG()">📸 Apri Instagram e tagga il CAMON</button>'
+      '<button class="story-btn ig" onclick="storyOpenIG()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none"/></svg>Apri Instagram e tagga il CAMON</button>'
       + '<button class="story-btn go" onclick="storyClaim()">Ho pubblicato la storia → genera il codice</button>';
   }
 
