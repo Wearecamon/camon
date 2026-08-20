@@ -28,7 +28,11 @@
   /* Niente overflow:hidden qui: serviva alla vecchia shell fissa e
      oggi impedirebbe alle teste fisse di agganciarsi. */
   html, body { height: 100%; background: #0a0a0a; }
-  body { font-family: 'Manrope', sans-serif; color: #fff; }
+  /* Blocca il doppio-tap-per-zoomare di Safari iOS (quel "salto" quando si
+     tocca due volte veloce) senza disattivare lo zoom con due dita, che
+     resta utile per l'accessibilita' — per quello non tocchiamo il
+     viewport (vedi commento su maximum-scale piu' sopra). */
+  body { font-family: 'Manrope', sans-serif; color: #fff; touch-action: manipulation; }
 
   /* Zone sicure iPhone (notch sopra, barra Home sotto).
      Normalmente arrivano da env(); se iOS in modalita' app le riporta
@@ -1538,7 +1542,12 @@
   /* Wrapper che applica il taglio obliquo (alto-destra -> basso-sinistra)
      a tutta la striscia in un colpo solo: piu' largo dello schermo cosi'
      lo skew non lascia scoperti i due angoli. */
-  .ot-reel-skew { position:absolute; top:0; bottom:0; left:-12%; width:124%; overflow:hidden; transform:skewX(-12deg); }
+  /* Lo sconfinamento necessario a coprire gli angoli dipende dall'ALTEZZA
+     (piu' e' alto lo schermo, piu' lo skew sposta il bordo in orizzontale)
+     non dalla larghezza: su telefono, molto piu' alto che largo, un
+     margine in % della larghezza non bastava e lasciava un angolo
+     scoperto (si vedeva lo sfondo della pagina, non un colore). */
+  .ot-reel-skew { position:absolute; top:0; bottom:0; left:-30vh; width:calc(100% + 60vh); overflow:hidden; transform:skewX(-12deg); }
   .ot-reel-strip-full { position:absolute; inset:0; display:flex; will-change:transform; }
   /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
      mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
