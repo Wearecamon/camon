@@ -1499,43 +1499,55 @@
   ======================================== */
   .game-detail { overflow: hidden; }
 
-  /* ---- Obbligo o Verità (spinner a due frecce) ---- */
+  /* ---- Obbligo o Verità: setup giocatori + carte che scorrono i nomi ---- */
   #page-obbligo { background:#3A0A1E; }
-  .ot-area { flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:14px 24px 130px; text-align:center; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-  /* Icona info nell'header: le istruzioni non stanno piu' fisse sopra la
-     ruota, sono qui per chi non conosce gia' il gioco. */
   .gd-info-btn { margin-left:auto; background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.8); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s; flex-shrink:0; }
   .gd-info-btn:active { background:rgba(255,255,255,0.16); }
-  .ot-spinner-wrap { width:min(78vw,310px); aspect-ratio:1; margin:4px auto 0; flex-shrink:0; }
-  /* Il disco stesso e' il bottone: si tocca direttamente lui per girare,
-     niente piu' scritta "GIRA" separata sotto. */
-  .ot-disc { position:relative; width:100%; height:100%; border-radius:50%; border:none; padding:0;
-    background: radial-gradient(circle at 50% 46%, #5A1233 0%, #33091D 68%, #1E0611 100%);
-    box-shadow: inset 0 0 0 3px rgba(249,168,212,0.28), inset 0 0 55px rgba(0,0,0,0.55), 0 14px 42px rgba(0,0,0,0.5), 0 0 26px rgba(249,168,212,0.15);
-    cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.15s; }
-  .ot-disc:active { transform:scale(0.98); }
-  .ot-disc:disabled { cursor:default; }
-  /* Le due lancette: forme astratte a goccia invece della bottiglia/tappo
-     illustrati, stesso codice colore di prima (verde = domanda, arancio =
-     risponde) cosi' il significato resta immediato. */
-  .ot-needle { position:absolute; inset:0; display:flex; justify-content:center; align-items:center;
-    transform-origin:center center; transform:rotate(0deg); transition:transform 3.4s cubic-bezier(0.12,0.85,0.18,1); will-change:transform; pointer-events:none; }
-  .ot-needle svg { width:100%; height:100%; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
-  .ot-needle.a { z-index:2; }
-  .ot-needle.b { z-index:3; transform:rotate(160deg); transition-duration:3.7s; }
-  .ot-hub { position:absolute; top:50%; left:50%; width:15%; height:15%; transform:translate(-50%,-50%); border-radius:50%; z-index:4;
-    background:conic-gradient(#2DD4BF 0deg 180deg, #FDBA74 180deg 360deg);
-    box-shadow:0 0 0 3px rgba(249,168,212,0.4), 0 3px 10px rgba(0,0,0,0.5); }
-  .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.4); margin-top:14px; }
-  .ot-legend { display:flex; gap:16px; justify-content:center; margin:14px 0 2px; font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.8); }
-  .ot-legend-item { display:inline-flex; align-items:center; gap:6px; }
-  .ot-legend-item i { width:11px; height:11px; border-radius:50%; display:inline-block; }
-  .ot-legend-item i.a { background:#2DD4BF; }
-  .ot-legend-item i.b { background:#F9A8D4; }
-  .ot-legend-item i.c { background:#FDBA74; }
-  .ot-legend-item b { font-weight:800; }
-  .ot-suggest { width:100%; max-width:340px; margin-top:22px; flex-shrink:0; }
-  .ot-suggest-hint { font-family:'Manrope',sans-serif; font-size:12px; line-height:1.5; color:rgba(255,255,255,0.55); margin-bottom:12px; }
+
+  /* -- Setup: nome + sesso, stesso spirito delle liste giocatori usate
+     altrove nell'app (chip con avatar), ma locale a questo gioco. -- */
+  .ot-setup { flex:1; min-height:0; display:flex; flex-direction:column; padding:6px 24px 130px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .ot-setup-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:0.5px; color:#fff; }
+  .ot-setup-sub { font-family:'Manrope',sans-serif; font-size:12.5px; line-height:1.5; color:rgba(255,255,255,0.55); margin-top:6px; }
+  .ot-add-row { display:flex; gap:8px; margin-top:18px; }
+  .ot-name-input { flex:1; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.14); color:#fff; padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:14px; outline:none; transition:border-color 0.15s; }
+  .ot-name-input:focus { border-color:#F9A8D4; }
+  .ot-name-input::placeholder { color:rgba(255,255,255,0.32); }
+  .ot-add-btn { flex-shrink:0; width:46px; height:46px; border-radius:12px; border:none; background:#F9A8D4; color:#3A0A1E; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-add-btn:active { opacity:0.85; }
+  .ot-players-list { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .ot-player-chip { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:13px; padding:9px 10px 9px 9px; }
+  .ot-chip-gender { flex-shrink:0; width:32px; height:32px; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.55); }
+  .ot-chip-gender.m { background:rgba(96,165,250,0.22); color:#93C5FD; }
+  .ot-chip-gender.f { background:rgba(244,114,182,0.22); color:#F9A8D4; }
+  .ot-chip-name { flex:1; font-family:'Manrope',sans-serif; font-size:14px; font-weight:700; color:#fff; text-align:left; }
+  .ot-chip-del { flex-shrink:0; background:none; border:none; color:rgba(255,255,255,0.4); width:26px; height:26px; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-empty-hint { font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.35); text-align:center; margin-top:14px; }
+  .ot-empty-hint.hidden { display:none; }
+  .ot-start-btn { margin-top:auto; padding-top:22px; width:100%; border:none; border-radius:15px; padding:16px; background:#F9A8D4; color:#3A0A1E; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.12s, opacity 0.2s; box-shadow:0 6px 18px rgba(249,168,212,0.3); }
+  .ot-start-btn:active { transform:scale(0.98); }
+  .ot-start-btn:disabled { opacity:0.4; box-shadow:none; }
+
+  /* -- Gioco: due carte che scorrono in fretta tra i nomi (come uno slot)
+     e si fermano su chi chiede/chi risponde, invece della vecchia ruota
+     e delle scritte "Truth/Dare" spezzate in due colori. -- */
+  .ot-area { flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:22px 24px 130px; text-align:center; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .ot-reveal { width:100%; max-width:360px; display:flex; align-items:center; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-reveal.spinning { pointer-events:none; }
+  .ot-reveal-card { flex:1; min-width:0; border-radius:18px; padding:22px 10px; background:rgba(255,255,255,0.05); border:2px solid transparent; transition:transform 0.12s, border-color 0.2s, background 0.2s; }
+  .ot-reveal:active .ot-reveal-card { transform:scale(0.97); }
+  .ot-reveal-card.ask { border-color:rgba(45,212,191,0.35); background:rgba(45,212,191,0.08); }
+  .ot-reveal-card.answer { border-color:rgba(253,186,116,0.35); background:rgba(253,186,116,0.08); }
+  .ot-reveal-card.ask.landed { box-shadow:0 0 0 1px rgba(45,212,191,0.6), 0 8px 22px rgba(45,212,191,0.22); }
+  .ot-reveal-card.answer.landed { box-shadow:0 0 0 1px rgba(253,186,116,0.6), 0 8px 22px rgba(253,186,116,0.22); }
+  .ot-reveal-lbl { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+  .ot-reveal-card.ask .ot-reveal-lbl { color:#5EEAD4; }
+  .ot-reveal-card.answer .ot-reveal-lbl { color:#FDBA74; }
+  .ot-reveal-name { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:0.5px; color:#fff; margin-top:6px; line-height:1.1; word-break:break-word; }
+  .ot-consiglio-btn { flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none; color:rgba(255,255,255,0.55); font-family:'Manrope',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.5px; cursor:pointer; -webkit-tap-highlight-color:transparent; padding:4px; }
+  .ot-consiglio-btn:active { color:#fff; }
+  .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.4); margin-top:16px; }
+  .ot-suggest { width:100%; max-width:340px; margin-top:24px; flex-shrink:0; }
   .ot-suggest-btns { display:flex; gap:10px; }
   .ot-sg { flex:1; border-radius:13px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.8px; cursor:pointer; -webkit-tap-highlight-color:transparent; border:1px solid transparent; transition:transform 0.12s; }
   .ot-sg:active { transform:scale(0.97); }
@@ -1549,6 +1561,8 @@
   .ot-prompt { font-family:'Bebas Neue',sans-serif; font-size:25px; line-height:1.15; letter-spacing:0.3px; color:#fff; margin-bottom:14px; }
   .ot-redraw { background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:10px; padding:10px 16px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-redraw:active { background:rgba(255,255,255,0.18); }
+  .ot-edit-players { margin-top:28px; background:none; border:none; color:rgba(255,255,255,0.4); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-edit-players:active { color:rgba(255,255,255,0.7); }
 
   /* ---- Heads Up! (nome in fronte) ---- */
   #page-headsup { background:#0A2540; }
@@ -4840,55 +4854,50 @@
   ============================ -->
   <div class="page game-detail" id="page-obbligo" style="background:#3A0A1E">
     <div class="gd-header">
-      <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="back-btn" onclick="obbligoBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">OBBLIGO <span style="color:#F9A8D4">O VERITÀ</span></div>
       <button class="gd-info-btn" onclick="obbligoInfoOpen()" aria-label="Come si gioca">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg>
       </button>
     </div>
-    <div class="ot-area">
 
-      <!-- Niente piu' bottiglia/tappo disegnati: due lancette astratte,
-           una per ruolo, che girano indipendenti sullo stesso disco.
-           Si tocca il disco stesso per farlo girare (niente bottone). -->
-      <div class="ot-spinner-wrap">
-        <button class="ot-disc" id="ot-disc" onclick="obbligoSpin()" aria-label="Tocca per girare">
-          <div class="ot-needle a" id="ot-needle-a">
-            <svg viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="otNeedleA" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0" stop-color="#0C6E60"/>
-                  <stop offset="1" stop-color="#5EEAD4"/>
-                </linearGradient>
-              </defs>
-              <path d="M46 54 Q44 54 44.4 50 L48 21 Q50 17 52 21 L55.6 50 Q56 54 54 54 Z" fill="url(#otNeedleA)"/>
-              <circle cx="50" cy="15.5" r="7" fill="#2DD4BF"/>
-            </svg>
-          </div>
-          <div class="ot-needle b" id="ot-needle-b">
-            <svg viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="otNeedleB" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0" stop-color="#B45309"/>
-                  <stop offset="1" stop-color="#FDBA74"/>
-                </linearGradient>
-              </defs>
-              <path d="M46 54 Q44 54 44.4 50 L48 21 Q50 17 52 21 L55.6 50 Q56 54 54 54 Z" fill="url(#otNeedleB)"/>
-              <circle cx="50" cy="15.5" r="7" fill="#FDBA74"/>
-            </svg>
-          </div>
-          <div class="ot-hub"></div>
+    <!-- 1. SETUP: nomi + sesso (come nell'app "Truth or Dare" presa a
+         riferimento) — serve a chiamare le persone per nome invece di
+         indicarle a caso con una ruota. -->
+    <div class="ot-setup" id="ot-setup">
+      <div class="ot-setup-title">Chi gioca stasera?</div>
+      <div class="ot-setup-sub">Aggiungi almeno 2 persone, con il loro nome (e se vuoi il sesso, cosi' i consigli possono essere piu' mirati).</div>
+      <form class="ot-add-row" onsubmit="obbligoAddFromInput(event)">
+        <input class="ot-name-input" id="ot-name-input" type="text" maxlength="14" placeholder="Nome" autocomplete="off">
+        <button type="submit" class="ot-add-btn" aria-label="Aggiungi">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-      </div>
-      <div class="ot-tap-hint">Tocca la ruota per girare</div>
+      </form>
+      <div class="ot-players-list" id="ot-players-list"></div>
+      <div class="ot-empty-hint" id="ot-empty-hint">Aggiungi almeno 2 persone per iniziare</div>
+      <button class="ot-start-btn" id="ot-start-btn" onclick="obbligoStart()" disabled>Inizia →</button>
+    </div>
 
-      <div class="ot-legend">
-        <span class="ot-legend-item"><i class="a"></i> chi <b>fa la domanda</b></span>
-        <span class="ot-legend-item"><i class="c"></i> chi <b>risponde / esegue</b></span>
+    <!-- 2. GIOCO: due carte che scorrono i nomi e si fermano su chi
+         chiede e chi risponde; "Consiglio" apre verita'/obbligo suggeriti. -->
+    <div class="ot-area" id="ot-play" style="display:none">
+      <div class="ot-reveal" id="ot-reveal" onclick="obbligoSpin()" role="button" aria-label="Tocca per scegliere chi chiede e chi risponde">
+        <div class="ot-reveal-card ask">
+          <div class="ot-reveal-lbl">chiede</div>
+          <div class="ot-reveal-name" id="ot-name-ask">?</div>
+        </div>
+        <button class="ot-consiglio-btn" onclick="event.stopPropagation(); obbligoOpenSuggest()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.55 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.55 1-2.1A6 6 0 0 0 12 3z"/></svg>
+          Consiglio
+        </button>
+        <div class="ot-reveal-card answer">
+          <div class="ot-reveal-lbl">risponde</div>
+          <div class="ot-reveal-name" id="ot-name-answer">?</div>
+        </div>
       </div>
+      <div class="ot-tap-hint" id="ot-tap-hint">Tocca per scegliere</div>
 
-      <div class="ot-suggest">
-        <div class="ot-suggest-hint">Se sai già cosa chiedere, chiedilo tu. Altrimenti fatti dare un'idea:</div>
+      <div class="ot-suggest" id="ot-suggest" style="display:none">
         <div class="ot-suggest-btns">
           <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
           <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
@@ -4899,20 +4908,22 @@
           <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
         </div>
       </div>
+
+      <button class="ot-edit-players" onclick="obbligoEditPlayers()">↺ Cambia giocatori</button>
     </div>
   </div>
 
-  <!-- Info "come si gioca": prima era un paragrafo fisso sempre visibile
-       sopra la ruota, ora e' a parte, per chi non conosce gia' il gioco. -->
+  <!-- Info "come si gioca" -->
   <div class="game-modal-overlay" id="ot-info-overlay" onclick="if(event.target===this) obbligoInfoClose()">
     <div class="game-modal">
       <div class="game-modal-grab"></div>
       <div class="game-modal-name">COME SI GIOCA</div>
       <div class="game-modal-rules">
-        Metti il telefono al centro del tavolo e tocca la ruota per farla girare.
-        La lancetta <b style="color:#2DD4BF">verde acqua</b> indica chi <b>fa la domanda</b>,
+        Aggiungi chi gioca, poi tocca le carte per scegliere: quella
+        <b style="color:#2DD4BF">verde acqua</b> mostra chi <b>fa la domanda</b>,
         quella <b style="color:#FDBA74">arancione</b> chi <b>risponde o esegue</b>.
-        Girano separate: può uscire qualsiasi coppia, anche la stessa persona su entrambe.
+        Se non sai cosa chiedere, tocca <b>Consiglio</b> per farti dare un'idea
+        di verità o obbligo.
       </div>
       <button class="game-modal-btn" onclick="obbligoInfoClose()">Ho capito</button>
     </div>
@@ -10704,34 +10715,132 @@
     'Lascia decidere al tavolo il tuo prossimo drink.'
   ];
   let otLastTruth = -1, otLastDare = -1, otKind = 'truth';
-  let otRotBottle = 0, otRotCap = 0, otSpinning = false;
+  let otSpinning = false;
+  let otPlayers = [];              // [{name, gender}] — gender: 'm' | 'f' | null
+  let otAsk = null, otAnswer = null; // indici in otPlayers dell'ultima scelta
 
-  // ingresso/reset: nasconde l'eventuale suggerimento
+  /* --- Setup: nome + sesso (facoltativo, un tap per impostarlo) --- */
+  function obbligoAddFromInput(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('ot-name-input');
+    const name = input.value.trim();
+    if (!name) return;
+    if (otPlayers.length >= 20) return;
+    otPlayers.push({ name: name, gender: null });
+    input.value = '';
+    input.focus();
+    obbligoRenderSetup();
+  }
+  function obbligoToggleGender(btn) {
+    const idx = +btn.closest('.ot-player-chip').dataset.idx;
+    const order = [null, 'm', 'f'];
+    const cur = order.indexOf(otPlayers[idx].gender);
+    otPlayers[idx].gender = order[(cur + 1) % order.length];
+    obbligoRenderSetup();
+  }
+  function obbligoRemovePlayer(btn) {
+    const idx = +btn.closest('.ot-player-chip').dataset.idx;
+    otPlayers.splice(idx, 1);
+    obbligoRenderSetup();
+  }
+  function obbligoGenderLabel(g) { return g === 'm' ? '♂' : g === 'f' ? '♀' : '?'; }
+  function obbligoRenderSetup() {
+    const list = document.getElementById('ot-players-list');
+    list.innerHTML = otPlayers.map((p, i) => `
+      <div class="ot-player-chip" data-idx="${i}">
+        <button class="ot-chip-gender ${p.gender || ''}" onclick="obbligoToggleGender(this)" aria-label="Sesso (tocca per cambiare)">${obbligoGenderLabel(p.gender)}</button>
+        <span class="ot-chip-name">${p.name}</span>
+        <button class="ot-chip-del" onclick="obbligoRemovePlayer(this)" aria-label="Rimuovi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`).join('');
+    const enough = otPlayers.length >= 2;
+    document.getElementById('ot-start-btn').disabled = !enough;
+    document.getElementById('ot-empty-hint').classList.toggle('hidden', enough);
+  }
+  function obbligoStart() {
+    if (otPlayers.length < 2) return;
+    document.getElementById('ot-setup').style.display = 'none';
+    document.getElementById('ot-play').style.display = 'flex';
+    document.getElementById('ot-name-ask').textContent = '?';
+    document.getElementById('ot-name-answer').textContent = '?';
+    document.getElementById('ot-suggest').style.display = 'none';
+    document.getElementById('ot-suggest-card').style.display = 'none';
+    document.getElementById('ot-tap-hint').textContent = 'Tocca per scegliere';
+    otAsk = otAnswer = null;
+  }
+  function obbligoEditPlayers() {
+    document.getElementById('ot-play').style.display = 'none';
+    document.getElementById('ot-setup').style.display = 'flex';
+    obbligoRenderSetup();
+  }
+  // tasto INDIETRO dell'header: dal gioco torna al setup, dal setup esce
+  function obbligoBack() {
+    if (document.getElementById('ot-play').style.display !== 'none') {
+      obbligoEditPlayers();
+    } else {
+      goTo('games');
+    }
+  }
   function obbligoReset() {
     otSpinning = false;
-    const card = document.getElementById('ot-suggest-card');
-    if (card) card.style.display = 'none';
-    const disc = document.getElementById('ot-disc');
-    if (disc) disc.disabled = false;
+    otPlayers = [];
+    otAsk = otAnswer = null;
+    document.getElementById('ot-play').style.display = 'none';
+    document.getElementById('ot-setup').style.display = 'flex';
+    document.getElementById('ot-name-input').value = '';
+    obbligoRenderSetup();
   }
 
-  // gira le due lancette SEPARATAMENTE: una indica chi risponde, l'altra chi fa la domanda
+  /* --- Gioco: le due carte "scorrono" rapidamente tra i nomi (come uno
+     slot) e rallentano fino a fermarsi su chi chiede / chi risponde. Le
+     due scelte sono sempre persone diverse (se ci sono almeno 2). --- */
   function obbligoSpin() {
-    if (otSpinning) return;
+    if (otSpinning || otPlayers.length < 2) return;
     otSpinning = true;
-    const disc = document.getElementById('ot-disc');
-    disc.disabled = true;
-    // arrivi casuali, con almeno ~40° di distanza così non indicano la stessa persona
-    const bottleTarget = Math.floor(Math.random() * 360);
-    const capTarget = (bottleTarget + 40 + Math.floor(Math.random() * 280)) % 360;
-    otRotBottle += (5 + Math.floor(Math.random() * 4)) * 360 + (((bottleTarget - (otRotBottle % 360)) % 360) + 360) % 360;
-    otRotCap    += (6 + Math.floor(Math.random() * 4)) * 360 + (((capTarget - (otRotCap % 360)) % 360) + 360) % 360;
-    document.getElementById('ot-needle-a').style.transform = 'rotate(' + otRotBottle + 'deg)';
-    document.getElementById('ot-needle-b').style.transform = 'rotate(' + otRotCap + 'deg)';
-    setTimeout(function(){
+    document.getElementById('ot-reveal').classList.add('spinning');
+    document.getElementById('ot-tap-hint').textContent = '';
+    document.getElementById('ot-suggest').style.display = 'none';
+    document.getElementById('ot-suggest-card').style.display = 'none';
+    ['ask','answer'].forEach(k => document.querySelector('.ot-reveal-card.' + k).classList.remove('landed'));
+
+    let iAsk = Math.floor(Math.random() * otPlayers.length);
+    let iAnswer;
+    do { iAnswer = Math.floor(Math.random() * otPlayers.length); } while (iAnswer === iAsk && otPlayers.length > 1);
+    otAsk = iAsk; otAnswer = iAnswer;
+
+    obbligoCycle('ot-name-ask', 'ask', iAsk, 950);
+    obbligoCycle('ot-name-answer', 'answer', iAnswer, 1450);
+
+    setTimeout(function () {
       otSpinning = false;
-      disc.disabled = false;
-    }, 3800);
+      document.getElementById('ot-reveal').classList.remove('spinning');
+      document.getElementById('ot-tap-hint').textContent = 'Tocca per rigirare';
+    }, 1550);
+  }
+  // cicla rapidamente tra i nomi (effetto slot) rallentando fino al nome finale
+  function obbligoCycle(elId, cardKind, finalIdx, totalMs) {
+    const el = document.getElementById(elId);
+    const card = document.querySelector('.ot-reveal-card.' + cardKind);
+    const steps = 14;
+    let step = 0;
+    function tick() {
+      step++;
+      const progress = step / steps;
+      const showFinal = step >= steps;
+      const idx = showFinal ? finalIdx : Math.floor(Math.random() * otPlayers.length);
+      el.textContent = otPlayers[idx] ? otPlayers[idx].name : '?';
+      if (showFinal) { card.classList.add('landed'); return; }
+      // rallenta progressivamente: intervallo cresce man mano che si avvicina
+      const delay = 40 + Math.pow(progress, 2.2) * (totalMs / steps) * 3;
+      setTimeout(tick, delay);
+    }
+    tick();
+  }
+
+  function obbligoOpenSuggest() {
+    const s = document.getElementById('ot-suggest');
+    s.style.display = s.style.display === 'none' ? 'block' : 'none';
   }
 
   function obbligoInfoOpen() { document.getElementById('ot-info-overlay').classList.add('open'); }
