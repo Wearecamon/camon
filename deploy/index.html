@@ -1110,7 +1110,7 @@
 
   /* Tipo prenotazione — card grandi */
   /* niente spazio sopra: le schede partono subito sotto la testa fissa */
-  .book-type-list { display:flex; flex-direction:column; gap:12px; padding:0 18px 90px; }
+  .book-type-list { display:flex; flex-direction:column; gap:12px; padding:0 18px 8px; }
   .book-type-card {
     position:relative; border-radius:20px; padding:24px 22px; cursor:pointer; overflow:hidden;
     border:1.5px solid rgba(255,255,255,0.08); background:#1a1a1a;
@@ -1166,11 +1166,12 @@
   .book-type-arrow { position:absolute; right:22px; top:50%; transform:translateY(-50%); opacity:0.35; }
 
   /* Form step 2 */
-  .book-form-new { padding:16px 18px 100px; display:flex; flex-direction:column; gap:14px; }
+  .book-form-new { padding:16px 18px 8px; display:flex; flex-direction:column; gap:14px; }
   .book-summary-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:13px; margin-bottom:4px; }
   .book-summary-ico { font-size:22px; }
   .book-summary-name { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:0.5px; color:#fff; }
   .book-summary-desc { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.4); margin-top:1px; }
+  .bfield-note-inline { font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.45); margin:-2px 0 2px; }
 
   /* Selezione persone con pill */
   .people-grid { display:flex; flex-wrap:wrap; gap:9px; }
@@ -3706,7 +3707,13 @@
 
   /* Nemmeno la prenotazione usa .scroll-area: senza questo l'ultima
      scheda finiva dietro la barra in fondo. */
-  #page-book .book-scroll { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important; }
+  /* Spazio in fondo alle pagine prenotazione che scorrono: quanto basta
+     perche' l'ultimo elemento (es. "Conferma prenotazione") finisca
+     appena sopra il bollino della carta, non uno spazio nero a caso
+     oltre. Il bollino sta a bottom:100px, e' alto 60px: 100+60=160,
+     +qualche px di margine visivo = 170. Prima qui c'era anche il
+     padding-bottom del form/lista, che si sommava creando troppo vuoto. */
+  #page-book .book-scroll, #page-event .book-scroll { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 170px) !important; }
 
   /* La pagina giochi e' fatta apposta per occupare tutto lo schermo:
      le slide scattano una a una dentro il suo scroller. Nel flusso
@@ -3758,7 +3765,7 @@
 
   /* Una fascia appiccicata non funziona dentro un contenitore che
      taglia il contenuto: qui il documento e' l'unico a scorrere. */
-  #book-step1, #book-active, #book-step2, #page-book .book-scroll {
+  #book-step1, #book-active, #book-step2, #event-form-wrap, #page-book .book-scroll, #page-event .book-scroll {
     overflow: visible !important;
   }
   /* #page-book ha "padding-top: var(--safe-top)" per le pagine senza
@@ -5955,20 +5962,20 @@
 
     <!-- FORM -->
     <div id="event-form-wrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-      <div class="book-step-head">
-        <button class="book-back" onclick="goTo('book')">←</button>
-        <div class="book-step-title">FESTA <span style="color:#a78bfa">PRIVATA</span></div>
+      <!-- Testa fissa: stesso schema di "tipo di tavolo" — il titolo resta
+           in alto, il form scorre e passa sotto. -->
+      <div class="testa-fissa">
+        <div class="book-step-head" style="padding-bottom:16px">
+          <button class="book-back" onclick="goTo('book')">←</button>
+          <div class="book-step-title">FESTA <span style="color:#a78bfa">PRIVATA</span></div>
+        </div>
       </div>
       <div class="book-scroll">
         <div class="book-form-new">
 
-          <div class="book-summary-card" id="event-summary-card" style="border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.07)">
-            <div class="book-summary-ico">🎉</div>
-            <div>
-              <div class="book-summary-name">FESTA PRIVATA</div>
-              <div class="book-summary-desc">Ti richiamiamo per definire i dettagli</div>
-            </div>
-          </div>
+          <!-- Il vecchio banner "FESTA PRIVATA" qui sotto era ridondante
+               col titolo appena sopra: tolto, come per gli altri tipi. -->
+          <div class="bfield-note-inline">Ti richiamiamo per definire i dettagli.</div>
 
           <!-- Calendario date disponibili -->
           <div class="bfield">
