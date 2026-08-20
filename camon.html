@@ -1535,13 +1535,20 @@
   /* Un'unica striscia a tutto schermo: mentre gira si vedono solo colori
      pieni scorrere (nessuna divisione visibile). Solo l'ultimo blocco,
      quello su cui si ferma, e' diviso in due meta' con i nomi. */
+  /* Wrapper che applica il taglio obliquo (alto-destra -> basso-sinistra)
+     a tutta la striscia in un colpo solo: piu' largo dello schermo cosi'
+     lo skew non lascia scoperti i due angoli. */
+  .ot-reel-skew { position:absolute; top:0; bottom:0; left:-12%; width:124%; overflow:hidden; transform:skewX(-12deg); }
   .ot-reel-strip-full { position:absolute; inset:0; display:flex; will-change:transform; }
   /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
      mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
      finale (due colori affiancati) e' quindi naturale, non un salto. */
-  .ot-reel-half { flex:none; width:50%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
+  .ot-reel-half { flex:none; width:50%; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
   .ot-reel-half.ask { background:#0C6E60; }
   .ot-reel-half.answer { background:#B45309; }
+  /* Contro-skew: il blocco e' un parallelogramma (eredita lo skew del
+     wrapper), ma testo ed etichetta devono restare dritti e leggibili. */
+  .ot-reel-half-inner { transform:skewX(12deg); display:flex; flex-direction:column; align-items:center; }
   .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
   .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); opacity:0; transition:opacity 0.3s ease; }
   .ot-reel-half-name.show { opacity:1; }
@@ -4896,7 +4903,15 @@
       </button>
 
       <div class="ot-reveal-full" id="ot-reveal" onclick="obbligoSpin()" role="button" aria-label="Tocca per scegliere chi chiede e chi risponde">
-        <div class="ot-reel-strip-full" id="ot-reel-full"></div>
+        <!-- Il taglio obliquo (alto-destra verso basso-sinistra) e' uno
+             skew applicato a TUTTA la striscia insieme: cosi' il confine
+             tra due blocchi qualsiasi resta sempre perfettamente allineato
+             durante lo scorrimento. Il wrapper e' piu' largo/alto dello
+             schermo apposta, altrimenti lo skew lascerebbe due angoli
+             scoperti. Il testo dentro ha lo skew opposto per restare dritto. -->
+        <div class="ot-reel-skew">
+          <div class="ot-reel-strip-full" id="ot-reel-full"></div>
+        </div>
       </div>
 
       <div class="ot-play-bottom">
@@ -10825,7 +10840,9 @@
      divisione visibile), poi rallenta e si ferma: l'ultimo blocco e'
      diviso in due meta' (chiede/risponde) coi nomi. Le due scelte sono
      sempre persone diverse (se ci sono almeno 2). --- */
-  const OT_ROULETTE = ['#F43F5E','#F59E0B','#84CC16','#10B981','#06B6D4','#3B82F6','#8B5CF6','#EC4899','#EF4444','#14B8A6'];
+  // Colori scelti distanti tra loro sulla ruota (e lontani dal verde acqua
+  // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
+  const OT_ROULETTE = ['#F43F5E','#F59E0B','#EAB308','#3B82F6','#8B5CF6','#EC4899','#FB923C','#06B6D4'];
   const OT_REEL_BLOCKS = 34; // blocchi larghi meta' schermo: piu' blocchi per una corsa piu' lunga e visibile
   const OT_SPIN_MS = 6500; // molto piu' lento: alla velocita' di prima i blocchi si vedevano scattare tutti interi invece che affiancati
   function obbligoSpin() {
@@ -10858,10 +10875,17 @@
   // sinistra a destra, finisce sempre sulla coppia giusta.
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
-    let html = '<div class="ot-reel-half ask"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div>'
-      + '<div class="ot-reel-half answer"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div>';
+    let html = '<div class="ot-reel-half ask"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
+      + '<div class="ot-reel-half answer"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
+    // mai lo stesso colore di quello appena prima: senza questo controllo
+    // due blocchi adiacenti potevano capitare identici, e sembravano un
+    // unico colore pieno invece di due affiancati distinguibili
+    let prevColor = '#B45309';
     for (let i = 2; i < OT_REEL_BLOCKS; i++) {
-      html += '<div class="ot-reel-half" style="background:' + OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)] + '"></div>';
+      let color;
+      do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
+      prevColor = color;
+      html += '<div class="ot-reel-half" style="background:' + color + '"></div>';
     }
     strip.innerHTML = html;
     strip.style.transition = 'none';
