@@ -1562,8 +1562,8 @@
      (chiede/risponde) sono larghi meta' schermo — qui resta solo la
      forma/impaginazione comune, non piu' una larghezza fissa al 50%. */
   .ot-reel-half { position:relative; flex:none; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
-  .ot-reel-half.ask { background:#0C6E60; }
-  .ot-reel-half.answer { background:#B45309; }
+  .ot-reel-half.ask { background:var(--otbg,#DC2626); }
+  .ot-reel-half.answer { background:var(--otbg,#111111); }
   /* Cuscinetto dello stesso colore su entrambi i lati esterni: copre sia
      il varco che lo skew apre agli angoli (bastava poco), sia — piu'
      largo di un intero blocco — l'ultimo scampolo sottile del colore
@@ -1573,8 +1573,8 @@
   .ot-reel-half.ask::before, .ot-reel-half.answer::after {
     content:''; position:absolute; top:0; bottom:0; width:70vw; z-index:2; pointer-events:none;
   }
-  .ot-reel-half.ask::before { right:100%; background:#0C6E60; }
-  .ot-reel-half.answer::after { left:100%; background:#B45309; }
+  .ot-reel-half.ask::before { right:100%; background:var(--otbg,#DC2626); }
+  .ot-reel-half.answer::after { left:100%; background:var(--otbg,#111111); }
   /* Contro-skew: il blocco e' un parallelogramma (eredita lo skew del
      wrapper), ma testo ed etichetta devono restare dritti e leggibili. */
   /* Il rullo si ferma prima "vuoto" (solo colori, niente scritte): quando
@@ -4980,9 +4980,9 @@
       <div class="game-modal-grab"></div>
       <div class="game-modal-name">COME SI GIOCA</div>
       <div class="game-modal-rules">
-        Aggiungi chi gioca, poi tocca le carte per scegliere: quella
-        <b style="color:#2DD4BF">verde acqua</b> mostra chi <b>fa la domanda</b>,
-        quella <b style="color:#FDBA74">arancione</b> chi <b>risponde o esegue</b>.
+        Aggiungi chi gioca, poi tocca la ruota per scegliere: il blocco
+        <b>chiede</b> mostra chi <b>fa la domanda</b>, il blocco
+        <b>risponde</b> chi <b>risponde o esegue</b>.
         Se non sai cosa chiedere, tocca <b>Consiglio</b> per farti dare un'idea
         di verità o obbligo.
       </div>
@@ -10959,12 +10959,17 @@
     const viewportWidth = strip.parentElement.clientWidth;
     const halfWidth = viewportWidth / 2;
     const fillerWidth = viewportWidth * OT_FILLER_FRACTION;
-    let html = '<div class="ot-reel-half ask" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
-      + '<div class="ot-reel-half answer" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
+    // Anche i due blocchi finali (chiede/risponde) sono rossi o neri, come
+    // tutto il resto della ruota: nessun colore "speciale" per l'esito,
+    // sempre due colori diversi tra loro e assegnati a caso ad ogni giro.
+    const askColor = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)];
+    const answerColor = OT_ROULETTE.find(function (c) { return c !== askColor; });
+    let html = '<div class="ot-reel-half ask" style="width:' + halfWidth + 'px;--otbg:' + askColor + '"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
+      + '<div class="ot-reel-half answer" style="width:' + halfWidth + 'px;--otbg:' + answerColor + '"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
     // mai lo stesso colore di quello appena prima: senza questo controllo
     // due strisce adiacenti potevano capitare identiche, e sembravano
     // un'unica striscia doppia invece di due affiancate distinguibili
-    let prevColor = '#B45309';
+    let prevColor = answerColor;
     for (let i = 0; i < OT_FILLER_COUNT; i++) {
       let color;
       do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
