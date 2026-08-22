@@ -1618,7 +1618,7 @@
      ruotare, quindi il testo passa da "in linea col taglio" (contenitore
      a 12 gradi) a "orizzontale e dritto" (contenitore a 90 gradi) da
      solo, senza animazione propria sull'angolo. */
-  .ot-final-txt { position:absolute; left:50%; top:50%; text-align:center; white-space:nowrap; }
+  .ot-final-txt { position:absolute; left:50%; top:50%; z-index:1; text-align:center; white-space:nowrap; }
   /* colore ereditato dalla meta' (vedi OT_INK): scuro sul giallo, bianco sul nero */
   .ot-final-lbl { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:currentColor; opacity:0.75; }
   .ot-final-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,52px); letter-spacing:0.5px; color:currentColor; margin-top:6px; line-height:1.05; }
@@ -4992,14 +4992,14 @@
         <div class="ot-final-rot" id="ot-final-rot">
           <div class="ot-final-half l"></div>
           <div class="ot-final-half r"></div>
-          <!-- I testi NON stanno dentro le due meta': sono figli diretti del
-               contenitore che ruota, ancorati al suo centro e spostati via
-               transform. Cosi' il JS puo' farli partire esattamente dal punto
-               in cui si trovavano nella ruota e portarli al centro della loro
-               meta' di schermo con un movimento unico e continuo. -->
-          <div class="ot-final-txt" id="ot-final-txt-ask"><div class="ot-final-lbl">chiede</div><div class="ot-final-name" id="ot-final-ask"></div></div>
-          <div class="ot-final-txt" id="ot-final-txt-answer"><div class="ot-final-lbl">risponde</div><div class="ot-final-name" id="ot-final-answer"></div></div>
         </div>
+        <!-- I testi stanno FUORI dal contenitore che ruota. Dentro, avrebbero
+             ereditato la sua rotazione ma non lo skew della ruota: i glifi
+             cambiavano forma di scatto nell'istante del passaggio. Fuori, il
+             JS puo' dare loro la matrice ESATTA che avevano nella ruota (skew
+             compreso) e portarla a zero in modo graduale. -->
+        <div class="ot-final-txt" id="ot-final-txt-ask"><div class="ot-final-lbl">chiede</div><div class="ot-final-name" id="ot-final-ask"></div></div>
+        <div class="ot-final-txt" id="ot-final-txt-answer"><div class="ot-final-lbl">risponde</div><div class="ot-final-name" id="ot-final-answer"></div></div>
       </div>
 
       <div class="ot-play-bottom">
@@ -11028,21 +11028,24 @@
       const r = el.getBoundingClientRect();
       return { x: (r.x - play.x + r.width / 2) - cx, y: (r.y - play.y + r.height / 2) - cy };
     }
-    // Dal sistema dello schermo a quello del contenitore, che parte gia'
-    // ruotato di 12 gradi: serve la rotazione inversa.
-    const a = OT_FINAL_START_DEG * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
-    function toLocal(d) { return { x: d.x * ca + d.y * sa, y: -d.x * sa + d.y * ca }; }
-    const startAsk = toLocal(reelTextOffset(0, -play.width / 4));
-    const startAnswer = toLocal(reelTextOffset(1, play.width / 4));
-    // Arrivo: centro della propria meta' di schermo. Nel sistema locale
-    // e' un semplice spostamento lungo x, che a 90 gradi diventa
-    // "meta' sopra" e "meta' sotto".
-    const endAsk = { x: -play.height / 4, y: 0 };
-    const endAnswer = { x: play.height / 4, y: 0 };
+    // I testi non ruotano col contenitore, quindi gli scostamenti restano
+    // nel sistema dello schermo: niente conversioni.
+    const startAsk = reelTextOffset(0, -play.width / 4);
+    const startAnswer = reelTextOffset(1, play.width / 4);
+    // Arrivo: centro esatto della propria meta' di schermo.
+    const endAsk = { x: 0, y: -play.height / 4 };
+    const endAnswer = { x: 0, y: play.height / 4 };
+    // La chiave della fluidita': il fotogramma iniziale riproduce la
+    // matrice COMPLETA che il testo ha nella ruota — skewX(-12) ereditato
+    // dalla striscia PIU' rotate(-90) — e non solo la sua direzione. Senza
+    // lo skew i glifi, pur essendo nel punto e nella direzione giusti,
+    // cambiavano forma di colpo. Le due liste di transform hanno le stesse
+    // funzioni nello stesso ordine, quindi il browser le interpola una per
+    // una: skew e rotazione vanno a zero insieme, con continuita'.
     function frames(s, e) {
       return [
-        { transform: 'translate(-50%,-50%) translate(' + s.x + 'px,' + s.y + 'px) rotate(-90deg)' },
-        { transform: 'translate(-50%,-50%) translate(' + e.x + 'px,' + e.y + 'px) rotate(-90deg)' }
+        { transform: 'translate(-50%,-50%) translate(' + s.x + 'px,' + s.y + 'px) skewX(' + (-OT_FINAL_START_DEG) + 'deg) rotate(-90deg)' },
+        { transform: 'translate(-50%,-50%) translate(' + e.x + 'px,' + e.y + 'px) skewX(0deg) rotate(0deg)' }
       ];
     }
     fin.classList.add('on');
