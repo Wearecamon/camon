@@ -1629,11 +1629,25 @@
   /* corpo e spaziature: vedi la regola condivisa con la ruota, piu' sopra.
      Il colore e' ereditato dalla meta' (vedi OT_INK): scuro sul giallo,
      bianco sul nero. */
-  .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 24px calc(28px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 45%); }
-  .ot-consiglio-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:30px; padding:9px 18px; color:#fff; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-consiglio-btn:active { background:rgba(255,255,255,0.2); }
+  .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 24px calc(24px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.55) 50%); pointer-events:none; }
+  .ot-play-bottom > * { pointer-events:auto; }
+  /* -- Schermata di avvio accattivante -- */
+  .ot-start-screen { position:absolute; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; background:radial-gradient(ellipse at 50% 40%, #5B1A3A 0%, #3A0A1E 60%, #1E050F 100%); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-start-emoji { font-size:72px; animation:otStartBounce 2s ease-in-out infinite; }
+  @keyframes otStartBounce { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-12px) scale(1.08); } }
+  .ot-start-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,10vw,56px); letter-spacing:2px; color:#fff; text-align:center; line-height:1.1; }
+  .ot-start-title span { color:#F9A8D4; }
+  .ot-start-cta { display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #F5D06B, #F9A8D4); border:none; border-radius:50px; padding:16px 36px; font-family:'Manrope',sans-serif; font-size:16px; font-weight:800; color:#2E2A05; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 24px rgba(245,208,107,0.35); animation:otCtaPulse 2.5s ease-in-out infinite; }
+  @keyframes otCtaPulse { 0%,100% { box-shadow:0 4px 24px rgba(245,208,107,0.35); } 50% { box-shadow:0 6px 36px rgba(249,168,212,0.5); } }
+  .ot-start-cta:active { transform:scale(0.96); }
+  .ot-start-sub { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.45); }
+  /* -- Consiglio centrato nella rivelazione (tra i due nomi) -- */
+  .ot-consiglio-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:6; pointer-events:auto; display:none; animation:otConsIn 0.4s ease forwards; }
+  @keyframes otConsIn { from { opacity:0; transform:translate(-50%,-50%) scale(0.7); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+  .ot-consiglio-center button { display:inline-flex; align-items:center; gap:8px; background:rgba(0,0,0,0.55); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1.5px solid rgba(255,255,255,0.25); border-radius:40px; padding:12px 26px; color:#fff; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.12s; }
+  .ot-consiglio-center button:active { transform:scale(0.95); }
   .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.65); text-shadow:0 1px 4px rgba(0,0,0,0.4); }
-  .ot-suggest { width:100%; max-width:340px; flex-shrink:0; }
+  .ot-suggest { width:calc(100% - 48px); max-width:340px; position:absolute; left:50%; bottom:calc(80px + var(--safe-bottom)); transform:translateX(-50%); z-index:8; }
   .ot-suggest-btns { display:flex; gap:10px; }
   .ot-sg { flex:1; border-radius:13px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.8px; cursor:pointer; -webkit-tap-highlight-color:transparent; border:1px solid transparent; transition:transform 0.12s; }
   .ot-sg:active { transform:scale(0.97); }
@@ -4953,6 +4967,14 @@
          coi nomi sopra. "Consiglio" e i controlli stanno in una barra
          in basso, sovrapposta. -->
     <div class="ot-play" id="ot-play" style="display:none">
+      <!-- Schermata di avvio -->
+      <div class="ot-start-screen" id="ot-start-screen" onclick="obbligoDismissStart()">
+        <div class="ot-start-emoji">🎲</div>
+        <div class="ot-start-title">OBBLIGO <span>O VERITÀ</span></div>
+        <div class="ot-start-cta">▶ Tocca per giocare</div>
+        <div class="ot-start-sub">Sfida o confessa… o bevi!</div>
+      </div>
+
       <button class="ot-play-back" onclick="obbligoBack()" aria-label="Indietro">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
@@ -4985,27 +5007,27 @@
              compreso) e portarla a zero in modo graduale. -->
         <div class="ot-final-txt" id="ot-final-txt-ask"><div class="ot-final-lbl">chiede</div><div class="ot-final-name" id="ot-final-ask"></div></div>
         <div class="ot-final-txt" id="ot-final-txt-answer"><div class="ot-final-lbl">risponde</div><div class="ot-final-name" id="ot-final-answer"></div></div>
+        <!-- Consiglio centrato tra i due nomi, compare solo dopo la rivelazione -->
+        <div class="ot-consiglio-center" id="ot-consiglio-center" onclick="event.stopPropagation(); obbligoOpenSuggest()">
+          <button>💡 Consiglio</button>
+        </div>
+      </div>
+
+      <!-- Suggest popup: centrato e assoluto, appare sopra la rivelazione -->
+      <div class="ot-suggest" id="ot-suggest" style="display:none" onclick="event.stopPropagation()">
+        <div class="ot-suggest-btns">
+          <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
+          <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
+        </div>
+        <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
+          <div class="ot-cat" id="ot-cat">VERITÀ</div>
+          <div class="ot-prompt" id="ot-prompt">—</div>
+          <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
+        </div>
       </div>
 
       <div class="ot-play-bottom">
         <div class="ot-tap-hint" id="ot-tap-hint">Tocca per scegliere</div>
-        <button class="ot-consiglio-btn" onclick="event.stopPropagation(); obbligoOpenSuggest()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.55 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.55 1-2.1A6 6 0 0 0 12 3z"/></svg>
-          Consiglio
-        </button>
-
-        <div class="ot-suggest" id="ot-suggest" style="display:none" onclick="event.stopPropagation()">
-          <div class="ot-suggest-btns">
-            <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
-            <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
-          </div>
-          <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
-            <div class="ot-cat" id="ot-cat">VERITÀ</div>
-            <div class="ot-prompt" id="ot-prompt">—</div>
-            <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
-          </div>
-        </div>
-
         <button class="ot-edit-players" onclick="event.stopPropagation(); obbligoEditPlayers()">↺ Cambia giocatori</button>
       </div>
     </div>
@@ -5020,8 +5042,8 @@
         Aggiungi chi gioca, poi tocca la ruota per scegliere: il blocco
         <b>chiede</b> mostra chi <b>fa la domanda</b>, il blocco
         <b>risponde</b> chi <b>risponde o esegue</b>.
-        Se non sai cosa chiedere, tocca <b>Consiglio</b> per farti dare un'idea
-        di verità o obbligo.
+        Quando i nomi si rivelano, tocca <b>💡 Consiglio</b> per farti suggerire
+        una verità o un obbligo.
       </div>
       <button class="game-modal-btn" onclick="obbligoInfoClose()">Ho capito</button>
     </div>
@@ -10823,6 +10845,7 @@
     document.getElementById('ot-play').style.display = 'block';
     document.getElementById('ot-suggest').style.display = 'none';
     document.getElementById('ot-suggest-card').style.display = 'none';
+    document.getElementById('ot-consiglio-center').style.display = 'none';
     document.getElementById('ot-tap-hint').textContent = 'Tocca per scegliere';
     document.getElementById('ot-reel-full').innerHTML = '';
     if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
@@ -10830,6 +10853,17 @@
     otSpinning = false;
     otPendingNames = null;
     otAsk = otAnswer = null;
+    // Mostra la start screen accattivante ogni volta che si entra
+    var ss = document.getElementById('ot-start-screen');
+    ss.style.opacity = '1';
+    ss.style.transition = '';
+    ss.style.display = 'flex';
+  }
+  function obbligoDismissStart() {
+    const s = document.getElementById('ot-start-screen');
+    s.style.opacity = '0';
+    s.style.transition = 'opacity 0.35s ease';
+    setTimeout(function () { s.style.display = 'none'; }, 350);
   }
   // "Cambia giocatori" e il tasto indietro portano entrambi alla pagina
   // condivisa: e' li' che si modifica la rosa, per qualunque gioco.
@@ -10880,6 +10914,7 @@
     document.getElementById('ot-tap-hint').textContent = '';
     document.getElementById('ot-suggest').style.display = 'none';
     document.getElementById('ot-suggest-card').style.display = 'none';
+    document.getElementById('ot-consiglio-center').style.display = 'none';
 
     let iAsk = Math.floor(Math.random() * roster.length);
     let iAnswer;
@@ -11012,7 +11047,18 @@
     document.getElementById('ot-final-ask').textContent = askName;
     document.getElementById('ot-final-answer').textContent = answerName;
     fin.classList.add('on');
-    obbligoPlayFinal(obbligoFinalStates(fin), false);
+    document.getElementById('ot-consiglio-center').style.display = 'none';
+    document.getElementById('ot-suggest').style.display = 'none';
+    document.getElementById('ot-suggest-card').style.display = 'none';
+    var anims = obbligoPlayFinal(obbligoFinalStates(fin), false);
+    // Mostra il bottone Consiglio al centro dopo che la rivelazione e' finita
+    if (anims.length) {
+      anims[0].onfinish = function () {
+        var cc = document.getElementById('ot-consiglio-center');
+        cc.style.display = 'block';
+        cc.style.animation = 'none'; void cc.offsetWidth; cc.style.animation = '';
+      };
+    }
   }
   // Ripartenza: la stessa animazione percorsa al contrario. Parte dallo
   // stato piatto in cui la rivelazione si era fermata e torna esattamente
@@ -11054,6 +11100,7 @@
     otFinalAnims = [];
     const fin = document.getElementById('ot-final');
     if (fin) fin.classList.remove('on');
+    document.getElementById('ot-consiglio-center').style.display = 'none';
   }
   // Ogni box e' largo META' SCHERMO piu' un piccolo margine ("overhang"):
   // e' la larghezza MINIMA che, oltre a far vedere sempre e solo DUE box

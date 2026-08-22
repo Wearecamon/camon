@@ -1562,38 +1562,92 @@
      (chiede/risponde) sono larghi meta' schermo — qui resta solo la
      forma/impaginazione comune, non piu' una larghezza fissa al 50%. */
   .ot-reel-half { position:relative; flex:none; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
-  .ot-reel-half.ask { background:#0C6E60; }
-  .ot-reel-half.answer { background:#B45309; }
-  /* Cuscinetto dello stesso colore su entrambi i lati esterni: copre sia
-     il varco che lo skew apre agli angoli (bastava poco), sia — piu'
-     largo di un intero blocco — l'ultimo scampolo sottile del colore
-     successivo che altrimenti resterebbe visibile un attimo mentre il
-     rullo frena e si ferma. Cosi' l'arrivo e' netto: sempre e solo due
-     colori, mai una fetta residua di un terzo. */
-  .ot-reel-half.ask::before, .ot-reel-half.answer::after {
-    content:''; position:absolute; top:0; bottom:0; width:70vw; z-index:2; pointer-events:none;
-  }
-  .ot-reel-half.ask::before { right:100%; background:#0C6E60; }
-  .ot-reel-half.answer::after { left:100%; background:#B45309; }
-  /* Contro-skew: il blocco e' un parallelogramma (eredita lo skew del
-     wrapper), ma testo ed etichetta devono restare dritti e leggibili. */
+  /* Il colore di fondo e quello del testo sono messi inline dal JS
+     (OT_ROULETTE / OT_INK): non servono piu' classi .ask/.answer. Gli
+     angoli scoperti dallo skew sono coperti allargando TUTTI i box della
+     stessa quantita' (vedi obbligoBoxWidth), non piu' con cuscinetti
+     applicati solo ai due box finali. */
+  /* Niente piu' contro-skew: il testo e' ruotato di ~75 gradi (vedi
+     keyframes sotto) cosi' le lettere corrono nella STESSA direzione
+     obliqua/quasi-verticale del taglio colore, come le righe di un
+     quaderno, invece di restare dritte e orizzontali. */
   /* Il rullo si ferma prima "vuoto" (solo colori, niente scritte): quando
      arriva il risultato, etichetta+nome insieme fanno un piccolo "pop"
-     invece di limitarsi ad apparire piatti con un fade. */
-  .ot-reel-half-inner { transform:skewX(12deg); display:flex; flex-direction:column; align-items:center; opacity:0; }
+     invece di limitarsi ad apparire piatti con un fade. Posizione ANCORATA
+     all'altezza dello schermo (non piu' relativa al centro del box):
+     "chiede" sempre al 25% dall'alto, "risponde" sempre al 75% — molto
+     distanti tra loro, non solo un filo sopra/sotto il centro. */
+  .ot-reel-half-inner { position:absolute; left:50%; top:50%; display:flex; flex-direction:column; align-items:center; opacity:0; }
   .ot-reel-half-inner.show { animation:otNamePop 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+  /* ATTENZIONE: questo testo e' figlio della striscia, quindi eredita gia'
+     lo skewX(-12deg) (vedi OT_SKEW). L'angolo scritto qui NON e' quindi
+     l'angolo che si vede: lo skew lo deforma. Con rotate(-78deg) il testo
+     veniva reso a 23 gradi dalla verticale, molto meno inclinato della
+     linea di taglio (che sta a 12 gradi) — per questo "non era in linea".
+     rotate(-90deg) e' l'unico valore che, passando per lo skew, cade
+     esattamente sui 12 gradi della linea: il testo diventa verticale
+     PRIMA dello skew, e lo skew mappa le verticali esattamente sulla
+     direzione del taglio. Le due scritte stanno alla STESSA altezza
+     (entrambe top:50%). */
   @keyframes otNamePop {
-    0%   { opacity:0; transform:skewX(12deg) translateY(12px) scale(0.8); }
-    65%  { opacity:1; transform:skewX(12deg) translateY(-3px) scale(1.06); }
-    100% { opacity:1; transform:skewX(12deg) translateY(0) scale(1); }
+    0%   { opacity:0; transform:translate(-50%,-50%) rotate(-90deg) scale(0.8); }
+    65%  { opacity:1; transform:translate(-50%,-50%) rotate(-90deg) scale(1.08); }
+    100% { opacity:1; transform:translate(-50%,-50%) rotate(-90deg) scale(1); }
   }
-  .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
-  .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
-  .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 24px calc(28px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 45%); }
-  .ot-consiglio-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:30px; padding:9px 18px; color:#fff; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-consiglio-btn:active { background:rgba(255,255,255,0.2); }
+  /* colore ereditato dal box (vedi OT_INK): scuro sul giallo, bianco sul nero */
+  /* UNA SOLA regola per la ruota e per la rivelazione: il testo passa
+     dall'una all'altra, quindi qualunque differenza di corpo, spaziatura o
+     margine si vedrebbe come uno scatto nell'istante del passaggio (prima
+     il nome era clamp(24px,7vw,38px) nella ruota e clamp(30px,9vw,52px)
+     nella rivelazione: sembrava ingrossarsi di colpo). Niente a capo: il
+     testo e' ruotato di ~90 gradi, quindi si sviluppa lungo l'altezza
+     dello schermo, dove lo spazio abbonda. */
+  .ot-reel-half-lbl, .ot-final-lbl { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:currentColor; opacity:0.75; white-space:nowrap; }
+  .ot-reel-half-name, .ot-final-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,52px); letter-spacing:0.5px; color:currentColor; margin-top:6px; line-height:1.05; white-space:nowrap; }
+  /* -- Rivelazione finale: la linea di taglio ruota fino a orizzontale. --
+     Un quadrato enorme (300vmax) centrato sullo schermo, diviso a meta':
+     ruotandolo, ruota la linea di divisione fra i due colori. Parte a
+     12 gradi (identica alla diagonale dello skew della ruota, cosi' il
+     passaggio dalla ruota ferma a questo strato e' invisibile) e arriva
+     a 90 gradi: meta' sinistra -> sopra, meta' destra -> sotto. */
+  .ot-final { position:absolute; inset:0; z-index:4; display:none; overflow:hidden; pointer-events:none; }
+  .ot-final.on { display:block; }
+  .ot-final-rot {
+    position:absolute; top:50%; left:50%; width:300vmax; height:300vmax;
+    margin:-150vmax 0 0 -150vmax; display:flex;
+    transform:rotate(12deg); transform-origin:center;
+  }
+  .ot-final-half { width:50%; height:100%; position:relative; }
+  /* Ancorati al CENTRO del contenitore che ruota; la posizione vera la
+     mette il JS via transform (vedi obbligoRevealFinal), perche' il punto
+     di partenza dev'essere misurato sulla ruota per non avere scatti.
+     La rotazione del testo resta -90deg COSTANTE: e' il contenitore a
+     ruotare, quindi il testo passa da "in linea col taglio" (contenitore
+     a 12 gradi) a "orizzontale e dritto" (contenitore a 90 gradi) da
+     solo, senza animazione propria sull'angolo. */
+  .ot-final-txt { position:absolute; left:50%; top:50%; z-index:1; text-align:center; white-space:nowrap; }
+  /* corpo e spaziature: vedi la regola condivisa con la ruota, piu' sopra.
+     Il colore e' ereditato dalla meta' (vedi OT_INK): scuro sul giallo,
+     bianco sul nero. */
+  .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 24px calc(24px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.55) 50%); pointer-events:none; }
+  .ot-play-bottom > * { pointer-events:auto; }
+  /* -- Schermata di avvio accattivante -- */
+  .ot-start-screen { position:absolute; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; background:radial-gradient(ellipse at 50% 40%, #5B1A3A 0%, #3A0A1E 60%, #1E050F 100%); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-start-emoji { font-size:72px; animation:otStartBounce 2s ease-in-out infinite; }
+  @keyframes otStartBounce { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-12px) scale(1.08); } }
+  .ot-start-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,10vw,56px); letter-spacing:2px; color:#fff; text-align:center; line-height:1.1; }
+  .ot-start-title span { color:#F9A8D4; }
+  .ot-start-cta { display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #F5D06B, #F9A8D4); border:none; border-radius:50px; padding:16px 36px; font-family:'Manrope',sans-serif; font-size:16px; font-weight:800; color:#2E2A05; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 24px rgba(245,208,107,0.35); animation:otCtaPulse 2.5s ease-in-out infinite; }
+  @keyframes otCtaPulse { 0%,100% { box-shadow:0 4px 24px rgba(245,208,107,0.35); } 50% { box-shadow:0 6px 36px rgba(249,168,212,0.5); } }
+  .ot-start-cta:active { transform:scale(0.96); }
+  .ot-start-sub { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.45); }
+  /* -- Consiglio centrato nella rivelazione (tra i due nomi) -- */
+  .ot-consiglio-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:6; pointer-events:auto; display:none; animation:otConsIn 0.4s ease forwards; }
+  @keyframes otConsIn { from { opacity:0; transform:translate(-50%,-50%) scale(0.7); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+  .ot-consiglio-center button { display:inline-flex; align-items:center; gap:8px; background:rgba(0,0,0,0.55); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1.5px solid rgba(255,255,255,0.25); border-radius:40px; padding:12px 26px; color:#fff; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.12s; }
+  .ot-consiglio-center button:active { transform:scale(0.95); }
   .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.65); text-shadow:0 1px 4px rgba(0,0,0,0.4); }
-  .ot-suggest { width:100%; max-width:340px; flex-shrink:0; }
+  .ot-suggest { width:calc(100% - 48px); max-width:340px; position:absolute; left:50%; bottom:calc(80px + var(--safe-bottom)); transform:translateX(-50%); z-index:8; }
   .ot-suggest-btns { display:flex; gap:10px; }
   .ot-sg { flex:1; border-radius:13px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.8px; cursor:pointer; -webkit-tap-highlight-color:transparent; border:1px solid transparent; transition:transform 0.12s; }
   .ot-sg:active { transform:scale(0.97); }
@@ -4720,26 +4774,36 @@
   <!-- ============================
        PRENOTAZIONI PAGE
   ============================ -->
+  <!-- PAGINA GIOCATORI CONDIVISA: ci passano tutti i giochi che hanno
+       bisogno di una rosa. La lista vive in localStorage, quindi resta
+       anche chiudendo e riaprendo l'app. -->
+  <div class="page game-detail" id="page-players" style="background:#171520">
+    <div class="gd-header">
+      <button class="back-btn" onclick="rosterBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">CHI <span style="color:#F5D06B">GIOCA</span></div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="sq-setup">
+      <div class="sq-setup-card">
+        <div class="sq-tag">Rosa giocatori</div>
+        <div class="sq-setup-title">Chi gioca stasera?</div>
+        <form class="sq-add-row" onsubmit="rosterAddFromInput(event)">
+          <input class="sq-name-input" id="roster-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
+          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#171520" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </form>
+        <div class="sq-players" id="roster-list"></div>
+        <div class="sq-empty-hint" id="roster-hint">Aggiungi almeno 2 giocatori per iniziare</div>
+      </div>
+      <button class="sq-start-btn" id="roster-continue" onclick="rosterContinue()" disabled>Continua →</button>
+    </div>
+  </div>
+
   <div class="page game-detail" id="page-shotquest">
     <div class="gd-header">
       <button class="back-btn" onclick="sqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">SHOT <span>QUEST</span></div>
-    </div>
-
-    <div class="sq-setup" id="sq-setup">
-      <div class="sq-setup-card">
-        <div class="sq-tag">Chi gioca?</div>
-        <div class="sq-setup-title">Aggiungi i giocatori</div>
-        <form class="sq-add-row" onsubmit="sqAddFromInput(event)">
-          <input class="sq-name-input" id="sq-name-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
-          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </form>
-        <div class="sq-players" id="sq-players-list"></div>
-        <div class="sq-empty-hint" id="sq-empty-hint">Aggiungi almeno 2 giocatori per iniziare</div>
-      </div>
-      <button class="sq-start-btn" id="sq-start-btn" onclick="sqStart()" disabled>Inizia il gioco</button>
     </div>
 
     <div class="sq-modes" id="sq-modes" style="display:none">
@@ -4773,22 +4837,6 @@
     </div>
 
     <!-- 1. setup giocatori -->
-    <div class="sq-setup" id="siq-players-screen">
-      <div class="sq-setup-card">
-        <div class="sq-tag">Chi gioca?</div>
-        <div class="sq-setup-title">Aggiungi i giocatori</div>
-        <form class="sq-add-row" onsubmit="siqAddPlayer(event)">
-          <input class="sq-name-input" id="siq-player-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
-          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06302B" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </form>
-        <div class="sq-players" id="siq-players-list"></div>
-        <div class="sq-empty-hint" id="siq-players-hint">Aggiungi almeno 2 giocatori per iniziare</div>
-      </div>
-      <button class="siq-custom-btn" id="siq-players-btn" onclick="siqPlayersNext()" disabled>Continua →</button>
-    </div>
-
     <!-- 2. scelta argomenti (multi-select, spicchi) -->
     <div class="siq-modes" id="siq-modes" style="display:none">
       <div class="sq-modes-head">
@@ -4912,22 +4960,6 @@
     <!-- 1. SETUP: stessa identica veste grafica del setup giocatori di
          Trivial/ShotIQ (card oro, avatar a lettera greca, stessi colori),
          con in piu' la scelta obbligatoria del sesso per ogni persona. -->
-    <div class="sq-setup" id="ot-setup">
-      <div class="sq-setup-card">
-        <div class="sq-tag">Obbligo o verità</div>
-        <div class="sq-setup-title">Chi gioca stasera?</div>
-        <form class="sq-add-row" onsubmit="obbligoAddFromInput(event)">
-          <input class="sq-name-input" id="ot-name-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
-          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06302B" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </form>
-        <div class="sq-players" id="ot-players-list"></div>
-        <div class="sq-empty-hint" id="ot-empty-hint">Aggiungi almeno 2 giocatori per iniziare</div>
-      </div>
-      <button class="sq-start-btn" id="ot-start-btn" onclick="obbligoStart()" disabled>Inizia →</button>
-    </div>
-
     <!-- 2. GIOCO, a schermo intero (l'header sopra sparisce): un'unica
          striscia che scorre — mentre gira si vedono solo colori pieni
          passare, nessuna divisione visibile — e quando rallenta e si
@@ -4935,6 +4967,14 @@
          coi nomi sopra. "Consiglio" e i controlli stanno in una barra
          in basso, sovrapposta. -->
     <div class="ot-play" id="ot-play" style="display:none">
+      <!-- Schermata di avvio -->
+      <div class="ot-start-screen" id="ot-start-screen" onclick="obbligoDismissStart()">
+        <div class="ot-start-emoji">🎲</div>
+        <div class="ot-start-title">OBBLIGO <span>O VERITÀ</span></div>
+        <div class="ot-start-cta">▶ Tocca per giocare</div>
+        <div class="ot-start-sub">Sfida o confessa… o bevi!</div>
+      </div>
+
       <button class="ot-play-back" onclick="obbligoBack()" aria-label="Indietro">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
@@ -4950,25 +4990,44 @@
         <div class="ot-reel-strip-full" id="ot-reel-full"></div>
       </div>
 
+      <!-- Rivelazione finale: compare quando la ruota si e' fermata, gia'
+           allineata alla diagonale del taglio (stessi due colori, stessa
+           inclinazione), poi ruota fino a 90 gradi — la linea diventa
+           orizzontale e lo schermo resta diviso in colore sopra / colore
+           sotto, con "chiede" in alto e "risponde" in basso. -->
+      <div class="ot-final" id="ot-final">
+        <div class="ot-final-rot" id="ot-final-rot">
+          <div class="ot-final-half l"></div>
+          <div class="ot-final-half r"></div>
+        </div>
+        <!-- I testi stanno FUORI dal contenitore che ruota. Dentro, avrebbero
+             ereditato la sua rotazione ma non lo skew della ruota: i glifi
+             cambiavano forma di scatto nell'istante del passaggio. Fuori, il
+             JS puo' dare loro la matrice ESATTA che avevano nella ruota (skew
+             compreso) e portarla a zero in modo graduale. -->
+        <div class="ot-final-txt" id="ot-final-txt-ask"><div class="ot-final-lbl">chiede</div><div class="ot-final-name" id="ot-final-ask"></div></div>
+        <div class="ot-final-txt" id="ot-final-txt-answer"><div class="ot-final-lbl">risponde</div><div class="ot-final-name" id="ot-final-answer"></div></div>
+        <!-- Consiglio centrato tra i due nomi, compare solo dopo la rivelazione -->
+        <div class="ot-consiglio-center" id="ot-consiglio-center" onclick="event.stopPropagation(); obbligoOpenSuggest()">
+          <button>💡 Consiglio</button>
+        </div>
+      </div>
+
+      <!-- Suggest popup: centrato e assoluto, appare sopra la rivelazione -->
+      <div class="ot-suggest" id="ot-suggest" style="display:none" onclick="event.stopPropagation()">
+        <div class="ot-suggest-btns">
+          <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
+          <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
+        </div>
+        <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
+          <div class="ot-cat" id="ot-cat">VERITÀ</div>
+          <div class="ot-prompt" id="ot-prompt">—</div>
+          <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
+        </div>
+      </div>
+
       <div class="ot-play-bottom">
         <div class="ot-tap-hint" id="ot-tap-hint">Tocca per scegliere</div>
-        <button class="ot-consiglio-btn" onclick="event.stopPropagation(); obbligoOpenSuggest()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.55 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.55 1-2.1A6 6 0 0 0 12 3z"/></svg>
-          Consiglio
-        </button>
-
-        <div class="ot-suggest" id="ot-suggest" style="display:none" onclick="event.stopPropagation()">
-          <div class="ot-suggest-btns">
-            <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
-            <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
-          </div>
-          <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
-            <div class="ot-cat" id="ot-cat">VERITÀ</div>
-            <div class="ot-prompt" id="ot-prompt">—</div>
-            <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
-          </div>
-        </div>
-
         <button class="ot-edit-players" onclick="event.stopPropagation(); obbligoEditPlayers()">↺ Cambia giocatori</button>
       </div>
     </div>
@@ -4980,11 +5039,11 @@
       <div class="game-modal-grab"></div>
       <div class="game-modal-name">COME SI GIOCA</div>
       <div class="game-modal-rules">
-        Aggiungi chi gioca, poi tocca le carte per scegliere: quella
-        <b style="color:#2DD4BF">verde acqua</b> mostra chi <b>fa la domanda</b>,
-        quella <b style="color:#FDBA74">arancione</b> chi <b>risponde o esegue</b>.
-        Se non sai cosa chiedere, tocca <b>Consiglio</b> per farti dare un'idea
-        di verità o obbligo.
+        Aggiungi chi gioca, poi tocca la ruota per scegliere: il blocco
+        <b>chiede</b> mostra chi <b>fa la domanda</b>, il blocco
+        <b>risponde</b> chi <b>risponde o esegue</b>.
+        Quando i nomi si rivelano, tocca <b>💡 Consiglio</b> per farti suggerire
+        una verità o un obbligo.
       </div>
       <button class="game-modal-btn" onclick="obbligoInfoClose()">Ho capito</button>
     </div>
@@ -5061,18 +5120,6 @@
         <div class="cs-how-step"><span>2</span><p>Ad ogni turno l'app ti dà un <b>prompt</b> (un inizio o un colpo di scena) da <b>infilare</b> nella tua frase.</p></div>
         <div class="cs-how-step"><span>3</span><p>Chi si <b>blocca</b>, ripete o perde il filo <b>beve</b> 🍺. E se la frase non convince e gli altri la <b>bocciano a maggioranza</b>, chi l'ha detta beve.</p></div>
       </div>
-      <div class="sq-setup-card">
-        <div class="sq-tag">Chi gioca?</div>
-        <div class="sq-setup-title">Aggiungi i giocatori</div>
-        <form class="sq-add-row" onsubmit="csAddPlayer(event)">
-          <input class="sq-name-input" id="cs-player-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
-          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E2A05" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </form>
-        <div class="sq-players" id="cs-players-list"></div>
-        <div class="sq-empty-hint" id="cs-empty-hint">Aggiungi almeno 2 giocatori per iniziare</div>
-      </div>
       <div class="cs-opt-label">🎭 Tema della storia</div>
       <div class="cs-chips" id="cs-themes"></div>
       <div class="cs-opt-label">⏱ Tempo per turno</div>
@@ -5137,18 +5184,6 @@
         <div class="cs-how-step"><span style="background:#C4A0FF; color:#2A1840;">1</span><p>L'app dà una <b>categoria</b> e una <b>lettera</b> (es. Animali · M).</p></div>
         <div class="cs-how-step"><span style="background:#C4A0FF; color:#2A1840;">2</span><p>A turno, veloci, ognuno dice una parola di quella categoria che inizia con quella lettera — <b>senza ripetere</b>.</p></div>
         <div class="cs-how-step"><span style="background:#C4A0FF; color:#2A1840;">3</span><p>Chi si <b>blocca</b>, ripete o sbaglia: <b>tocca il suo nome</b> → beve e prende un punto, poi si riparte.</p></div>
-      </div>
-      <div class="sq-setup-card">
-        <div class="sq-tag">Chi gioca?</div>
-        <div class="sq-setup-title">Aggiungi i giocatori</div>
-        <form class="sq-add-row" onsubmit="raAddPlayer(event)">
-          <input class="sq-name-input" id="ra-player-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
-          <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1840" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </form>
-        <div class="sq-players" id="ra-players-list"></div>
-        <div class="sq-empty-hint" id="ra-empty-hint">Aggiungi almeno 2 giocatori per iniziare</div>
       </div>
       <button class="sq-start-btn" id="ra-start-btn" onclick="raStart()" disabled>Inizia a giocare</button>
     </div>
@@ -9667,13 +9702,123 @@
   ];
   let sqGradIndex = -1, sqLastPrompt = -1;
   let sqPlayers = []; // { name }
-  // rosa giocatori CONDIVISA tra tutti i giochi: i nomi restano da un gioco all'altro
-  let rosterNames = [];
+  /* ===== ROSA GIOCATORI CONDIVISA =====
+     Una sola lista per tutti i giochi che hanno bisogno di giocatori
+     (ShotQuest, Trivial, Obbligo o Verita', Cantastorie, A Raffica). Si
+     inseriscono UNA volta sola nella pagina "players", a cui quei giochi
+     rimandano tutti, e restano li': uscendo da un gioco e rientrando (o
+     passando a un altro gioco) la rosa e' ancora quella. Viene salvata su
+     localStorage, quindi sopravvive anche a chiusura e riapertura dell'app.
+     Ogni voce e' { name, gender }: il sesso serve a Obbligo o Verita' per
+     declinare le frasi ed e' richiesto prima di poter iniziare. */
+  const ROSTER_KEY = 'camon_roster';
+  const ROSTER_MAX = 20;
+  const ROSTER_GENDERS = ['m', 'f', 'x'];
+  let roster = [];
+  function rosterSave() {
+    try { localStorage.setItem(ROSTER_KEY, JSON.stringify(roster)); } catch (e) {}
+  }
+  function rosterLoad() {
+    // Si ripulisce quel che si rilegge: e' roba che sta su un dispositivo
+    // altrui e potrebbe essere stata manomessa o salvata da una versione
+    // vecchia dell'app.
+    try {
+      const raw = JSON.parse(localStorage.getItem(ROSTER_KEY) || '[]');
+      if (!Array.isArray(raw)) return;
+      roster = raw
+        .filter(function (p) { return p && typeof p.name === 'string' && p.name.trim(); })
+        .slice(0, ROSTER_MAX)
+        .map(function (p) {
+          return {
+            name: p.name.trim().slice(0, 14),
+            gender: ROSTER_GENDERS.indexOf(p.gender) >= 0 ? p.gender : null
+          };
+        });
+    } catch (e) {}
+  }
+  function rosterNamesList() { return roster.map(function (p) { return p.name; }); }
+  rosterLoad(); // la rosa dell'ultima serata e' gia' pronta all'avvio
+  function rosterComplete() {
+    return roster.length >= 2 && roster.every(function (p) { return !!p.gender; });
+  }
   let sqScreen = 'setup'; // schermata Shot Quest: 'setup' | 'modes' | 'area' — per il tasto indietro
 
   // --- setup giocatori (stile Picolo: un campo, lista di chip) ---
   const sqAvatarColors = ['#f7cc49','#7C3AED','#0D9488','#DB2777','#2563EB','#DC2626','#EA580C','#0891B2','#16A34A','#9333EA'];
-  let sqSetupNames = rosterNames; // stessa rosa condivisa (alias)
+
+  /* --- Pagina giocatori condivisa ---
+     Chi la apre dice dove vuole andare dopo (rosterNext): il tasto
+     "Continua" riporta al gioco di partenza. Il sesso e' obbligatorio per
+     tutti i giochi che passano di qui, cosi' la rosa e' sempre completa
+     qualunque sia il gioco che la usera' dopo. */
+  let rosterNext = null;
+  function rosterOpenFor(page) { rosterNext = page; goTo('players'); }
+  function rosterBack() { goTo('games'); }
+  function rosterAddFromInput(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('roster-input');
+    const name = input.value.trim();
+    if (!name || roster.length >= ROSTER_MAX) return;
+    roster.push({ name: name, gender: null });
+    rosterSave();
+    input.value = '';
+    input.focus();
+    rosterRender();
+  }
+  function rosterSetGender(btn, value) {
+    const idx = +btn.closest('.ot-player-chip-wrap').dataset.idx;
+    roster[idx].gender = value;
+    rosterSave();
+    rosterRender();
+  }
+  function rosterRemove(btn) {
+    const idx = +btn.closest('.ot-player-chip-wrap').dataset.idx;
+    roster.splice(idx, 1);
+    rosterSave();
+    rosterRender();
+  }
+  function rosterRender() {
+    const list = document.getElementById('roster-list');
+    if (!list) return;
+    list.innerHTML = roster.map(function (p, i) {
+      return '<div class="ot-player-chip-wrap ' + (p.gender ? '' : 'missing') + '" data-idx="' + i + '">'
+        + '<div class="sq-player-chip">'
+        + '<span class="sq-avatar" style="background:' + sqAvatarColors[i % sqAvatarColors.length] + '">' + sqCharacter(i) + '</span>'
+        + '<span class="sq-chip-name">' + huEscape(p.name) + '</span>'
+        + '<button class="sq-chip-del" onclick="rosterRemove(this)" aria-label="Rimuovi">'
+        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+        + '</button></div>'
+        + '<div class="ot-gender-row">'
+        + OT_GENDERS.map(function (g) {
+            return '<button class="ot-gender-opt ' + g.v + ' ' + (p.gender === g.v ? 'sel' : '') + '" onclick="rosterSetGender(this,\'' + g.v + '\')">' + g.lbl + '</button>';
+          }).join('')
+        + '</div></div>';
+    }).join('');
+    const ok = rosterComplete();
+    document.getElementById('roster-continue').disabled = !ok;
+    const hint = document.getElementById('roster-hint');
+    hint.textContent = roster.length < 2
+      ? 'Aggiungi almeno 2 persone per iniziare'
+      : 'Seleziona il sesso di tutti per iniziare';
+    hint.classList.toggle('hidden', ok);
+  }
+  // "Continua": porta al gioco da cui si e' arrivati, gia' impostato coi
+  // giocatori della rosa, saltando la vecchia schermata di inserimento.
+  function rosterContinue() {
+    if (!rosterComplete()) return;
+    const target = rosterNext;
+    if (!target) { goTo('games'); return; }
+    // Lo stato del gioco si prepara PRIMA di navigare: entrando nella
+    // pagina, alcuni giochi (Trivial) scelgono da soli quale schermata
+    // mostrare, e trovando lo stato vecchio rimanderebbero qui alla rosa.
+    if (target === 'shotiq') { siqSyncFromRoster(); siqScreen = 'modes'; }
+    goTo(target);
+    if (target === 'obbligo') obbligoStart();
+    else if (target === 'raffica') raStart();
+    else if (target === 'cantastorie') csShowSetup();
+    else if (target === 'shotquest') sqStart();
+    else if (target === 'shotiq') siqShowModes();
+  }
 
   // lettere greche stile confraternita, assegnate a ogni giocatore
   const sqGreek = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Π','Σ','Φ','Ψ','Ω'];
@@ -9681,55 +9826,12 @@
     return sqGreek[i % sqGreek.length];
   }
 
-  function sqAddFromInput(e) {
-    if (e) e.preventDefault();
-    const input = document.getElementById('sq-name-input');
-    const name = input.value.trim();
-    if (!name) return;
-    if (sqSetupNames.length >= 20) return; // massimo 20 giocatori
-    sqSetupNames.push(name);
-    input.value = '';
-    input.focus();
-    sqRenderSetup();
-  }
-  function sqRemovePlayer(btn) {
-    const idx = +btn.closest('.sq-player-chip').dataset.idx;
-    sqSetupNames.splice(idx, 1);
-    sqRenderSetup();
-  }
-  function sqRenderSetup() {
-    const list = document.getElementById('sq-players-list');
-    list.innerHTML = sqSetupNames.map((name, i) => {
-      const color = sqAvatarColors[i % sqAvatarColors.length];
-      return `<div class="sq-player-chip" data-idx="${i}">
-        <span class="sq-avatar" style="background:${color}">${sqCharacter(i)}</span>
-        <span class="sq-chip-name">${name}</span>
-        <button class="sq-chip-del" onclick="sqRemovePlayer(this)" aria-label="Rimuovi">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>`;
-    }).join('');
-    const enough = sqSetupNames.length >= 2;
-    document.getElementById('sq-start-btn').disabled = !enough;
-    document.getElementById('sq-empty-hint').classList.toggle('hidden', enough);
-  }
-  function sqSetupReset() {
-    // NON azzera i nomi: la rosa resta condivisa tra i giochi
-    sqScreen = 'setup';
-    document.getElementById('sq-name-input').value = '';
-    sqRenderSetup();
-    document.getElementById('sq-setup').style.display = '';
-    document.getElementById('sq-modes').style.display = 'none';
-    document.getElementById('sq-area').style.display = 'none';
-    document.getElementById('page-shotquest').style.background = '';
-  }
-  // dopo i giocatori → schermata scelta modalità
+  // ingresso nel gioco dalla pagina giocatori → schermata scelta modalità
   function sqStart() {
-    if (sqSetupNames.length < 2) return;
+    if (roster.length < 2) return;
     sqScreen = 'modes';
-    sqPlayers = sqSetupNames.map(name => ({ name }));
+    sqPlayers = rosterNamesList().map(name => ({ name }));
     sqRenderModes();
-    document.getElementById('sq-setup').style.display = 'none';
     document.getElementById('sq-modes').style.display = '';
     document.getElementById('sq-area').style.display = 'none';
     document.getElementById('page-shotquest').style.background = '';
@@ -9741,10 +9843,8 @@
       document.getElementById('sq-area').style.display = 'none';
       document.getElementById('sq-modes').style.display = '';
       document.getElementById('page-shotquest').style.background = '';
-    } else if (sqScreen === 'modes') {
-      sqSetupReset();
     } else {
-      goTo('games');
+      goTo('players'); // la rosa e' il passo precedente per tutti i giochi
     }
   }
   function sqRenderModes() {
@@ -10232,13 +10332,14 @@
   // ==========================================================
 
   function siqHideAll() {
-    ['siq-players-screen','siq-modes','siq-custom','siq-area','siq-win'].forEach(function(id){
-      document.getElementById(id).style.display = 'none';
+    ['siq-modes','siq-custom','siq-area','siq-win'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
     });
   }
   // allinea i giocatori del Trivial alla rosa condivisa, preservando i punteggi già in gioco
   function siqSyncFromRoster() {
-    siqPlayers = rosterNames.map(function(n){
+    siqPlayers = rosterNamesList().map(function(n){
       var ex = siqPlayers.find(function(p){ return p.name === n; });
       return ex || { name: n, wedges: [], correct: 0 };
     });
@@ -10258,7 +10359,7 @@
       siqHideAll();
       document.getElementById('siq-win').style.display = 'flex';
       siqUpdateHeaderBtn();
-    } else if (siqScreen === 'modes' && rosterNames.length >= 2) {
+    } else if (siqScreen === 'modes' && roster.length >= 2) {
       siqShowModes();
     } else {
       siqShowPlayers();
@@ -10269,21 +10370,12 @@
   // gioco → categorie → giocatori → (esci ai giochi). Mantiene sempre nomi e categorie.
   function siqBack() {
     if (siqScreen === 'area' || siqScreen === 'win') { siqShowModes(); }
-    else if (siqScreen === 'modes') { siqShowPlayers(); }
-    else { goTo('games'); } // 'players' → esce dal gioco
+    else { goTo('players'); } // la rosa e' il passo precedente
   }
 
   // schermata setup giocatori (prende i nomi dalla rosa condivisa)
-  function siqShowPlayers() {
-    siqScreen = 'players';
-    siqSyncFromRoster();
-    siqRenderPlayers();
-    siqHideAll();
-    document.getElementById('siq-players-screen').style.display = '';
-    document.getElementById('siq-player-input').value = '';
-    document.getElementById('page-shotiq').style.background = '';
-    siqUpdateHeaderBtn();
-  }
+  // i giocatori ora si inseriscono nella pagina condivisa
+  function siqShowPlayers() { rosterOpenFor('shotiq'); }
 
   // "Nuova partita": azzera punteggi ma mantiene nomi e categorie scelte
   function siqSetupReset() {
@@ -10294,44 +10386,6 @@
   }
 
   /* --- setup giocatori --- */
-  function siqAddPlayer(ev) {
-    if (ev && ev.preventDefault) ev.preventDefault();
-    const input = document.getElementById('siq-player-input');
-    const name = input.value.trim();
-    if (!name) return;
-    siqGuardEdit(function(){
-      rosterNames.push(name);            // aggiunge alla rosa condivisa
-      siqPlayers.push({ name: name, wedges: [], correct: 0 });
-      siqRenderPlayers();
-    });
-    input.value = ''; input.focus();
-  }
-  function siqRenderPlayers() {
-    const list = document.getElementById('siq-players-list');
-    list.innerHTML = siqPlayers.map(function(p, i){
-      return '<div class="sq-player-chip">'
-        + '<span class="sq-avatar" style="background:rgba(45,212,191,0.18)">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
-        + '<span class="sq-chip-name">' + siqEsc(p.name) + '</span>'
-        + '<button class="sq-chip-del" onclick="siqRemovePlayer(' + i + ')" aria-label="Rimuovi">'
-        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
-        + '</button></div>';
-    }).join('');
-    const enough = siqPlayers.length >= 2;
-    document.getElementById('siq-players-btn').disabled = !enough;
-    document.getElementById('siq-players-hint').classList.toggle('hidden', enough);
-  }
-  function siqRemovePlayer(i) {
-    siqGuardEdit(function(){
-      const removed = siqPlayers[i];
-      siqPlayers.splice(i, 1);
-      // rimuove lo stesso nome dalla rosa condivisa
-      if (removed) {
-        const ri = rosterNames.indexOf(removed.name);
-        if (ri >= 0) rosterNames.splice(ri, 1);
-      }
-      siqRenderPlayers();
-    });
-  }
   function siqPlayersNext() {
     if (siqPlayers.length < 2) return;
     siqShowModes();
@@ -10777,103 +10831,57 @@
   ];
   let otLastTruth = -1, otLastDare = -1, otKind = 'truth';
   let otSpinning = false;
-  let otPlayers = [];              // [{name, gender}] — gender: 'm' | 'f' | null
-  let otAsk = null, otAnswer = null; // indici in otPlayers dell'ultima scelta
+  let otAsk = null, otAnswer = null; // indici nella rosa condivisa dell'ultima scelta
 
-  /* --- Setup: nome + sesso. Il sesso e' OBBLIGATORIO — tre pulsanti
-     espliciti (M / F / Altro) ben visibili sotto il nome, non un'unica
-     icona che cicla al tocco: si vede subito cosa manca da scegliere. --- */
-  function obbligoAddFromInput(e) {
-    if (e) e.preventDefault();
-    const input = document.getElementById('ot-name-input');
-    const name = input.value.trim();
-    if (!name) return;
-    if (otPlayers.length >= 20) return;
-    otPlayers.push({ name: name, gender: null });
-    input.value = '';
-    input.focus();
-    obbligoRenderSetup();
-  }
-  function obbligoSetGender(btn, value) {
-    const idx = +btn.closest('.ot-player-chip-wrap').dataset.idx;
-    otPlayers[idx].gender = value;
-    obbligoRenderSetup();
-  }
-  function obbligoRemovePlayer(btn) {
-    const idx = +btn.closest('.ot-player-chip-wrap').dataset.idx;
-    otPlayers.splice(idx, 1);
-    obbligoRenderSetup();
-  }
   const OT_GENDERS = [
     { v:'m', lbl:'♂ M' },
     { v:'f', lbl:'♀ F' },
     { v:'x', lbl:'⚧ Altro' }
   ];
-  function obbligoRenderSetup() {
-    const list = document.getElementById('ot-players-list');
-    // stesso chip del Trivial (avatar a lettera greca, stessi colori),
-    // con in piu' la riga del sesso obbligatorio sotto
-    list.innerHTML = otPlayers.map((p, i) => `
-      <div class="ot-player-chip-wrap ${p.gender ? '' : 'missing'}" data-idx="${i}">
-        <div class="sq-player-chip">
-          <span class="sq-avatar" style="background:${sqAvatarColors[i % sqAvatarColors.length]}">${sqCharacter(i)}</span>
-          <span class="sq-chip-name">${p.name}</span>
-          <button class="sq-chip-del" onclick="obbligoRemovePlayer(this)" aria-label="Rimuovi">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-        <div class="ot-gender-row">
-          ${OT_GENDERS.map(g => `<button class="ot-gender-opt ${g.v} ${p.gender===g.v?'sel':''}" onclick="obbligoSetGender(this,'${g.v}')">${g.lbl}</button>`).join('')}
-        </div>
-      </div>`).join('');
-    const allGenderSet = otPlayers.every(p => !!p.gender);
-    const enough = otPlayers.length >= 2 && allGenderSet;
-    document.getElementById('ot-start-btn').disabled = !enough;
-    const hint = document.getElementById('ot-empty-hint');
-    hint.textContent = otPlayers.length < 2
-      ? 'Aggiungi almeno 2 persone per iniziare'
-      : 'Seleziona il sesso di tutti per iniziare';
-    hint.classList.toggle('hidden', enough);
-  }
   function obbligoStart() {
-    if (otPlayers.length < 2 || !otPlayers.every(p => !!p.gender)) return;
+    // la rosa (nomi + sesso) arriva gia' completa dalla pagina condivisa
+    if (!rosterComplete()) return;
     document.getElementById('ot-header').style.display = 'none'; // gioco a schermo intero
-    document.getElementById('ot-setup').style.display = 'none';
     document.getElementById('ot-play').style.display = 'block';
     document.getElementById('ot-suggest').style.display = 'none';
     document.getElementById('ot-suggest-card').style.display = 'none';
+    document.getElementById('ot-consiglio-center').style.display = 'none';
     document.getElementById('ot-tap-hint').textContent = 'Tocca per scegliere';
     document.getElementById('ot-reel-full').innerHTML = '';
     if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
+    obbligoHideFinal();
     otSpinning = false;
     otPendingNames = null;
     otAsk = otAnswer = null;
+    // Mostra la start screen accattivante ogni volta che si entra
+    var ss = document.getElementById('ot-start-screen');
+    ss.style.opacity = '1';
+    ss.style.transition = '';
+    ss.style.display = 'flex';
   }
+  function obbligoDismissStart() {
+    const s = document.getElementById('ot-start-screen');
+    s.style.opacity = '0';
+    s.style.transition = 'opacity 0.35s ease';
+    setTimeout(function () { s.style.display = 'none'; }, 350);
+  }
+  // "Cambia giocatori" e il tasto indietro portano entrambi alla pagina
+  // condivisa: e' li' che si modifica la rosa, per qualunque gioco.
   function obbligoEditPlayers() {
     document.getElementById('ot-play').style.display = 'none';
     document.getElementById('ot-header').style.display = 'flex';
-    document.getElementById('ot-setup').style.display = 'flex';
-    obbligoRenderSetup();
+    rosterOpenFor('obbligo');
   }
-  // tasto INDIETRO: dal gioco torna al setup, dal setup esce
-  function obbligoBack() {
-    if (document.getElementById('ot-play').style.display !== 'none') {
-      obbligoEditPlayers();
-    } else {
-      goTo('games');
-    }
-  }
+  function obbligoBack() { obbligoEditPlayers(); }
   function obbligoReset() {
     if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
+    obbligoHideFinal();
     otSpinning = false;
+    otReversing = false;
     otPendingNames = null;
-    otPlayers = [];
-    otAsk = otAnswer = null;
+    otAsk = otAnswer = null; // la rosa NON si azzera: e' condivisa e va salvata
     document.getElementById('ot-play').style.display = 'none';
     document.getElementById('ot-header').style.display = 'flex';
-    document.getElementById('ot-setup').style.display = 'flex';
-    document.getElementById('ot-name-input').value = '';
-    obbligoRenderSetup();
   }
 
   /* --- Gioco: un unico rullo a tutto schermo — mentre gira si vedono
@@ -10883,14 +10891,21 @@
      sempre persone diverse (se ci sono almeno 2). --- */
   // Colori scelti distanti tra loro sulla ruota (e lontani dal verde acqua
   // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
-  const OT_ROULETTE = ['#DC2626','#111111']; // solo rosso e nero, alternati (mai lo stesso adiacente)
-  const OT_SPIN_MS = 22500; // 5 volte piu' lento (era 4500ms)
+  const OT_ROULETTE = ['#F5D06B','#111111']; // giallo brand e nero, alternati (mai lo stesso adiacente)
+  // colore del testo per ogni fondo: sul giallo il bianco sarebbe
+  // illeggibile, quindi si usa lo stesso scuro che il brand accoppia al
+  // giallo altrove nell'app
+  const OT_INK = { '#F5D06B': '#2E2A05', '#111111': '#FFFFFF' };
+  const OT_SPIN_MS = 4500; // durata della corsa della ruota
   const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
   let otPendingNames = null;  // {ask, answer} dello spin in corso, per il salto immediato
+  let otFinalColors = { ask: '#F5D06B', answer: '#111111' }; // colori dei due box su cui la ruota si ferma
+  let otFinalAnims = []; // animazioni della rivelazione, da annullare a ogni nuovo giro
+  let otReversing = false;   // true mentre lo strato sta tornando indietro, prima del nuovo giro
   function obbligoClearSpinTimers() { otSpinTimers.forEach(clearTimeout); otSpinTimers = []; }
   function obbligoSpin() {
-    if (otPlayers.length < 2) return;
+    if (roster.length < 2) return;
     // si tocca di nuovo mentre gira: salta subito al risultato, non
     // aspetta che il rullo rallenti da solo
     if (otSpinning) { obbligoSkipToEnd(); return; }
@@ -10899,15 +10914,22 @@
     document.getElementById('ot-tap-hint').textContent = '';
     document.getElementById('ot-suggest').style.display = 'none';
     document.getElementById('ot-suggest-card').style.display = 'none';
+    document.getElementById('ot-consiglio-center').style.display = 'none';
 
-    let iAsk = Math.floor(Math.random() * otPlayers.length);
+    let iAsk = Math.floor(Math.random() * roster.length);
     let iAnswer;
-    do { iAnswer = Math.floor(Math.random() * otPlayers.length); } while (iAnswer === iAsk && otPlayers.length > 1);
+    do { iAnswer = Math.floor(Math.random() * roster.length); } while (iAnswer === iAsk && roster.length > 1);
     otAsk = iAsk; otAnswer = iAnswer;
-    otPendingNames = { ask: otPlayers[iAsk].name, answer: otPlayers[iAnswer].name };
+    otPendingNames = { ask: roster[iAsk].name, answer: roster[iAnswer].name };
 
+    // Se lo schermo mostra ancora la rivelazione del giro precedente, la si
+    // riporta indietro con la stessa animazione al contrario; la ruota nuova
+    // parte solo quando lo strato e' tornato a coincidere con essa.
+    if (document.getElementById('ot-final').classList.contains('on')) obbligoReverseFinal(obbligoLaunchReel);
+    else obbligoLaunchReel();
+  }
+  function obbligoLaunchReel() {
     obbligoSpinReel(otPendingNames.ask, otPendingNames.answer, OT_SPIN_MS);
-
     otSpinTimers.push(setTimeout(obbligoFinishSpin, OT_SPIN_MS + 150));
   }
   function obbligoFinishSpin() {
@@ -10921,59 +10943,233 @@
   // chiede/risponde sono sempre centrati, mai "sballati" a meta' corsa)
   // e mostra subito i nomi gia' estratti per questo giro.
   function obbligoSkipToEnd() {
+    // Tocco mentre lo strato sta tornando indietro: la striscia nuova non
+    // esiste ancora, quindi va costruita prima di poterci saltare sopra —
+    // altrimenti si mostrerebbe come risultato quello del giro precedente.
+    if (otReversing) {
+      otReversing = false;
+      obbligoHideFinal();
+      obbligoLaunchReel();
+    }
     obbligoClearSpinTimers();
-    const strip = document.getElementById('ot-reel-full');
-    strip.style.transition = 'none';
-    strip.style.transform = OT_SKEW + 'translateX(0px)';
-    void strip.offsetWidth;
-    if (otPendingNames) obbligoShowNames(otPendingNames.ask, otPendingNames.answer);
+    obbligoLandOnResult();
     obbligoFinishSpin();
   }
-  function obbligoShowNames(askName, answerName) {
-    const nameAsk = document.getElementById('ot-name-ask');
-    const nameAnswer = document.getElementById('ot-name-answer');
-    if (nameAsk) {
-      nameAsk.textContent = askName;
-      nameAsk.parentElement.classList.remove('show'); void nameAsk.parentElement.offsetWidth;
-      nameAsk.parentElement.classList.add('show');
+  // Arrivo sul risultato. La usano SIA il fermo manuale SIA quello
+  // naturale a fine corsa, cosi' i due percorsi non possono comportarsi in
+  // modo diverso.
+  // Il punto delicato e' l'ordine: prima si inchioda la striscia sulla
+  // posizione esatta di arrivo (transizione tolta piu' reflow forzato),
+  // POI si rivela. La rivelazione infatti MISURA dove si trova il testo
+  // sulla ruota per farci partire il proprio; se la transizione CSS non e'
+  // ancora stata committata, quella misura legge la posizione ancora in
+  // movimento e i testi partono da un punto sbagliato — tipicamente fuori
+  // campo, entrando "dal fianco". Il fermo manuale lo faceva gia' ed era
+  // infatti l'unico dei due a comportarsi bene.
+  function obbligoLandOnResult() {
+    const strip = document.getElementById('ot-reel-full');
+    strip.style.transition = 'none';
+    strip.style.transform = OT_SKEW + 'translateX(' + obbligoStopTx(strip) + 'px)';
+    void strip.offsetWidth;
+    if (otPendingNames) obbligoRevealFinal(otPendingNames.ask, otPendingNames.answer);
+  }
+  // Rivelazione finale: lo strato compare gia' allineato alla diagonale
+  // in cui la ruota si e' fermata (stessi colori, stessa inclinazione),
+  // poi la classe "go" fa partire la rotazione fino a 90 gradi: la linea
+  // diventa orizzontale e lo schermo resta diviso sopra/sotto.
+  const OT_FINAL_MS = 1100;
+  const OT_FINAL_EASE = 'cubic-bezier(0.65,0,0.35,1)';
+  const OT_FINAL_START_DEG = 12; // uguale allo skew della ruota: partenza sovrapposta
+  // Geometria dei due stati fra cui l'animazione si muove. La calcola una
+  // funzione sola, usata sia all'andata (rivelazione) sia al ritorno
+  // (ripartenza): cosi' i due versi percorrono esattamente la stessa
+  // strada e non possono divergere se un domani si tocca un valore.
+  //  - stato RUOTA: dove e come il testo sta sulla ruota ferma. La
+  //    posizione si MISURA invece di calcolarla, cosi' combacia qualunque
+  //    sia la geometria (skew, overhang, larghezza dei box).
+  //  - stato PIATTO: centro esatto della propria meta' di schermo,
+  //    orizzontale e senza inclinazione.
+  // Nel fotogramma "ruota" c'e' la matrice COMPLETA del testo sulla
+  // striscia (skewX(-12) ereditato PIU' rotate(-90)), non solo la sua
+  // direzione: senza lo skew i glifi, pur giusti di posizione e
+  // direzione, cambierebbero forma di colpo. Le due liste hanno le stesse
+  // funzioni nello stesso ordine, quindi il browser le interpola una per
+  // una e skew e rotazione vanno a zero insieme, con continuita'.
+  function obbligoFinalStates(fin) {
+    const play = fin.parentElement.getBoundingClientRect();
+    const cx = play.width / 2, cy = play.height / 2;
+    const strip = document.getElementById('ot-reel-full');
+    function reelTextOffset(i, fallbackX) {
+      const box = strip.children[i];
+      const el = box && box.querySelector('.ot-reel-half-inner');
+      if (!el) return { x: fallbackX, y: 0 };
+      const r = el.getBoundingClientRect();
+      return { x: (r.x - play.x + r.width / 2) - cx, y: (r.y - play.y + r.height / 2) - cy };
     }
-    if (nameAnswer) {
-      nameAnswer.textContent = answerName;
-      nameAnswer.parentElement.classList.remove('show'); void nameAnswer.parentElement.offsetWidth;
-      nameAnswer.parentElement.classList.add('show');
+    function reel(o) { return 'translate(-50%,-50%) translate(' + o.x + 'px,' + o.y + 'px) skewX(' + (-OT_FINAL_START_DEG) + 'deg) rotate(-90deg)'; }
+    function flat(o) { return 'translate(-50%,-50%) translate(' + o.x + 'px,' + o.y + 'px) skewX(0deg) rotate(0deg)'; }
+    return {
+      askReel: reel(reelTextOffset(0, -play.width / 4)),
+      answerReel: reel(reelTextOffset(1, play.width / 4)),
+      askFlat: flat({ x: 0, y: -play.height / 4 }),
+      answerFlat: flat({ x: 0, y: play.height / 4 }),
+      rotReel: 'rotate(' + OT_FINAL_START_DEG + 'deg)',
+      rotFlat: 'rotate(90deg)'
+    };
+  }
+  // Un solo punto che fa partire le tre animazioni (contenitore + i due
+  // testi); "back" le percorre al contrario.
+  function obbligoPlayFinal(st, back) {
+    const rot = document.getElementById('ot-final-rot');
+    const txtAsk = document.getElementById('ot-final-txt-ask');
+    const txtAnswer = document.getElementById('ot-final-txt-answer');
+    function seq(a, b) { return back ? [{ transform: b }, { transform: a }] : [{ transform: a }, { transform: b }]; }
+    otFinalAnims.forEach(function (a) { a.cancel(); });
+    const opts = { duration: OT_FINAL_MS, easing: OT_FINAL_EASE, fill: 'forwards' };
+    otFinalAnims = [
+      rot.animate(seq(st.rotReel, st.rotFlat), opts),
+      txtAsk.animate(seq(st.askReel, st.askFlat), opts),
+      txtAnswer.animate(seq(st.answerReel, st.answerFlat), opts)
+    ];
+    return otFinalAnims;
+  }
+  function obbligoRevealFinal(askName, answerName) {
+    const fin = document.getElementById('ot-final');
+    if (!fin) return;
+    const lHalf = fin.querySelector('.ot-final-half.l');
+    const rHalf = fin.querySelector('.ot-final-half.r');
+    lHalf.style.background = otFinalColors.ask;
+    rHalf.style.background = otFinalColors.answer;
+    const txtAsk = document.getElementById('ot-final-txt-ask');
+    const txtAnswer = document.getElementById('ot-final-txt-answer');
+    txtAsk.style.color = OT_INK[otFinalColors.ask];
+    txtAnswer.style.color = OT_INK[otFinalColors.answer];
+    document.getElementById('ot-final-ask').textContent = askName;
+    document.getElementById('ot-final-answer').textContent = answerName;
+    fin.classList.add('on');
+    document.getElementById('ot-consiglio-center').style.display = 'none';
+    document.getElementById('ot-suggest').style.display = 'none';
+    document.getElementById('ot-suggest-card').style.display = 'none';
+    var anims = obbligoPlayFinal(obbligoFinalStates(fin), false);
+    // Mostra il bottone Consiglio al centro dopo che la rivelazione e' finita
+    if (anims.length) {
+      anims[0].onfinish = function () {
+        var cc = document.getElementById('ot-consiglio-center');
+        cc.style.display = 'block';
+        cc.style.animation = 'none'; void cc.offsetWidth; cc.style.animation = '';
+      };
     }
   }
-  // Durante la corsa le strisce sono TUTTE sottili e della STESSA
-  // larghezza (prima, essendo larghe meta' schermo, se ne vedevano solo
-  // 2-3 alla volta e i pezzi ai bordi sembravano di spessore diverso: era
-  // solo la vista parziale di un blocco enorme, non uno spessore vero
-  // diverso). I due blocchi finali "chiede"/"risponde" restano larghi
-  // meta' schermo ciascuno, ma SOLO LORO — sono i PRIMI della striscia,
-  // tante strisce sottili casuali dopo: si parte mostrando la CODA (a
-  // destra) e si anima verso l'INIZIO (translateX verso 0) — movimento
-  // da sinistra a destra, finisce sempre sulla coppia giusta.
-  const OT_FILLER_FRACTION = 1 / 2; // stesso spessore dei due blocchi finali chiede/risponde: meta' schermo
+  // Ripartenza: la stessa animazione percorsa al contrario. Parte dallo
+  // stato piatto in cui la rivelazione si era fermata e torna esattamente
+  // sulla ruota sottostante, rimasta ferma sul risultato: all'ultimo
+  // fotogramma strato e ruota coincidono, quindi togliere lo strato non si
+  // vede. Solo a quel punto parte il giro nuovo.
+  function obbligoReverseFinal(done) {
+    const fin = document.getElementById('ot-final');
+    if (!fin || !fin.classList.contains('on')) { if (done) done(); return; }
+    otReversing = true;
+    // La rivelazione dura piu' a lungo di quanto la ruota resti "occupata",
+    // quindi si puo' premere per rigirare mentre e' ancora a meta' volo. In
+    // quel caso NON si ricrea un'animazione dallo stato finale (il testo
+    // sarebbe saltato di colpo al centro per poi tornare di lato): si
+    // inverte quella in corso, che riparte esattamente da dove si trova.
+    let attesa = OT_FINAL_MS;
+    const viva = otFinalAnims.length && otFinalAnims[0].effect;
+    if (viva) {
+      const t = otFinalAnims[0].currentTime;
+      attesa = Math.max(0, Math.min(OT_FINAL_MS, typeof t === 'number' ? t : OT_FINAL_MS));
+      otFinalAnims.forEach(function (a) { a.playbackRate = -1; a.play(); });
+    } else {
+      obbligoPlayFinal(obbligoFinalStates(fin), true);
+    }
+    // Si aspetta con un timer, non con l'evento di fine animazione: se la
+    // pagina finisce in secondo piano il browser mette in pausa le
+    // animazioni e quell'evento non arriverebbe mai, lasciando il gioco
+    // bloccato senza poter piu' girare. Il timer sta fra quelli annullabili,
+    // cosi' un tocco durante il ritorno lo disinnesca.
+    otSpinTimers.push(setTimeout(function () {
+      if (!otReversing) return; // un tocco ha gia' saltato avanti
+      otReversing = false;
+      obbligoHideFinal();
+      if (done) done();
+    }, attesa));
+  }
+  function obbligoHideFinal() {
+    otFinalAnims.forEach(function (a) { a.cancel(); });
+    otFinalAnims = [];
+    const fin = document.getElementById('ot-final');
+    if (fin) fin.classList.remove('on');
+    document.getElementById('ot-consiglio-center').style.display = 'none';
+  }
+  // Ogni box e' largo META' SCHERMO piu' un piccolo margine ("overhang"):
+  // e' la larghezza MINIMA che, oltre a far vedere sempre e solo DUE box
+  // a riposo, copre anche lo sconfinamento causato dallo skew obliquo agli
+  // angoli esterni (altrimenti, coprendo l'angolo solo sui primi due box
+  // con un trucco a parte, quei due sembravano piu' larghi degli altri:
+  // ora la larghezza e' IDENTICA per tutti i box della striscia).
+  // L'overhang e' quanto lo skew sposta orizzontalmente un punto lontano
+  // meta' altezza dal centro: height/2 * tan(angolo).
+  function obbligoOverhang(strip) {
+    const h = strip.parentElement.clientHeight;
+    return (h / 2) * Math.tan(12 * Math.PI / 180);
+  }
+  function obbligoBoxWidth(strip) {
+    return (strip.parentElement.clientWidth / 2) + obbligoOverhang(strip);
+  }
   const OT_FILLER_COUNT = 32;
+  function obbligoEscapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  // Il primo box e' piu' largo di meta' schermo esattamente dell'overhang:
+  // spostando la striscia a sinistra di quell'overhang, il suo bordo
+  // DESTRO (il vero confine coi colori) torna a cadere sempre al centro
+  // schermo, mentre l'eccedenza a sinistra copre l'angolo scoperto.
+  function obbligoStopTx(strip) {
+    return -obbligoOverhang(strip);
+  }
+  // Ogni box mostra "chiede" o "risponde" (alternati box per box) con un
+  // nome a caso tra i giocatori: mai lo stesso nome in due box di fila,
+  // cosi' non capita mai che la stessa persona chieda e risponda a se'
+  // stessa nel box che finisce al centro.
+  // I box 0 e 1 sono quelli su cui la ruota si ferma: l'indice PARI e'
+  // sempre "chiede", quindi il box 0 (che finisce a sinistra, e dopo la
+  // rotazione finisce IN ALTO) e' sempre e solo "chiede" — mai un
+  // "risponde", cosi' la rivelazione non ribalta mai i due ruoli.
+  // Sempre per questo, quei due box portano gia' i nomi VERI estratti per
+  // il giro (askName/answerName) invece di nomi a caso: altrimenti allo
+  // scattare della rivelazione i nomi cambiavano di colpo.
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
     const viewportWidth = strip.parentElement.clientWidth;
-    const halfWidth = viewportWidth / 2;
-    const fillerWidth = viewportWidth * OT_FILLER_FRACTION;
-    let html = '<div class="ot-reel-half ask" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
-      + '<div class="ot-reel-half answer" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
-    // mai lo stesso colore di quello appena prima: senza questo controllo
-    // due strisce adiacenti potevano capitare identiche, e sembravano
-    // un'unica striscia doppia invece di due affiancate distinguibili
-    let prevColor = '#B45309';
+    const fillerWidth = obbligoBoxWidth(strip);
+    let html = '';
+    let prevColor = null;
+    let prevName = null;
     for (let i = 0; i < OT_FILLER_COUNT; i++) {
       let color;
       do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
       prevColor = color;
-      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '"></div>';
+      let name;
+      if (i === 0) name = askName;
+      else if (i === 1) name = answerName;
+      else { do { name = roster[Math.floor(Math.random() * roster.length)].name; } while (name === prevName); }
+      prevName = name;
+      const lbl = (i % 2 === 0) ? 'chiede' : 'risponde';
+      // i primi due box sono quelli che restano fermi a schermo: i loro
+      // colori servono allo strato della rivelazione finale, che deve
+      // partire identico a com'e' rimasta la ruota
+      if (i === 0) otFinalColors.ask = color;
+      else if (i === 1) otFinalColors.answer = color;
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + ';color:' + OT_INK[color] + '">'
+        + '<div class="ot-reel-half-inner show"><div class="ot-reel-half-lbl">' + lbl + '</div>'
+        + '<div class="ot-reel-half-name">' + obbligoEscapeHtml(name) + '</div></div></div>';
     }
     strip.innerHTML = html;
     strip.style.transition = 'none';
-    const totalWidth = halfWidth * 2 + fillerWidth * OT_FILLER_COUNT;
+    const totalWidth = fillerWidth * OT_FILLER_COUNT;
     strip.style.transform = OT_SKEW + 'translateX(-' + (totalWidth - viewportWidth) + 'px)';
     void strip.offsetWidth; // forza il reflow: senza, il browser potrebbe animare anche la posizione di partenza
     requestAnimationFrame(function () {
@@ -10981,11 +11177,12 @@
       // a velocita' cosi' alta i blocchi sembravano interi invece che
       // affiancati a due a due): accelera gradualmente, poi frena a lungo
       strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.32,0.42,0.14,1)';
-      strip.style.transform = OT_SKEW + 'translateX(0px)';
+      strip.style.transform = OT_SKEW + 'translateX(' + obbligoStopTx(strip) + 'px)';
     });
-    otSpinTimers.push(setTimeout(function () {
-      obbligoShowNames(askName, answerName);
-    }, durationMs - 100));
+    // appena la ruota e' ferma, la linea di taglio parte a ruotare fino
+    // a diventare orizzontale (split sopra/sotto). Stessa identica
+    // procedura del fermo manuale, vedi obbligoLandOnResult.
+    otSpinTimers.push(setTimeout(obbligoLandOnResult, durationMs));
   }
 
   function obbligoOpenSuggest() {
@@ -11311,36 +11508,14 @@
     }).join('');
   }
   function csPickTimer(v) { csTimerSec = v; csRenderTimerOpts(); }
+  // i giocatori arrivano dalla pagina condivisa: qui resta solo da
+  // abilitare l'avvio (tema e tempo si scelgono in questa schermata)
   function csRenderPlayers() {
-    const list = document.getElementById('cs-players-list');
-    list.innerHTML = rosterNames.map(function(n, i){
-      return '<div class="sq-player-chip">'
-        + '<span class="sq-avatar" style="background:rgba(245,208,107,0.2)">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
-        + '<span class="sq-chip-name">' + huEscape(n) + '</span>'
-        + '<button class="sq-chip-del" onclick="csRemovePlayer(' + i + ')" aria-label="Rimuovi">'
-        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
-        + '</button></div>';
-    }).join('');
-    const enough = rosterNames.length >= 2;
-    document.getElementById('cs-start-btn').disabled = !enough;
-    document.getElementById('cs-empty-hint').classList.toggle('hidden', enough);
-  }
-  function csAddPlayer(ev) {
-    if (ev && ev.preventDefault) ev.preventDefault();
-    const inp = document.getElementById('cs-player-input');
-    const n = inp.value.trim();
-    if (!n) return;
-    rosterNames.push(n);
-    inp.value = ''; inp.focus();
-    csRenderPlayers();
-  }
-  function csRemovePlayer(i) {
-    rosterNames.splice(i, 1);
-    csRenderPlayers();
+    document.getElementById('cs-start-btn').disabled = roster.length < 2;
   }
   let csPendingOpener = true;
   function csStart() {
-    if (rosterNames.length < 2) return;
+    if (roster.length < 2) return;
     csScreen = 'play';
     csTurn = 0;
     // costruisce i mazzi in base al tema scelto
@@ -11359,7 +11534,7 @@
     document.getElementById('cs-round').style.display = 'none';
     document.getElementById('cs-ready').style.display = 'flex';
     document.getElementById('cs-ready-hint').textContent = isOpener ? 'Inizia la storia · tocca a' : 'Passa il telefono a';
-    document.getElementById('cs-ready-name').textContent = rosterNames[csTurn % rosterNames.length] || '—';
+    document.getElementById('cs-ready-name').textContent = rosterNamesList()[csTurn % roster.length] || '—';
   }
   // il giocatore (che ora ha il telefono) fa partire il suo turno e il suo timer
   function csBeginTurn() {
@@ -11373,13 +11548,13 @@
     const prompt = document.getElementById('cs-prompt');
     if (isOpener) { cat.textContent = '📖 Apertura · inizia tu'; prompt.textContent = csDraw(csOpenerPool); }
     else { cat.textContent = '✨ La svolta · continua la storia'; prompt.textContent = csDraw(csTwistPool); }
-    document.getElementById('cs-turn').innerHTML = 'Tocca a <span>' + huEscape(rosterNames[csTurn % rosterNames.length] || '—') + '</span>';
+    document.getElementById('cs-turn').innerHTML = 'Tocca a <span>' + huEscape(rosterNamesList()[csTurn % roster.length] || '—') + '</span>';
     prompt.style.animation = 'none'; void prompt.offsetWidth; prompt.style.animation = '';
     csStartTimer();
   }
   function csNext() {
     csStopTimer();
-    if (rosterNames.length) csTurn = (csTurn + 1) % rosterNames.length;
+    if (roster.length) csTurn = (csTurn + 1) % roster.length;
     csShowReady(false);
   }
   function csNewStory() {
@@ -11389,7 +11564,7 @@
   function csBack() {
     csStopTimer();
     if (csScreen === 'play') csShowSetup();
-    else goTo('games');
+    else goTo('players');
   }
   /* --- timer per turno --- */
   function csStartTimer() {
@@ -11419,7 +11594,7 @@
     const wrap = document.getElementById('cs-timer');
     wrap.classList.add('expired');
     document.getElementById('cs-timer-num').textContent = '0';
-    document.getElementById('cs-banner-name').textContent = rosterNames[csTurn % rosterNames.length] || 'Chi era di turno';
+    document.getElementById('cs-banner-name').textContent = rosterNamesList()[csTurn % roster.length] || 'Chi era di turno';
     document.getElementById('cs-banner').style.display = 'flex';
   }
   function csStopTimer() {
@@ -11449,37 +11624,14 @@
     document.getElementById('ra-play').style.display = 'none';
     const inp = document.getElementById('ra-player-input'); if (inp) inp.value = '';
   }
+  // i giocatori arrivano dalla pagina condivisa
   function raRenderSetup() {
-    const list = document.getElementById('ra-players-list');
-    list.innerHTML = rosterNames.map(function(n, i){
-      return '<div class="sq-player-chip">'
-        + '<span class="sq-avatar" style="background:rgba(196,160,255,0.22)">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
-        + '<span class="sq-chip-name">' + huEscape(n) + '</span>'
-        + '<button class="sq-chip-del" onclick="raRemovePlayer(' + i + ')" aria-label="Rimuovi">'
-        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
-        + '</button></div>';
-    }).join('');
-    const enough = rosterNames.length >= 2;
-    document.getElementById('ra-start-btn').disabled = !enough;
-    document.getElementById('ra-empty-hint').classList.toggle('hidden', enough);
-  }
-  function raAddPlayer(ev) {
-    if (ev && ev.preventDefault) ev.preventDefault();
-    const inp = document.getElementById('ra-player-input');
-    const n = inp.value.trim();
-    if (!n) return;
-    rosterNames.push(n);
-    inp.value = ''; inp.focus();
-    raRenderSetup();
-  }
-  function raRemovePlayer(i) {
-    rosterNames.splice(i, 1);
-    raRenderSetup();
+    document.getElementById('ra-start-btn').disabled = roster.length < 2;
   }
   function raStart() {
-    if (rosterNames.length < 2) return;
+    if (roster.length < 2) return;
     raScreen = 'play';
-    raPlayers = rosterNames.map(function(n){ return { name:n, score:0 }; });
+    raPlayers = rosterNamesList().map(function(n){ return { name:n, score:0 }; });
     raStarter = 0;
     raLastCat = -1;
     document.getElementById('ra-setup').style.display = 'none';
@@ -11524,7 +11676,7 @@
   }
   function raBack() {
     if (raScreen === 'play') raShowSetup();
-    else goTo('games');
+    else goTo('players');
   }
 
   /* ===== STORIA = SHOT GRATIS ===== */
@@ -11742,6 +11894,8 @@
   }
 
   /* ===== CATALOGO GIOCHI (fissi / rotazione) ===== */
+  // giochi che richiedono la rosa condivisa (vedi rosterOpenFor)
+  const ROSTER_GAMES = ['shotquest', 'shotiq', 'obbligo', 'cantastorie', 'raffica'];
   const GAMES = [
     // ---- FISSI ----
     { sec:'fixed', emoji:'🎯', name:'ShotQuest', type:'app', players:'2+', c:'#3A2E00', sub:'Sfide e domande a sorpresa', page:'shotquest' },
@@ -11864,7 +12018,11 @@
       // ricorda dove sei nella lista, così al ritorno resti su questo gioco
       const sc = document.getElementById('games-scroll');
       if (sc) gamesScrollTop = sc.scrollTop;
-      goTo(g.page);
+      // I giochi che hanno bisogno di una rosa passano tutti dalla stessa
+      // pagina giocatori; gli altri (Kings, Beer Pong, Flip Cup, Heads Up)
+      // ci vanno dritti, perche' non hanno giocatori da inserire.
+      if (ROSTER_GAMES.indexOf(g.page) >= 0) rosterOpenFor(g.page);
+      else goTo(g.page);
       return;
     }  // gioco con pagina dedicata
     // altrimenti apri la modale regole
@@ -11959,7 +12117,7 @@
 
   /* Giochi con una pagina propria: aperti dalla lista, tengono acceso
      il pulsante Giochi nella barra. */
-  var gamePages = ['shotquest','shotiq','kings','beerpong','flipcup','obbligo'];
+  var gamePages = ['players','shotquest','shotiq','kings','beerpong','flipcup','obbligo','cantastorie','raffica','headsup'];
 
   /* Le teste di menu e prenota sono fissate al viewport, quindi non
      occupano piu' spazio nel documento: senza questo il contenuto
@@ -12020,6 +12178,7 @@
 
     /* La lista giochi si costruisce da sola e ricorda dove eri:
        al ritorno da un gioco resti sulla stessa slide. */
+    if (page === 'players' && typeof rosterRender === 'function') rosterRender();
     if (page === 'games' && typeof gamesRender === 'function') {
       gamesRender();
       var sc = document.getElementById('games-scroll');
