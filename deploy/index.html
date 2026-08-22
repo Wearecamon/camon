@@ -10883,8 +10883,8 @@
      sempre persone diverse (se ci sono almeno 2). --- */
   // Colori scelti distanti tra loro sulla ruota (e lontani dal verde acqua
   // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
-  const OT_ROULETTE = ['#F43F5E','#F59E0B','#EAB308','#3B82F6','#8B5CF6','#EC4899','#FB923C','#06B6D4'];
-  const OT_SPIN_MS = 4500; // piu' breve della base (era 6500ms)
+  const OT_ROULETTE = ['#DC2626','#111111']; // solo rosso e nero, alternati (mai lo stesso adiacente)
+  const OT_SPIN_MS = 22500; // 5 volte piu' lento (era 4500ms)
   const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
   let otPendingNames = null;  // {ask, answer} dello spin in corso, per il salto immediato
