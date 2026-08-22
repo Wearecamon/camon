@@ -10952,8 +10952,8 @@
   // tante strisce sottili casuali dopo: si parte mostrando la CODA (a
   // destra) e si anima verso l'INIZIO (translateX verso 0) — movimento
   // da sinistra a destra, finisce sempre sulla coppia giusta.
-  const OT_FILLER_FRACTION = 1 / 7; // ogni striscia di corsa e' 1/7 di schermo: se ne vedono sempre diverse insieme, tutte uguali
-  const OT_FILLER_COUNT = 90;
+  const OT_FILLER_FRACTION = 1 / 2; // stesso spessore dei due blocchi finali chiede/risponde: meta' schermo
+  const OT_FILLER_COUNT = 32;
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
     const viewportWidth = strip.parentElement.clientWidth;
