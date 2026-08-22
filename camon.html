@@ -5122,9 +5122,11 @@
       </div>
       <div class="cs-opt-label">🎭 Tema della storia</div>
       <div class="cs-chips" id="cs-themes"></div>
+      <div class="cs-opt-label">👥 Quanti giocatori?</div>
+      <div class="cs-chips" id="cs-player-chips"></div>
       <div class="cs-opt-label">⏱ Tempo per turno</div>
       <div class="cs-chips" id="cs-timer-opts"></div>
-      <button class="sq-start-btn" id="cs-start-btn" onclick="csStart()" disabled>Inizia la storia</button>
+      <button class="sq-start-btn" id="cs-start-btn" onclick="csStart()">Inizia la storia</button>
     </div>
 
     <!-- gioco -->
@@ -9739,7 +9741,9 @@
   function rosterNamesList() { return roster.map(function (p) { return p.name; }); }
   rosterLoad(); // la rosa dell'ultima serata e' gia' pronta all'avvio
   function rosterComplete() {
-    return roster.length >= 2 && roster.every(function (p) { return !!p.gender; });
+    if (roster.length < 2) return false;
+    if (!rosterNeedsGender) return true; // sesso non richiesto: basta avere 2+ nomi
+    return roster.every(function (p) { return !!p.gender; });
   }
   let sqScreen = 'setup'; // schermata Shot Quest: 'setup' | 'modes' | 'area' — per il tasto indietro
 
@@ -9752,7 +9756,13 @@
      tutti i giochi che passano di qui, cosi' la rosa e' sempre completa
      qualunque sia il gioco che la usera' dopo. */
   let rosterNext = null;
-  function rosterOpenFor(page) { rosterNext = page; goTo('players'); }
+  let rosterNeedsGender = false; // true solo per i giochi che richiedono il sesso
+  function rosterOpenFor(page) {
+    rosterNext = page;
+    rosterNeedsGender = ROSTER_GAMES_GENDER.indexOf(page) >= 0;
+    goTo('players');
+    rosterRender(); // aggiorna subito la UI con/senza sesso
+  }
   function rosterBack() { goTo('games'); }
   function rosterAddFromInput(e) {
     if (e) e.preventDefault();
@@ -9780,27 +9790,37 @@
   function rosterRender() {
     const list = document.getElementById('roster-list');
     if (!list) return;
+    const needGender = rosterNeedsGender;
     list.innerHTML = roster.map(function (p, i) {
-      return '<div class="ot-player-chip-wrap ' + (p.gender ? '' : 'missing') + '" data-idx="' + i + '">'
+      const missingGender = needGender && !p.gender;
+      return '<div class="ot-player-chip-wrap ' + (missingGender ? 'missing' : '') + '" data-idx="' + i + '">'
         + '<div class="sq-player-chip">'
         + '<span class="sq-avatar" style="background:' + sqAvatarColors[i % sqAvatarColors.length] + '">' + sqCharacter(i) + '</span>'
         + '<span class="sq-chip-name">' + huEscape(p.name) + '</span>'
         + '<button class="sq-chip-del" onclick="rosterRemove(this)" aria-label="Rimuovi">'
         + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
         + '</button></div>'
-        + '<div class="ot-gender-row">'
-        + OT_GENDERS.map(function (g) {
-            return '<button class="ot-gender-opt ' + g.v + ' ' + (p.gender === g.v ? 'sel' : '') + '" onclick="rosterSetGender(this,\'' + g.v + '\')">' + g.lbl + '</button>';
-          }).join('')
-        + '</div></div>';
+        + (needGender
+          ? '<div class="ot-gender-row">'
+            + OT_GENDERS.map(function (g) {
+                return '<button class="ot-gender-opt ' + g.v + ' ' + (p.gender === g.v ? 'sel' : '') + '" onclick="rosterSetGender(this,\'' + g.v + '\')">' + g.lbl + '</button>';
+              }).join('')
+            + '</div>'
+          : '')
+        + '</div>';
     }).join('');
     const ok = rosterComplete();
     document.getElementById('roster-continue').disabled = !ok;
     const hint = document.getElementById('roster-hint');
-    hint.textContent = roster.length < 2
-      ? 'Aggiungi almeno 2 persone per iniziare'
-      : 'Seleziona il sesso di tutti per iniziare';
-    hint.classList.toggle('hidden', ok);
+    if (roster.length < 2) {
+      hint.textContent = 'Aggiungi almeno 2 persone per iniziare';
+      hint.classList.remove('hidden');
+    } else if (needGender && !ok) {
+      hint.textContent = 'Seleziona il sesso di tutti per iniziare';
+      hint.classList.remove('hidden');
+    } else {
+      hint.classList.add('hidden');
+    }
   }
   // "Continua": porta al gioco da cui si e' arrivati, gia' impostato coi
   // giocatori della rosa, saltando la vecchia schermata di inserimento.
@@ -9815,7 +9835,6 @@
     goTo(target);
     if (target === 'obbligo') obbligoStart();
     else if (target === 'raffica') raStart();
-    else if (target === 'cantastorie') csShowSetup();
     else if (target === 'shotquest') sqStart();
     else if (target === 'shotiq') siqShowModes();
   }
@@ -11484,11 +11503,15 @@
     if (pool.i >= pool.q.length) { pool.q = pool.src.slice().sort(function(){ return Math.random()-0.5; }); pool.i = 0; }
     return pool.q[pool.i++];
   }
+  // Cantastorie non usa la rosa: il turno scorre su "Giocatore 1, 2, 3…"
+  // Il numero di giocatori si imposta nella schermata di setup del gioco.
+  let csPlayerCount = 4; // default
+  function csCurrentPlayerName() { return 'Giocatore ' + ((csTurn % csPlayerCount) + 1); }
   function csEnter() { csShowSetup(); }
   function csShowSetup() {
     csScreen = 'setup';
     csStopTimer();
-    csRenderPlayers();
+    csRenderPlayers(); // chip n. giocatori
     csRenderThemes();
     csRenderTimerOpts();
     document.getElementById('cs-setup').style.display = 'flex';
@@ -11508,14 +11531,20 @@
     }).join('');
   }
   function csPickTimer(v) { csTimerSec = v; csRenderTimerOpts(); }
-  // i giocatori arrivano dalla pagina condivisa: qui resta solo da
-  // abilitare l'avvio (tema e tempo si scelgono in questa schermata)
   function csRenderPlayers() {
-    document.getElementById('cs-start-btn').disabled = roster.length < 2;
+    // chip 2–8 giocatori
+    const counts = [2,3,4,5,6,7,8];
+    const el = document.getElementById('cs-player-chips');
+    if (el) {
+      el.innerHTML = counts.map(function(n){
+        return '<button class="cs-chip' + (n === csPlayerCount ? ' on' : '') + '" onclick="csSetPlayerCount(' + n + ')">' + n + '</button>';
+      }).join('');
+    }
+    document.getElementById('cs-start-btn').disabled = false;
   }
+  function csSetPlayerCount(n) { csPlayerCount = n; csRenderPlayers(); }
   let csPendingOpener = true;
   function csStart() {
-    if (roster.length < 2) return;
     csScreen = 'play';
     csTurn = 0;
     // costruisce i mazzi in base al tema scelto
@@ -11534,7 +11563,7 @@
     document.getElementById('cs-round').style.display = 'none';
     document.getElementById('cs-ready').style.display = 'flex';
     document.getElementById('cs-ready-hint').textContent = isOpener ? 'Inizia la storia · tocca a' : 'Passa il telefono a';
-    document.getElementById('cs-ready-name').textContent = rosterNamesList()[csTurn % roster.length] || '—';
+    document.getElementById('cs-ready-name').textContent = csCurrentPlayerName();
   }
   // il giocatore (che ora ha il telefono) fa partire il suo turno e il suo timer
   function csBeginTurn() {
@@ -11548,13 +11577,13 @@
     const prompt = document.getElementById('cs-prompt');
     if (isOpener) { cat.textContent = '📖 Apertura · inizia tu'; prompt.textContent = csDraw(csOpenerPool); }
     else { cat.textContent = '✨ La svolta · continua la storia'; prompt.textContent = csDraw(csTwistPool); }
-    document.getElementById('cs-turn').innerHTML = 'Tocca a <span>' + huEscape(rosterNamesList()[csTurn % roster.length] || '—') + '</span>';
+    document.getElementById('cs-turn').innerHTML = 'Tocca a <span>' + huEscape(csCurrentPlayerName()) + '</span>';
     prompt.style.animation = 'none'; void prompt.offsetWidth; prompt.style.animation = '';
     csStartTimer();
   }
   function csNext() {
     csStopTimer();
-    if (roster.length) csTurn = (csTurn + 1) % roster.length;
+    csTurn = (csTurn + 1) % csPlayerCount;
     csShowReady(false);
   }
   function csNewStory() {
@@ -11564,7 +11593,7 @@
   function csBack() {
     csStopTimer();
     if (csScreen === 'play') csShowSetup();
-    else goTo('players');
+    else goTo('games');
   }
   /* --- timer per turno --- */
   function csStartTimer() {
@@ -11594,7 +11623,7 @@
     const wrap = document.getElementById('cs-timer');
     wrap.classList.add('expired');
     document.getElementById('cs-timer-num').textContent = '0';
-    document.getElementById('cs-banner-name').textContent = rosterNamesList()[csTurn % roster.length] || 'Chi era di turno';
+    document.getElementById('cs-banner-name').textContent = csCurrentPlayerName();
     document.getElementById('cs-banner').style.display = 'flex';
   }
   function csStopTimer() {
@@ -11895,7 +11924,10 @@
 
   /* ===== CATALOGO GIOCHI (fissi / rotazione) ===== */
   // giochi che richiedono la rosa condivisa (vedi rosterOpenFor)
-  const ROSTER_GAMES = ['shotquest', 'shotiq', 'obbligo', 'cantastorie', 'raffica'];
+  // Giochi con sesso obbligatorio | solo nome | diretti senza rosa
+  const ROSTER_GAMES_GENDER = ['shotquest', 'obbligo'];  // sesso richiesto
+  const ROSTER_GAMES_NAME   = ['shotiq', 'raffica'];     // solo nome, no sesso
+  const ROSTER_GAMES = ROSTER_GAMES_GENDER.concat(ROSTER_GAMES_NAME); // tutti quelli che passano dalla pagina giocatori
   const GAMES = [
     // ---- FISSI ----
     { sec:'fixed', emoji:'🎯', name:'ShotQuest', type:'app', players:'2+', c:'#3A2E00', sub:'Sfide e domande a sorpresa', page:'shotquest' },
@@ -12244,6 +12276,7 @@
     if (page === 'shotquest' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
+    if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
     if (page === 'admin' && typeof admEnter === 'function') admEnter();
     if (typeof cartRenderFab === 'function') cartRenderFab();
 
