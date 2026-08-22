@@ -10952,13 +10952,13 @@
   // tante strisce sottili casuali dopo: si parte mostrando la CODA (a
   // destra) e si anima verso l'INIZIO (translateX verso 0) — movimento
   // da sinistra a destra, finisce sempre sulla coppia giusta.
-  const OT_FILLER_FRACTION = 1 / 2; // stesso spessore dei due blocchi finali chiede/risponde: meta' schermo
+  const OT_STRIPE_WIDTH = 30; // px — TUTTI i blocchi (di corsa e i due finali chiede/risponde) hanno esattamente questa larghezza
   const OT_FILLER_COUNT = 32;
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
     const viewportWidth = strip.parentElement.clientWidth;
-    const halfWidth = viewportWidth / 2;
-    const fillerWidth = viewportWidth * OT_FILLER_FRACTION;
+    const halfWidth = OT_STRIPE_WIDTH;
+    const fillerWidth = OT_STRIPE_WIDTH;
     // Anche i due blocchi finali (chiede/risponde) sono rossi o neri, come
     // tutto il resto della ruota: nessun colore "speciale" per l'esito,
     // sempre due colori diversi tra loro e assegnati a caso ad ogni giro.
