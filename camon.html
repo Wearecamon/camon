@@ -1575,17 +1575,28 @@
   }
   .ot-reel-half.ask::before { right:100%; background:var(--otbg,#DC2626); }
   .ot-reel-half.answer::after { left:100%; background:var(--otbg,#111111); }
-  /* Contro-skew: il blocco e' un parallelogramma (eredita lo skew del
-     wrapper), ma testo ed etichetta devono restare dritti e leggibili. */
+  /* NIENTE piu' contro-skew: prima il testo veniva "raddrizzato" rispetto
+     al taglio obliquo della striscia; ora invece deve restare inclinato
+     nella STESSA direzione del taglio colore, quindi eredita lo skew del
+     wrapper senza compensarlo. */
   /* Il rullo si ferma prima "vuoto" (solo colori, niente scritte): quando
      arriva il risultato, etichetta+nome insieme fanno un piccolo "pop"
-     invece di limitarsi ad apparire piatti con un fade. */
-  .ot-reel-half-inner { transform:skewX(12deg); display:flex; flex-direction:column; align-items:center; opacity:0; }
-  .ot-reel-half-inner.show { animation:otNamePop 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
-  @keyframes otNamePop {
-    0%   { opacity:0; transform:skewX(12deg) translateY(12px) scale(0.8); }
-    65%  { opacity:1; transform:skewX(12deg) translateY(-3px) scale(1.06); }
-    100% { opacity:1; transform:skewX(12deg) translateY(0) scale(1); }
+     invece di limitarsi ad apparire piatti con un fade. "chiede" resta un
+     filo piu' in alto del centro, "risponde" un filo piu' in basso: in
+     linea con l'inclinazione del taglio, danno l'idea di seguirne la
+     diagonale invece di stare piatti sulla stessa riga. */
+  .ot-reel-half-inner { display:flex; flex-direction:column; align-items:center; opacity:0; }
+  .ot-reel-half-inner.show.up { animation:otNamePopUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+  .ot-reel-half-inner.show.down { animation:otNamePopDown 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+  @keyframes otNamePopUp {
+    0%   { opacity:0; transform:translateY(2px) scale(0.8); }
+    65%  { opacity:1; transform:translateY(-17px) scale(1.06); }
+    100% { opacity:1; transform:translateY(-14px) scale(1); }
+  }
+  @keyframes otNamePopDown {
+    0%   { opacity:0; transform:translateY(26px) scale(0.8); }
+    65%  { opacity:1; transform:translateY(11px) scale(1.06); }
+    100% { opacity:1; transform:translateY(14px) scale(1); }
   }
   .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
   .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
@@ -10988,15 +10999,13 @@
       do { name = otPlayers[Math.floor(Math.random() * otPlayers.length)].name; } while (name === prevName);
       prevName = name;
       const lbl = (i % 2 === 0) ? 'chiede' : 'risponde';
-      // Il box che si ferma a SINISTRA del centro e' sempre di indice PARI,
-      // quello a DESTRA sempre DISPARI (dipende solo da OT_STOP_MARGIN_BOXES,
-      // mai dal caso): allineando il contenuto verso il bordo "interno" di
-      // ogni box (pari -> a destra, dispari -> a sinistra), la scritta
-      // finisce sempre vicino al confine, cioe' vicino al CENTRO SCHERMO,
-      // non ai lati — pur restando anche centrata verticalmente nel colore.
-      const justify = (i % 2 === 0) ? 'flex-end' : 'flex-start';
-      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + ';justify-content:' + justify + '">'
-        + '<div class="ot-reel-half-inner show"><div class="ot-reel-half-lbl">' + lbl + '</div>'
+      // Testo sempre al centro del proprio colore (nessun allineamento ai
+      // bordi): "chiede" un filo piu' in alto, "risponde" un filo piu' in
+      // basso, ed entrambi ereditano l'inclinazione obliqua del taglio
+      // colore (niente contro-skew, vedi CSS .ot-reel-half-inner).
+      const vPos = (i % 2 === 0) ? 'up' : 'down';
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '">'
+        + '<div class="ot-reel-half-inner show ' + vPos + '"><div class="ot-reel-half-lbl">' + lbl + '</div>'
         + '<div class="ot-reel-half-name">' + obbligoEscapeHtml(name) + '</div></div></div>';
     }
     strip.innerHTML = html;
