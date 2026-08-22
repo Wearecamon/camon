@@ -10960,21 +10960,37 @@
   // senza mostrare piu' etichette ne' nomi. Si ferma sempre con il
   // confine fra due strisce esattamente al centro dello schermo, cosi'
   // lo schermo resta diviso in due soli colori.
+  function obbligoEscapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
   function obbligoStopTx(strip) {
     const viewportWidth = strip.parentElement.clientWidth;
     return (viewportWidth / 2) - (OT_STOP_MARGIN_BOXES * OT_STRIPE_WIDTH);
   }
+  // Ogni box mostra "chiede" o "risponde" (alternati box per box) con un
+  // nome a caso tra i giocatori: mai lo stesso nome in due box di fila,
+  // cosi' non capita mai che la stessa persona chieda e risponda a se'
+  // stessa nel box che finisce al centro.
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
     const viewportWidth = strip.parentElement.clientWidth;
     const fillerWidth = OT_STRIPE_WIDTH;
     let html = '';
     let prevColor = null;
+    let prevName = null;
     for (let i = 0; i < OT_FILLER_COUNT; i++) {
       let color;
       do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
       prevColor = color;
-      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '"></div>';
+      let name;
+      do { name = otPlayers[Math.floor(Math.random() * otPlayers.length)].name; } while (name === prevName);
+      prevName = name;
+      const lbl = (i % 2 === 0) ? 'chiede' : 'risponde';
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '">'
+        + '<div class="ot-reel-half-inner show"><div class="ot-reel-half-lbl">' + lbl + '</div>'
+        + '<div class="ot-reel-half-name">' + obbligoEscapeHtml(name) + '</div></div></div>';
     }
     strip.innerHTML = html;
     strip.style.transition = 'none';
