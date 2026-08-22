@@ -1602,6 +1602,38 @@
   }
   .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
   .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
+  /* -- Rivelazione finale: la linea di taglio ruota fino a orizzontale. --
+     Un quadrato enorme (300vmax) centrato sullo schermo, diviso a meta':
+     ruotandolo, ruota la linea di divisione fra i due colori. Parte a
+     12 gradi (identica alla diagonale dello skew della ruota, cosi' il
+     passaggio dalla ruota ferma a questo strato e' invisibile) e arriva
+     a 90 gradi: meta' sinistra -> sopra, meta' destra -> sotto. */
+  .ot-final { position:absolute; inset:0; z-index:4; display:none; overflow:hidden; pointer-events:none; }
+  .ot-final.on { display:block; }
+  .ot-final-rot {
+    position:absolute; top:50%; left:50%; width:300vmax; height:300vmax;
+    margin:-150vmax 0 0 -150vmax; display:flex;
+    transform:rotate(12deg); transform-origin:center;
+  }
+  .ot-final.go .ot-final-rot { animation:otFinalTurn 1.1s cubic-bezier(0.65,0,0.35,1) forwards; }
+  @keyframes otFinalTurn { to { transform:rotate(90deg); } }
+  .ot-final-half { width:50%; height:100%; position:relative; }
+  /* Il testo sta a distanza fissa DALLA LINEA (translateX nel sistema gia'
+     ruotato), quindi resta sempre alla stessa distanza dal taglio mentre
+     questo ruota, e a fine corsa e' 22vh sopra / 22vh sotto la linea. */
+  .ot-final-txt { position:absolute; top:50%; text-align:center; white-space:nowrap; }
+  .ot-final-half.l .ot-final-txt { right:0; }
+  .ot-final-half.r .ot-final-txt { left:0; }
+  /* Contro-rotazione: il testo compensa la rotazione del contenitore, cosi'
+     resta sempre dritto e leggibile — a fine animazione e' orizzontale. */
+  .ot-final-half.l .ot-final-txt { transform:translate(50%,-50%) translateX(-22vh) rotate(-12deg); }
+  .ot-final-half.r .ot-final-txt { transform:translate(-50%,-50%) translateX(22vh) rotate(-12deg); }
+  .ot-final.go .ot-final-half.l .ot-final-txt { animation:otFinalTxtL 1.1s cubic-bezier(0.65,0,0.35,1) forwards; }
+  .ot-final.go .ot-final-half.r .ot-final-txt { animation:otFinalTxtR 1.1s cubic-bezier(0.65,0,0.35,1) forwards; }
+  @keyframes otFinalTxtL { to { transform:translate(50%,-50%) translateX(-22vh) rotate(-90deg); } }
+  @keyframes otFinalTxtR { to { transform:translate(-50%,-50%) translateX(22vh) rotate(-90deg); } }
+  .ot-final-lbl { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
+  .ot-final-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,52px); letter-spacing:0.5px; color:#fff; margin-top:6px; line-height:1.05; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
   .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 24px calc(28px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 45%); }
   .ot-consiglio-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:30px; padding:9px 18px; color:#fff; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-consiglio-btn:active { background:rgba(255,255,255,0.2); }
@@ -4961,6 +4993,22 @@
              di contenitori "allargati" a parte — che infatti venivano
              inclinati anch'essi e non coprivano piu' nulla di reale. -->
         <div class="ot-reel-strip-full" id="ot-reel-full"></div>
+      </div>
+
+      <!-- Rivelazione finale: compare quando la ruota si e' fermata, gia'
+           allineata alla diagonale del taglio (stessi due colori, stessa
+           inclinazione), poi ruota fino a 90 gradi — la linea diventa
+           orizzontale e lo schermo resta diviso in colore sopra / colore
+           sotto, con "chiede" in alto e "risponde" in basso. -->
+      <div class="ot-final" id="ot-final">
+        <div class="ot-final-rot" id="ot-final-rot">
+          <div class="ot-final-half l">
+            <div class="ot-final-txt"><div class="ot-final-lbl">chiede</div><div class="ot-final-name" id="ot-final-ask"></div></div>
+          </div>
+          <div class="ot-final-half r">
+            <div class="ot-final-txt"><div class="ot-final-lbl">risponde</div><div class="ot-final-name" id="ot-final-answer"></div></div>
+          </div>
+        </div>
       </div>
 
       <div class="ot-play-bottom">
@@ -10858,6 +10906,7 @@
     document.getElementById('ot-tap-hint').textContent = 'Tocca per scegliere';
     document.getElementById('ot-reel-full').innerHTML = '';
     if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
+    obbligoHideFinal();
     otSpinning = false;
     otPendingNames = null;
     otAsk = otAnswer = null;
@@ -10878,6 +10927,7 @@
   }
   function obbligoReset() {
     if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
+    obbligoHideFinal();
     otSpinning = false;
     otPendingNames = null;
     otPlayers = [];
@@ -10901,6 +10951,7 @@
   const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
   let otPendingNames = null;  // {ask, answer} dello spin in corso, per il salto immediato
+  let otFinalColors = { ask: '#DC2626', answer: '#111111' }; // colori dei due box su cui la ruota si ferma
   function obbligoClearSpinTimers() { otSpinTimers.forEach(clearTimeout); otSpinTimers = []; }
   function obbligoSpin() {
     if (otPlayers.length < 2) return;
@@ -10908,6 +10959,7 @@
     // aspetta che il rullo rallenti da solo
     if (otSpinning) { obbligoSkipToEnd(); return; }
     otSpinning = true;
+    obbligoHideFinal(); // via la rivelazione del giro precedente
     document.getElementById('ot-reveal').classList.add('spinning');
     document.getElementById('ot-tap-hint').textContent = '';
     document.getElementById('ot-suggest').style.display = 'none';
@@ -10939,8 +10991,31 @@
     strip.style.transition = 'none';
     strip.style.transform = OT_SKEW + 'translateX(' + obbligoStopTx(strip) + 'px)';
     void strip.offsetWidth;
-    if (otPendingNames) obbligoShowNames(otPendingNames.ask, otPendingNames.answer);
+    if (otPendingNames) {
+      obbligoShowNames(otPendingNames.ask, otPendingNames.answer);
+      obbligoRevealFinal(otPendingNames.ask, otPendingNames.answer);
+    }
     obbligoFinishSpin();
+  }
+  // Rivelazione finale: lo strato compare gia' allineato alla diagonale
+  // in cui la ruota si e' fermata (stessi colori, stessa inclinazione),
+  // poi la classe "go" fa partire la rotazione fino a 90 gradi: la linea
+  // diventa orizzontale e lo schermo resta diviso sopra/sotto.
+  function obbligoRevealFinal(askName, answerName) {
+    const fin = document.getElementById('ot-final');
+    if (!fin) return;
+    fin.querySelector('.ot-final-half.l').style.background = otFinalColors.ask;
+    fin.querySelector('.ot-final-half.r').style.background = otFinalColors.answer;
+    document.getElementById('ot-final-ask').textContent = askName;
+    document.getElementById('ot-final-answer').textContent = answerName;
+    fin.classList.remove('go');
+    fin.classList.add('on');
+    void fin.offsetWidth; // reflow: senza, "on" e "go" nello stesso frame saltano l'animazione
+    fin.classList.add('go');
+  }
+  function obbligoHideFinal() {
+    const fin = document.getElementById('ot-final');
+    if (fin) fin.classList.remove('on', 'go');
   }
   function obbligoShowNames(askName, answerName) {
     const nameAsk = document.getElementById('ot-name-ask');
@@ -11008,6 +11083,11 @@
       // basso, ed entrambi ereditano l'inclinazione obliqua del taglio
       // colore (niente contro-skew, vedi CSS .ot-reel-half-inner).
       const vPos = (i % 2 === 0) ? 'up' : 'down';
+      // i primi due box sono quelli che restano fermi a schermo: i loro
+      // colori servono allo strato della rivelazione finale, che deve
+      // partire identico a com'e' rimasta la ruota
+      if (i === 0) otFinalColors.ask = color;
+      else if (i === 1) otFinalColors.answer = color;
       html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '">'
         + '<div class="ot-reel-half-inner show ' + vPos + '"><div class="ot-reel-half-lbl">' + lbl + '</div>'
         + '<div class="ot-reel-half-name">' + obbligoEscapeHtml(name) + '</div></div></div>';
@@ -11027,6 +11107,11 @@
     otSpinTimers.push(setTimeout(function () {
       obbligoShowNames(askName, answerName);
     }, durationMs - 100));
+    // appena la ruota e' ferma, la linea di taglio parte a ruotare fino
+    // a diventare orizzontale (split sopra/sotto)
+    otSpinTimers.push(setTimeout(function () {
+      obbligoRevealFinal(askName, answerName);
+    }, durationMs));
   }
 
   function obbligoOpenSuggest() {
