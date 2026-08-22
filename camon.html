@@ -11009,10 +11009,7 @@
     strip.style.transition = 'none';
     strip.style.transform = OT_SKEW + 'translateX(' + obbligoStopTx(strip) + 'px)';
     void strip.offsetWidth;
-    if (otPendingNames) {
-      obbligoShowNames(otPendingNames.ask, otPendingNames.answer);
-      obbligoRevealFinal(otPendingNames.ask, otPendingNames.answer);
-    }
+    if (otPendingNames) obbligoRevealFinal(otPendingNames.ask, otPendingNames.answer);
     obbligoFinishSpin();
   }
   // Rivelazione finale: lo strato compare gia' allineato alla diagonale
@@ -11100,7 +11097,20 @@
     const fin = document.getElementById('ot-final');
     if (!fin || !fin.classList.contains('on')) { if (done) done(); return; }
     otReversing = true;
-    obbligoPlayFinal(obbligoFinalStates(fin), true);
+    // La rivelazione dura piu' a lungo di quanto la ruota resti "occupata",
+    // quindi si puo' premere per rigirare mentre e' ancora a meta' volo. In
+    // quel caso NON si ricrea un'animazione dallo stato finale (il testo
+    // sarebbe saltato di colpo al centro per poi tornare di lato): si
+    // inverte quella in corso, che riparte esattamente da dove si trova.
+    let attesa = OT_FINAL_MS;
+    const viva = otFinalAnims.length && otFinalAnims[0].effect;
+    if (viva) {
+      const t = otFinalAnims[0].currentTime;
+      attesa = Math.max(0, Math.min(OT_FINAL_MS, typeof t === 'number' ? t : OT_FINAL_MS));
+      otFinalAnims.forEach(function (a) { a.playbackRate = -1; a.play(); });
+    } else {
+      obbligoPlayFinal(obbligoFinalStates(fin), true);
+    }
     // Si aspetta con un timer, non con l'evento di fine animazione: se la
     // pagina finisce in secondo piano il browser mette in pausa le
     // animazioni e quell'evento non arriverebbe mai, lasciando il gioco
@@ -11111,27 +11121,13 @@
       otReversing = false;
       obbligoHideFinal();
       if (done) done();
-    }, OT_FINAL_MS));
+    }, attesa));
   }
   function obbligoHideFinal() {
     otFinalAnims.forEach(function (a) { a.cancel(); });
     otFinalAnims = [];
     const fin = document.getElementById('ot-final');
     if (fin) fin.classList.remove('on');
-  }
-  function obbligoShowNames(askName, answerName) {
-    const nameAsk = document.getElementById('ot-name-ask');
-    const nameAnswer = document.getElementById('ot-name-answer');
-    if (nameAsk) {
-      nameAsk.textContent = askName;
-      nameAsk.parentElement.classList.remove('show'); void nameAsk.parentElement.offsetWidth;
-      nameAsk.parentElement.classList.add('show');
-    }
-    if (nameAnswer) {
-      nameAnswer.textContent = answerName;
-      nameAnswer.parentElement.classList.remove('show'); void nameAnswer.parentElement.offsetWidth;
-      nameAnswer.parentElement.classList.add('show');
-    }
   }
   // Ogni box e' largo META' SCHERMO piu' un piccolo margine ("overhang"):
   // e' la larghezza MINIMA che, oltre a far vedere sempre e solo DUE box
@@ -11210,9 +11206,6 @@
       strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.32,0.42,0.14,1)';
       strip.style.transform = OT_SKEW + 'translateX(' + obbligoStopTx(strip) + 'px)';
     });
-    otSpinTimers.push(setTimeout(function () {
-      obbligoShowNames(askName, answerName);
-    }, durationMs - 100));
     // appena la ruota e' ferma, la linea di taglio parte a ruotare fino
     // a diventare orizzontale (split sopra/sotto)
     otSpinTimers.push(setTimeout(function () {
