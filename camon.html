@@ -10952,24 +10952,17 @@
   // tante strisce sottili casuali dopo: si parte mostrando la CODA (a
   // destra) e si anima verso l'INIZIO (translateX verso 0) — movimento
   // da sinistra a destra, finisce sempre sulla coppia giusta.
-  const OT_STRIPE_WIDTH = 300; // px — TUTTI i blocchi (di corsa e i due finali chiede/risponde) hanno esattamente questa larghezza
+  const OT_STRIPE_WIDTH = 300; // px — TUTTI i blocchi hanno esattamente questa larghezza
   const OT_FILLER_COUNT = 32;
+  // I due blocchi finali "chiede"/"risponde" sono stati tolti del tutto:
+  // la ruota ora e' solo strisce colorate che scorrono e si fermano,
+  // senza mostrare piu' etichette ne' nomi.
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
     const viewportWidth = strip.parentElement.clientWidth;
-    const halfWidth = OT_STRIPE_WIDTH;
     const fillerWidth = OT_STRIPE_WIDTH;
-    // Anche i due blocchi finali (chiede/risponde) sono rossi o neri, come
-    // tutto il resto della ruota: nessun colore "speciale" per l'esito,
-    // sempre due colori diversi tra loro e assegnati a caso ad ogni giro.
-    const askColor = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)];
-    const answerColor = OT_ROULETTE.find(function (c) { return c !== askColor; });
-    let html = '<div class="ot-reel-half ask" style="width:' + halfWidth + 'px;--otbg:' + askColor + '"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
-      + '<div class="ot-reel-half answer" style="width:' + halfWidth + 'px;--otbg:' + answerColor + '"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
-    // mai lo stesso colore di quello appena prima: senza questo controllo
-    // due strisce adiacenti potevano capitare identiche, e sembravano
-    // un'unica striscia doppia invece di due affiancate distinguibili
-    let prevColor = answerColor;
+    let html = '';
+    let prevColor = null;
     for (let i = 0; i < OT_FILLER_COUNT; i++) {
       let color;
       do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
@@ -10978,7 +10971,7 @@
     }
     strip.innerHTML = html;
     strip.style.transition = 'none';
-    const totalWidth = halfWidth * 2 + fillerWidth * OT_FILLER_COUNT;
+    const totalWidth = fillerWidth * OT_FILLER_COUNT;
     strip.style.transform = OT_SKEW + 'translateX(-' + (totalWidth - viewportWidth) + 'px)';
     void strip.offsetWidth; // forza il reflow: senza, il browser potrebbe animare anche la posizione di partenza
     requestAnimationFrame(function () {
