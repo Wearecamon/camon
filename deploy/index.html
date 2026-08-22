@@ -1564,14 +1564,14 @@
   .ot-reel-half { position:relative; flex:none; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
   .ot-reel-half.ask { background:#0C6E60; }
   .ot-reel-half.answer { background:#B45309; }
-  /* Col perno al centro, lo skew apre un piccolo varco in alto-sinistra
-     (prima del blocco "chiede", che e' l'inizio vero della striscia: li'
-     si vedrebbe lo sfondo) e uno in basso-destra (dopo "risponde": li' si
-     vedrebbe un pezzetto del terzo colore successivo). Questi due
-     "cuscinetti" dello stesso colore coprono esattamente quei due varchi,
-     cosi' restano sempre e solo due colori a schermo, mai un terzo. */
+  /* Cuscinetto dello stesso colore su entrambi i lati esterni: copre sia
+     il varco che lo skew apre agli angoli (bastava poco), sia — piu'
+     largo di un intero blocco — l'ultimo scampolo sottile del colore
+     successivo che altrimenti resterebbe visibile un attimo mentre il
+     rullo frena e si ferma. Cosi' l'arrivo e' netto: sempre e solo due
+     colori, mai una fetta residua di un terzo. */
   .ot-reel-half.ask::before, .ot-reel-half.answer::after {
-    content:''; position:absolute; top:0; bottom:0; width:120px; z-index:2; pointer-events:none;
+    content:''; position:absolute; top:0; bottom:0; width:70vw; z-index:2; pointer-events:none;
   }
   .ot-reel-half.ask::before { right:100%; background:#0C6E60; }
   .ot-reel-half.answer::after { left:100%; background:#B45309; }
