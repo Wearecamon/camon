@@ -10927,6 +10927,7 @@
     if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
     obbligoHideFinal();
     otSpinning = false;
+    otReversing = false;
     otPendingNames = null;
     otPlayers = [];
     otAsk = otAnswer = null;
@@ -10949,12 +10950,13 @@
   // illeggibile, quindi si usa lo stesso scuro che il brand accoppia al
   // giallo altrove nell'app
   const OT_INK = { '#F5D06B': '#2E2A05', '#111111': '#FFFFFF' };
-  const OT_SPIN_MS = 22500; // 5 volte piu' lento (era 4500ms)
+  const OT_SPIN_MS = 4500; // durata della corsa della ruota
   const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
   let otPendingNames = null;  // {ask, answer} dello spin in corso, per il salto immediato
   let otFinalColors = { ask: '#F5D06B', answer: '#111111' }; // colori dei due box su cui la ruota si ferma
   let otFinalAnims = []; // animazioni della rivelazione, da annullare a ogni nuovo giro
+  let otReversing = false;   // true mentre lo strato sta tornando indietro, prima del nuovo giro
   function obbligoClearSpinTimers() { otSpinTimers.forEach(clearTimeout); otSpinTimers = []; }
   function obbligoSpin() {
     if (otPlayers.length < 2) return;
@@ -10962,7 +10964,6 @@
     // aspetta che il rullo rallenti da solo
     if (otSpinning) { obbligoSkipToEnd(); return; }
     otSpinning = true;
-    obbligoHideFinal(); // via la rivelazione del giro precedente
     document.getElementById('ot-reveal').classList.add('spinning');
     document.getElementById('ot-tap-hint').textContent = '';
     document.getElementById('ot-suggest').style.display = 'none';
@@ -10974,8 +10975,14 @@
     otAsk = iAsk; otAnswer = iAnswer;
     otPendingNames = { ask: otPlayers[iAsk].name, answer: otPlayers[iAnswer].name };
 
+    // Se lo schermo mostra ancora la rivelazione del giro precedente, la si
+    // riporta indietro con la stessa animazione al contrario; la ruota nuova
+    // parte solo quando lo strato e' tornato a coincidere con essa.
+    if (document.getElementById('ot-final').classList.contains('on')) obbligoReverseFinal(obbligoLaunchReel);
+    else obbligoLaunchReel();
+  }
+  function obbligoLaunchReel() {
     obbligoSpinReel(otPendingNames.ask, otPendingNames.answer, OT_SPIN_MS);
-
     otSpinTimers.push(setTimeout(obbligoFinishSpin, OT_SPIN_MS + 150));
   }
   function obbligoFinishSpin() {
@@ -10989,6 +10996,14 @@
   // chiede/risponde sono sempre centrati, mai "sballati" a meta' corsa)
   // e mostra subito i nomi gia' estratti per questo giro.
   function obbligoSkipToEnd() {
+    // Tocco mentre lo strato sta tornando indietro: la striscia nuova non
+    // esiste ancora, quindi va costruita prima di poterci saltare sopra —
+    // altrimenti si mostrerebbe come risultato quello del giro precedente.
+    if (otReversing) {
+      otReversing = false;
+      obbligoHideFinal();
+      obbligoLaunchReel();
+    }
     obbligoClearSpinTimers();
     const strip = document.getElementById('ot-reel-full');
     strip.style.transition = 'none';
@@ -11007,24 +11022,22 @@
   const OT_FINAL_MS = 1100;
   const OT_FINAL_EASE = 'cubic-bezier(0.65,0,0.35,1)';
   const OT_FINAL_START_DEG = 12; // uguale allo skew della ruota: partenza sovrapposta
-  function obbligoRevealFinal(askName, answerName) {
-    const fin = document.getElementById('ot-final');
-    if (!fin) return;
-    const rot = document.getElementById('ot-final-rot');
-    const lHalf = fin.querySelector('.ot-final-half.l');
-    const rHalf = fin.querySelector('.ot-final-half.r');
-    lHalf.style.background = otFinalColors.ask;
-    rHalf.style.background = otFinalColors.answer;
-    const txtAsk = document.getElementById('ot-final-txt-ask');
-    const txtAnswer = document.getElementById('ot-final-txt-answer');
-    txtAsk.style.color = OT_INK[otFinalColors.ask];
-    txtAnswer.style.color = OT_INK[otFinalColors.answer];
-    document.getElementById('ot-final-ask').textContent = askName;
-    document.getElementById('ot-final-answer').textContent = answerName;
-
-    // Punto di partenza dei testi: esattamente dove si trovano ORA nella
-    // ruota. Si misura invece di calcolarlo, cosi' combacia qualunque sia
-    // la geometria (skew, overhang, larghezza dei box) e non c'e' scatto.
+  // Geometria dei due stati fra cui l'animazione si muove. La calcola una
+  // funzione sola, usata sia all'andata (rivelazione) sia al ritorno
+  // (ripartenza): cosi' i due versi percorrono esattamente la stessa
+  // strada e non possono divergere se un domani si tocca un valore.
+  //  - stato RUOTA: dove e come il testo sta sulla ruota ferma. La
+  //    posizione si MISURA invece di calcolarla, cosi' combacia qualunque
+  //    sia la geometria (skew, overhang, larghezza dei box).
+  //  - stato PIATTO: centro esatto della propria meta' di schermo,
+  //    orizzontale e senza inclinazione.
+  // Nel fotogramma "ruota" c'e' la matrice COMPLETA del testo sulla
+  // striscia (skewX(-12) ereditato PIU' rotate(-90)), non solo la sua
+  // direzione: senza lo skew i glifi, pur giusti di posizione e
+  // direzione, cambierebbero forma di colpo. Le due liste hanno le stesse
+  // funzioni nello stesso ordine, quindi il browser le interpola una per
+  // una e skew e rotazione vanno a zero insieme, con continuita'.
+  function obbligoFinalStates(fin) {
     const play = fin.parentElement.getBoundingClientRect();
     const cx = play.width / 2, cy = play.height / 2;
     const strip = document.getElementById('ot-reel-full');
@@ -11035,33 +11048,70 @@
       const r = el.getBoundingClientRect();
       return { x: (r.x - play.x + r.width / 2) - cx, y: (r.y - play.y + r.height / 2) - cy };
     }
-    // I testi non ruotano col contenitore, quindi gli scostamenti restano
-    // nel sistema dello schermo: niente conversioni.
-    const startAsk = reelTextOffset(0, -play.width / 4);
-    const startAnswer = reelTextOffset(1, play.width / 4);
-    // Arrivo: centro esatto della propria meta' di schermo.
-    const endAsk = { x: 0, y: -play.height / 4 };
-    const endAnswer = { x: 0, y: play.height / 4 };
-    // La chiave della fluidita': il fotogramma iniziale riproduce la
-    // matrice COMPLETA che il testo ha nella ruota — skewX(-12) ereditato
-    // dalla striscia PIU' rotate(-90) — e non solo la sua direzione. Senza
-    // lo skew i glifi, pur essendo nel punto e nella direzione giusti,
-    // cambiavano forma di colpo. Le due liste di transform hanno le stesse
-    // funzioni nello stesso ordine, quindi il browser le interpola una per
-    // una: skew e rotazione vanno a zero insieme, con continuita'.
-    function frames(s, e) {
-      return [
-        { transform: 'translate(-50%,-50%) translate(' + s.x + 'px,' + s.y + 'px) skewX(' + (-OT_FINAL_START_DEG) + 'deg) rotate(-90deg)' },
-        { transform: 'translate(-50%,-50%) translate(' + e.x + 'px,' + e.y + 'px) skewX(0deg) rotate(0deg)' }
-      ];
-    }
-    fin.classList.add('on');
+    function reel(o) { return 'translate(-50%,-50%) translate(' + o.x + 'px,' + o.y + 'px) skewX(' + (-OT_FINAL_START_DEG) + 'deg) rotate(-90deg)'; }
+    function flat(o) { return 'translate(-50%,-50%) translate(' + o.x + 'px,' + o.y + 'px) skewX(0deg) rotate(0deg)'; }
+    return {
+      askReel: reel(reelTextOffset(0, -play.width / 4)),
+      answerReel: reel(reelTextOffset(1, play.width / 4)),
+      askFlat: flat({ x: 0, y: -play.height / 4 }),
+      answerFlat: flat({ x: 0, y: play.height / 4 }),
+      rotReel: 'rotate(' + OT_FINAL_START_DEG + 'deg)',
+      rotFlat: 'rotate(90deg)'
+    };
+  }
+  // Un solo punto che fa partire le tre animazioni (contenitore + i due
+  // testi); "back" le percorre al contrario.
+  function obbligoPlayFinal(st, back) {
+    const rot = document.getElementById('ot-final-rot');
+    const txtAsk = document.getElementById('ot-final-txt-ask');
+    const txtAnswer = document.getElementById('ot-final-txt-answer');
+    function seq(a, b) { return back ? [{ transform: b }, { transform: a }] : [{ transform: a }, { transform: b }]; }
+    otFinalAnims.forEach(function (a) { a.cancel(); });
     const opts = { duration: OT_FINAL_MS, easing: OT_FINAL_EASE, fill: 'forwards' };
     otFinalAnims = [
-      rot.animate([{ transform: 'rotate(' + OT_FINAL_START_DEG + 'deg)' }, { transform: 'rotate(90deg)' }], opts),
-      txtAsk.animate(frames(startAsk, endAsk), opts),
-      txtAnswer.animate(frames(startAnswer, endAnswer), opts)
+      rot.animate(seq(st.rotReel, st.rotFlat), opts),
+      txtAsk.animate(seq(st.askReel, st.askFlat), opts),
+      txtAnswer.animate(seq(st.answerReel, st.answerFlat), opts)
     ];
+    return otFinalAnims;
+  }
+  function obbligoRevealFinal(askName, answerName) {
+    const fin = document.getElementById('ot-final');
+    if (!fin) return;
+    const lHalf = fin.querySelector('.ot-final-half.l');
+    const rHalf = fin.querySelector('.ot-final-half.r');
+    lHalf.style.background = otFinalColors.ask;
+    rHalf.style.background = otFinalColors.answer;
+    const txtAsk = document.getElementById('ot-final-txt-ask');
+    const txtAnswer = document.getElementById('ot-final-txt-answer');
+    txtAsk.style.color = OT_INK[otFinalColors.ask];
+    txtAnswer.style.color = OT_INK[otFinalColors.answer];
+    document.getElementById('ot-final-ask').textContent = askName;
+    document.getElementById('ot-final-answer').textContent = answerName;
+    fin.classList.add('on');
+    obbligoPlayFinal(obbligoFinalStates(fin), false);
+  }
+  // Ripartenza: la stessa animazione percorsa al contrario. Parte dallo
+  // stato piatto in cui la rivelazione si era fermata e torna esattamente
+  // sulla ruota sottostante, rimasta ferma sul risultato: all'ultimo
+  // fotogramma strato e ruota coincidono, quindi togliere lo strato non si
+  // vede. Solo a quel punto parte il giro nuovo.
+  function obbligoReverseFinal(done) {
+    const fin = document.getElementById('ot-final');
+    if (!fin || !fin.classList.contains('on')) { if (done) done(); return; }
+    otReversing = true;
+    obbligoPlayFinal(obbligoFinalStates(fin), true);
+    // Si aspetta con un timer, non con l'evento di fine animazione: se la
+    // pagina finisce in secondo piano il browser mette in pausa le
+    // animazioni e quell'evento non arriverebbe mai, lasciando il gioco
+    // bloccato senza poter piu' girare. Il timer sta fra quelli annullabili,
+    // cosi' un tocco durante il ritorno lo disinnesca.
+    otSpinTimers.push(setTimeout(function () {
+      if (!otReversing) return; // un tocco ha gia' saltato avanti
+      otReversing = false;
+      obbligoHideFinal();
+      if (done) done();
+    }, OT_FINAL_MS));
   }
   function obbligoHideFinal() {
     otFinalAnims.forEach(function (a) { a.cancel(); });
