@@ -10960,14 +10960,20 @@
       nameAnswer.parentElement.classList.add('show');
     }
   }
-  // Ogni box e' largo esattamente META' SCHERMO: e' la larghezza MINIMA
-  // che garantisce che a riposo se ne vedano sempre e solo DUE, mai un
-  // terzo neanche per uno spicchio (con box piu' stretti se ne
-  // vedrebbero 3+ affiancati). Per lo stesso motivo il fermo naturale a
-  // translateX(0) basta da solo: il confine fra i due box finali cade
-  // gia' esattamente al centro schermo, senza bisogno di fermarsi prima.
+  // Ogni box e' largo META' SCHERMO piu' un piccolo margine ("overhang"):
+  // e' la larghezza MINIMA che, oltre a far vedere sempre e solo DUE box
+  // a riposo, copre anche lo sconfinamento causato dallo skew obliquo agli
+  // angoli esterni (altrimenti, coprendo l'angolo solo sui primi due box
+  // con un trucco a parte, quei due sembravano piu' larghi degli altri:
+  // ora la larghezza e' IDENTICA per tutti i box della striscia).
+  // L'overhang e' quanto lo skew sposta orizzontalmente un punto lontano
+  // meta' altezza dal centro: height/2 * tan(angolo).
+  function obbligoOverhang(strip) {
+    const h = strip.parentElement.clientHeight;
+    return (h / 2) * Math.tan(12 * Math.PI / 180);
+  }
   function obbligoBoxWidth(strip) {
-    return strip.parentElement.clientWidth / 2;
+    return (strip.parentElement.clientWidth / 2) + obbligoOverhang(strip);
   }
   const OT_FILLER_COUNT = 32;
   function obbligoEscapeHtml(s) {
@@ -10975,8 +10981,12 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+  // Il primo box e' piu' largo di meta' schermo esattamente dell'overhang:
+  // spostando la striscia a sinistra di quell'overhang, il suo bordo
+  // DESTRO (il vero confine coi colori) torna a cadere sempre al centro
+  // schermo, mentre l'eccedenza a sinistra copre l'angolo scoperto.
   function obbligoStopTx(strip) {
-    return 0; // le due meta' finali riempiono gia' tutto lo schermo esattamente
+    return -obbligoOverhang(strip);
   }
   // Ogni box mostra "chiede" o "risponde" (alternati box per box) con un
   // nome a caso tra i giocatori: mai lo stesso nome in due box di fila,
@@ -11002,20 +11012,7 @@
       // basso, ed entrambi ereditano l'inclinazione obliqua del taglio
       // colore (niente contro-skew, vedi CSS .ot-reel-half-inner).
       const vPos = (i % 2 === 0) ? 'up' : 'down';
-      // I due box che restano fermi a schermo sono sempre index 0 (a
-      // sinistra) e index 1 (a destra), niente altro: essendo lo skew
-      // obliquo, ai loro angoli ESTERNI (sinistra del box0, destra del
-      // box1) non c'e' nessun box vicino a coprire lo sconfinamento —
-      // senza aiuto si vedrebbe uno scampolo del colore di sfondo (o del
-      // box successivo) nell'angolo. Un box-shadow enorme dello STESSO
-      // colore, sullo stesso lato esterno, riempie quell'angolo — segue
-      // lo stesso skew del box quindi combacia perfettamente, senza
-      // bisogno di allargare il box stesso (larghezza resta il minimo
-      // indispensabile, meta' schermo, per vederne sempre e solo due).
-      let shadow = '';
-      if (i === 0) shadow = ';box-shadow:-100vw 0 0 ' + color;
-      else if (i === 1) shadow = ';box-shadow:100vw 0 0 ' + color;
-      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + shadow + '">'
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '">'
         + '<div class="ot-reel-half-inner show ' + vPos + '"><div class="ot-reel-half-lbl">' + lbl + '</div>'
         + '<div class="ot-reel-half-name">' + obbligoEscapeHtml(name) + '</div></div></div>';
     }
