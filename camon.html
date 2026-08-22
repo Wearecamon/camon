@@ -1588,18 +1588,20 @@
   .ot-reel-half-inner { display:flex; flex-direction:column; align-items:center; opacity:0; }
   .ot-reel-half-inner.show.up { animation:otNamePopUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
   .ot-reel-half-inner.show.down { animation:otNamePopDown 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
-  /* Ruotate di circa 75 gradi: le lettere corrono dal basso verso l'alto,
-     in linea con la diagonale del taglio colore (quasi verticale, non
-     dritte ne' orizzontali). */
+  /* Ruotate esattamente quanto la linea di taglio fra i colori: lo skew
+     della striscia e' skewX(-12deg) (vedi OT_SKEW), che inclina una linea
+     verticale di 12 gradi dalla verticale, cioe' 90-12=78 gradi
+     dall'orizzontale. Stessa identica inclinazione qui: le lettere
+     corrono dal basso verso l'alto, in linea con quella diagonale. */
   @keyframes otNamePopUp {
-    0%   { opacity:0; transform:translateY(2px) rotate(-75deg) scale(0.8); }
-    65%  { opacity:1; transform:translateY(-17px) rotate(-75deg) scale(1.06); }
-    100% { opacity:1; transform:translateY(-14px) rotate(-75deg) scale(1); }
+    0%   { opacity:0; transform:translateY(2px) rotate(-78deg) scale(0.8); }
+    65%  { opacity:1; transform:translateY(-17px) rotate(-78deg) scale(1.06); }
+    100% { opacity:1; transform:translateY(-14px) rotate(-78deg) scale(1); }
   }
   @keyframes otNamePopDown {
-    0%   { opacity:0; transform:translateY(26px) rotate(-75deg) scale(0.8); }
-    65%  { opacity:1; transform:translateY(11px) rotate(-75deg) scale(1.06); }
-    100% { opacity:1; transform:translateY(14px) rotate(-75deg) scale(1); }
+    0%   { opacity:0; transform:translateY(26px) rotate(-78deg) scale(0.8); }
+    65%  { opacity:1; transform:translateY(11px) rotate(-78deg) scale(1.06); }
+    100% { opacity:1; transform:translateY(14px) rotate(-78deg) scale(1); }
   }
   .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
   .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
@@ -10957,31 +10959,23 @@
       nameAnswer.parentElement.classList.add('show');
     }
   }
-  // Durante la corsa le strisce sono TUTTE sottili e della STESSA
-  // larghezza (prima, essendo larghe meta' schermo, se ne vedevano solo
-  // 2-3 alla volta e i pezzi ai bordi sembravano di spessore diverso: era
-  // solo la vista parziale di un blocco enorme, non uno spessore vero
-  // diverso). I due blocchi finali "chiede"/"risponde" restano larghi
-  // meta' schermo ciascuno, ma SOLO LORO — sono i PRIMI della striscia,
-  // tante strisce sottili casuali dopo: si parte mostrando la CODA (a
-  // destra) e si anima verso l'INIZIO (translateX verso 0) — movimento
-  // da sinistra a destra, finisce sempre sulla coppia giusta.
-  const OT_STRIPE_WIDTH = 300; // px — TUTTI i blocchi hanno esattamente questa larghezza
+  // Ogni box e' largo esattamente META' SCHERMO: e' la larghezza MINIMA
+  // che garantisce che a riposo se ne vedano sempre e solo DUE, mai un
+  // terzo neanche per uno spicchio (con box piu' stretti se ne
+  // vedrebbero 3+ affiancati). Per lo stesso motivo il fermo naturale a
+  // translateX(0) basta da solo: il confine fra i due box finali cade
+  // gia' esattamente al centro schermo, senza bisogno di fermarsi prima.
+  function obbligoBoxWidth(strip) {
+    return strip.parentElement.clientWidth / 2;
+  }
   const OT_FILLER_COUNT = 32;
-  const OT_STOP_MARGIN_BOXES = 3; // si ferma qualche box prima della fine della striscia
-  // I due blocchi finali "chiede"/"risponde" sono stati tolti del tutto:
-  // la ruota ora e' solo strisce colorate che scorrono e si fermano,
-  // senza mostrare piu' etichette ne' nomi. Si ferma sempre con il
-  // confine fra due strisce esattamente al centro dello schermo, cosi'
-  // lo schermo resta diviso in due soli colori.
   function obbligoEscapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
   function obbligoStopTx(strip) {
-    const viewportWidth = strip.parentElement.clientWidth;
-    return (viewportWidth / 2) - (OT_STOP_MARGIN_BOXES * OT_STRIPE_WIDTH);
+    return 0; // le due meta' finali riempiono gia' tutto lo schermo esattamente
   }
   // Ogni box mostra "chiede" o "risponde" (alternati box per box) con un
   // nome a caso tra i giocatori: mai lo stesso nome in due box di fila,
@@ -10990,7 +10984,7 @@
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
     const viewportWidth = strip.parentElement.clientWidth;
-    const fillerWidth = OT_STRIPE_WIDTH;
+    const fillerWidth = obbligoBoxWidth(strip);
     let html = '';
     let prevColor = null;
     let prevName = null;
