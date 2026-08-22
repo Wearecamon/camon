@@ -1575,10 +1575,10 @@
   }
   .ot-reel-half.ask::before { right:100%; background:var(--otbg,#DC2626); }
   .ot-reel-half.answer::after { left:100%; background:var(--otbg,#111111); }
-  /* NIENTE piu' contro-skew: prima il testo veniva "raddrizzato" rispetto
-     al taglio obliquo della striscia; ora invece deve restare inclinato
-     nella STESSA direzione del taglio colore, quindi eredita lo skew del
-     wrapper senza compensarlo. */
+  /* Niente piu' contro-skew: il testo e' ruotato di ~75 gradi (vedi
+     keyframes sotto) cosi' le lettere corrono nella STESSA direzione
+     obliqua/quasi-verticale del taglio colore, come le righe di un
+     quaderno, invece di restare dritte e orizzontali. */
   /* Il rullo si ferma prima "vuoto" (solo colori, niente scritte): quando
      arriva il risultato, etichetta+nome insieme fanno un piccolo "pop"
      invece di limitarsi ad apparire piatti con un fade. "chiede" resta un
@@ -1588,15 +1588,18 @@
   .ot-reel-half-inner { display:flex; flex-direction:column; align-items:center; opacity:0; }
   .ot-reel-half-inner.show.up { animation:otNamePopUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
   .ot-reel-half-inner.show.down { animation:otNamePopDown 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+  /* Ruotate di circa 75 gradi: le lettere corrono dal basso verso l'alto,
+     in linea con la diagonale del taglio colore (quasi verticale, non
+     dritte ne' orizzontali). */
   @keyframes otNamePopUp {
-    0%   { opacity:0; transform:translateY(2px) scale(0.8); }
-    65%  { opacity:1; transform:translateY(-17px) scale(1.06); }
-    100% { opacity:1; transform:translateY(-14px) scale(1); }
+    0%   { opacity:0; transform:translateY(2px) rotate(-75deg) scale(0.8); }
+    65%  { opacity:1; transform:translateY(-17px) rotate(-75deg) scale(1.06); }
+    100% { opacity:1; transform:translateY(-14px) rotate(-75deg) scale(1); }
   }
   @keyframes otNamePopDown {
-    0%   { opacity:0; transform:translateY(26px) scale(0.8); }
-    65%  { opacity:1; transform:translateY(11px) scale(1.06); }
-    100% { opacity:1; transform:translateY(14px) scale(1); }
+    0%   { opacity:0; transform:translateY(26px) rotate(-75deg) scale(0.8); }
+    65%  { opacity:1; transform:translateY(11px) rotate(-75deg) scale(1.06); }
+    100% { opacity:1; transform:translateY(14px) rotate(-75deg) scale(1); }
   }
   .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
   .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
