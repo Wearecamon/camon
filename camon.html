@@ -1262,7 +1262,7 @@
   /* Campo form nuovo */
   .bfield { display:flex; flex-direction:column; gap:7px; }
   .bfield label { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
-  .bfield input, .bfield select, .bfield textarea { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:14px; outline:none; appearance:none; transition:border-color 0.15s; width:100%; }
+  .bfield input, .bfield select, .bfield textarea { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:16px; outline:none; appearance:none; transition:border-color 0.15s; width:100%; }
   .bfield input:focus, .bfield select:focus, .bfield textarea:focus { border-color:#f7cc49; }
   .bfield select option { background:#1a1a1a; }
   .bfield textarea { resize:none; height:88px; line-height:1.55; }
@@ -1352,7 +1352,7 @@
   .add-guest-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.5px; color:#fff; padding:0 20px; margin-bottom:14px; }
   .add-guest-title span { color:#f7cc49; }
   .add-guest-search { position:relative; margin:0 20px 4px; }
-  .add-guest-search input { width:100%; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px 14px; font-family:'Manrope',sans-serif; font-size:14px; color:#fff; outline:none; box-sizing:border-box; }
+  .add-guest-search input { width:100%; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px 14px; font-family:'Manrope',sans-serif; font-size:16px; color:#fff; outline:none; box-sizing:border-box; }
   .add-guest-search input:focus { border-color:rgba(247,204,73,0.5); }
   .add-guest-search input::placeholder { color:rgba(255,255,255,0.3); }
   .add-guest-results { margin:0 20px; max-height:200px; overflow-y:auto; border-radius:12px; background:#181818; border:1px solid rgba(255,255,255,0.08); }
@@ -1430,7 +1430,7 @@
   .companions-wrap { display:flex; flex-direction:column; gap:10px; }
   .companion-slot { position:relative; }
   .companion-search { position:relative; }
-  .companion-search input { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:12px 15px 12px 40px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:14px; outline:none; width:100%; transition:border-color 0.15s; box-sizing:border-box; }
+  .companion-search input { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:#fff; padding:12px 15px 12px 40px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:16px; outline:none; width:100%; transition:border-color 0.15s; box-sizing:border-box; }
   .companion-search input:focus { border-color:#64c8ff; }
   .companion-search-ico { position:absolute; left:13px; top:50%; transform:translateY(-50%); opacity:0.4; font-size:16px; pointer-events:none; }
   .companion-results { position:absolute; top:calc(100% + 4px); left:0; right:0; background:#1e1e1e; border:1.5px solid rgba(255,255,255,0.12); border-radius:12px; z-index:50; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.5); }
@@ -1483,7 +1483,7 @@
   .prof-optional-title::after { content:""; flex:1; height:1px; background:rgba(255,255,255,0.07); }
   .prof-field-sm { margin:0 20px 12px; }
   .prof-field-sm label { display:block; font-size:9px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:6px; }
-  .prof-field-sm input, .prof-field-sm select, .prof-field-sm textarea { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; padding:11px 13px; border-radius:6px; font-size:13px; font-family:'Manrope',sans-serif; outline:none; appearance:none; transition:border-color 0.15s; }
+  .prof-field-sm input, .prof-field-sm select, .prof-field-sm textarea { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; padding:11px 13px; border-radius:6px; font-size:16px; font-family:'Manrope',sans-serif; outline:none; appearance:none; transition:border-color 0.15s; }
   .prof-field-sm input:focus, .prof-field-sm select:focus, .prof-field-sm textarea:focus { border-color:#f7cc49; }
   .prof-field-sm textarea { resize:none; min-height:104px; line-height:1.55; }
   .prof-bio-field-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
@@ -1557,7 +1557,11 @@
   /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
      mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
      finale (due colori affiancati) e' quindi naturale, non un salto. */
-  .ot-reel-half { position:relative; flex:none; width:50%; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
+  /* La larghezza vera dei blocchi ora si imposta inline (vedi JS): quelli
+     "di corsa" sono tutti sottili e identici tra loro, i due finali
+     (chiede/risponde) sono larghi meta' schermo — qui resta solo la
+     forma/impaginazione comune, non piu' una larghezza fissa al 50%. */
+  .ot-reel-half { position:relative; flex:none; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
   .ot-reel-half.ask { background:#0C6E60; }
   .ot-reel-half.answer { background:#B45309; }
   /* Col perno al centro, lo skew apre un piccolo varco in alto-sinistra
@@ -1844,7 +1848,7 @@
   .prof-auth-sub { font-family:'Manrope',sans-serif; font-size:13.5px; color:rgba(255,255,255,0.5); text-align:center; margin:6px 0 26px; }
   .auth-field { display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
   .auth-field label { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.4); }
-  .auth-field input { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.12); color:#fff; padding:14px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:15px; outline:none; transition:border-color 0.15s; }
+  .auth-field input { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.12); color:#fff; padding:14px 15px; border-radius:12px; font-family:'Manrope',sans-serif; font-size:16px; outline:none; transition:border-color 0.15s; }
   .auth-field input:focus { border-color:#f7cc49; }
   .auth-err { font-family:'Manrope',sans-serif; font-size:11.5px; color:#FF6B61; min-height:0; line-height:1.3; }
   .auth-err:not(:empty) { margin-top:-2px; }
@@ -2345,7 +2349,7 @@
   .sq-name-input {
     flex: 1; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 11px; padding: 13px 15px; color: #fff;
-    font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600;
+    font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 600;
     -webkit-tap-highlight-color: transparent; outline: none; transition: border-color 0.15s;
   }
   .sq-name-input:focus { border-color: #f7cc49; }
@@ -10880,7 +10884,6 @@
   // Colori scelti distanti tra loro sulla ruota (e lontani dal verde acqua
   // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
   const OT_ROULETTE = ['#F43F5E','#F59E0B','#EAB308','#3B82F6','#8B5CF6','#EC4899','#FB923C','#06B6D4'];
-  const OT_REEL_BLOCKS = 34; // blocchi larghi meta' schermo: piu' blocchi per una corsa piu' lunga e visibile
   const OT_SPIN_MS = 4500; // piu' breve della base (era 6500ms)
   const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
@@ -10940,31 +10943,38 @@
       nameAnswer.parentElement.classList.add('show');
     }
   }
-  // Blocchi larghi meta' schermo: se ne vedono sempre DUE affiancati alla
-  // volta mentre il rullo scorre (non un colore pieno alla volta), quindi
-  // l'arrivo sui due colori finali e' continuo, non un cambio improvviso.
-  // I due blocchi "chiede"/"risponde" sono i PRIMI della striscia, tanti
-  // blocchi casuali dopo: si parte mostrando gli ULTIMI due (a destra) e
-  // si anima verso i PRIMI due (translateX verso 0) — movimento da
-  // sinistra a destra, finisce sempre sulla coppia giusta.
+  // Durante la corsa le strisce sono TUTTE sottili e della STESSA
+  // larghezza (prima, essendo larghe meta' schermo, se ne vedevano solo
+  // 2-3 alla volta e i pezzi ai bordi sembravano di spessore diverso: era
+  // solo la vista parziale di un blocco enorme, non uno spessore vero
+  // diverso). I due blocchi finali "chiede"/"risponde" restano larghi
+  // meta' schermo ciascuno, ma SOLO LORO — sono i PRIMI della striscia,
+  // tante strisce sottili casuali dopo: si parte mostrando la CODA (a
+  // destra) e si anima verso l'INIZIO (translateX verso 0) — movimento
+  // da sinistra a destra, finisce sempre sulla coppia giusta.
+  const OT_FILLER_FRACTION = 1 / 7; // ogni striscia di corsa e' 1/7 di schermo: se ne vedono sempre diverse insieme, tutte uguali
+  const OT_FILLER_COUNT = 90;
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
-    let html = '<div class="ot-reel-half ask"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
-      + '<div class="ot-reel-half answer"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
+    const viewportWidth = strip.parentElement.clientWidth;
+    const halfWidth = viewportWidth / 2;
+    const fillerWidth = viewportWidth * OT_FILLER_FRACTION;
+    let html = '<div class="ot-reel-half ask" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
+      + '<div class="ot-reel-half answer" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
     // mai lo stesso colore di quello appena prima: senza questo controllo
-    // due blocchi adiacenti potevano capitare identici, e sembravano un
-    // unico colore pieno invece di due affiancati distinguibili
+    // due strisce adiacenti potevano capitare identiche, e sembravano
+    // un'unica striscia doppia invece di due affiancate distinguibili
     let prevColor = '#B45309';
-    for (let i = 2; i < OT_REEL_BLOCKS; i++) {
+    for (let i = 0; i < OT_FILLER_COUNT; i++) {
       let color;
       do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
       prevColor = color;
-      html += '<div class="ot-reel-half" style="background:' + color + '"></div>';
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '"></div>';
     }
     strip.innerHTML = html;
     strip.style.transition = 'none';
-    const halfWidth = strip.parentElement.clientWidth / 2;
-    strip.style.transform = OT_SKEW + 'translateX(-' + ((OT_REEL_BLOCKS - 2) * halfWidth) + 'px)';
+    const totalWidth = halfWidth * 2 + fillerWidth * OT_FILLER_COUNT;
+    strip.style.transform = OT_SKEW + 'translateX(-' + (totalWidth - viewportWidth) + 'px)';
     void strip.offsetWidth; // forza il reflow: senza, il browser potrebbe animare anche la posizione di partenza
     requestAnimationFrame(function () {
       // curva piu' morbida in partenza (prima saliva troppo di scatto,
