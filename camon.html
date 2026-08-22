@@ -1595,8 +1595,15 @@
     100% { opacity:1; transform:translate(-50%,-50%) rotate(-90deg) scale(1); }
   }
   /* colore ereditato dal box (vedi OT_INK): scuro sul giallo, bianco sul nero */
-  .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:currentColor; opacity:0.75; }
-  .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:currentColor; margin-top:8px; line-height:1.05; word-break:break-word; }
+  /* UNA SOLA regola per la ruota e per la rivelazione: il testo passa
+     dall'una all'altra, quindi qualunque differenza di corpo, spaziatura o
+     margine si vedrebbe come uno scatto nell'istante del passaggio (prima
+     il nome era clamp(24px,7vw,38px) nella ruota e clamp(30px,9vw,52px)
+     nella rivelazione: sembrava ingrossarsi di colpo). Niente a capo: il
+     testo e' ruotato di ~90 gradi, quindi si sviluppa lungo l'altezza
+     dello schermo, dove lo spazio abbonda. */
+  .ot-reel-half-lbl, .ot-final-lbl { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:currentColor; opacity:0.75; white-space:nowrap; }
+  .ot-reel-half-name, .ot-final-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,52px); letter-spacing:0.5px; color:currentColor; margin-top:6px; line-height:1.05; white-space:nowrap; }
   /* -- Rivelazione finale: la linea di taglio ruota fino a orizzontale. --
      Un quadrato enorme (300vmax) centrato sullo schermo, diviso a meta':
      ruotandolo, ruota la linea di divisione fra i due colori. Parte a
@@ -1619,9 +1626,9 @@
      a 12 gradi) a "orizzontale e dritto" (contenitore a 90 gradi) da
      solo, senza animazione propria sull'angolo. */
   .ot-final-txt { position:absolute; left:50%; top:50%; z-index:1; text-align:center; white-space:nowrap; }
-  /* colore ereditato dalla meta' (vedi OT_INK): scuro sul giallo, bianco sul nero */
-  .ot-final-lbl { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:currentColor; opacity:0.75; }
-  .ot-final-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,52px); letter-spacing:0.5px; color:currentColor; margin-top:6px; line-height:1.05; }
+  /* corpo e spaziature: vedi la regola condivisa con la ruota, piu' sopra.
+     Il colore e' ereditato dalla meta' (vedi OT_INK): scuro sul giallo,
+     bianco sul nero. */
   .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 24px calc(28px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 45%); }
   .ot-consiglio-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:30px; padding:9px 18px; color:#fff; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-consiglio-btn:active { background:rgba(255,255,255,0.2); }
