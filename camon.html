@@ -1562,19 +1562,11 @@
      (chiede/risponde) sono larghi meta' schermo — qui resta solo la
      forma/impaginazione comune, non piu' una larghezza fissa al 50%. */
   .ot-reel-half { position:relative; flex:none; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
-  .ot-reel-half.ask { background:var(--otbg,#DC2626); }
-  .ot-reel-half.answer { background:var(--otbg,#111111); }
-  /* Cuscinetto dello stesso colore su entrambi i lati esterni: copre sia
-     il varco che lo skew apre agli angoli (bastava poco), sia — piu'
-     largo di un intero blocco — l'ultimo scampolo sottile del colore
-     successivo che altrimenti resterebbe visibile un attimo mentre il
-     rullo frena e si ferma. Cosi' l'arrivo e' netto: sempre e solo due
-     colori, mai una fetta residua di un terzo. */
-  .ot-reel-half.ask::before, .ot-reel-half.answer::after {
-    content:''; position:absolute; top:0; bottom:0; width:70vw; z-index:2; pointer-events:none;
-  }
-  .ot-reel-half.ask::before { right:100%; background:var(--otbg,#DC2626); }
-  .ot-reel-half.answer::after { left:100%; background:var(--otbg,#111111); }
+  /* Il colore di fondo e quello del testo sono messi inline dal JS
+     (OT_ROULETTE / OT_INK): non servono piu' classi .ask/.answer. Gli
+     angoli scoperti dallo skew sono coperti allargando TUTTI i box della
+     stessa quantita' (vedi obbligoBoxWidth), non piu' con cuscinetti
+     applicati solo ai due box finali. */
   /* Niente piu' contro-skew: il testo e' ruotato di ~75 gradi (vedi
      keyframes sotto) cosi' le lettere corrono nella STESSA direzione
      obliqua/quasi-verticale del taglio colore, come le righe di un
@@ -1602,8 +1594,9 @@
     65%  { opacity:1; transform:translate(-50%,-50%) rotate(-90deg) scale(1.08); }
     100% { opacity:1; transform:translate(-50%,-50%) rotate(-90deg) scale(1); }
   }
-  .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
-  .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:#fff; margin-top:8px; line-height:1.05; word-break:break-word; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
+  /* colore ereditato dal box (vedi OT_INK): scuro sul giallo, bianco sul nero */
+  .ot-reel-half-lbl { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:currentColor; opacity:0.75; }
+  .ot-reel-half-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,7vw,38px); letter-spacing:0.5px; color:currentColor; margin-top:8px; line-height:1.05; word-break:break-word; }
   /* -- Rivelazione finale: la linea di taglio ruota fino a orizzontale. --
      Un quadrato enorme (300vmax) centrato sullo schermo, diviso a meta':
      ruotandolo, ruota la linea di divisione fra i due colori. Parte a
@@ -1634,8 +1627,9 @@
      solo mentre la linea si corica. */
   .ot-final-half.l .ot-final-txt { transform:translate(50%,-50%) translateX(-22vh) rotate(-90deg); }
   .ot-final-half.r .ot-final-txt { transform:translate(-50%,-50%) translateX(22vh) rotate(-90deg); }
-  .ot-final-lbl { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.75); }
-  .ot-final-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,52px); letter-spacing:0.5px; color:#fff; margin-top:6px; line-height:1.05; text-shadow:0 2px 10px rgba(0,0,0,0.35); }
+  /* colore ereditato dalla meta' (vedi OT_INK): scuro sul giallo, bianco sul nero */
+  .ot-final-lbl { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:currentColor; opacity:0.75; }
+  .ot-final-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,52px); letter-spacing:0.5px; color:currentColor; margin-top:6px; line-height:1.05; }
   .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 24px calc(28px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 45%); }
   .ot-consiglio-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:30px; padding:9px 18px; color:#fff; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-consiglio-btn:active { background:rgba(255,255,255,0.2); }
@@ -10948,12 +10942,16 @@
      sempre persone diverse (se ci sono almeno 2). --- */
   // Colori scelti distanti tra loro sulla ruota (e lontani dal verde acqua
   // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
-  const OT_ROULETTE = ['#DC2626','#111111']; // solo rosso e nero, alternati (mai lo stesso adiacente)
+  const OT_ROULETTE = ['#F5D06B','#111111']; // giallo brand e nero, alternati (mai lo stesso adiacente)
+  // colore del testo per ogni fondo: sul giallo il bianco sarebbe
+  // illeggibile, quindi si usa lo stesso scuro che il brand accoppia al
+  // giallo altrove nell'app
+  const OT_INK = { '#F5D06B': '#2E2A05', '#111111': '#FFFFFF' };
   const OT_SPIN_MS = 22500; // 5 volte piu' lento (era 4500ms)
   const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
   let otPendingNames = null;  // {ask, answer} dello spin in corso, per il salto immediato
-  let otFinalColors = { ask: '#DC2626', answer: '#111111' }; // colori dei due box su cui la ruota si ferma
+  let otFinalColors = { ask: '#F5D06B', answer: '#111111' }; // colori dei due box su cui la ruota si ferma
   function obbligoClearSpinTimers() { otSpinTimers.forEach(clearTimeout); otSpinTimers = []; }
   function obbligoSpin() {
     if (otPlayers.length < 2) return;
@@ -11006,8 +11004,12 @@
   function obbligoRevealFinal(askName, answerName) {
     const fin = document.getElementById('ot-final');
     if (!fin) return;
-    fin.querySelector('.ot-final-half.l').style.background = otFinalColors.ask;
-    fin.querySelector('.ot-final-half.r').style.background = otFinalColors.answer;
+    const lHalf = fin.querySelector('.ot-final-half.l');
+    const rHalf = fin.querySelector('.ot-final-half.r');
+    lHalf.style.background = otFinalColors.ask;
+    lHalf.style.color = OT_INK[otFinalColors.ask];
+    rHalf.style.background = otFinalColors.answer;
+    rHalf.style.color = OT_INK[otFinalColors.answer];
     document.getElementById('ot-final-ask').textContent = askName;
     document.getElementById('ot-final-answer').textContent = answerName;
     fin.classList.remove('go');
@@ -11065,6 +11067,13 @@
   // nome a caso tra i giocatori: mai lo stesso nome in due box di fila,
   // cosi' non capita mai che la stessa persona chieda e risponda a se'
   // stessa nel box che finisce al centro.
+  // I box 0 e 1 sono quelli su cui la ruota si ferma: l'indice PARI e'
+  // sempre "chiede", quindi il box 0 (che finisce a sinistra, e dopo la
+  // rotazione finisce IN ALTO) e' sempre e solo "chiede" — mai un
+  // "risponde", cosi' la rivelazione non ribalta mai i due ruoli.
+  // Sempre per questo, quei due box portano gia' i nomi VERI estratti per
+  // il giro (askName/answerName) invece di nomi a caso: altrimenti allo
+  // scattare della rivelazione i nomi cambiavano di colpo.
   function obbligoSpinReel(askName, answerName, durationMs) {
     const strip = document.getElementById('ot-reel-full');
     const viewportWidth = strip.parentElement.clientWidth;
@@ -11077,7 +11086,9 @@
       do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
       prevColor = color;
       let name;
-      do { name = otPlayers[Math.floor(Math.random() * otPlayers.length)].name; } while (name === prevName);
+      if (i === 0) name = askName;
+      else if (i === 1) name = answerName;
+      else { do { name = otPlayers[Math.floor(Math.random() * otPlayers.length)].name; } while (name === prevName); }
       prevName = name;
       const lbl = (i % 2 === 0) ? 'chiede' : 'risponde';
       // i primi due box sono quelli che restano fermi a schermo: i loro
@@ -11085,7 +11096,7 @@
       // partire identico a com'e' rimasta la ruota
       if (i === 0) otFinalColors.ask = color;
       else if (i === 1) otFinalColors.answer = color;
-      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '">'
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + ';color:' + OT_INK[color] + '">'
         + '<div class="ot-reel-half-inner show"><div class="ot-reel-half-lbl">' + lbl + '</div>'
         + '<div class="ot-reel-half-name">' + obbligoEscapeHtml(name) + '</div></div></div>';
     }
