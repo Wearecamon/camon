@@ -1534,7 +1534,7 @@
   .ot-play { height:100dvh; position:relative; display:none; overflow:hidden; }
   .ot-play-back { position:absolute; top:calc(14px + var(--safe-top)); left:16px; z-index:6; background:rgba(0,0,0,0.35); border:none; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-play-back:active { background:rgba(0,0,0,0.5); }
-  .ot-reveal-full { position:absolute; inset:0; overflow:hidden; display:flex; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-reveal-full { position:absolute; inset:0; overflow:hidden; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   /* NON si disattiva il tocco mentre gira: un secondo tocco durante lo
      spin deve poter saltare subito al risultato (vedi obbligoSkipToEnd). */
   /* Un'unica striscia a tutto schermo: mentre gira si vedono solo colori
@@ -1550,32 +1550,36 @@
      sempre margine a sufficienza — niente contenitori "allargati" a
      parte (che venivano inclinati anche loro e non coprivano piu' nulla
      di reale: gli angoli restavano scoperti comunque). */
-  /* Due blocchi FISSI, sempre esattamente meta' schermo ciascuno (mai
-     una striscia che scorre): niente scorrimento continuo, quindi non
-     esistono posizioni intermedie non allineate e ogni "fetta" a schermo
-     e' per forza sempre esattamente meta' schermo, identica all'altra —
-     durante lo spin cambiano solo colore/nome, mai dimensione. */
-  .ot-reel-half {
-    position:relative; flex:none; width:50%; height:100%;
-    display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box;
-    background:#0C6E60; transition:background-color 0.05s linear;
-    transform:skewX(-12deg); transform-origin:center;
-  }
+  /* Perno dell'inclinazione al CENTRO: e' l'unico modo perche' la riga
+     obliqua passi esattamente dal centro vero dello schermo (centro in
+     altezza e in larghezza), non solo dal bordo in alto. */
+  .ot-reel-strip-full { position:absolute; inset:0; display:flex; transform-origin:center; will-change:transform; }
+  /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
+     mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
+     finale (due colori affiancati) e' quindi naturale, non un salto. */
+  /* La larghezza vera dei blocchi ora si imposta inline (vedi JS): quelli
+     "di corsa" sono tutti sottili e identici tra loro, i due finali
+     (chiede/risponde) sono larghi meta' schermo — qui resta solo la
+     forma/impaginazione comune, non piu' una larghezza fissa al 50%. */
+  .ot-reel-half { position:relative; flex:none; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
+  .ot-reel-half.ask { background:#0C6E60; }
   .ot-reel-half.answer { background:#B45309; }
-  /* Cuscinetto dello stesso colore sul lato esterno di ciascun blocco:
-     copre il piccolo varco che lo skew apre agli angoli (l'unica cosa
-     che c'e' oltre il bordo esterno e' lo sfondo della pagina, quindi
-     basta un margine modesto — non serve piu' coprire un "terzo colore",
-     perche' non esiste piu' nient'altro oltre questi due blocchi). */
+  /* Cuscinetto dello stesso colore su entrambi i lati esterni: copre sia
+     il varco che lo skew apre agli angoli (bastava poco), sia — piu'
+     largo di un intero blocco — l'ultimo scampolo sottile del colore
+     successivo che altrimenti resterebbe visibile un attimo mentre il
+     rullo frena e si ferma. Cosi' l'arrivo e' netto: sempre e solo due
+     colori, mai una fetta residua di un terzo. */
   .ot-reel-half.ask::before, .ot-reel-half.answer::after {
-    content:''; position:absolute; top:0; bottom:0; width:15vh; z-index:2; pointer-events:none;
+    content:''; position:absolute; top:0; bottom:0; width:70vw; z-index:2; pointer-events:none;
   }
   .ot-reel-half.ask::before { right:100%; background:#0C6E60; }
   .ot-reel-half.answer::after { left:100%; background:#B45309; }
-  /* Contro-skew: il blocco e' un parallelogramma, ma etichetta e nome
-     devono restare dritti e leggibili. Il rullo parte "vuoto" (solo
-     colori, niente scritte): quando arriva il risultato, insieme fanno
-     un piccolo "pop" invece di limitarsi ad apparire piatti con un fade. */
+  /* Contro-skew: il blocco e' un parallelogramma (eredita lo skew del
+     wrapper), ma testo ed etichetta devono restare dritti e leggibili. */
+  /* Il rullo si ferma prima "vuoto" (solo colori, niente scritte): quando
+     arriva il risultato, etichetta+nome insieme fanno un piccolo "pop"
+     invece di limitarsi ad apparire piatti con un fade. */
   .ot-reel-half-inner { transform:skewX(12deg); display:flex; flex-direction:column; align-items:center; opacity:0; }
   .ot-reel-half-inner.show { animation:otNamePop 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
   @keyframes otNamePop {
@@ -4935,27 +4939,15 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
 
-      <!-- Meccanica rifatta da zero: niente piu' striscia che scorre (uno
-           scorrimento continuo passa per forza da posizioni intermedie
-           non allineate, e li' i pezzi visibili non sono mai larghi
-           uguali). Ci sono SEMPRE E SOLO questi due blocchi fissi, meta'
-           schermo ciascuno: durante il tocco cambiano colore a scatti,
-           sempre piu' lenti, finche' non si fermano su chiede/risponde.
-           Cosi' ogni "fetta" e' per forza sempre esattamente meta'
-           schermo, niente frazioni di blocco possibili. -->
       <div class="ot-reveal-full" id="ot-reveal" onclick="obbligoSpin()" role="button" aria-label="Tocca per scegliere chi chiede e chi risponde">
-        <div class="ot-reel-half ask" id="ot-block-ask">
-          <div class="ot-reel-half-inner" id="ot-inner-ask">
-            <div class="ot-reel-half-lbl">chiede</div>
-            <div class="ot-reel-half-name" id="ot-name-ask"></div>
-          </div>
-        </div>
-        <div class="ot-reel-half answer" id="ot-block-answer">
-          <div class="ot-reel-half-inner" id="ot-inner-answer">
-            <div class="ot-reel-half-lbl">risponde</div>
-            <div class="ot-reel-half-name" id="ot-name-answer"></div>
-          </div>
-        </div>
+        <!-- Il taglio obliquo e' lo skew applicato DIRETTAMENTE alla
+             striscia (insieme allo scroll, nello stesso transform, via
+             JS): la striscia e' gia' molto piu' larga dello schermo da
+             sola (tanti blocchi in fila), quindi lo skew ha sempre
+             margine a sufficienza per coprire gli angoli senza bisogno
+             di contenitori "allargati" a parte — che infatti venivano
+             inclinati anch'essi e non coprivano piu' nulla di reale. -->
+        <div class="ot-reel-strip-full" id="ot-reel-full"></div>
       </div>
 
       <div class="ot-play-bottom">
@@ -10851,13 +10843,8 @@
     document.getElementById('ot-suggest').style.display = 'none';
     document.getElementById('ot-suggest-card').style.display = 'none';
     document.getElementById('ot-tap-hint').textContent = 'Tocca per scegliere';
+    document.getElementById('ot-reel-full').innerHTML = '';
     if (typeof obbligoClearSpinTimers === 'function') obbligoClearSpinTimers();
-    document.getElementById('ot-block-ask').style.background = '#0C6E60';
-    document.getElementById('ot-block-answer').style.background = '#B45309';
-    document.getElementById('ot-inner-ask').classList.remove('show');
-    document.getElementById('ot-inner-answer').classList.remove('show');
-    document.getElementById('ot-name-ask').textContent = '';
-    document.getElementById('ot-name-answer').textContent = '';
     otSpinning = false;
     otPendingNames = null;
     otAsk = otAnswer = null;
@@ -10895,25 +10882,23 @@
      diviso in due meta' (chiede/risponde) coi nomi. Le due scelte sono
      sempre persone diverse (se ci sono almeno 2). --- */
   // Colori scelti distanti tra loro sulla ruota (e lontani dal verde acqua
-  // di "chiede"), cosi' i due blocchi si distinguono sempre bene.
+  // di "chiede"), cosi' due blocchi vicini si distinguono sempre bene.
   const OT_ROULETTE = ['#F43F5E','#F59E0B','#EAB308','#3B82F6','#8B5CF6','#EC4899','#FB923C','#06B6D4'];
-  const OT_TICKS = 24;       // quanti cambi di colore prima di fermarsi
-  const OT_TICK_BASE = 45;   // intervallo minimo tra un cambio e l'altro (ms)
-  const OT_TICK_MAX_EXTRA = 260; // quanto puo' allungarsi l'intervallo verso la fine (frenata)
+  const OT_SPIN_MS = 4500; // piu' breve della base (era 6500ms)
+  const OT_SKEW = 'skewX(-12deg) '; // taglio obliquo, combinato col translateX dello scroll
   let otSpinTimers = [];      // timer in corso, cancellabili se si tocca di nuovo mentre gira
   let otPendingNames = null;  // {ask, answer} dello spin in corso, per il salto immediato
   function obbligoClearSpinTimers() { otSpinTimers.forEach(clearTimeout); otSpinTimers = []; }
   function obbligoSpin() {
     if (otPlayers.length < 2) return;
     // si tocca di nuovo mentre gira: salta subito al risultato, non
-    // aspetta che rallenti da solo
+    // aspetta che il rullo rallenti da solo
     if (otSpinning) { obbligoSkipToEnd(); return; }
     otSpinning = true;
+    document.getElementById('ot-reveal').classList.add('spinning');
     document.getElementById('ot-tap-hint').textContent = '';
     document.getElementById('ot-suggest').style.display = 'none';
     document.getElementById('ot-suggest-card').style.display = 'none';
-    document.getElementById('ot-inner-ask').classList.remove('show');
-    document.getElementById('ot-inner-answer').classList.remove('show');
 
     let iAsk = Math.floor(Math.random() * otPlayers.length);
     let iAnswer;
@@ -10921,49 +10906,86 @@
     otAsk = iAsk; otAnswer = iAnswer;
     otPendingNames = { ask: otPlayers[iAsk].name, answer: otPlayers[iAnswer].name };
 
-    obbligoTick(0);
+    obbligoSpinReel(otPendingNames.ask, otPendingNames.answer, OT_SPIN_MS);
+
+    otSpinTimers.push(setTimeout(obbligoFinishSpin, OT_SPIN_MS + 150));
   }
-  // Ad ogni scatto i DUE blocchi (sempre gia' meta' schermo ciascuno,
-  // fissi) cambiano colore insieme; l'intervallo tra uno scatto e
-  // l'altro si allunga via via, dando la sensazione di rallentare, fino
-  // a fermarsi sui colori/nomi giusti.
-  function obbligoTick(step) {
-    const askBlock = document.getElementById('ot-block-ask');
-    const answerBlock = document.getElementById('ot-block-answer');
-    if (step >= OT_TICKS) {
-      askBlock.style.background = '#0C6E60';
-      answerBlock.style.background = '#B45309';
-      obbligoRevealNames();
-      return;
-    }
-    let c1 = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)];
-    let c2;
-    do { c2 = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (c2 === c1);
-    askBlock.style.background = c1;
-    answerBlock.style.background = c2;
-    const progress = step / OT_TICKS;
-    const delay = OT_TICK_BASE + Math.pow(progress, 2.3) * OT_TICK_MAX_EXTRA;
-    otSpinTimers.push(setTimeout(function () { obbligoTick(step + 1); }, delay));
-  }
-  function obbligoRevealNames() {
-    if (!otPendingNames) return;
-    const nameAsk = document.getElementById('ot-name-ask');
-    const nameAnswer = document.getElementById('ot-name-answer');
-    nameAsk.textContent = otPendingNames.ask;
-    nameAnswer.textContent = otPendingNames.answer;
-    document.getElementById('ot-inner-ask').classList.add('show');
-    document.getElementById('ot-inner-answer').classList.add('show');
+  function obbligoFinishSpin() {
     otSpinning = false;
     otSpinTimers = [];
+    document.getElementById('ot-reveal').classList.remove('spinning');
     document.getElementById('ot-tap-hint').textContent = 'Tocca per rigirare';
   }
-  // Tocco durante lo spin: ferma subito sul risultato gia' estratto per
-  // questo giro, senza aspettare che rallenti da solo.
+  // Tocco durante lo spin: ferma subito la striscia ESATTAMENTE al
+  // centro (translateX 0, la stessa posizione di arrivo naturale — cosi'
+  // chiede/risponde sono sempre centrati, mai "sballati" a meta' corsa)
+  // e mostra subito i nomi gia' estratti per questo giro.
   function obbligoSkipToEnd() {
     obbligoClearSpinTimers();
-    document.getElementById('ot-block-ask').style.background = '#0C6E60';
-    document.getElementById('ot-block-answer').style.background = '#B45309';
-    obbligoRevealNames();
+    const strip = document.getElementById('ot-reel-full');
+    strip.style.transition = 'none';
+    strip.style.transform = OT_SKEW + 'translateX(0px)';
+    void strip.offsetWidth;
+    if (otPendingNames) obbligoShowNames(otPendingNames.ask, otPendingNames.answer);
+    obbligoFinishSpin();
+  }
+  function obbligoShowNames(askName, answerName) {
+    const nameAsk = document.getElementById('ot-name-ask');
+    const nameAnswer = document.getElementById('ot-name-answer');
+    if (nameAsk) {
+      nameAsk.textContent = askName;
+      nameAsk.parentElement.classList.remove('show'); void nameAsk.parentElement.offsetWidth;
+      nameAsk.parentElement.classList.add('show');
+    }
+    if (nameAnswer) {
+      nameAnswer.textContent = answerName;
+      nameAnswer.parentElement.classList.remove('show'); void nameAnswer.parentElement.offsetWidth;
+      nameAnswer.parentElement.classList.add('show');
+    }
+  }
+  // Durante la corsa le strisce sono TUTTE sottili e della STESSA
+  // larghezza (prima, essendo larghe meta' schermo, se ne vedevano solo
+  // 2-3 alla volta e i pezzi ai bordi sembravano di spessore diverso: era
+  // solo la vista parziale di un blocco enorme, non uno spessore vero
+  // diverso). I due blocchi finali "chiede"/"risponde" restano larghi
+  // meta' schermo ciascuno, ma SOLO LORO — sono i PRIMI della striscia,
+  // tante strisce sottili casuali dopo: si parte mostrando la CODA (a
+  // destra) e si anima verso l'INIZIO (translateX verso 0) — movimento
+  // da sinistra a destra, finisce sempre sulla coppia giusta.
+  const OT_FILLER_FRACTION = 1 / 2; // stesso spessore dei due blocchi finali chiede/risponde: meta' schermo
+  const OT_FILLER_COUNT = 32;
+  function obbligoSpinReel(askName, answerName, durationMs) {
+    const strip = document.getElementById('ot-reel-full');
+    const viewportWidth = strip.parentElement.clientWidth;
+    const halfWidth = viewportWidth / 2;
+    const fillerWidth = viewportWidth * OT_FILLER_FRACTION;
+    let html = '<div class="ot-reel-half ask" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">chiede</div><div class="ot-reel-half-name" id="ot-name-ask"></div></div></div>'
+      + '<div class="ot-reel-half answer" style="width:' + halfWidth + 'px"><div class="ot-reel-half-inner"><div class="ot-reel-half-lbl">risponde</div><div class="ot-reel-half-name" id="ot-name-answer"></div></div></div>';
+    // mai lo stesso colore di quello appena prima: senza questo controllo
+    // due strisce adiacenti potevano capitare identiche, e sembravano
+    // un'unica striscia doppia invece di due affiancate distinguibili
+    let prevColor = '#B45309';
+    for (let i = 0; i < OT_FILLER_COUNT; i++) {
+      let color;
+      do { color = OT_ROULETTE[Math.floor(Math.random() * OT_ROULETTE.length)]; } while (color === prevColor);
+      prevColor = color;
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '"></div>';
+    }
+    strip.innerHTML = html;
+    strip.style.transition = 'none';
+    const totalWidth = halfWidth * 2 + fillerWidth * OT_FILLER_COUNT;
+    strip.style.transform = OT_SKEW + 'translateX(-' + (totalWidth - viewportWidth) + 'px)';
+    void strip.offsetWidth; // forza il reflow: senza, il browser potrebbe animare anche la posizione di partenza
+    requestAnimationFrame(function () {
+      // curva piu' morbida in partenza (prima saliva troppo di scatto,
+      // a velocita' cosi' alta i blocchi sembravano interi invece che
+      // affiancati a due a due): accelera gradualmente, poi frena a lungo
+      strip.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.32,0.42,0.14,1)';
+      strip.style.transform = OT_SKEW + 'translateX(0px)';
+    });
+    otSpinTimers.push(setTimeout(function () {
+      obbligoShowNames(askName, answerName);
+    }, durationMs - 100));
   }
 
   function obbligoOpenSuggest() {
