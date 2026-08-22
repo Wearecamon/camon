@@ -10881,8 +10881,8 @@
   function obbligoDismissStart() {
     const s = document.getElementById('ot-start-screen');
     s.style.opacity = '0';
-    s.style.transition = 'opacity 0.35s ease';
-    setTimeout(function () { s.style.display = 'none'; }, 350);
+    s.style.transition = 'opacity 0.3s ease';
+    setTimeout(function () { s.style.display = 'none'; obbligoSpin(); }, 300);
   }
   // "Cambia giocatori" e il tasto indietro portano entrambi alla pagina
   // condivisa: e' li' che si modifica la rosa, per qualunque gioco.
