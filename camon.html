@@ -10988,7 +10988,14 @@
       do { name = otPlayers[Math.floor(Math.random() * otPlayers.length)].name; } while (name === prevName);
       prevName = name;
       const lbl = (i % 2 === 0) ? 'chiede' : 'risponde';
-      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + '">'
+      // Il box che si ferma a SINISTRA del centro e' sempre di indice PARI,
+      // quello a DESTRA sempre DISPARI (dipende solo da OT_STOP_MARGIN_BOXES,
+      // mai dal caso): allineando il contenuto verso il bordo "interno" di
+      // ogni box (pari -> a destra, dispari -> a sinistra), la scritta
+      // finisce sempre vicino al confine, cioe' vicino al CENTRO SCHERMO,
+      // non ai lati — pur restando anche centrata verticalmente nel colore.
+      const justify = (i % 2 === 0) ? 'flex-end' : 'flex-start';
+      html += '<div class="ot-reel-half" style="width:' + fillerWidth + 'px;background:' + color + ';justify-content:' + justify + '">'
         + '<div class="ot-reel-half-inner show"><div class="ot-reel-half-lbl">' + lbl + '</div>'
         + '<div class="ot-reel-half-name">' + obbligoEscapeHtml(name) + '</div></div></div>';
     }
