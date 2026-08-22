@@ -1550,18 +1550,27 @@
      sempre margine a sufficienza — niente contenitori "allargati" a
      parte (che venivano inclinati anche loro e non coprivano piu' nulla
      di reale: gli angoli restavano scoperti comunque). */
-  /* Perno dell'inclinazione in ALTO (non al centro): cosi' il bordo
-     sinistro del primissimo blocco — che e' anche l'inizio vero della
-     striscia, senza altro contenuto prima a fare da margine — resta
-     sempre allineato esatto allo schermo in alto, senza lasciare
-     scoperto quell'angolo. */
-  .ot-reel-strip-full { position:absolute; inset:0; display:flex; transform-origin:top; will-change:transform; }
+  /* Perno dell'inclinazione al CENTRO: e' l'unico modo perche' la riga
+     obliqua passi esattamente dal centro vero dello schermo (centro in
+     altezza e in larghezza), non solo dal bordo in alto. */
+  .ot-reel-strip-full { position:absolute; inset:0; display:flex; transform-origin:center; will-change:transform; }
   /* Blocchi larghi META' schermo: cosi' se ne vedono sempre DUE insieme
      mentre il rullo scorre, non un colore pieno alla volta — l'arrivo
      finale (due colori affiancati) e' quindi naturale, non un salto. */
-  .ot-reel-half { flex:none; width:50%; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
+  .ot-reel-half { position:relative; flex:none; width:50%; height:100%; display:flex; align-items:center; justify-content:center; padding:0 16px; box-sizing:border-box; }
   .ot-reel-half.ask { background:#0C6E60; }
   .ot-reel-half.answer { background:#B45309; }
+  /* Col perno al centro, lo skew apre un piccolo varco in alto-sinistra
+     (prima del blocco "chiede", che e' l'inizio vero della striscia: li'
+     si vedrebbe lo sfondo) e uno in basso-destra (dopo "risponde": li' si
+     vedrebbe un pezzetto del terzo colore successivo). Questi due
+     "cuscinetti" dello stesso colore coprono esattamente quei due varchi,
+     cosi' restano sempre e solo due colori a schermo, mai un terzo. */
+  .ot-reel-half.ask::before, .ot-reel-half.answer::after {
+    content:''; position:absolute; top:0; bottom:0; width:120px; z-index:2; pointer-events:none;
+  }
+  .ot-reel-half.ask::before { right:100%; background:#0C6E60; }
+  .ot-reel-half.answer::after { left:100%; background:#B45309; }
   /* Contro-skew: il blocco e' un parallelogramma (eredita lo skew del
      wrapper), ma testo ed etichetta devono restare dritti e leggibili. */
   /* Il rullo si ferma prima "vuoto" (solo colori, niente scritte): quando
