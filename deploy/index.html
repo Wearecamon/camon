@@ -1632,35 +1632,47 @@
   .ot-play-bottom { position:absolute; left:0; right:0; bottom:0; z-index:5; display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 24px calc(24px + var(--safe-bottom)); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.55) 50%); pointer-events:none; }
   .ot-play-bottom > * { pointer-events:auto; }
   /* -- Schermata di avvio accattivante -- */
-  .ot-start-screen { position:absolute; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; background:radial-gradient(ellipse at 50% 40%, #5B1A3A 0%, #3A0A1E 60%, #1E050F 100%); cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-start-emoji { font-size:72px; animation:otStartBounce 2s ease-in-out infinite; }
-  @keyframes otStartBounce { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-12px) scale(1.08); } }
-  .ot-start-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,10vw,56px); letter-spacing:2px; color:#fff; text-align:center; line-height:1.1; }
+  /* -- Start screen: in linea col gioco -- */
+  .ot-start-screen { position:absolute; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; background:#3A0A1E; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-start-deco { width:120px; height:120px; border-radius:50%; background:rgba(249,168,212,0.08); border:1.5px solid rgba(249,168,212,0.2); display:flex; align-items:center; justify-content:center; margin-bottom:32px; animation:otStartPulse 2.8s ease-in-out infinite; }
+  .ot-start-deco svg { opacity:0.9; }
+  @keyframes otStartPulse { 0%,100% { box-shadow:0 0 0 0 rgba(249,168,212,0.15); } 50% { box-shadow:0 0 0 20px rgba(249,168,212,0); } }
+  .ot-start-label { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(249,168,212,0.6); margin-bottom:10px; }
+  .ot-start-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(42px,12vw,64px); letter-spacing:3px; color:#fff; text-align:center; line-height:1; margin-bottom:6px; }
   .ot-start-title span { color:#F9A8D4; }
-  .ot-start-cta { display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #F5D06B, #F9A8D4); border:none; border-radius:50px; padding:16px 36px; font-family:'Manrope',sans-serif; font-size:16px; font-weight:800; color:#2E2A05; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 24px rgba(245,208,107,0.35); animation:otCtaPulse 2.5s ease-in-out infinite; }
-  @keyframes otCtaPulse { 0%,100% { box-shadow:0 4px 24px rgba(245,208,107,0.35); } 50% { box-shadow:0 6px 36px rgba(249,168,212,0.5); } }
-  .ot-start-cta:active { transform:scale(0.96); }
-  .ot-start-sub { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.45); }
-  /* -- Consiglio centrato nella rivelazione (tra i due nomi) -- */
-  .ot-consiglio-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:6; pointer-events:auto; display:none; animation:otConsIn 0.4s ease forwards; }
-  @keyframes otConsIn { from { opacity:0; transform:translate(-50%,-50%) scale(0.7); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
-  .ot-consiglio-center button { display:inline-flex; align-items:center; gap:8px; background:rgba(0,0,0,0.55); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1.5px solid rgba(255,255,255,0.25); border-radius:40px; padding:12px 26px; color:#fff; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.12s; }
-  .ot-consiglio-center button:active { transform:scale(0.95); }
+  .ot-start-sub { font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.38); margin-bottom:52px; }
+  .ot-start-cta { display:inline-flex; align-items:center; gap:10px; background:rgba(249,168,212,0.12); border:1.5px solid rgba(249,168,212,0.35); border-radius:50px; padding:15px 40px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:0.5px; color:#F9A8D4; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .ot-start-cta:active { background:rgba(249,168,212,0.2); transform:scale(0.97); }
+
+  /* -- Layout centrale: Verità · Consiglio · Obbligo impilati -- */
+  .ot-consiglio-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:6; pointer-events:auto; display:none; flex-direction:column; align-items:center; gap:14px; animation:otConsIn 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
+  @keyframes otConsIn { from { opacity:0; transform:translate(-50%,-50%) scale(0.85); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+  /* bottone Consiglio centrale */
+  .ot-consiglio-btn-center { background:rgba(0,0,0,0.45); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.18); border-radius:40px; padding:11px 30px; color:rgba(255,255,255,0.8); font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.5px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s; white-space:nowrap; }
+  .ot-consiglio-btn-center:active { background:rgba(0,0,0,0.6); }
+  /* bottoni Verità e Obbligo sopra/sotto */
+  .ot-choice-btn { border-radius:16px; padding:13px 32px; font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; cursor:pointer; -webkit-tap-highlight-color:transparent; border:1.5px solid transparent; transition:transform 0.12s; width:180px; text-align:center; }
+  .ot-choice-btn:active { transform:scale(0.96); }
+  .ot-choice-btn.truth { background:rgba(147,197,253,0.14); border-color:rgba(147,197,253,0.4); color:#BAD7FE; }
+  .ot-choice-btn.dare  { background:rgba(249,115,22,0.14);  border-color:rgba(249,115,22,0.4);  color:#FDBA74; }
+
+  /* -- Card testo centrale (overlay a tutto schermo) -- */
+  .ot-card-overlay { position:absolute; inset:0; z-index:9; display:none; flex-direction:column; align-items:center; justify-content:center; padding:32px; background:rgba(0,0,0,0.72); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); cursor:pointer; -webkit-tap-highlight-color:transparent; animation:otCardIn 0.3s ease; }
+  @keyframes otCardIn { from { opacity:0; } to { opacity:1; } }
+  .ot-card-overlay.on { display:flex; }
+  .ot-card-cat { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; margin-bottom:20px; }
+  .ot-card-cat.truth { color:#BAD7FE; }
+  .ot-card-cat.dare  { color:#FDBA74; }
+  .ot-card-text { font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,8vw,44px); line-height:1.2; letter-spacing:0.5px; color:#fff; text-align:center; margin-bottom:32px; }
+  .ot-card-actions { display:flex; flex-direction:column; align-items:center; gap:12px; width:100%; max-width:280px; }
+  .ot-card-redraw { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); color:rgba(255,255,255,0.8); border-radius:12px; padding:12px 24px; font-family:'Manrope',sans-serif; font-size:13px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; width:100%; }
+  .ot-card-redraw:active { background:rgba(255,255,255,0.18); }
+  .ot-card-close { background:none; border:none; color:rgba(255,255,255,0.35); font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; padding:4px; }
+
   .ot-tap-hint { font-family:'Manrope',sans-serif; font-size:12px; color:rgba(255,255,255,0.65); text-shadow:0 1px 4px rgba(0,0,0,0.4); }
-  .ot-suggest { width:calc(100% - 48px); max-width:340px; position:absolute; left:50%; bottom:calc(80px + var(--safe-bottom)); transform:translateX(-50%); z-index:8; }
-  .ot-suggest-btns { display:flex; gap:10px; }
-  .ot-sg { flex:1; border-radius:13px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.8px; cursor:pointer; -webkit-tap-highlight-color:transparent; border:1px solid transparent; transition:transform 0.12s; }
-  .ot-sg:active { transform:scale(0.97); }
-  .ot-sg.truth { background:rgba(96,165,250,0.18); border-color:rgba(96,165,250,0.4); color:#93C5FD; }
-  .ot-sg.dare { background:rgba(249,115,22,0.18); border-color:rgba(249,115,22,0.4); color:#FDBA74; }
-  .ot-suggest-card { margin-top:14px; background:rgba(0,0,0,0.28); border:1px solid rgba(255,255,255,0.15); border-radius:16px; padding:18px 18px 16px; text-align:center; animation:otIn 0.3s ease; }
-  @keyframes otIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
-  .ot-cat { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
-  .ot-cat.truth { color:#93C5FD; }
-  .ot-cat.dare { color:#FDBA74; }
-  .ot-prompt { font-family:'Bebas Neue',sans-serif; font-size:25px; line-height:1.15; letter-spacing:0.3px; color:#fff; margin-bottom:14px; }
-  .ot-redraw { background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:10px; padding:10px 16px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-redraw:active { background:rgba(255,255,255,0.18); }
+  /* ot-suggest non serve più: rimosso dal flusso */
+  .ot-suggest { display:none !important; }
+  .ot-edit-players { margin-top:2px; background:none; border:none; color:rgba(255,255,255,0.6); text-shadow:0 1px 4px rgba(0,0,0,0.4); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-edit-players { margin-top:2px; background:none; border:none; color:rgba(255,255,255,0.6); text-shadow:0 1px 4px rgba(0,0,0,0.4); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-edit-players:active { color:rgba(255,255,255,0.7); }
 
@@ -4969,10 +4981,21 @@
     <div class="ot-play" id="ot-play" style="display:none">
       <!-- Schermata di avvio -->
       <div class="ot-start-screen" id="ot-start-screen" onclick="obbligoDismissStart()">
-        <div class="ot-start-emoji">🎲</div>
+        <div class="ot-start-deco">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#F9A8D4" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <!-- dado stilizzato -->
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8" cy="8" r="1.1" fill="#F9A8D4" stroke="none"/>
+            <circle cx="16" cy="8" r="1.1" fill="#F9A8D4" stroke="none"/>
+            <circle cx="8" cy="16" r="1.1" fill="#F9A8D4" stroke="none"/>
+            <circle cx="16" cy="16" r="1.1" fill="#F9A8D4" stroke="none"/>
+            <circle cx="12" cy="12" r="1.1" fill="#F9A8D4" stroke="none"/>
+          </svg>
+        </div>
+        <div class="ot-start-label">gioco da bar</div>
         <div class="ot-start-title">OBBLIGO <span>O VERITÀ</span></div>
-        <div class="ot-start-cta">▶ Tocca per giocare</div>
-        <div class="ot-start-sub">Sfida o confessa… o bevi!</div>
+        <div class="ot-start-sub">Sfida o confessa… o bevi</div>
+        <div class="ot-start-cta">Tocca per giocare</div>
       </div>
 
       <button class="ot-play-back" onclick="obbligoBack()" aria-label="Indietro">
@@ -5007,22 +5030,29 @@
              compreso) e portarla a zero in modo graduale. -->
         <div class="ot-final-txt" id="ot-final-txt-ask"><div class="ot-final-lbl">chiede</div><div class="ot-final-name" id="ot-final-ask"></div></div>
         <div class="ot-final-txt" id="ot-final-txt-answer"><div class="ot-final-lbl">risponde</div><div class="ot-final-name" id="ot-final-answer"></div></div>
-        <!-- Consiglio centrato tra i due nomi, compare solo dopo la rivelazione -->
-        <div class="ot-consiglio-center" id="ot-consiglio-center" onclick="event.stopPropagation(); obbligoOpenSuggest()">
-          <button>💡 Consiglio</button>
+        <!-- Verità · Consiglio · Obbligo impilati al centro dopo la rivelazione -->
+        <div class="ot-consiglio-center" id="ot-consiglio-center" onclick="event.stopPropagation()">
+          <button class="ot-choice-btn truth" onclick="obbligoSuggest('truth')">Verità</button>
+          <button class="ot-consiglio-btn-center" onclick="obbligoOpenSuggest()">Consiglio</button>
+          <button class="ot-choice-btn dare" onclick="obbligoSuggest('dare')">Obbligo</button>
         </div>
       </div>
 
-      <!-- Suggest popup: centrato e assoluto, appare sopra la rivelazione -->
-      <div class="ot-suggest" id="ot-suggest" style="display:none" onclick="event.stopPropagation()">
-        <div class="ot-suggest-btns">
-          <button class="ot-sg truth" onclick="obbligoSuggest('truth')">💭 Verità</button>
-          <button class="ot-sg dare" onclick="obbligoSuggest('dare')">🔥 Obbligo</button>
+      <!-- Card testo a tutto schermo: compare quando scegli Verità o Obbligo -->
+      <div class="ot-card-overlay" id="ot-card-overlay" onclick="obbligoCloseCard()">
+        <div class="ot-card-cat" id="ot-card-cat">VERITÀ</div>
+        <div class="ot-card-text" id="ot-card-text">—</div>
+        <div class="ot-card-actions" onclick="event.stopPropagation()">
+          <button class="ot-card-redraw" onclick="obbligoRedraw()">↻ Un'altra</button>
+          <button class="ot-card-close" onclick="obbligoCloseCard()">Chiudi</button>
         </div>
+      </div>
+
+      <!-- ot-suggest mantenuto vuoto per compatibilità JS -->
+      <div class="ot-suggest" id="ot-suggest" style="display:none">
         <div class="ot-suggest-card" id="ot-suggest-card" style="display:none">
-          <div class="ot-cat" id="ot-cat">VERITÀ</div>
-          <div class="ot-prompt" id="ot-prompt">—</div>
-          <button class="ot-redraw" onclick="obbligoRedraw()">↻ Un'altra idea</button>
+          <div class="ot-cat" id="ot-cat"></div>
+          <div class="ot-prompt" id="ot-prompt"></div>
         </div>
       </div>
 
@@ -11074,7 +11104,7 @@
     if (anims.length) {
       anims[0].onfinish = function () {
         var cc = document.getElementById('ot-consiglio-center');
-        cc.style.display = 'block';
+        cc.style.display = 'flex';
         cc.style.animation = 'none'; void cc.offsetWidth; cc.style.animation = '';
       };
     }
@@ -11120,6 +11150,7 @@
     const fin = document.getElementById('ot-final');
     if (fin) fin.classList.remove('on');
     document.getElementById('ot-consiglio-center').style.display = 'none';
+    document.getElementById('ot-card-overlay').classList.remove('on');
   }
   // Ogni box e' largo META' SCHERMO piu' un piccolo margine ("overhang"):
   // e' la larghezza MINIMA che, oltre a far vedere sempre e solo DUE box
@@ -11204,15 +11235,14 @@
     otSpinTimers.push(setTimeout(obbligoLandOnResult, durationMs));
   }
 
-  function obbligoOpenSuggest() {
-    const s = document.getElementById('ot-suggest');
-    s.style.display = s.style.display === 'none' ? 'block' : 'none';
-  }
+  // Consiglio: mostra/nasconde il blocco Verità·Consiglio·Obbligo
+  // (ora il blocco è sempre visibile dopo la rivelazione, questo bottone non serve più)
+  function obbligoOpenSuggest() { /* no-op: il blocco compare già dopo la reveal */ }
 
   function obbligoInfoOpen() { document.getElementById('ot-info-overlay').classList.add('open'); }
   function obbligoInfoClose() { document.getElementById('ot-info-overlay').classList.remove('open'); }
 
-  // suggerimento OPZIONALE: estrae una verità o un obbligo di esempio
+  // Estrae e mostra il testo nella card overlay centrale
   function obbligoSuggest(kind) {
     otKind = kind;
     const arr = kind === 'truth' ? otTruths : otDares;
@@ -11220,14 +11250,22 @@
     let i;
     do { i = Math.floor(Math.random() * arr.length); } while (i === last && arr.length > 1);
     if (kind === 'truth') otLastTruth = i; else otLastDare = i;
-    const cat = document.getElementById('ot-cat');
-    cat.textContent = kind === 'truth' ? 'VERITÀ' : 'OBBLIGO';
-    cat.className = 'ot-cat ' + kind;
-    const prompt = document.getElementById('ot-prompt');
-    prompt.textContent = arr[i];
-    const card = document.getElementById('ot-suggest-card');
-    card.style.display = 'block';
-    card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+    // aggiorna anche i vecchi nodi (compatibilità)
+    const cat = document.getElementById('ot-cat'); if (cat) { cat.textContent = kind === 'truth' ? 'VERITÀ' : 'OBBLIGO'; cat.className = 'ot-cat ' + kind; }
+    const prompt = document.getElementById('ot-prompt'); if (prompt) prompt.textContent = arr[i];
+    // mostra la card overlay centrale
+    const overlay = document.getElementById('ot-card-overlay');
+    const cardCat = document.getElementById('ot-card-cat');
+    const cardText = document.getElementById('ot-card-text');
+    cardCat.textContent = kind === 'truth' ? 'VERITÀ' : 'OBBLIGO';
+    cardCat.className = 'ot-card-cat ' + kind;
+    cardText.textContent = arr[i];
+    overlay.style.animation = 'none'; void overlay.offsetWidth; overlay.style.animation = '';
+    overlay.classList.add('on');
+  }
+
+  function obbligoCloseCard() {
+    document.getElementById('ot-card-overlay').classList.remove('on');
   }
 
   function obbligoRedraw() {
