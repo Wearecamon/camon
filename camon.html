@@ -1677,7 +1677,12 @@
   .ot-edit-players:active { color:rgba(255,255,255,0.7); }
 
   /* ---- Heads Up! (nome in fronte) ---- */
-  #page-headsup { background:#111111; }
+  #page-headsup { background:#004D3E; }
+  .hu-bg-art { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+  .hu-bg-art svg { width:100%; height:100%; }
+  #page-headsup .gd-header,
+  #page-headsup .hu-modes,
+  #page-headsup .hu-write { position:relative; z-index:1; }
   .hu-modes { flex:1; min-height:0; display:flex; flex-direction:column; padding:16px 22px 130px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .hu-intro { font-family:'Manrope',sans-serif; font-size:12.5px; line-height:1.5; color:rgba(255,255,255,0.75); text-align:center; margin-bottom:18px; }
   .hu-intro b { font-weight:800; }
@@ -5083,7 +5088,107 @@
   <!-- ============================
        HEADS UP! — NOME IN FRONTE
   ============================ -->
-  <div class="page game-detail" id="page-headsup" style="background:#111111">
+  <div class="page game-detail" id="page-headsup" style="background:#004D3E">
+
+    <!-- ILLUSTRAZIONE SFONDO HEADS UP -->
+    <div class="hu-bg-art">
+      <svg viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+        <!-- BLOB ORGANICO (bordo bianco) -->
+        <path d="M188,132 C222,122 268,138 292,166 C316,194 314,236 295,262 C276,288 244,296 214,289 C184,282 154,266 139,240 C124,214 126,180 143,158 C156,140 165,140 188,132 Z"
+          fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.6" stroke-linejoin="round"/>
+
+        <!-- RIEMPI il blob col colore di sfondo per mascherare i contenuti del blob -->
+        <path d="M188,132 C222,122 268,138 292,166 C316,194 314,236 295,262 C276,288 244,296 214,289 C184,282 154,266 139,240 C124,214 126,180 143,158 C156,140 165,140 188,132 Z"
+          fill="#004D3E"/>
+        <!-- (bordo di nuovo sopra il fill) -->
+        <path d="M188,132 C222,122 268,138 292,166 C316,194 314,236 295,262 C276,288 244,296 214,289 C184,282 154,266 139,240 C124,214 126,180 143,158 C156,140 165,140 188,132 Z"
+          fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.6"/>
+
+        <!-- ===== EINSTEIN ===== -->
+
+        <!-- Testa ovale base -->
+        <ellipse cx="188" cy="212" rx="46" ry="55" fill="#004D3E"/>
+
+        <!-- CAPELLI WILD — sinistra -->
+        <path d="M144,202 C132,192 127,170 134,153 C138,143 147,138 153,146 C148,156 147,175 152,198"
+          fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M142,218 C128,208 124,183 132,163 C137,150 146,144 152,153"
+          fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M148,235 C134,228 128,208 135,190"
+          fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+
+        <!-- CAPELLI WILD — destra -->
+        <path d="M232,202 C244,192 249,170 242,153 C238,143 229,138 223,146 C228,156 229,175 224,198"
+          fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M234,218 C248,208 252,183 244,163 C239,150 230,144 224,153"
+          fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M228,235 C242,228 248,208 241,190"
+          fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+
+        <!-- CAPELLI — sopra (mossi) -->
+        <path d="M155,157 C160,143 170,134 180,130 C186,127 192,129 198,126 C206,122 216,126 222,136 C226,143 224,156 220,162"
+          fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M160,152 C165,138 175,130 185,127"
+          fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M208,128 C215,130 222,138 224,150"
+          fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+
+        <!-- SOPRACCIGLIA folte -->
+        <path d="M163,193 C169,186 178,185 187,189" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        <path d="M165,189 C171,183 180,182 188,186" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M197,189 C206,185 215,186 221,193" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        <path d="M197,186 C206,182 215,183 220,189" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+
+        <!-- OCCHI (sporgenti, espressivi) -->
+        <ellipse cx="177" cy="203" rx="10" ry="11" fill="white"/>
+        <ellipse cx="209" cy="203" rx="10" ry="11" fill="white"/>
+        <circle cx="179" cy="205" r="5.5" fill="#003D30"/>
+        <circle cx="211" cy="205" r="5.5" fill="#003D30"/>
+        <circle cx="180" cy="203" r="2" fill="white"/>
+        <circle cx="212" cy="203" r="2" fill="white"/>
+
+        <!-- NASO -->
+        <path d="M190,212 C187,222 185,228 188,233 C191,238 198,238 201,233"
+          fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+
+        <!-- BAFFI folti -->
+        <path d="M165,242 C172,234 180,234 188,237 C196,234 204,234 211,242 C216,248 214,254 209,253 C204,252 199,247 194,244 C191,243 187,243 182,244 C177,247 172,252 167,253 C162,254 160,248 165,242 Z"
+          fill="white"/>
+
+        <!-- LINGUA di fuori -->
+        <ellipse cx="188" cy="263" rx="13" ry="15" fill="white"/>
+        <line x1="181" y1="263" x2="195" y2="263" stroke="#004D3E" stroke-width="2"/>
+
+        <!-- ===== FUMETTI PENSIERO ===== -->
+        <!-- Ovale grande (a destra del testo HEAD'S) -->
+        <ellipse cx="297" cy="342" rx="44" ry="27" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2.2"/>
+        <!-- Ovale medio -->
+        <ellipse cx="265" cy="390" rx="17" ry="12" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="2"/>
+
+        <!-- ===== PERSONAGGIO IN BASSO ===== -->
+        <!-- Corpo blob rotondo -->
+        <ellipse cx="190" cy="618" rx="60" ry="58" fill="none" stroke="#2BB893" stroke-width="2.5"/>
+        <!-- "Telefono" sulla fronte -->
+        <rect x="160" y="578" width="60" height="30" rx="8" fill="none" stroke="#2BB893" stroke-width="2"/>
+        <text x="190" y="590" text-anchor="middle" font-size="7" fill="#2BB893" font-family="monospace" font-weight="bold" letter-spacing="0.5">ALBERT</text>
+        <text x="190" y="601" text-anchor="middle" font-size="7" fill="#2BB893" font-family="monospace" font-weight="bold" letter-spacing="0.5">EINSTEIN</text>
+        <!-- Occhi X (espressione "allenata/confusa") -->
+        <line x1="173" y1="621" x2="183" y2="631" stroke="#2BB893" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="183" y1="621" x2="173" y2="631" stroke="#2BB893" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="197" y1="621" x2="207" y2="631" stroke="#2BB893" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="207" y1="621" x2="197" y2="631" stroke="#2BB893" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Bocca aperta (sorpresa) -->
+        <path d="M180,642 Q190,655 200,642" fill="none" stroke="#2BB893" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="180" y1="642" x2="200" y2="642" stroke="#2BB893" stroke-width="2" stroke-linecap="round"/>
+        <!-- Braccia alzate -->
+        <path d="M130,608 C114,594 108,574 115,562" fill="none" stroke="#2BB893" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M250,608 C266,594 272,574 265,562" fill="none" stroke="#2BB893" stroke-width="2.5" stroke-linecap="round"/>
+
+      </svg>
+    </div>
+    <!-- fine ILLUSTRAZIONE SFONDO -->
+
     <div class="gd-header">
       <button class="back-btn" onclick="headsBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">HEADS <span style="color:#F5D06B">UP!</span> 🤳</div>
