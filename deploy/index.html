@@ -2595,31 +2595,30 @@
     border-radius: 14px;
     overflow: hidden;
   }
-  /* dorso carta */
+  /* Dorso carta: nero con cornice gialla e il marchio CAMON al centro,
+     invece delle righe diagonali gialle di prima. */
   .kings-card-front {
-    background:
-      repeating-linear-gradient(45deg, #f7cc49 0 8px, #e89e00 8px 16px),
-      #f7cc49;
-    border: 6px solid #fff;
-    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.25);
+    background: #141414;
+    border: 5px solid #F5D06B;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.5);
     display: flex; align-items: center; justify-content: center;
   }
   .kings-back-brand {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    width: 118px; height: 188px; border: 2px solid #111; border-radius: 8px;
-    background: rgba(247,204,73,0.25);
+    gap: 10px;
+    width: 120px; height: 190px; border: 1px solid rgba(245,208,107,0.35);
+    border-radius: 8px; background: rgba(245,208,107,0.06);
   }
-  .kings-back-logo {
-    font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px;
-    color: #111; line-height: 1;
-  }
+  /* il marchio prende il colore da qui: le sue forme usano currentColor */
+  .kings-back-logo { color: #fff; line-height: 0; }
+  .kings-back-logo svg { width: 46px; height: auto; display: block; }
   .kings-back-sub {
-    font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800;
-    letter-spacing: 4px; color: #111; margin-top: 4px;
+    font-family: 'Manrope', sans-serif; font-size: 9px; font-weight: 800;
+    letter-spacing: 4px; color: #F5D06B;
   }
   .kings-tap-hint {
     font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 600;
-    color: rgba(93,214,200,0.55); letter-spacing: 0.5px;
+    color: rgba(245,208,107,0.6); letter-spacing: 0.5px;
     animation: kingsTapPulse 1.8s ease-in-out infinite;
   }
   @keyframes kingsTapPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.9; } }
@@ -2646,20 +2645,28 @@
   .pc-center.face { font-size: 84px; }
   .pc-red { color: #D32F2F; }
   .pc-black { color: #1a1a1a; }
+  /* Titolo della regola: e' la cosa che si legge da lontano mentre si
+     gioca, quindi sta grosso. La parte prima del trattino (il valore
+     della carta) va in giallo, il nome della regola in bianco. */
   .kings-rule {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
+    font-size: 34px;
     color: #fff;
     letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    line-height: 1.05;
+    margin-bottom: 10px;
+    max-width: 300px;
     text-align: center;
   }
+  .kings-rule .kings-rule-val { color: #F5D06B; }
   .kings-rule-desc {
-    font-size: 13px;
-    color: rgba(93,214,200,0.7);
-    line-height: 1.5;
-    max-width: 260px;
-    margin: 0 auto 24px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.55;
+    max-width: 290px;
+    margin: 0 auto 26px;
     text-align: center;
   }
   .kings-draw-btn {
@@ -2677,7 +2684,7 @@
     -webkit-tap-highlight-color: transparent;
     transition: background 0.15s;
   }
-  .kings-draw-btn:active { background: #4bc4b6; }
+  .kings-draw-btn:active { background: #d4900a; }
 
   /* Beer Pong */
   #page-beerpong { background: #111111; }
@@ -5415,7 +5422,7 @@
         <div class="kings-card" id="kings-card">
           <div class="kings-card-front">
             <div class="kings-back-brand">
-              <div class="kings-back-logo">CAMON</div>
+              <span class="kings-back-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="2896.83 853.51 202.26 253.91"><path fill="currentColor" transform="translate(0 0)" d="m2997.96,885.81c-29.86,0-59.72-4.18-89.99-12.55-3.73-1.03-5.91-4.88-4.88-8.61,1.03-3.73,4.88-5.91,8.61-4.88,58.05,16.04,114.48,16.04,172.53,0,3.72-1.03,7.58,1.16,8.61,4.88,1.03,3.73-1.16,7.58-4.88,8.61-30.28,8.37-60.14,12.55-89.99,12.55Z"/><path fill="currentColor" transform="translate(0 0)" d="m2997.96,908.02c-27.16,0-54.31-3.4-81.85-10.19-3.75-.93-6.04-4.72-5.12-8.47s4.72-6.04,8.47-5.12c52.82,13.03,104.17,13.03,156.99,0,3.75-.93,7.55,1.37,8.47,5.12s-1.37,7.55-5.12,8.47c-27.54,6.8-54.69,10.19-81.85,10.19Z"/><path fill="currentColor" transform="translate(0 0)" d="m2964.52,946.79c-7.45-.81-11.16-1.34-18.56-2.61v-12.34c0-3.59-.2-5.86-.59-6.82-.4-.96-1.27-1.55-2.61-1.8-1.52-.28-2.48.08-2.89,1.08-.41,1-.61,3.3-.61,6.9v32.99c0,3.45.2,5.74.61,6.87.41,1.13,1.33,1.84,2.76,2.1,1.37.25,2.28-.12,2.7-1.1.42-.98.64-3.42.64-7.32,0-3.57,0-5.36,0-8.93,7.4,1.27,11.11,1.79,18.56,2.61v2.77c0,7.35-.52,12.51-1.57,15.46-1.05,2.96-3.36,5.39-6.93,7.21-3.57,1.82-7.97,2.31-13.17,1.36-5.41-.99-9.85-2.92-13.34-5.68-3.49-2.75-5.79-6.05-6.91-9.8-1.13-3.75-1.69-9.11-1.69-16.07v-20.75c0-5.12.17-8.91.52-11.38.35-2.47,1.38-4.67,3.1-6.61,1.72-1.94,4.11-3.23,7.18-3.92,3.07-.68,6.6-.63,10.61.11,5.44,1,9.95,2.74,13.5,5.33,3.56,2.59,5.9,5.48,7.02,8.75,1.12,3.27,1.68,8.21,1.68,14.84v6.75Z"/><path fill="currentColor" transform="translate(0 0)" d="m3003.5,917.64c3.56,23.55,7.12,47.09,10.69,70.64-7.64.4-11.46.49-19.1.42-.4-5.11-.6-7.66-1-12.78-2.68-.03-4.01-.07-6.69-.16-.45,5.09-.67,7.64-1.12,12.72-7.73-.29-11.59-.56-19.29-1.34,3.17-23.4,6.34-46.8,9.51-70.2,10.79.76,16.2.9,27.01.7Zm-9.91,45.68c-1.17-9.94-2-19.91-2.85-29.88-1.34,9.88-2.77,19.78-3.59,29.72,2.57.09,3.86.12,6.44.16Z"/><path fill="currentColor" transform="translate(0 0)" d="m3074.45,908.02c0,23.67,0,47.34,0,71.02-6.38,1.64-9.59,2.37-16.03,3.67l-.02-47.94c-2.13,16.39-4.27,32.77-6.42,49.16-4.58.82-6.88,1.18-11.48,1.83-2.27-15.32-4.55-30.65-6.82-45.97,0,15.62-.01,31.23-.02,46.85-6.5.76-9.77,1.05-16.29,1.47v-71.02c9.66-.61,14.49-1.11,24.09-2.48.71,4.17,1.45,9.09,2.2,14.77,1.05,7.07,1.58,10.6,2.63,17.66,1.42-11.29,2.84-22.58,4.25-33.87,9.62-1.67,14.41-2.7,23.91-5.14Z"/><path fill="#F5D06B" transform="translate(0 0)" d="m2993.73,1059.77c0,9.99-.24,17.06-.71,21.21-.48,4.15-1.97,7.93-4.48,11.29-2.51,3.36-5.9,5.87-10.16,7.44-4.26,1.57-9.23,2.09-14.88,1.45-5.36-.61-10.17-2.16-14.42-4.58-4.25-2.42-7.66-5.67-10.23-9.66-2.57-3.98-4.1-8.1-4.59-12.3-.49-4.2-.73-11.41-.73-21.65v-17.01c0-9.99.23-17.01.7-21.07.47-4.06,1.94-7.54,4.41-10.49,2.47-2.95,5.82-4.96,10.04-6.12,4.23-1.16,9.16-1.36,14.82-.73,5.36.6,10.19,1.88,14.47,3.9,4.28,2.02,7.73,4.77,10.34,8.33,2.61,3.56,4.17,7.37,4.66,11.47.5,4.1.75,11.27.75,21.5v17.01Zm-26.14-34.15c0-4.63-.26-7.61-.77-8.95-.52-1.34-1.58-2.09-3.19-2.28-1.36-.15-2.4.24-3.12,1.2-.72.96-1.08,3.99-1.08,9.11v46.43c0,5.77.24,9.36.71,10.77.47,1.41,1.58,2.22,3.31,2.42,1.77.2,2.91-.46,3.4-1.97.5-1.5.74-5.18.74-11.04v-45.69Z"/><path fill="#F5D06B" transform="translate(0 0)" d="m3061.59,994.92c0,33.14,0,66.28,0,99.42-9.03,1.91-13.57,2.69-22.69,3.92-4.53-14.56-9.05-29.12-13.55-43.68v45.2c-8.73.78-13.11,1.02-21.86,1.17v-99.42c8.75-.16,13.13-.39,21.86-1.17,4.85,14.38,9.72,28.75,14.6,43.11v-44.77c8.69-1.2,13.03-1.95,21.64-3.78Z"/></svg></span>
               <div class="kings-back-sub">KINGS</div>
             </div>
           </div>
@@ -5426,7 +5433,7 @@
           </div>
         </div>
       </div>
-      <div class="kings-rule" id="kings-rule">KINGS — IL RE COMANDA</div>
+      <div class="kings-rule" id="kings-rule"><span class="kings-rule-val">K</span> IL RE COMANDA</div>
       <div class="kings-rule-desc" id="kings-desc">Il re fa una regola per il resto del gioco. Chi la rompe beve.</div>
       <div class="kings-tap-hint">Tocca lo schermo per pescare</div>
     </div>
@@ -12470,6 +12477,15 @@
     }
   }
 
+  /* Le regole sono scritte "VALORE — NOME": si spezza sul trattino per
+     poter colorare di giallo solo il valore. Se il trattino non c'e', il
+     titolo resta tutto bianco. */
+  function kingsRuleHtml(rule) {
+    const m = String(rule).split(/\s+—\s+/);
+    if (m.length < 2) return huEscape(rule);
+    return '<span class="kings-rule-val">' + huEscape(m[0]) + '</span> '
+      + huEscape(m.slice(1).join(' — '));
+  }
   function kingsDraw() {
     const card = document.getElementById('kings-card');
     // se una carta è già rivelata, gira prima sul dorso, poi scopri la nuova
@@ -12478,7 +12494,8 @@
     setTimeout(() => {
       const c = kingsCards[Math.floor(Math.random() * kingsCards.length)];
       kingsRenderCard(c);
-      document.getElementById('kings-rule').textContent = c.rule;
+      // "8 — PASSA A DESTRA": il valore va in giallo, il nome resta bianco
+      document.getElementById('kings-rule').innerHTML = kingsRuleHtml(c.rule);
       document.getElementById('kings-desc').textContent = c.desc;
       // scopre automaticamente la carta pescata
       card.classList.add('flipped');
