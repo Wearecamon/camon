@@ -2033,22 +2033,32 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  /* Diktat — carta e comandi fatto / non fatto */
-  .sq-card {
+  /* Diktat — carta e comandi fatto / non fatto.
+     L'area e' a colonna e non scrolla mai: la carta si prende lo spazio che
+     avanza fra la barra della difficolta' e i tasti, e il testo dentro si
+     adatta (vedi sqFitPrompt). */
+  /* nome proprio: .sq-card e' gia' preso da un altro gioco piu' sotto */
+  #page-diktat .sq-area {
+    flex: 1; min-height: 0; overflow: hidden;
+    align-items: center; padding-bottom: 24px;
+  }
+  #page-diktat .sq-gamecard {
     flex: 1; min-height: 0; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 14px; width: 100%;
+    align-items: center; justify-content: center; gap: 12px; width: 100%;
+    overflow: hidden;
   }
-  .sq-pen {
-    font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700;
-    color: rgba(255,255,255,0.72); text-align: center; line-height: 1.45;
-    background: rgba(0,0,0,0.2); border-radius: 12px; padding: 9px 14px;
-    max-width: 90%;
-  }
-  .sq-judge { display: flex; gap: 10px; width: 100%; padding-bottom: 4px; }
+  #page-diktat .sq-prompt { margin: 0; }
+  .sq-judge { display: flex; gap: 10px; width: 100%; padding-bottom: 4px; flex: none; }
   .sq-judge button {
-    flex: 1; border: none; border-radius: 14px; padding: 16px 10px;
-    font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800;
-    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    flex: 1; border: none; border-radius: 14px; padding: 13px 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-family: 'Manrope', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    min-height: 62px;
+  }
+  .sq-judge-lbl { font-size: 15px; font-weight: 800; }
+  .sq-judge-pen {
+    font-size: 11.5px; font-weight: 700; opacity: 0.72; line-height: 1.3;
+    text-align: center; max-width: 100%;
   }
   .sq-judge-no { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.9); }
   .sq-judge-ok { background: #fff; color: #1a1a1a; }
@@ -3961,6 +3971,16 @@
   /* Le pagine dei singoli giochi si posizionano al proprio interno. */
   .page.game-detail.active { position: relative !important; }
 
+  /* Diktat sta tutto in una schermata: la carta non deve mai finire sotto
+     la bottom bar ne' far scorrere la pagina. Come per i giochi, serve
+     un'altezza vera da cui far scendere il flex dei figli. */
+  #page-diktat.active {
+    display: flex !important;
+    flex-direction: column;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
   /* Il profilo centra i suoi contenuti con flex:1: senza una colonna a
      tutta altezza restava alto quanto il testo e sotto si vedeva il
      taglio netto del fondo. */
@@ -4923,16 +4943,21 @@
         <span class="sq-diffbar-info">?</span>
       </button>
 
-      <div class="sq-card" id="sq-card">
+      <div class="sq-gamecard" id="sq-card">
         <div class="sq-prompt-cat" id="sq-prompt-cat">SFIDA</div>
         <div class="sq-prompt" id="sq-prompt">—</div>
-        <div class="sq-pen" id="sq-pen"></div>
       </div>
 
-      <!-- carta principale: fatto / non fatto -->
+      <!-- carta principale: fatto / non fatto. La penitenza sta dentro il
+           tasto del rifiuto, cosi' si legge cosa costa mentre lo si preme -->
       <div class="sq-judge" id="sq-judge">
-        <button class="sq-judge-no" onclick="sqAnswer(false)">✗ Non fatto</button>
-        <button class="sq-judge-ok" onclick="sqAnswer(true)">✓ Fatto</button>
+        <button class="sq-judge-no" onclick="sqAnswer(false)">
+          <span class="sq-judge-lbl">✗ Penitenza</span>
+          <span class="sq-judge-pen" id="sq-pen">Bevi 1 sorso</span>
+        </button>
+        <button class="sq-judge-ok" onclick="sqAnswer(true)">
+          <span class="sq-judge-lbl">✓ Fatto</span>
+        </button>
       </div>
       <!-- carta di follow-up: si prosegue e basta -->
       <div class="sq-next" id="sq-next" style="display:none">
@@ -10088,10 +10113,10 @@
   // livello di partenza: si sceglie una volta sola, poi il gioco si autoregola
   const sqModes = [
     { lv:1, emoji:'😎', name:'Livello 1',  desc:'Rompighiaccio: si scalda l\'atmosfera' },
-    { lv:2, emoji:'🍻', name:'Livello 2',  desc:'Si comincia a stuzzicare' },
+    { lv:2, emoji:'🍻', name:'Livello 2',  desc:'La serata inizia a prendere piede' },
     { lv:3, emoji:'🔥', name:'Livello 3',  desc:'Domande vere, niente piu\' scherzi' },
-    { lv:4, emoji:'😈', name:'Livello 4',  desc:'Si va a fondo: relazioni e verita\' scomode' },
-    { lv:5, emoji:'💀', name:'Livello 5',  desc:'Senza freni. Sapete cosa state facendo' }
+    { lv:4, emoji:'😈', name:'Livello 4',  desc:'Verita\' scomode' },
+    { lv:5, emoji:'💀', name:'Livello 5',  desc:'Senza freni' }
   ];
   const SQ_DEFAULT_PEN = 'Bevi 1 sorso';
   /* --- motore adattivo ---
@@ -10379,10 +10404,8 @@
     sqGradIndex = (sqGradIndex + 1) % sqGradients.length;
     document.getElementById('page-diktat').style.background = sqGradients[sqGradIndex];
     document.getElementById('sq-prompt-cat').textContent = cat;
-    const penEl = document.getElementById('sq-pen');
     // sul follow-up non c'e' niente da rifiutare: si legge e si va avanti
-    if (isFollowUp) { penEl.textContent = ''; penEl.style.display = 'none'; }
-    else { penEl.textContent = 'Se non te la senti: ' + (pen || SQ_DEFAULT_PEN); penEl.style.display = ''; }
+    if (!isFollowUp) document.getElementById('sq-pen').textContent = pen || SQ_DEFAULT_PEN;
     document.getElementById('sq-judge').style.display = isFollowUp ? 'none' : '';
     document.getElementById('sq-next').style.display = isFollowUp ? '' : 'none';
     const promptEl = document.getElementById('sq-prompt');
@@ -10391,6 +10414,22 @@
     promptEl.style.animation = 'none';
     void promptEl.offsetWidth;
     promptEl.style.animation = '';
+    sqFitPrompt();
+  }
+  /* La carta non deve mai far scrollare la pagina: sta tutta fra la barra
+     della difficolta' e i tasti in fondo. Le frasi lunghe si rimpiccioliscono
+     finche' non ci stanno, invece di sfondare lo spazio disponibile. */
+  function sqFitPrompt() {
+    const el = document.getElementById('sq-prompt');
+    const box = document.getElementById('sq-card'); // il .sq-gamecard di Diktat
+    if (!el || !box) return;
+    let size = 30;
+    el.style.fontSize = size + 'px';
+    // il minimo tiene leggibile anche la carta piu' lunga del mazzo
+    while (el.scrollHeight > box.clientHeight && size > 15) {
+      size -= 1;
+      el.style.fontSize = size + 'px';
+    }
   }
   function sqNextPrompt() {
     // un follow-up in coda ha la precedenza: e' la coda della carta appena giocata
@@ -10402,8 +10441,12 @@
     const pi = sqDraw();
     sqLastPrompt = pi;
     sqRecent.push(pi);
-    // memoria corta: una carta torna disponibile dopo una ventina di turni
-    if (sqRecent.length > Math.min(20, sqPrompts.length - 1)) sqRecent.shift();
+    // Una carta torna disponibile solo dopo un bel po' di turni. Il numero e'
+    // tarato sul livello, non sul mazzo intero: in un dato momento si pesca da
+    // una cinquantina di carte, quindi con una memoria corta i bis si
+    // sentirebbero lo stesso. Se il livello si svuota, sqDraw allarga ai
+    // livelli vicini invece di ripescare subito le stesse.
+    if (sqRecent.length > Math.min(35, sqPrompts.length - 1)) sqRecent.shift();
     const p = sqPrompts[pi];
     const i0 = sqPick(-1);
     const i1 = sqPick(i0);
@@ -12789,7 +12832,6 @@
     if (page === 'story' && typeof storyRender === 'function') storyRender();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
-    if (page === 'diktat' && typeof sqSetupReset === 'function') sqSetupReset();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
