@@ -2530,16 +2530,10 @@
   .sq-players:empty { display: none; }
   .sq-player-chip {
     display: flex; align-items: center; gap: 11px;
-    background: rgba(0,0,0,0.22); border-radius: 12px; padding: 8px 10px 8px 9px;
+    background: rgba(0,0,0,0.22); border-radius: 12px; padding: 12px 10px 12px 16px;
     animation: sqChipIn 0.22s ease;
   }
   @keyframes sqChipIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-  .sq-avatar {
-    width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: Georgia, 'Times New Roman', serif; font-size: 19px; font-weight: 700;
-    color: #fff; line-height: 1; padding-bottom: 1px;
-  }
   .sq-chip-name {
     flex: 1; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700;
     color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -3981,6 +3975,33 @@
     overflow: hidden !important;
   }
 
+  /* Stessa cosa per la rosa: la pagina sta ferma, a scorrere e' solo
+     l'elenco dei nomi dentro la sua scheda. Il tasto Continua resta
+     appoggiato sopra la bottom bar invece di finirci sotto. */
+  #page-players.active {
+    display: flex !important;
+    flex-direction: column;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  #page-players .sq-setup {
+    flex: 1; min-height: 0; overflow: hidden;
+    display: flex; flex-direction: column;
+    /* 64 di barra + 16 sotto + un po' d'aria, oltre alla safe area */
+    padding: 20px 28px calc(96px + var(--safe-bottom, 0px));
+  }
+  /* La scheda ora si prende tutta l'altezza: col fondo giallo pieno
+     diventerebbe un lastrone, quindi qui resta scura e il giallo torna
+     dove serve davvero (titolo, tasto aggiungi, Continua). */
+  #page-players .sq-setup-card {
+    flex: 1; min-height: 0; display: flex; flex-direction: column;
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+  }
+  /* qui la lista si prende lo spazio che avanza invece del 34vh fisso */
+  #page-players .sq-players { flex: 1; min-height: 0; max-height: none; }
+  #page-players .sq-start-btn { flex: none; }
+
   /* Il profilo centra i suoi contenuti con flex:1: senza una colonna a
      tutta altezza restava alto quanto il testo e sotto si vedeva il
      taglio netto del fondo. */
@@ -4896,7 +4917,7 @@
   <!-- PAGINA GIOCATORI CONDIVISA: ci passano tutti i giochi che hanno
        bisogno di una rosa. La lista vive in localStorage, quindi resta
        anche chiudendo e riaprendo l'app. -->
-  <div class="page game-detail" id="page-players" style="background:#171520">
+  <div class="page game-detail" id="page-players" style="background:#111">
     <div class="gd-header">
       <button class="back-btn" onclick="rosterBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">CHI <span style="color:#F5D06B">GIOCA</span></div>
@@ -4909,7 +4930,7 @@
         <form class="sq-add-row" onsubmit="rosterAddFromInput(event)">
           <input class="sq-name-input" id="roster-input" type="text" maxlength="14" placeholder="Nome giocatore" autocomplete="off">
           <button type="submit" class="sq-add-icon" aria-label="Aggiungi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#171520" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </form>
         <div class="sq-players" id="roster-list"></div>
@@ -4927,7 +4948,7 @@
 
     <div class="sq-modes" id="sq-modes" style="display:none">
       <div class="sq-modes-head">
-        <div class="sq-modes-tag">Livello di partenza</div>
+        <div class="sq-modes-tag">Difficolta' di partenza</div>
         <div class="sq-modes-title">Quanto si spinge?</div>
       </div>
       <div class="sq-modes-list" id="sq-modes-list"></div>
@@ -4938,7 +4959,7 @@
     <div class="sq-area" id="sq-area" style="display:none">
       <!-- barra difficolta' adattiva: mostra dove sta il gioco adesso -->
       <button class="sq-diffbar" id="sq-diffbar" onclick="sqExplain(true)">
-        <span class="sq-diffbar-lbl" id="sq-diffbar-lbl">Livello 3</span>
+        <span class="sq-diffbar-lbl" id="sq-diffbar-lbl">Difficolta' 3</span>
         <span class="sq-diffbar-track"><span class="sq-diffbar-fill" id="sq-diffbar-fill"></span></span>
         <span class="sq-diffbar-info">?</span>
       </button>
@@ -10112,11 +10133,11 @@
   ];
   // livello di partenza: si sceglie una volta sola, poi il gioco si autoregola
   const sqModes = [
-    { lv:1, emoji:'😎', name:'Livello 1',  desc:'Rompighiaccio: si scalda l\'atmosfera' },
-    { lv:2, emoji:'🍻', name:'Livello 2',  desc:'La serata inizia a prendere piede' },
-    { lv:3, emoji:'🔥', name:'Livello 3',  desc:'Domande vere, niente piu\' scherzi' },
-    { lv:4, emoji:'😈', name:'Livello 4',  desc:'Verita\' scomode' },
-    { lv:5, emoji:'💀', name:'Livello 5',  desc:'Senza freni' }
+    { lv:1, emoji:'😎', name:'Difficolta\' 1',  desc:'Rompighiaccio: si scalda l\'atmosfera' },
+    { lv:2, emoji:'🍻', name:'Difficolta\' 2',  desc:'La serata inizia a prendere piede' },
+    { lv:3, emoji:'🔥', name:'Difficolta\' 3',  desc:'Domande vere, niente piu\' scherzi' },
+    { lv:4, emoji:'😈', name:'Difficolta\' 4',  desc:'Verita\' scomode' },
+    { lv:5, emoji:'💀', name:'Difficolta\' 5',  desc:'Senza freni' }
   ];
   const SQ_DEFAULT_PEN = 'Bevi 1 sorso';
   /* --- motore adattivo ---
@@ -10193,9 +10214,6 @@
   }
   let sqScreen = 'setup'; // schermata Shot Quest: 'setup' | 'modes' | 'area' — per il tasto indietro
 
-  // --- setup giocatori (stile Picolo: un campo, lista di chip) ---
-  const sqAvatarColors = ['#f7cc49','#7C3AED','#0D9488','#DB2777','#2563EB','#DC2626','#EA580C','#0891B2','#16A34A','#9333EA'];
-
   /* --- Pagina giocatori condivisa ---
      Chi la apre dice dove vuole andare dopo (rosterNext): il tasto
      "Continua" riporta al gioco di partenza. Il sesso e' obbligatorio per
@@ -10241,7 +10259,6 @@
       const missingGender = needGender && !p.gender;
       return '<div class="ot-player-chip-wrap ' + (missingGender ? 'missing' : '') + '" data-idx="' + i + '">'
         + '<div class="sq-player-chip">'
-        + '<span class="sq-avatar" style="background:' + sqAvatarColors[i % sqAvatarColors.length] + '">' + sqCharacter(i) + '</span>'
         + '<span class="sq-chip-name">' + huEscape(p.name) + '</span>'
         + '<button class="sq-chip-del" onclick="rosterRemove(this)" aria-label="Rimuovi">'
         + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
@@ -10285,13 +10302,7 @@
     else if (target === 'shotiq') siqShowModes();
   }
 
-  // lettere greche stile confraternita, assegnate a ogni giocatore
-  const sqGreek = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Π','Σ','Φ','Ψ','Ω'];
-  function sqCharacter(i) {
-    return sqGreek[i % sqGreek.length];
-  }
-
-  // ingresso nel gioco dalla pagina giocatori → schermata scelta modalità
+  // ingresso nel gioco dalla pagina giocatori → schermata scelta difficolta'
   function sqStart() {
     if (roster.length < 2) return;
     sqScreen = 'modes';
@@ -10382,7 +10393,7 @@
   // aggiorna la barra in alto con il livello a cui sta girando il gioco
   function sqRenderDiff() {
     const shown = Math.max(1, Math.min(5, Math.round(sqDiff)));
-    document.getElementById('sq-diffbar-lbl').textContent = 'Livello ' + shown;
+    document.getElementById('sq-diffbar-lbl').textContent = 'Difficolta\' ' + shown;
     const pct = ((Math.max(1, Math.min(5, sqDiff)) - 1) / 4) * 100;
     document.getElementById('sq-diffbar-fill').style.width = pct + '%';
   }
