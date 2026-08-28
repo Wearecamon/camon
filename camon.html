@@ -31,8 +31,13 @@
   /* Blocca il doppio-tap-per-zoomare di Safari iOS (quel "salto" quando si
      tocca due volte veloce) senza disattivare lo zoom con due dita, che
      resta utile per l'accessibilita' — per quello non tocchiamo il
-     viewport (vedi commento su maximum-scale piu' sopra). */
-  body { font-family: 'Manrope', sans-serif; color: #fff; touch-action: manipulation; }
+     viewport (vedi commento su maximum-scale piu' sopra).
+     Va messo su tutto: touch-action NON si eredita, quindi metterlo solo
+     sul body lasciava ogni figlio ad "auto" e il doppio tap zoomava
+     comunque. Le regole piu' specifiche (#onboard-overlay) vincono lo
+     stesso su questa. */
+  * { touch-action: manipulation; }
+  body { font-family: 'Manrope', sans-serif; color: #fff; }
 
   /* Zone sicure iPhone (notch sopra, barra Home sotto).
      Normalmente arrivano da env(); se iOS in modalita' app le riporta
@@ -2042,10 +2047,13 @@
      avanza fra la barra della difficolta' e i tasti, e il testo dentro si
      adatta (vedi sqFitPrompt). */
   /* nome proprio: .sq-card e' gia' preso da un altro gioco piu' sotto */
-  /* flex e overflow li mette .fit-fill secondo lo stato della pagina */
+  /* flex e overflow li mette .fit-fill secondo lo stato della pagina.
+     In fondo si lascia lo spazio della bottom bar piu' quello dei tasti,
+     che ora sono fissi e quindi non occupano piu' posto nel flusso: senza
+     questo la frase ci finirebbe sotto. */
   #page-diktat .sq-area {
     align-items: center;
-    padding: 16px 28px var(--nav-space);
+    padding: 16px 28px calc(var(--nav-space) + 86px);
   }
   /* La frase sta al centro dello spazio fra la barra della difficolta' e i
      tasti. Crescendo si allarga verso l'alto e verso il basso restando
@@ -2060,6 +2068,21 @@
      pastiglia della categoria si portava dietro 26px di margine e
      spingeva la frase a meta' schermo */
   #page-diktat .sq-prompt-cat { margin: 0; }
+  /* I tasti sono ancorati al viewport, non al flusso della pagina: stanno
+     sempre appena sopra la bottom bar e non si muovono di un pixel,
+     nemmeno se la pagina scorre o se la frase cambia altezza. Prima erano
+     in fondo alla colonna e seguivano il contenuto, da cui il saltello
+     scorrendo. Larghezza agganciata a quella della barra, cosi' sono
+     allineati fra loro. */
+  #page-diktat .sq-judge, #page-diktat .sq-next {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(96px + var(--safe-bottom) - var(--vp-gap));
+    width: calc(100% - 32px);
+    max-width: 398px;
+    z-index: 150;
+  }
   /* Altezza fissa, non minima: le penitenze lunghe andavano a capo, il
      tasto cresceva e la coppia si spostava su e giu' a ogni carta. Ora
      restano inchiodate e a cedere e' semmai il testo della penitenza. */
@@ -2088,6 +2111,19 @@
     background: #fff; color: #1a1a1a;
     font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Schermi bassi (telefono in orizzontale, finestra schiacciata): fra
+     testata, barra della difficolta', tasti e bottom bar resterebbero
+     poche decine di pixel per la frase. Qui si stringe tutto il contorno
+     invece di rimpicciolire il testo fino a renderlo illeggibile. */
+  @media (max-height: 560px) {
+    #page-diktat .sq-judge, #page-diktat .sq-next { height: 58px; }
+    #page-diktat .sq-area { padding: 8px 22px calc(var(--nav-space) + 68px); }
+    #page-diktat .sq-gamecard { gap: 7px; }
+    #page-diktat .sq-diffbar { padding: 4px 8px 4px 12px; margin-bottom: 3px; }
+    #page-diktat .sq-prompt-cat { font-size: 10px; padding: 4px 12px; }
+    .sq-judge-lbl { font-size: 14px; }
   }
 
   /* Diktat — spiegazione della meccanica adattiva */
@@ -5015,7 +5051,7 @@
     </div>
   </div>
 
-  <div class="page game-detail page-fit" id="page-diktat">
+  <div class="page game-detail page-fit" data-fit="always" id="page-diktat">
     <div class="gd-header">
       <button class="back-btn" onclick="sqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">DIK<span>TAT</span></div>
@@ -10529,8 +10565,11 @@
     // il testo resta grande e semmai si scorre.
     const pagina = document.getElementById('page-diktat');
     if (pagina && !pagina.classList.contains('is-fixed')) return;
-    // il minimo tiene leggibile anche la carta piu' lunga del mazzo
-    while (el.scrollHeight > box.clientHeight && size > 15) {
+    /* Si guarda quanto sfora la carta INTERA, non solo la frase: dentro
+       c'e' anche la pastiglia della categoria e il suo distacco, e
+       misurando la sola frase su schermi bassi il testo finiva sotto i
+       tasti. Il minimo tiene leggibile anche la carta piu' lunga. */
+    while (box.scrollHeight > box.clientHeight && size > 13) {
       size -= 1;
       el.style.fontSize = size + 'px';
     }
@@ -13002,10 +13041,18 @@
     if (disponibile < 200) return;
     const prima = page.classList.contains('is-scroll') ? 'is-scroll' : 'is-fixed';
     page.classList.remove('is-fixed', 'is-scroll');
-    page.classList.add('is-measuring');
-    const serve = page.scrollHeight;
-    page.classList.remove('is-measuring');
-    const dopo = serve <= disponibile ? 'is-fixed' : 'is-scroll';
+    let dopo;
+    if (page.dataset.fit === 'always') {
+      /* Diktat: qui non si scorre mai. I tasti sono ancorati al fondo e il
+         testo si rimpicciolisce da solo fino a starci, quindi non c'e'
+         niente che possa finire irraggiungibile sotto la barra. */
+      dopo = 'is-fixed';
+    } else {
+      page.classList.add('is-measuring');
+      const serve = page.scrollHeight;
+      page.classList.remove('is-measuring');
+      dopo = serve <= disponibile ? 'is-fixed' : 'is-scroll';
+    }
     page.classList.add(dopo);
     // il testo di Diktat si ridimensiona sullo spazio, che e' appena cambiato
     if (dopo !== prima && typeof sqFitPrompt === 'function') sqFitPrompt();
