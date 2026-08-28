@@ -2040,14 +2040,24 @@
   /* nome proprio: .sq-card e' gia' preso da un altro gioco piu' sotto */
   #page-diktat .sq-area {
     flex: 1; min-height: 0; overflow: hidden;
-    align-items: center; padding-bottom: 24px;
+    align-items: center;
+    /* 64 di barra + 16 sotto + aria, oltre alla safe area: i tasti devono
+       restare sopra la bottom bar, non finirci sotto */
+    padding: 16px 28px calc(96px + var(--safe-bottom, 0px));
   }
+  /* Il testo parte subito sotto la barra della difficolta' invece di stare
+     centrato: cosi' anche le frasi corte lasciano libero il fondo per i
+     due tasti, che altrimenti scivolavano giu' sotto la bottom bar. */
   #page-diktat .sq-gamecard {
     flex: 1; min-height: 0; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 12px; width: 100%;
-    overflow: hidden;
+    align-items: center; justify-content: flex-start; gap: 12px; width: 100%;
+    overflow: hidden; padding-top: 4px;
   }
   #page-diktat .sq-prompt { margin: 0; }
+  /* la spaziatura la da' gia' il gap della colonna: senza questo la
+     pastiglia della categoria si portava dietro 26px di margine e
+     spingeva la frase a meta' schermo */
+  #page-diktat .sq-prompt-cat { margin: 0; }
   .sq-judge { display: flex; gap: 10px; width: 100%; padding-bottom: 4px; flex: none; }
   .sq-judge button {
     flex: 1; border: none; border-radius: 14px; padding: 13px 10px;
@@ -10140,7 +10150,7 @@
   ];
   // livello di partenza: si sceglie una volta sola, poi il gioco si autoregola
   const sqModes = [
-    { lv:1, emoji:'😎', name:'Difficolta\' 1',  desc:'Rompighiaccio: si scalda l\'atmosfera' },
+    { lv:1, emoji:'😎', name:'Difficolta\' 1',  desc:'Rompighiaccio' },
     { lv:2, emoji:'🍻', name:'Difficolta\' 2',  desc:'La serata inizia a prendere piede' },
     { lv:3, emoji:'🔥', name:'Difficolta\' 3',  desc:'Domande vere, niente piu\' scherzi' },
     { lv:4, emoji:'😈', name:'Difficolta\' 4',  desc:'Verita\' scomode' },
