@@ -46,6 +46,10 @@
        Impostati da uno script; qui i valori neutri per browser/desktop. */
     --vp-gap: 0px;
     --app-h: 100%;
+    /* Spazio che la bottom bar si prende in fondo: 64 di barra, 16 sotto
+       e un po' d'aria. Una sola fonte per tutte le pagine, cosi' non ci
+       sono numeri sparsi che si disallineano. */
+    --nav-space: calc(96px + var(--safe-bottom));
   }
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
@@ -2038,20 +2042,18 @@
      avanza fra la barra della difficolta' e i tasti, e il testo dentro si
      adatta (vedi sqFitPrompt). */
   /* nome proprio: .sq-card e' gia' preso da un altro gioco piu' sotto */
+  /* flex e overflow li mette .fit-fill secondo lo stato della pagina */
   #page-diktat .sq-area {
-    flex: 1; min-height: 0; overflow: hidden;
     align-items: center;
-    /* 64 di barra + 16 sotto + aria, oltre alla safe area: i tasti devono
-       restare sopra la bottom bar, non finirci sotto */
-    padding: 16px 28px calc(96px + var(--safe-bottom, 0px));
+    padding: 16px 28px var(--nav-space);
   }
   /* Il testo parte subito sotto la barra della difficolta' invece di stare
      centrato: cosi' anche le frasi corte lasciano libero il fondo per i
      due tasti, che altrimenti scivolavano giu' sotto la bottom bar. */
   #page-diktat .sq-gamecard {
-    flex: 1; min-height: 0; display: flex; flex-direction: column;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: flex-start; gap: 12px; width: 100%;
-    overflow: hidden; padding-top: 4px;
+    padding-top: 4px;
   }
   #page-diktat .sq-prompt { margin: 0; }
   /* la spaziatura la da' gia' il gap della colonna: senza questo la
@@ -2473,7 +2475,7 @@
   /* Shot Quest — scelta modalità */
   .sq-modes {
     flex: 1; display: flex; flex-direction: column; justify-content: center;
-    padding: 20px 24px 100px; width: 100%;
+    padding: 20px 24px var(--nav-space); width: 100%;
   }
   .sq-modes-head { margin-bottom: 22px; }
   .sq-modes-tag {
@@ -3982,41 +3984,77 @@
   /* Le pagine dei singoli giochi si posizionano al proprio interno. */
   .page.game-detail.active { position: relative !important; }
 
-  /* Diktat sta tutto in una schermata: la carta non deve mai finire sotto
-     la bottom bar ne' far scorrere la pagina. Come per i giochi, serve
-     un'altezza vera da cui far scendere il flex dei figli. */
-  #page-diktat.active {
+  /* ============================================================
+     PAGINE "FERME QUANTO POSSIBILE"
+
+     Una pagina .page-fit vorrebbe stare tutta in una schermata, senza
+     scorrimento. Ma gli schermi sono di mille misure e la web app puo'
+     girare ovunque: se il contenuto non ci sta, tenerla ferma vorrebbe
+     dire nascondere dei tasti sotto la bottom bar e renderli
+     inutilizzabili.
+
+     Quindi la decisione non e' scritta qui ma la prende fitActivePage()
+     a ogni cambio pagina, rotazione o ridimensionamento, misurando il
+     contenuto vero: se ci sta mette .is-fixed, altrimenti .is-scroll e
+     la pagina torna a scorrere. Nessuna pagina resta ferma a costo di
+     coprire qualcosa.
+     ============================================================ */
+  /* Altezza in dvh, non in %: il body ha overflow:hidden e un'altezza che
+     dipende dal contenuto, quindi una percentuale non darebbe un limite
+     vero e la pagina crescerebbe oltre lo schermo senza mai scorrere. */
+  /* Lo scorrimento e' lo stato di partenza, non l'eccezione: se la misura
+     non e' ancora girata (o non e' possibile farla) la pagina scorre, e al
+     massimo si scorre per niente. Il contrario — restare ferma per errore —
+     lascerebbe dei tasti irraggiungibili sotto la bottom bar. */
+  .page-fit.active {
     display: flex !important;
     flex-direction: column;
     height: 100dvh !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .page-fit.active.is-fixed { overflow: hidden !important; }
+  /* Mentre si misura la pagina va lasciata al suo flusso naturale, se no
+     si legge l'altezza imposta dal layout invece di quella del contenuto. */
+  .page-fit.is-measuring {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  /* Durante la misura un .fit-scroll conta solo per una fetta: e' il pezzo
+     che sa scorrere per conto suo, quindi non deve trascinare tutta la
+     pagina nello scorrimento solo perche' l'elenco e' lungo. Quello che
+     decide e' se ci sta il resto — testata, campo, tasto — piu' un minimo
+     di elenco visibile. */
+  .page-fit.is-measuring .fit-scroll {
+    max-height: 110px !important;
     overflow: hidden !important;
   }
-
-  /* Stessa cosa per la rosa: la pagina sta ferma, a scorrere e' solo
-     l'elenco dei nomi dentro la sua scheda. Il tasto Continua resta
-     appoggiato sopra la bottom bar invece di finirci sotto. */
-  #page-players.active {
-    display: flex !important;
-    flex-direction: column;
-    height: 100dvh !important;
-    overflow: hidden !important;
+  /* .fit-fill = si allarga per riempire quando la pagina e' ferma, ma
+     torna alla sua altezza naturale quando si scorre.
+     .fit-scroll = il pezzo che scorre da solo dentro la pagina ferma
+     (l'elenco dei giocatori): se scorre gia' tutta la pagina, non ha
+     senso avere un secondo scorrimento annidato. */
+  .page-fit.active .fit-fill { flex: none; min-height: 0; overflow: visible; }
+  .page-fit.active .fit-scroll { flex: none; max-height: none; overflow: visible; }
+  .page-fit.active.is-fixed .fit-fill { flex: 1; min-height: 0; overflow: hidden; }
+  .page-fit.active.is-fixed .fit-scroll {
+    flex: 1; min-height: 0; max-height: none;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   #page-players .sq-setup {
-    flex: 1; min-height: 0; overflow: hidden;
     display: flex; flex-direction: column;
-    /* 64 di barra + 16 sotto + un po' d'aria, oltre alla safe area */
-    padding: 20px 28px calc(96px + var(--safe-bottom, 0px));
+    padding: 20px 28px var(--nav-space);
   }
-  /* La scheda ora si prende tutta l'altezza: col fondo giallo pieno
-     diventerebbe un lastrone, quindi qui resta scura e il giallo torna
-     dove serve davvero (titolo, tasto aggiungi, Continua). */
+  /* La scheda si prende tutta l'altezza quando la pagina e' ferma: col
+     fondo giallo pieno diventerebbe un lastrone, quindi qui resta scura
+     e il giallo torna dove serve (titolo, tasto aggiungi, Continua). */
   #page-players .sq-setup-card {
-    flex: 1; min-height: 0; display: flex; flex-direction: column;
+    display: flex; flex-direction: column;
     background: rgba(255,255,255,0.04);
     border-color: rgba(255,255,255,0.1);
   }
-  /* qui la lista si prende lo spazio che avanza invece del 34vh fisso */
-  #page-players .sq-players { flex: 1; min-height: 0; max-height: none; }
   #page-players .sq-start-btn { flex: none; }
 
   /* Il profilo centra i suoi contenuti con flex:1: senza una colonna a
@@ -4934,14 +4972,14 @@
   <!-- PAGINA GIOCATORI CONDIVISA: ci passano tutti i giochi che hanno
        bisogno di una rosa. La lista vive in localStorage, quindi resta
        anche chiudendo e riaprendo l'app. -->
-  <div class="page game-detail" id="page-players" style="background:#111">
+  <div class="page game-detail page-fit" id="page-players" style="background:#111">
     <div class="gd-header">
       <button class="back-btn" onclick="rosterBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">CHI <span style="color:#F5D06B">GIOCA</span></div>
       <div style="width:38px"></div>
     </div>
-    <div class="sq-setup">
-      <div class="sq-setup-card">
+    <div class="sq-setup fit-fill">
+      <div class="sq-setup-card fit-fill">
         <div class="sq-tag">Rosa giocatori</div>
         <div class="sq-setup-title">Chi gioca stasera?</div>
         <form class="sq-add-row" onsubmit="rosterAddFromInput(event)">
@@ -4950,14 +4988,14 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </form>
-        <div class="sq-players" id="roster-list"></div>
+        <div class="sq-players fit-scroll" id="roster-list"></div>
         <div class="sq-empty-hint" id="roster-hint">Aggiungi almeno 2 giocatori per iniziare</div>
       </div>
       <button class="sq-start-btn" id="roster-continue" onclick="rosterContinue()" disabled>Continua →</button>
     </div>
   </div>
 
-  <div class="page game-detail" id="page-diktat">
+  <div class="page game-detail page-fit" id="page-diktat">
     <div class="gd-header">
       <button class="back-btn" onclick="sqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">DIK<span>TAT</span></div>
@@ -4973,7 +5011,7 @@
       <button class="sq-modes-back" onclick="goTo('players')">← Cambia giocatori</button>
     </div>
 
-    <div class="sq-area" id="sq-area" style="display:none">
+    <div class="sq-area fit-fill" id="sq-area" style="display:none">
       <!-- barra difficolta' adattiva: mostra dove sta il gioco adesso -->
       <button class="sq-diffbar" id="sq-diffbar" onclick="sqExplain(true)">
         <span class="sq-diffbar-lbl" id="sq-diffbar-lbl">Difficolta' 3</span>
@@ -4981,7 +5019,7 @@
         <span class="sq-diffbar-info">?</span>
       </button>
 
-      <div class="sq-gamecard" id="sq-card">
+      <div class="sq-gamecard fit-fill" id="sq-card">
         <div class="sq-prompt-cat" id="sq-prompt-cat">SFIDA</div>
         <div class="sq-prompt" id="sq-prompt">—</div>
       </div>
@@ -10453,6 +10491,10 @@
     if (!el || !box) return;
     let size = 30;
     el.style.fontSize = size + 'px';
+    // Se la pagina ha deciso di scorrere non c'e' un'altezza da rispettare:
+    // il testo resta grande e semmai si scorre.
+    const pagina = document.getElementById('page-diktat');
+    if (pagina && !pagina.classList.contains('is-fixed')) return;
     // il minimo tiene leggibile anche la carta piu' lunga del mazzo
     while (el.scrollHeight > box.clientHeight && size > 15) {
       size -= 1;
@@ -12880,7 +12922,77 @@
        cambiano altezza quando i loro contenuti finiscono di disporsi. */
     adattaTesteFisse();
     setTimeout(adattaTesteFisse, 80);
+    /* Stessa logica dei due passaggi: la pagina appena aperta decide se
+       puo' restare ferma, e ridecide quando i contenuti si sono disposti. */
+    if (typeof fitActivePage === 'function') {
+      fitActivePage();
+      setTimeout(fitActivePage, 80);
+    }
     return true;
+  }
+
+  /* ============================================================
+     PAGINE FERME SOLO SE CI STANNO
+
+     Una .page-fit vorrebbe stare tutta in una schermata. Su un telefono
+     grande ci sta; su uno piccolo, in orizzontale, con la tastiera
+     aperta o col testo di sistema ingrandito, no. Tenerla ferma comunque
+     significherebbe lasciare dei tasti sotto la bottom bar, dove non si
+     riescono a premere.
+
+     Qui si misura ogni volta il contenuto vero e si decide: ci sta ->
+     .is-fixed (niente scorrimento), non ci sta -> .is-scroll (si scorre,
+     e in fondo resta lo spazio della barra). La misura si fa mettendo la
+     pagina in .is-measuring, cioe' a flusso libero: leggerla nel layout
+     definitivo darebbe l'altezza imposta dal flex, non quella che serve
+     davvero al contenuto.
+     ============================================================ */
+  /* Quanto schermo c'e' davvero. visualViewport e' il piu' onesto quando
+     c'e' la tastiera aperta o l'utente ha zoomato; gli altri due sono la
+     rete di sicurezza per i browser che non ce l'hanno. */
+  function altezzaUtile() {
+    const v = window.visualViewport && window.visualViewport.height;
+    return Math.round(v || document.documentElement.clientHeight || window.innerHeight || 0);
+  }
+  function fitActivePage() {
+    const page = document.querySelector('.page.active.page-fit');
+    if (!page) return;
+    const disponibile = altezzaUtile();
+    /* Se lo schermo non e' ancora misurabile (pagina non disposta, tab in
+       background) non si tira a indovinare: si lascia lo stato com'e' e si
+       rimisura al prossimo giro, quando i numeri saranno veri. Bloccare una
+       pagina sulla base di un'altezza fasulla vorrebbe dire nascondere dei
+       tasti per davvero. */
+    if (disponibile < 200) return;
+    const prima = page.classList.contains('is-scroll') ? 'is-scroll' : 'is-fixed';
+    page.classList.remove('is-fixed', 'is-scroll');
+    page.classList.add('is-measuring');
+    const serve = page.scrollHeight;
+    page.classList.remove('is-measuring');
+    const dopo = serve <= disponibile ? 'is-fixed' : 'is-scroll';
+    page.classList.add(dopo);
+    // il testo di Diktat si ridimensiona sullo spazio, che e' appena cambiato
+    if (dopo !== prima && typeof sqFitPrompt === 'function') sqFitPrompt();
+    return dopo;
+  }
+  // una misura sola per frame: cambio pagina, rotazione e resize possono
+  // arrivare tutti insieme e rimisurare a ogni evento e' sprecato
+  let fitAttesa = null;
+  function fitSoon() {
+    if (fitAttesa) return;
+    fitAttesa = requestAnimationFrame(function () { fitAttesa = null; fitActivePage(); });
+  }
+  window.addEventListener('resize', fitSoon);
+  window.addEventListener('orientationchange', fitSoon);
+  // su iOS la tastiera non fa scattare resize: cambia la visual viewport
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fitSoon);
+  // i font arrivano dopo il primo render e cambiano l'ingombro del testo
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSoon);
+  // il contenuto della pagina puo' cambiare da solo (nomi aggiunti alla
+  // rosa, carta piu' lunga della precedente): si rimisura anche allora
+  if (window.ResizeObserver) {
+    const osservatore = new ResizeObserver(fitSoon);
+    document.querySelectorAll('.page-fit').forEach(function (p) { osservatore.observe(p); });
   }
 
   function goTo(page) {
