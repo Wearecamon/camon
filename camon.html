@@ -4219,6 +4219,67 @@
     overscroll-behavior: none;
   }
 
+  /* ===== ACCESSIBILITÀ: prefers-reduced-motion ===== */
+  /*
+   * Quando l'utente ha attivato "Riduci movimento" in iOS/Android/macOS/Windows,
+   * tutte le animazioni e transizioni vengono azzerate o ridotte a cambio istantaneo.
+   * Lo stato finale viene comunque raggiunto (nessun salto visivo rotto): solo il
+   * movimento intermedio sparisce.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    /* Regola universale: tutte le transizioni e animazioni diventano istantanee */
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      transition-delay: 0ms !important;
+    }
+
+    /* Marquee decorativi: si bloccano del tutto (non scorrono mai, nemmeno per
+       un frame), mostrando il contenuto statico */
+    .strip-track {
+      animation: none !important;
+      transform: none !important;
+    }
+    .offers-auto-scroll {
+      animation: none !important;
+      transform: none !important;
+      flex-wrap: wrap !important;
+      overflow-x: auto !important;
+    }
+
+    /* Elementi pulsanti / infiniti: spenti esplicitamente */
+    .kings-tap-hint,
+    .ot-start-deco,
+    .gsq-lamp,
+    .gsq-face,
+    .gsq-excl,
+    .gsq-quest,
+    .gsq-questl,
+    .table-assigned rect,
+    .table-assigned circle {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    /* Ruota ShotIQ: la transizione CSS è già azzerata dalla regola universale,
+       ma la sovrascriviamo esplicitamente per sicurezza */
+    #siq-wheel {
+      transition: none !important;
+    }
+
+    /* Carta Kings: la transizione è già azzerata; il flip avviene senza movimento */
+    .kings-card {
+      transition: none !important;
+    }
+
+    /* Reel Obbligo/Truth: la striscia usa una transizione inline impostata via JS;
+       il JS viene adattato separatamente (vedi prefersReducedMotion()) */
+
+    /* Sheet / modal che scivolano su: azzerati dalla regola universale */
+  }
+
 </style>
 </head>
 <body>
@@ -7433,6 +7494,16 @@
     </button>
   </nav>
 <script>
+  /* ===== UTILITY: prefers-reduced-motion ===== */
+  /**
+   * Restituisce true se l'utente ha attivato "Riduci movimento" in iOS/Android/
+   * macOS/Windows. Usata per azzerare i timeout JS che altrimenti aspetterebbero
+   * la fine di animazioni CSS che non avvengono più.
+   */
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
   /* ===== SETTINGS DRAWER ===== */
   document.querySelector('.hamburger').addEventListener('click', function() {
     this.classList.toggle('open');
@@ -11348,7 +11419,7 @@
     siqWheelRot += delta;
     const wheel = document.getElementById('siq-wheel');
     wheel.style.transform = 'rotate(' + siqWheelRot + 'deg)';
-    setTimeout(function(){ siqAfterSpin(target); }, 4200);
+    setTimeout(function(){ siqAfterSpin(target); }, prefersReducedMotion() ? 50 : 4200);
   }
 
   function siqAfterSpin(idx) {
@@ -11636,8 +11707,12 @@
     else obbligoLaunchReel();
   }
   function obbligoLaunchReel() {
-    obbligoSpinReel(otPendingNames.ask, otPendingNames.answer, OT_SPIN_MS);
-    otSpinTimers.push(setTimeout(obbligoFinishSpin, OT_SPIN_MS + 150));
+    // Se l'utente ha attivato "Riduci movimento", il reel non deve animarsi:
+    // passiamo durationMs=0 così la striscia salta subito alla posizione finale
+    // e tutti i setTimeout interni si azzerano di conseguenza.
+    const spinMs = prefersReducedMotion() ? 0 : OT_SPIN_MS;
+    obbligoSpinReel(otPendingNames.ask, otPendingNames.answer, spinMs);
+    otSpinTimers.push(setTimeout(obbligoFinishSpin, spinMs + 150));
   }
   function obbligoFinishSpin() {
     otSpinning = false;
