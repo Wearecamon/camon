@@ -1570,9 +1570,10 @@
   .ot-gender-row { display:flex; gap:7px; padding:8px 3px 2px; }
   .ot-gender-opt { flex:1; border:1.5px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.6); border-radius:10px; padding:8px 4px; font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.1s; }
   .ot-gender-opt:active { transform:scale(0.96); }
-  .ot-gender-opt.m.sel { background:rgba(96,165,250,0.22); border-color:#60A5FA; color:#93C5FD; }
-  .ot-gender-opt.f.sel { background:rgba(244,114,182,0.22); border-color:#F472B6; color:var(--brand); }
-  .ot-gender-opt.x.sel { background:rgba(247,204,73,0.22); border-color:var(--brand); color:#C4B5FD; }
+  /* Le tre opzioni si escludono a vicenda: una sola puo' essere
+     selezionata, quindi tre colori diversi non aggiungevano niente
+     alla lettura — dicevano solo che il brand non era uno. */
+  .ot-gender-opt.sel { background:rgba(247,204,73,0.18); border-color:var(--brand); color:var(--brand); }
 
   /* -- Gioco: due carte che scorrono in fretta tra i nomi (come uno slot)
      e si fermano su chi chiede/chi risponde, invece della vecchia ruota
@@ -1686,15 +1687,14 @@
   /* -- Schermata di avvio accattivante -- */
   /* -- Start screen: in linea col gioco -- */
   .ot-start-screen { position:absolute; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; background:var(--bg); cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-start-deco { width:120px; height:120px; border-radius:50%; background:rgba(247,204,73,0.08); border:1.5px solid rgba(247,204,73,0.2); display:flex; align-items:center; justify-content:center; margin-bottom:32px; animation:otStartPulse 2.8s ease-in-out infinite; }
-  .ot-start-deco svg { opacity:0.9; }
-  @keyframes otStartPulse { 0%,100% { box-shadow:0 0 0 0 rgba(247,204,73,0.15); } 50% { box-shadow:0 0 0 20px rgba(249,168,212,0); } }
   .ot-start-label { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(247,204,73,0.6); margin-bottom:10px; }
   .ot-start-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(42px,12vw,64px); letter-spacing:3px; color:var(--text); text-align:center; line-height:1; margin-bottom:6px; }
   .ot-start-title span { color:var(--brand); }
-  .ot-start-sub { font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.38); margin-bottom:52px; }
-  .ot-start-cta { display:inline-flex; align-items:center; gap:10px; background:rgba(247,204,73,0.12); border:1.5px solid rgba(247,204,73,0.35); border-radius:50px; padding:15px 40px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:0.5px; color:var(--brand); cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .ot-start-cta:active { background:rgba(247,204,73,0.2); transform:scale(0.97); }
+  .ot-start-sub { font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.38); margin-bottom:34px; }
+  /* Nessuna pastiglia: tutta la schermata e' gia' cliccabile, quindi
+     un bottone disegnato prometteva un bersaglio piu' piccolo di
+     quello vero. Resta l'invito, scritto e basta. */
+  .ot-start-cta { font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(247,204,73,0.75); -webkit-tap-highlight-color:transparent; }
 
   /* -- Layout centrale: Verità · Consiglio · Obbligo impilati -- */
   .ot-consiglio-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:6; pointer-events:auto; display:none; flex-direction:column; align-items:center; gap:14px; animation:otConsIn 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -1897,48 +1897,52 @@
   .story-body::-webkit-scrollbar { display:none; }
 
   /* ---- Testata: il premio ---- */
-  .story-hero { position:relative; text-align:center; padding:10px 0 26px; }
+  .story-hero { position:relative; text-align:center; padding:4px 0 16px; }
   .story-hero-eyebrow {
     font-family:'Manrope',sans-serif; font-size:10px; font-weight:800;
     letter-spacing:3px; text-transform:uppercase; color:var(--brand);
-    margin-bottom:16px;
+    margin-bottom:10px;
   }
   /* Il bicchierino sta in un disco giallo spento con un alone dietro:
      legge come "premio" senza rubare la scena al bottone d'azione, che
      resta l'unica cosa in giallo pieno della schermata. */
   .story-hero-badge {
-    position:relative; width:88px; height:88px; margin:0 auto; border-radius:50%;
+    position:relative; width:62px; height:62px; margin:0 auto; border-radius:50%;
     background:var(--brand-dim); border:1.5px solid rgba(247,204,73,0.45);
     display:flex; align-items:center; justify-content:center;
   }
   .story-hero-badge::after {
-    content:''; position:absolute; inset:-16px; border-radius:50%; z-index:-1;
+    content:''; position:absolute; inset:-12px; border-radius:50%; z-index:-1;
     background:radial-gradient(circle, rgba(247,204,73,0.18), transparent 70%);
   }
-  .story-hero-badge svg { width:38px; height:38px; color:var(--brand); }
+  .story-hero-badge svg { width:28px; height:28px; color:var(--brand); }
   .story-hero-title {
-    font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:0.94;
-    letter-spacing:1px; color:var(--text); margin-top:18px;
+    font-family:'Bebas Neue',sans-serif; font-size:33px; line-height:0.94;
+    letter-spacing:1px; color:var(--text); margin-top:12px;
   }
   .story-hero-title span { color:var(--brand); }
   .story-hero-sub {
-    font-family:'Manrope',sans-serif; font-size:13.5px; color:var(--text-sub);
-    line-height:1.5; margin-top:11px; max-width:290px; margin-left:auto; margin-right:auto;
+    font-family:'Manrope',sans-serif; font-size:13px; color:var(--text-sub);
+    line-height:1.4; margin-top:8px; max-width:290px; margin-left:auto; margin-right:auto;
   }
 
   /* ---- I tre passi: una scaletta, non tre righe sciolte ----
      Il filo verticale che unisce i numeri dice che e' una sequenza; sfuma
      verso il basso perche' il passo che conta e' il primo. */
-  .story-steps { display:flex; flex-direction:column; margin:4px 0 24px; }
+  .story-steps { display:flex; flex-direction:column; margin:2px 0 14px; }
+  /* Il codice ce l'hai gia', o stasera non si puo': le istruzioni per
+     ottenerlo diventano ingombro. Spariscono, e tutto sta in una
+     schermata sola senza far scorrere niente. */
+  #page-story.ha-esito .story-steps { display:none; }
   .story-step {
     position:relative; display:flex; align-items:flex-start; gap:14px;
-    padding-bottom:20px;
+    padding-bottom:12px;
     font-family:'Manrope',sans-serif; font-size:13.5px;
-    color:var(--text-sub); line-height:1.5;
+    color:var(--text-sub); line-height:1.45;
   }
   .story-step:last-child { padding-bottom:0; }
   .story-step:not(:last-child)::before {
-    content:''; position:absolute; left:15px; top:34px; bottom:2px; width:1.5px;
+    content:''; position:absolute; left:15px; top:33px; bottom:1px; width:1.5px;
     background:linear-gradient(180deg, rgba(247,204,73,0.4), rgba(247,204,73,0.06));
   }
   .story-step b { color:var(--text); font-weight:700; }
@@ -1954,7 +1958,7 @@
   /* ---- Bottoni ---- */
   .story-btn {
     display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
-    border:none; border-radius:14px; padding:17px;
+    border:none; border-radius:14px; padding:14px;
     font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:0.3px;
     cursor:pointer; -webkit-tap-highlight-color:transparent;
     transition:transform 0.12s, opacity 0.15s, background 0.15s;
@@ -1970,7 +1974,7 @@
       linear-gradient(115deg, #F58529 0%, #DD2A7B 52%, #8134AF 100%);
     box-shadow:0 8px 22px rgba(221,42,123,0.30);
   }
-  .story-btn.go { background:var(--brand); color:var(--on-brand); margin-top:10px; }
+  .story-btn.go { background:var(--brand); color:var(--on-brand); margin-top:8px; }
   .story-btn.go:active { background:var(--brand-press); }
   .story-btn.ghost { background:rgba(255,255,255,0.07); color:var(--text); border:1px solid rgba(255,255,255,0.14); margin-top:10px; }
   .story-btn:disabled { opacity:0.5; cursor:default; }
@@ -1985,7 +1989,7 @@
     position:relative;
     background:var(--surface);
     border:1px solid rgba(247,204,73,0.28);
-    border-radius:18px; padding:24px 22px 20px; text-align:center;
+    border-radius:18px; padding:18px 22px 16px; text-align:center;
   }
   .story-code-card::before {
     content:''; position:absolute; top:0; left:0; right:0; height:3px;
@@ -1996,14 +2000,14 @@
     letter-spacing:2.5px; text-transform:uppercase; color:var(--text-muted);
   }
   .story-code-val {
-    font-family:'Bebas Neue',sans-serif; font-size:50px; letter-spacing:5px;
-    color:var(--brand); line-height:1; margin:10px 0 8px;
+    font-family:'Bebas Neue',sans-serif; font-size:46px; letter-spacing:5px;
+    color:var(--brand); line-height:1; margin:8px 0 6px;
   }
   .story-code-timer { font-family:'Manrope',sans-serif; font-size:12.5px; color:var(--text-sub); }
   .story-code-timer b { color:var(--text); font-variant-numeric:tabular-nums; }
   /* la perforazione: tratteggio e due tacche che bucano i fianchi */
   .story-code-tear {
-    position:relative; height:0; margin:18px -22px 16px;
+    position:relative; height:0; margin:14px -22px 13px;
     border-top:1.5px dashed rgba(255,255,255,0.16);
   }
   .story-code-tear::before, .story-code-tear::after {
@@ -2024,20 +2028,20 @@
   .story-warn {
     display:flex; gap:11px; align-items:flex-start;
     background:rgba(247,204,73,0.07); border:1px solid rgba(247,204,73,0.22);
-    border-radius:12px; padding:13px 15px; margin-top:16px;
-    font-family:'Manrope',sans-serif; font-size:12.5px; color:var(--text-sub); line-height:1.5;
+    border-radius:12px; padding:10px 13px; margin-top:10px;
+    font-family:'Manrope',sans-serif; font-size:11.5px; color:var(--text-sub); line-height:1.4;
   }
   .story-warn-ico { flex-shrink:0; margin-top:1px; color:var(--brand); }
   .story-warn b { color:var(--brand); font-weight:700; }
   .story-fineprint {
-    font-family:'Manrope',sans-serif; font-size:11px; color:var(--text-muted);
-    line-height:1.5; text-align:center; margin-top:14px;
+    font-family:'Manrope',sans-serif; font-size:10.5px; color:var(--text-muted);
+    line-height:1.4; text-align:center; margin-top:9px;
   }
 
   /* ---- Bonus gia' usato ---- */
   .story-cool {
     text-align:center; background:var(--surface);
-    border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:22px 20px;
+    border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:18px 20px;
   }
   .story-cool-ico { width:32px; height:32px; color:var(--text-muted); }
   .story-cool-title { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:0.5px; color:var(--text); margin-top:8px; }
@@ -4123,6 +4127,20 @@
     overflow-y: visible;
     background: var(--bg-deep);
     -webkit-text-size-adjust: 100%;
+    /* Se il contenuto ci sta gia' tutto, trascinare non deve muovere
+       niente: senza questo la pagina rimbalzava a vuoto sotto il dito.
+       Scorrono solo i contenitori che hanno davvero qualcosa da
+       scorrere (vedi la regola qui sotto). */
+    overscroll-behavior-y: none;
+  }
+
+  /* I contenitori scorrevoli tengono la spinta per se': arrivati in
+     fondo non la passano alla pagina, che quindi non si sposta. */
+  .story-body, .scroll-area, .book-scroll, .book-pick-scroll, .book-time-grid,
+  .book-confirmed-wrap, .carta-scroll, .prof-scroll, .prof-auth, .settings-scroll,
+  .adm-body, .info-page-content, .game-modal, .add-guest-results, .hu-modes,
+  .cs-play, .ra-play {
+    overscroll-behavior: contain;
   }
 
   /* Le pagine non sono piu' riquadri sovrapposti: si mostra solo
@@ -4400,7 +4418,6 @@
 
     /* Elementi pulsanti / infiniti: spenti esplicitamente */
     .kings-tap-hint,
-    .ot-start-deco,
     .gsq-lamp,
     .gsq-face,
     .gsq-excl,
@@ -5469,17 +5486,6 @@
     <div class="ot-play" id="ot-play" style="display:none">
       <!-- Schermata di avvio -->
       <div class="ot-start-screen" id="ot-start-screen" onclick="obbligoDismissStart()">
-        <div class="ot-start-deco">
-          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#F7CC49" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-            <!-- dado stilizzato -->
-            <rect x="3" y="3" width="18" height="18" rx="3"/>
-            <circle cx="8" cy="8" r="1.1" fill="#F7CC49" stroke="none"/>
-            <circle cx="16" cy="8" r="1.1" fill="#F7CC49" stroke="none"/>
-            <circle cx="8" cy="16" r="1.1" fill="#F7CC49" stroke="none"/>
-            <circle cx="16" cy="16" r="1.1" fill="#F7CC49" stroke="none"/>
-            <circle cx="12" cy="12" r="1.1" fill="#F7CC49" stroke="none"/>
-          </svg>
-        </div>
         <div class="ot-start-label">gioco da bar</div>
         <div class="ot-start-title">OBBLIGO <span>O VERITÀ</span></div>
         <div class="ot-start-sub">Sfida o confessa… o bevi</div>
@@ -12716,6 +12722,11 @@
     storyStopTimer();
     const action = document.getElementById('story-action');
     if (!action) return;
+    // 'ha-esito' nasconde la scaletta dei tre passi: serve solo a chi
+    // il codice deve ancora ottenerlo. Si riaccende da sola quando il
+    // bonus torna disponibile (vedi in fondo alla funzione).
+    const pagina = document.getElementById('page-story');
+    if (pagina) pagina.classList.add('ha-esito');
 
     // senza profilo non si riscatta: il bonus è legato all'account
     if (!storyHasProfile()) {
@@ -12772,7 +12783,8 @@
       return;
     }
 
-    // disponibile
+    // disponibile: qui la scaletta serve, si rimette
+    if (pagina) pagina.classList.remove('ha-esito');
     action.innerHTML =
       '<button class="story-btn ig" onclick="storyOpenIG()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none"/></svg>Apri Instagram e tagga il CAMON</button>'
       + '<button class="story-btn go" onclick="storyClaim()">Ho pubblicato la storia → genera il codice</button>';
