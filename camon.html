@@ -1484,11 +1484,13 @@
   .companion-results { position:absolute; top:calc(100% + 4px); left:0; right:0; background:#1e1e1e; border:1.5px solid rgba(255,255,255,0.12); border-radius:12px; z-index:50; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.5); }
   .companion-result-item { display:flex; align-items:center; gap:12px; padding:11px 14px; cursor:pointer; transition:background 0.1s; -webkit-tap-highlight-color:transparent; }
   .companion-result-item:hover, .companion-result-item:active { background:rgba(255,255,255,0.06); }
-  .companion-result-avatar { width:32px; height:32px; border-radius:50%; background:rgba(100,200,255,0.15); border:1px solid rgba(100,200,255,0.3); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+  .companion-result-avatar { width:32px; height:32px; border-radius:50%; background:rgba(100,200,255,0.15); border:1px solid rgba(100,200,255,0.3); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; overflow:hidden; }
+  /* la foto vera del profilo riempie il tondo; senza foto resta l'emoji */
+  .companion-result-avatar img, .companion-chip-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
   .companion-result-name { font-family:'Manrope',sans-serif; font-size:14px; font-weight:700; color:var(--text); }
   .companion-result-sub { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(255,255,255,0.35); margin-top:1px; }
   .companion-chip { display:flex; align-items:center; gap:10px; background:rgba(100,200,255,0.1); border:1.5px solid rgba(100,200,255,0.3); border-radius:12px; padding:10px 14px; }
-  .companion-chip-avatar { width:30px; height:30px; border-radius:50%; background:rgba(100,200,255,0.2); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+  .companion-chip-avatar { width:30px; height:30px; border-radius:50%; background:rgba(100,200,255,0.2); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; overflow:hidden; }
   .companion-chip-name { font-family:'Manrope',sans-serif; font-size:14px; font-weight:700; color:var(--text); flex:1; }
   .companion-chip-sub { font-family:'Manrope',sans-serif; font-size:11px; color:rgba(100,200,255,0.7); }
   .companion-chip-remove { background:none; border:none; color:rgba(255,255,255,0.35); font-size:18px; cursor:pointer; padding:0 2px; line-height:1; -webkit-tap-highlight-color:transparent; }
@@ -8531,6 +8533,40 @@
   ];
   let inviteIgHandle = '';   // @ Instagram scelto/scritto
   let inviteDocBound = false; // listener "click fuori" registrato una sola volta
+  let inviteFound = [];       // ultimo elenco tornato dal server
+  let inviteSearchToken = 0;  // scarta le risposte arrivate fuori ordine
+
+  /* Cerca fra gli account VERI del CAMON.
+     Non si puo' interrogare 'profiles' dal telefono: la regola di riga
+     lascia leggere solo il proprio profilo (ed e' giusto cosi', li'
+     dentro c'e' anche il telefono). Si passa da search_people, che gira
+     sul server e restituisce solo nome e foto — vedi
+     supabase/23_ricerca_persone.sql. */
+  // Torna un elenco (anche vuoto) se la ricerca ha funzionato, oppure
+  // null se non e' proprio stato possibile cercare. Sono due cose
+  // diverse e vanno dette in modo diverso: "non c'e' nessuno con questo
+  // nome" e' un risultato, "la ricerca non funziona" e' un guasto.
+  async function inviteSearchPeople(q) {
+    if (!window.sb) return null;
+    try {
+      const { data, error } = await window.sb.rpc('search_people', { q: q });
+      if (error) throw error;
+      const righe = data || [];
+      return await Promise.all(righe.map(async function (r) {
+        let foto = null;
+        try { foto = r.photo_url ? await camonAvatarUrl(r.photo_url) : null; } catch (e) {}
+        return { id: r.id, name: r.full_name, photo: foto };
+      }));
+    } catch (e) {
+      const msg = (e && e.message) || '';
+      if (/find the function|does not exist|schema cache/i.test(msg)) {
+        console.warn('CAMON: search_people non installata. Esegui supabase/23_ricerca_persone.sql nel SQL Editor.');
+      } else {
+        console.warn('CAMON: ricerca persone fallita —', msg);
+      }
+      return null;
+    }
+  }
 
   function inviteReset() {
     inviteMode = 'user';
@@ -8599,20 +8635,41 @@
     if (!results) return;
     const q = (val || '').trim().toLowerCase();
     if (inviteMode === 'user') {
-      if (q.length < 1) { results.style.display = 'none'; return; }
-      const matches = CAMON_USERS.filter(u => u.name.toLowerCase().includes(q));
-      if (!matches.length) {
-        results.innerHTML = '<div class="ig-empty">Nessuno su CAMON con questo nome. Invitalo su Instagram qui sotto 👇</div>';
-        results.style.display = 'block'; return;
+      // Servono due lettere: e' lo stesso minimo che impone la
+      // funzione sul server, cosi' non si parte con richieste che
+      // tornerebbero comunque vuote.
+      if (q.length < 2) {
+        results.innerHTML = '<div class="ig-empty">Scrivi almeno due lettere del nome.</div>';
+        results.style.display = q.length ? 'block' : 'none';
+        return;
       }
+      inviteSearchToken++;
+      const token = inviteSearchToken;
       results.style.display = 'block';
-      results.innerHTML = matches.slice(0, 5).map(u =>
-        '<div class="companion-result-item" onmousedown="inviteSelect(\'' + u.id + '\')">'
-        + '<div class="companion-result-avatar">' + (u.gender === 'F' ? '👩' : '👨') + '</div>'
-        + '<div><div class="companion-result-name">' + u.name + '</div>'
-        + '<div class="companion-result-sub">' + u.username + '</div></div>'
-        + '</div>'
-      ).join('');
+      results.innerHTML = '<div class="ig-empty">Cerco…</div>';
+      inviteSearchPeople(val).then(function (persone) {
+        // scartata: nel frattempo si e' scritto altro
+        if (token !== inviteSearchToken) return;
+        if (persone === null) {
+          results.innerHTML = '<div class="ig-empty">Ricerca non disponibile in questo momento. Puoi invitare la persona su Instagram qui sotto 👇</div>';
+          results.style.display = 'block';
+          return;
+        }
+        if (!persone.length) {
+          results.innerHTML = '<div class="ig-empty">Nessuno su CAMON con questo nome. Invitalo su Instagram qui sotto 👇</div>';
+          results.style.display = 'block';
+          return;
+        }
+        inviteFound = persone;
+        results.style.display = 'block';
+        results.innerHTML = persone.map(function (u) {
+          return '<div class="companion-result-item" onmousedown="inviteSelect(\'' + u.id + '\')">'
+            + '<div class="companion-result-avatar">' + (u.photo ? '<img src="' + huEscape(u.photo) + '" alt="">' : '👤') + '</div>'
+            + '<div><div class="companion-result-name">' + huEscape(u.name) + '</div>'
+            + '<div class="companion-result-sub">su CAMON</div></div>'
+            + '</div>';
+        }).join('');
+      });
     } else {
       const qh = q.replace(/^@/, '');
       if (qh.length < 1) { results.style.display = 'none'; return; }
@@ -8632,13 +8689,13 @@
   }
 
   function inviteSelect(userId) {
-    const u = CAMON_USERS.find(x => x.id === userId);
+    const u = inviteFound.find(x => x.id === userId);
     if (!u) return;
     inviteUser = u; inviteIgHandle = '';
     document.getElementById('invite-slot').innerHTML = '<div class="companion-chip">'
-      + '<div class="companion-chip-avatar">' + (u.gender === 'F' ? '👩' : '👨') + '</div>'
-      + '<div><div class="companion-chip-name">' + u.name + '</div>'
-      + '<div class="companion-chip-sub">' + u.username + ' · su CAMON</div></div>'
+      + '<div class="companion-chip-avatar">' + (u.photo ? '<img src="' + huEscape(u.photo) + '" alt="">' : '👤') + '</div>'
+      + '<div><div class="companion-chip-name">' + huEscape(u.name) + '</div>'
+      + '<div class="companion-chip-sub">su CAMON</div></div>'
       + '<button class="companion-chip-remove" onclick="inviteRemove()">×</button>'
       + '</div>';
     document.getElementById('invite-switch').style.display = 'none';
