@@ -9259,6 +9259,12 @@
         + '<div class="invite-banner-sub">Per la data che avevi scelto, chi ti aveva invitato non può più esserci. La prenotazione è stata tolta.</div>'
         + '<button class="invite-banner-dismiss" onclick="inviteMarkSeenAndRefresh(\'' + u.id + '\')">Chiudi</button>'
         + '</div>';
+    } else if (u.direzione === 'mandato' && u.status === 'disdetto') {
+      slot.innerHTML = '<div class="invite-banner muted">'
+        + '<div class="invite-banner-title">' + huEscape(u.altra_persona_nome || 'La persona che avevi invitato') + ' ha disdetto</div>'
+        + '<div class="invite-banner-sub">Il tavolo condiviso per il <b>' + huEscape(inviteFmtData(u.reschedule_date || u.proposed_date)) + '</b> non c\'è più.</div>'
+        + '<button class="invite-banner-dismiss" onclick="inviteMarkSeenAndRefresh(\'' + u.id + '\')">Chiudi</button>'
+        + '</div>';
     } else {
       slot.innerHTML = '';
     }
@@ -9386,11 +9392,14 @@
     };
 
     // "Annulla prenotazione" del vecchio flusso non tocca il
-    // database: per una prenotazione vera sarebbe una bugia (la riga
-    // resterebbe 'attiva'). Meglio nasconderlo che lasciare un
-    // bottone che promette qualcosa che non fa.
+    // database (per una prenotazione vera sarebbe stata una bugia:
+    // la riga restava 'attiva'). Qui invece annulla per davvero, via
+    // invite_recipient_cancel_booking, e avvisa chi ha invitato.
     const cancelBtn = document.querySelector('#book-active .book-cancel-btn');
-    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (cancelBtn) {
+      cancelBtn.style.display = '';
+      cancelBtn.onclick = function () { inviteCancelMyBooking(inv.id); };
+    }
     const newBtn = document.querySelector('#book-active .book-new-btn');
     if (newBtn) newBtn.textContent = '← Torna alle prenotazioni';
 
@@ -9414,6 +9423,24 @@
     document.getElementById('book-step1').style.display = 'none';
     document.getElementById('book-step2').style.display = 'none';
     document.getElementById('book-active').style.display = 'flex';
+  }
+
+  /* Disdice per davvero una prenotazione nata da un invito accettato:
+     annulla la riga su 'bookings' e avvisa chi aveva invitato (lo
+     scopre al prossimo controllo, come per ogni altro aggiornamento
+     sugli inviti mandati). */
+  function inviteCancelMyBooking(id) {
+    camonConfirm('Annullare questa prenotazione? Chi ti aveva invitato viene avvisato che non ci sarai.', async function () {
+      try {
+        const { error } = await window.sb.rpc('invite_recipient_cancel_booking', { p_invite_id: id });
+        if (error) throw error;
+        document.getElementById('book-active').style.display = 'none';
+        document.getElementById('book-step1').style.display = 'flex';
+        await inviteRefresh();
+      } catch (e) {
+        alert((e && e.message) || 'Non sono riuscito ad annullare la prenotazione.');
+      }
+    });
   }
 
   async function inviteDecline(id) {
@@ -9478,13 +9505,15 @@
     in_attesa: 'In attesa',
     accettato: 'Accettato',
     rifiutato: 'Rifiutato',
-    annullato: 'Annullato'
+    annullato: 'Annullato',
+    disdetto: 'Disdetto'
   };
   const INVITE_STATUS_CLS = {
     in_attesa: 'pending',
     accettato: 'ok',
     rifiutato: 'no',
-    annullato: 'no'
+    annullato: 'no',
+    disdetto: 'no'
   };
 
   async function inviteOpenList() {
