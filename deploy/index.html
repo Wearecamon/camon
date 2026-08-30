@@ -1195,7 +1195,6 @@
 
   /* form invito anonimo */
   .invite-concept { display:flex; gap:11px; align-items:flex-start; background:rgba(244,114,182,0.1); border:1px solid rgba(244,114,182,0.25); border-radius:12px; padding:13px 15px; margin-bottom:4px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.72); line-height:1.5; }
-  .invite-concept-ico { font-size:20px; flex-shrink:0; }
   .invite-concept b { color:var(--brand); font-weight:700; }
   .invite-ig-note { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.4); line-height:1.5; margin-top:9px; }
   .invite-date-input {
@@ -1228,7 +1227,6 @@
     font-size: 18px; line-height: 1; cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
-  .invite-popup-ico { font-size: 44px; line-height: 1; }
   .invite-popup-title {
     font-family: 'Bebas Neue', sans-serif; font-size: 32px; line-height: 0.95;
     letter-spacing: 1px; color: var(--text); margin-top: 12px;
@@ -6632,7 +6630,6 @@
           <!-- Invito segreto (solo tipo invite) -->
           <div class="bfield" id="bfield-invite" style="display:none">
             <div class="invite-concept">
-              <span class="invite-concept-ico">💌</span>
               <div>C'è qualcuno che vorresti conoscere? Mandagli un <b>invito segreto</b> al CAMON. Se accetta, sarete allo stesso tavolo condiviso — ma <b>chi sei resta un mistero</b>: non glielo diciamo noi, lo scopre solo se lo scopre di persona.</div>
             </div>
             <div class="invite-steps">
@@ -9107,18 +9104,32 @@
     return inviteCache.filter(i => i.non_letto && i.status !== 'in_attesa');
   }
 
+  // Puo' partire da piu' punti quasi insieme — avvio app, cambio
+  // sessione, apertura della scheda Prenotazioni — e le risposte non
+  // arrivano per forza nell'ordine in cui sono partite. Senza questo
+  // controllo, una richiesta vecchia che risponde per ultima poteva
+  // sovrascrivere dati buoni con dati vecchi: il banner appariva e
+  // spariva da solo un attimo dopo. Vince sempre solo l'ultima partita.
+  let inviteRefreshToken = 0;
   async function inviteRefresh() {
-    if (!window.sb || !window.camonUser) { inviteCache = null; return; }
-    try {
-      const { data, error } = await window.sb.rpc('invites_mine');
-      if (error) throw error;
-      inviteCache = data || [];
-    } catch (e) {
-      if (!/find the function|does not exist|schema cache/i.test((e && e.message) || '')) {
-        console.warn('CAMON: inviti non caricati —', (e && e.message) || e);
+    const mioToken = ++inviteRefreshToken;
+    if (!window.sb || !window.camonUser) {
+      if (mioToken === inviteRefreshToken) inviteCache = null;
+    } else {
+      try {
+        const { data, error } = await window.sb.rpc('invites_mine');
+        if (error) throw error;
+        if (mioToken === inviteRefreshToken) inviteCache = data || [];
+      } catch (e) {
+        if (!/find the function|does not exist|schema cache/i.test((e && e.message) || '')) {
+          console.warn('CAMON: inviti non caricati —', (e && e.message) || e);
+        }
+        if (mioToken === inviteRefreshToken) inviteCache = null;
       }
-      inviteCache = null;
     }
+    // il render riflette sempre e solo lo stato dell'ultima richiesta
+    // partita, anche se questa non era quella arrivata per ultima
+    if (mioToken !== inviteRefreshToken) return;
     inviteRenderDot();
     inviteBannerRender();
   }
@@ -9172,7 +9183,6 @@
     ov.innerHTML =
       '<div class="invite-popup">'
       + '<button class="invite-popup-close" aria-label="Chiudi">×</button>'
-      + '<div class="invite-popup-ico">💌</div>'
       + '<div class="invite-popup-title">SEI STATO<br>INVITATO</div>'
       + '<div class="invite-popup-body">Qualcuno al CAMON vorrebbe conoscerti — in segreto, non sai ancora chi. Guarda di cosa si tratta prima di decidere.</div>'
       + '<button class="invite-popup-cta" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteOpenDetail(\'' + top.id + '\')">Guarda l\'invito</button>'
@@ -9196,7 +9206,7 @@
     if (top) {
       slot.innerHTML =
         '<div class="invite-banner">'
-        + '<div class="invite-banner-head"><span class="invite-banner-tag">💌 Invito segreto</span></div>'
+        + '<div class="invite-banner-head"><span class="invite-banner-tag">Invito segreto</span></div>'
         + '<div class="invite-banner-title">Sei stato invitato a un tavolo condiviso</div>'
         + '<div class="invite-banner-sub">Qualcuno al CAMON vorrebbe conoscerti. Data proposta: <b>' + huEscape(inviteFmtData(top.proposed_date)) + '</b>.</div>'
         + '<button class="invite-popup-cta" style="margin-top:13px" onclick="inviteOpenDetail(\'' + top.id + '\')">Guarda l\'invito</button>'
@@ -9269,7 +9279,6 @@
       '<div class="invite-popup invite-detail-popup">'
       + '<button class="invite-popup-close" aria-label="Chiudi">×</button>'
       + '<div class="invite-detail-scroll">'
-      +   '<div class="invite-popup-ico">💌</div>'
       +   '<div class="invite-popup-title">' + (decidere ? 'INVITO SEGRETO' : 'TAVOLO<br>CONFERMATO') + '</div>'
 
       +   '<div class="invite-detail-block">'
