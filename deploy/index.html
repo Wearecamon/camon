@@ -696,10 +696,12 @@
   }
   .drink-card:hover { border-color: rgba(247,204,73,0.5); }
   .drink-card:active { transform: scale(0.98); border-color: rgba(247,204,73,0.6); box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
-  /* Cocktail solo da spillatore: visibili ma disattivati, non si aprono
-     né si possono ordinare dall'app — si prendono solo al self-service. */
+  /* Cocktail solo da spillatore: non si ordinano dall'app, ma ci sono
+     eccome. Niente opacita' ridotta ne' grigio: sbiadire la scheda la
+     faceva leggere come "finito", che e' il contrario di quello che
+     deve dire. Cambia solo il fatto che non si apre. */
   .drink-card.self-only {
-    cursor: default; opacity: 0.5; filter: grayscale(0.35);
+    cursor: default;
   }
   .drink-card.self-only:hover,
   .drink-card.self-only:active { border-color: rgba(247,204,73,0.18); transform: none; box-shadow: 0 6px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05); }
@@ -3648,6 +3650,7 @@
     padding: 8px 16px 0;
   }
   #page-menu .drink-card {
+    position: relative; /* aggancio per la targhetta self-service */
     display: flex; flex-direction: column;
     padding: 0;
     border-radius: 18px;
@@ -3950,14 +3953,34 @@
     font-size: 14px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
 
-  /* Avviso self-service sulle card del menu: solo testo, nessuna
-     pillola. "Al tavolo/Asporto" era il caso normale e non si segnala
-     piu'; questo e' l'eccezione, e il rosso da solo la fa notare
-     senza bisogno di un contorno attorno. */
+  /* Etichetta self-service: una targhetta appoggiata sulla foto, non
+     una riga di testo sotto.
+     - Fuori dal flusso: cosi' tutte le schede della riga hanno la
+       stessa struttura e il blocco giallo non cresce nelle schede
+       che l'etichetta non ce l'hanno (era il caso di Birra Bionda).
+     - Vetro scuro e giallo del brand, non rosso: il rosso e' il
+       colore degli errori e faceva leggere "esaurito" un prodotto
+       che invece c'e', solo da un'altra parte. */
   .drink-badge-self {
-    display: block; font-family: 'Manrope', sans-serif;
-    font-size: 10.5px; font-weight: 700; letter-spacing: 0.2px;
-    color: var(--error); margin-top: 7px;
+    position: absolute; top: 9px; left: 9px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 11px 6px 9px; border-radius: 30px;
+    background: rgba(17,17,17,0.66);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid rgba(247,204,73,0.38);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+    font-family: 'Manrope', sans-serif;
+    font-size: 9px; font-weight: 800; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--brand);
+    white-space: nowrap; pointer-events: none;
+  }
+  /* Il punto giallo e' la spia "acceso" dello spillatore: dice che il
+     prodotto e' li' e sta scorrendo, non che manca. */
+  .drink-badge-self::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--brand); flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(247,204,73,0.9);
   }
 
   /* ============================================================
@@ -14087,7 +14110,7 @@
     // capire che è un'informazione diversa dalle altre.
     var badge = '';
     if (p.macro !== 'cibo' && !isAppOrderable(p)) {
-      badge = '<div class="drink-badge-self">Disponibile solo al self-service</div>';
+      badge = '<div class="drink-badge-self">Self-service</div>';
     }
     card.innerHTML =
       `<div class="drink-emoji"><img src="${img}" alt="${p.name}" decoding="async" onerror="this.onerror=null;this.src='${camonProductImgFallback(p)}'"></div>` +
