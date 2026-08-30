@@ -1245,6 +1245,22 @@
     cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
 
+  /* ---- Pagina di spiegazione dell'invito (dentro lo stesso popup,
+     ma piu' alta e scorrevole): non tre righe, il perche' per esteso,
+     prima di chiedere di decidere. ---- */
+  .invite-detail-popup { max-height: 86vh; display: flex; flex-direction: column; padding-bottom: calc(20px + var(--safe-bottom)); }
+  .invite-detail-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .invite-detail-scroll::-webkit-scrollbar { display: none; }
+  .invite-detail-block { text-align: left; margin-top: 20px; }
+  .invite-detail-h {
+    font-family: 'Manrope', sans-serif; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--brand); margin-bottom: 6px;
+  }
+  .invite-detail-p { font-family: 'Manrope', sans-serif; font-size: 13.5px; color: var(--text-sub); line-height: 1.55; }
+  .invite-detail-p b { color: var(--text); font-weight: 700; }
+  .invite-detail-actions { display: flex; flex-direction: column; gap: 9px; margin-top: 24px; }
+  .invite-detail-actions .invite-banner-btn { flex: none; width: 100%; padding: 14px; font-size: 13.5px; }
+
   /* ---- Banner in cima a Prenotazioni ----
      Vetro scuro con un filo giallo a sinistra, come i richiami del
      Brand Book: e' un avviso che riguarda il brand, non uno stato
@@ -1454,6 +1470,13 @@
   .bfield-cal label span { color:var(--brand); text-transform:none; letter-spacing:0.3px; font-weight:700; }
   .bfield-time { flex:none; width:108px; }
   .book-cal-pop { width:100%; max-width:268px; aspect-ratio:1/1; display:flex; flex-direction:column; background:var(--surface); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; }
+  /* Il calendario dell'invito sta da solo, non affiancato alle fasce
+     orarie: il quadrato stretto pensato per quel layout a due colonne
+     qui non serve, e con sei righe di giorni l'ultima sbordava di
+     qualche pixel dal riquadro. Altezza libera, piu' largo. */
+  .invite-cal-pop { max-width: 340px; aspect-ratio: auto; }
+  .invite-cal-pop .book-cal-grid { flex: none; }
+  .invite-cal-pop .book-cal-day { aspect-ratio: 1/1; font-size: 14px; }
   .book-cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .book-cal-head span { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:0.5px; color:var(--brand); text-transform:uppercase; }
   .book-cal-head button { background:rgba(255,255,255,0.06); border:none; color:var(--text); width:26px; height:26px; border-radius:8px; font-size:15px; cursor:pointer; line-height:1; }
@@ -6610,7 +6633,7 @@
           <div class="bfield" id="bfield-invite" style="display:none">
             <div class="invite-concept">
               <span class="invite-concept-ico">💌</span>
-              <div>C'è qualcuno che vorresti conoscere? Mandagli un <b>invito segreto</b> al CAMON. Resti <b>anonimo</b>: gli sveliamo chi sei <b>solo se accetta</b>.</div>
+              <div>C'è qualcuno che vorresti conoscere? Mandagli un <b>invito segreto</b> al CAMON. Se accetta, sarete allo stesso tavolo condiviso — ma <b>chi sei resta un mistero</b>: non glielo diciamo noi, lo scopre solo se lo scopre di persona.</div>
             </div>
             <div class="invite-steps">
               <div class="invite-step"><span class="invite-step-n">1</span><span>Scegli la persona e <b>proponi una data</b>.</span></div>
@@ -9114,11 +9137,31 @@
     const mesi = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
     return giorni[d.getDay()] + ' ' + d.getDate() + ' ' + mesi[d.getMonth()];
   }
+  // una data (YYYY-MM-DD) e' "ancora da venire" se non e' gia' passata
+  function inviteDataFutura(iso) {
+    if (!iso) return false;
+    const oggi = new Date(); oggi.setHours(0, 0, 0, 0);
+    return new Date(iso + 'T00:00:00') >= oggi;
+  }
+  function inviteFindById(id) {
+    return (inviteCache || []).find(i => i.id === id) || null;
+  }
+
+  // L'invito ricevuto e accettato che sta ancora per venire: e' quello
+  // che tiene il banner "confermato" sempre visibile, non solo finche'
+  // non e' stato letto una volta.
+  function inviteConfirmedUpcoming() {
+    if (!inviteCache) return null;
+    return inviteCache
+      .filter(i => i.direzione === 'ricevuto' && i.status === 'accettato' && inviteDataFutura(i.reschedule_date || i.proposed_date))
+      .sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))[0] || null;
+  }
 
   /* Popup leggero, non bloccante: appare una volta a sessione quando
      c'e' un invito in cima alla coda, e si chiude con la X senza
      impedire di navigare altrove. Il banner in Prenotazioni resta
-     comunque li' finche' non si decide. */
+     comunque li' finche' non si decide. Il tocco sul bottone apre la
+     pagina di spiegazione vera, non salta dritto alla decisione. */
   function inviteMaybeShowPopup() {
     if (invitePopupShown) return;
     const top = inviteQueueTop();
@@ -9131,19 +9174,20 @@
       + '<button class="invite-popup-close" aria-label="Chiudi">×</button>'
       + '<div class="invite-popup-ico">💌</div>'
       + '<div class="invite-popup-title">SEI STATO<br>INVITATO</div>'
-      + '<div class="invite-popup-body">Qualcuno ti ha proposto un <b>tavolo condiviso</b> al CAMON, in segreto — non sai ancora chi. Se accetti scopri subito di chi si tratta; se rifiuti resta anonimo per sempre.</div>'
-      + '<button class="invite-popup-cta" onclick="this.closest(\'.invite-popup-overlay\').remove();goTo(\'book\')">Guarda l\'invito</button>'
+      + '<div class="invite-popup-body">Qualcuno al CAMON vorrebbe conoscerti — in segreto, non sai ancora chi. Guarda di cosa si tratta prima di decidere.</div>'
+      + '<button class="invite-popup-cta" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteOpenDetail(\'' + top.id + '\')">Guarda l\'invito</button>'
       + '</div>';
     ov.querySelector('.invite-popup-close').onclick = function () { ov.remove(); };
     ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
     document.body.appendChild(ov);
   }
 
-  /* Banner in cima a Prenotazioni. Tre casi diversi coesistono:
-     1) invito in coda da decidere (accetta/rifiuta/altra data)
-     2) tuo invito appena accettato o rifiutato (non letto)
-     3) l'altra persona ha cambiato data e la prenotazione e' gia'
-        fatta su quella — puoi disdire se non ti va */
+  /* Banner in cima a Prenotazioni. Ordine di priorita':
+     1) invito in coda da decidere — compatto, apre la pagina intera
+     2) prenotazione confermata da un invito accettato — resta finche'
+        la serata non e' passata, non solo finche' non viene "vista"
+     3) un aggiornamento sul tuo invito mandato, non ancora visto
+     4) l'invito che avevi accettato e' stato disdetto dal mittente */
   function inviteBannerRender() {
     const slot = document.getElementById('invite-banner-slot');
     if (!slot) return;
@@ -9152,22 +9196,29 @@
     if (top) {
       slot.innerHTML =
         '<div class="invite-banner">'
-        + '<div class="invite-banner-head">'
-        +   '<span class="invite-banner-tag">💌 Invito segreto</span>'
-        + '</div>'
+        + '<div class="invite-banner-head"><span class="invite-banner-tag">💌 Invito segreto</span></div>'
         + '<div class="invite-banner-title">Sei stato invitato a un tavolo condiviso</div>'
-        + '<div class="invite-banner-sub">Qualcuno vorrebbe conoscerti al CAMON — resta anonimo finché non accetti. Data proposta: <b>' + huEscape(inviteFmtData(top.proposed_date)) + '</b>.</div>'
-        + '<div class="invite-banner-actions">'
-        +   '<button class="invite-banner-btn accept" onclick="inviteAccept(\'' + top.id + '\')">Accetta</button>'
-        +   '<button class="invite-banner-btn reschedule" onclick="inviteOpenReschedule(\'' + top.id + '\')">Proponi un\'altra data</button>'
-        +   '<button class="invite-banner-btn decline" onclick="inviteDecline(\'' + top.id + '\')">Rifiuta</button>'
-        + '</div>'
+        + '<div class="invite-banner-sub">Qualcuno al CAMON vorrebbe conoscerti. Data proposta: <b>' + huEscape(inviteFmtData(top.proposed_date)) + '</b>.</div>'
+        + '<button class="invite-popup-cta" style="margin-top:13px" onclick="inviteOpenDetail(\'' + top.id + '\')">Guarda l\'invito</button>'
         + '</div>';
       return;
     }
 
-    // Nessun invito da decidere: mostra al massimo un aggiornamento
-    // non ancora visto (il piu' recente).
+    const confermato = inviteConfirmedUpcoming();
+    if (confermato) {
+      slot.innerHTML =
+        '<div class="invite-banner success">'
+        + '<div class="invite-banner-head"><span class="invite-banner-tag" style="color:var(--success)">✓ Invito accettato</span></div>'
+        + '<div class="invite-banner-title">Tavolo condiviso confermato</div>'
+        + '<div class="invite-banner-sub">Per il <b>' + huEscape(inviteFmtData(confermato.reschedule_date || confermato.proposed_date)) + '</b>. Chi ti ha invitato sarà lì, seduto con te — ma resta un mistero: <b>l\'app non te lo dice</b>.</div>'
+        + '<button class="invite-banner-dismiss" onclick="inviteOpenDetail(\'' + confermato.id + '\')">Come funziona</button>'
+        + '</div>';
+      return;
+    }
+
+    // Nessun invito da decidere e nessuna prenotazione da mostrare:
+    // resta solo un eventuale aggiornamento non ancora visto sul
+    // fronte di chi ha mandato inviti.
     const aggiornamenti = inviteUnseenUpdates().sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
     const u = aggiornamenti[0];
     if (!u) { slot.innerHTML = ''; return; }
@@ -9202,12 +9253,60 @@
     await inviteRefresh();
   }
 
+  /* La pagina di spiegazione vera — non un popup di due righe. Serve
+     sia a chi deve ancora decidere (con le tre azioni in fondo) sia a
+     chi ha gia' accettato e vuole rileggersi come funziona (senza
+     azioni, e' solo la stessa spiegazione, sempre valida). */
+  function inviteOpenDetail(id) {
+    const inv = inviteFindById(id);
+    if (!inv) return;
+    const decidere = inv.direzione === 'ricevuto' && inv.status === 'in_attesa';
+    const dataBuona = inv.reschedule_date || inv.proposed_date;
+
+    const ov = document.createElement('div');
+    ov.className = 'invite-popup-overlay';
+    ov.innerHTML =
+      '<div class="invite-popup invite-detail-popup">'
+      + '<button class="invite-popup-close" aria-label="Chiudi">×</button>'
+      + '<div class="invite-detail-scroll">'
+      +   '<div class="invite-popup-ico">💌</div>'
+      +   '<div class="invite-popup-title">' + (decidere ? 'INVITO SEGRETO' : 'TAVOLO<br>CONFERMATO') + '</div>'
+
+      +   '<div class="invite-detail-block">'
+      +     '<div class="invite-detail-h">Cos\'è</div>'
+      +     '<div class="invite-detail-p">Qualcuno al CAMON ti ha proposto un <b>tavolo condiviso</b> — un tavolo vero, con altre persone, come tutti i tavoli condivisi del locale. Non è una cena privata per voi due: è il modo normale di sedersi al CAMON, solo che stavolta qualcuno ha scelto apposta di esserci con te.</div>'
+      +   '</div>'
+
+      +   '<div class="invite-detail-block">'
+      +     '<div class="invite-detail-h">Perché resta segreto</div>'
+      +     '<div class="invite-detail-p">Chi ti ha invitato ha scelto di restare anonimo. <b>Non te lo diciamo noi</b> — nemmeno se accetti. Arrivi al tavolo, ci sono altre persone, e una di loro è quella che ti ha invitato: lo scopri solo se te lo dice lei stessa, quella sera o mai.</div>'
+      +   '</div>'
+
+      +   '<div class="invite-detail-block">'
+      +     '<div class="invite-detail-h">La data</div>'
+      +     '<div class="invite-detail-p">Proposta per <b>' + huEscape(inviteFmtData(dataBuona)) + '</b>'
+      +     (decidere ? '. Puoi accettarla, proporne un\'altra (si conferma subito su quella), o rifiutare — in ogni caso l\'anonimato resta.' : ', tavolo condiviso.') + '</div>'
+      +   '</div>'
+
+      +   (decidere
+            ? '<div class="invite-detail-actions">'
+              + '<button class="invite-banner-btn accept" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteAccept(\'' + inv.id + '\')">Accetta</button>'
+              + '<button class="invite-banner-btn reschedule" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteOpenReschedule(\'' + inv.id + '\')">Proponi un\'altra data</button>'
+              + '<button class="invite-banner-btn decline" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteDecline(\'' + inv.id + '\')">Rifiuta</button>'
+              + '</div>'
+            : '<button class="invite-popup-cta" onclick="this.closest(\'.invite-popup-overlay\').remove()">Ho capito</button>')
+      + '</div>'
+      + '</div>';
+    ov.querySelector('.invite-popup-close').onclick = function () { ov.remove(); };
+    ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
+    document.body.appendChild(ov);
+  }
+
   async function inviteAccept(id) {
     try {
       const { error } = await window.sb.rpc('invite_accept', { p_invite_id: id });
       if (error) throw error;
       await inviteRefresh();
-      camonConfirm('Tavolo condiviso prenotato! Ora sai anche chi ti ha invitato: guarda nella tua lista inviti.', function () {});
     } catch (e) {
       alert((e && e.message) || 'Non sono riuscito ad accettare l\'invito.');
     }

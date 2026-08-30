@@ -162,19 +162,20 @@ begin
     join public.profiles rp on rp.id = i.recipient_id
     where i.sender_id = v_me
   union all
+    -- Chi riceve non scopre mai chi ha mandato l'invito, nemmeno dopo
+    -- averlo accettato: e' il punto del meccanismo. Arriva al tavolo
+    -- condiviso e la persona che l'ha invitata e' una di quelle
+    -- sedute li', ma resta un mistero — non una rivelazione in app.
     select
       i.id,
       'ricevuto'::text,
-      case when i.status = 'accettato' then i.sender_id else null end,
-      case when i.status = 'accettato'
-           then btrim(coalesce(sp.first_name,'') || ' ' || coalesce(sp.last_name,''))
-           else null end,
-      case when i.status = 'accettato' then sp.photo_url else null end,
+      null::uuid,
+      null::text,
+      null::text,
       i.proposed_date, i.reschedule_date, i.status, i.booking_id,
       not i.seen_by_recipient,
       i.created_at, i.updated_at
     from public.invites i
-    join public.profiles sp on sp.id = i.sender_id
     where i.recipient_id = v_me
   order by created_at desc;
 end $$;
