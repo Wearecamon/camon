@@ -9154,8 +9154,19 @@
     const oggi = new Date(); oggi.setHours(0, 0, 0, 0);
     return new Date(iso + 'T00:00:00') >= oggi;
   }
-  function inviteFindById(id) {
-    return (inviteCache || []).find(i => i.id === id) || null;
+  // Con l'autoinvito di test (25_TEST_autoinvito.sql), invitare se
+  // stessi crea DUE righe in invites_mine() con lo STESSO id — una
+  // 'mandato', una 'ricevuto' — perche' la stessa persona e' insieme
+  // mittente e destinatario. Un find() semplice poteva pescare quella
+  // sbagliata a caso, e chi doveva vedere "gestisci/annulla" (lato
+  // ricevuto) si ritrovava sul ramo mittente, dove non c'e' niente da
+  // gestire: solo "Ho capito". Qui si sceglie sempre la direzione
+  // giusta quando ce ne sono due, di default 'ricevuto' — e' quella
+  // che usano tutte le viste di dettaglio/gestione della prenotazione.
+  function inviteFindById(id, direzionePreferita) {
+    const match = (inviteCache || []).filter(i => i.id === id);
+    if (match.length <= 1) return match[0] || null;
+    return match.find(i => i.direzione === (direzionePreferita || 'ricevuto')) || match[0];
   }
 
   // L'invito ricevuto e accettato che sta ancora per venire: e' quello
