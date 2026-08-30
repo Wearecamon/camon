@@ -6624,7 +6624,20 @@
             <div class="invite-ig-note" id="invite-hint"></div>
 
             <label style="margin-top:16px">Che sera proponi?</label>
-            <input type="date" id="invite-date" class="invite-date-input" min="">
+            <!-- Stesso calendario esteso delle altre prenotazioni, ma
+                 senza i giorni "pieni": qui non si sceglie un tavolo,
+                 si propone solo una data, quindi ogni giorno da oggi
+                 in poi va bene. -->
+            <div class="book-cal-pop invite-cal-pop" id="invite-cal-pop" style="margin:0 auto">
+              <div class="book-cal-head">
+                <button type="button" onclick="inviteCalNav(-1)">‹</button>
+                <span id="invite-cal-month"></span>
+                <button type="button" onclick="inviteCalNav(1)">›</button>
+              </div>
+              <div class="book-cal-dow"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+              <div class="book-cal-grid" id="invite-cal-grid"></div>
+            </div>
+            <input type="hidden" id="invite-date">
           </div>
 
 
@@ -8586,12 +8599,7 @@
     if (confirmBtn) confirmBtn.textContent = isInvite ? 'Invia invito segreto' : 'Conferma prenotazione';
     if (isInvite) {
       inviteReset();
-      const dateInput = document.getElementById('invite-date');
-      if (dateInput) {
-        // non si propone una sera gia' passata
-        dateInput.min = new Date().toISOString().slice(0, 10);
-        dateInput.value = '';
-      }
+      if (typeof inviteCalReset === 'function') inviteCalReset();
     }
     // mostra step 2
     document.getElementById('book-step1').style.display = 'none';
@@ -9006,6 +9014,57 @@
      una prenotazione condivisa a se': e' l'abbinamento dei tavoli
      condivisi, gia' esistente, che puo' sedere piu' persone insieme.
      ============================================================ */
+  /* Calendario esteso per la data proposta nell'invito: stesso aspetto
+     di bookCal* (le altre prenotazioni), ma senza giorni "pieni" — li'
+     dipende dai tavoli disponibili, qui si propone solo una sera,
+     quindi ogni giorno da oggi in poi e' scelta valida. */
+  let inviteCalView = new Date();
+  let inviteCalSelected = null;
+
+  function inviteCalNav(delta) {
+    inviteCalView = new Date(inviteCalView.getFullYear(), inviteCalView.getMonth() + delta, 1);
+    inviteCalRender();
+  }
+  function inviteCalRender() {
+    document.getElementById('invite-cal-month').textContent =
+      bookCalMesi[inviteCalView.getMonth()] + ' ' + inviteCalView.getFullYear();
+    const grid = document.getElementById('invite-cal-grid');
+    grid.innerHTML = '';
+    const year = inviteCalView.getFullYear(), month = inviteCalView.getMonth();
+    const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // lun=0
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    for (let i = 0; i < firstDow; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'book-cal-day other';
+      grid.appendChild(cell);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = new Date(year, month, day);
+      const cell = document.createElement('div');
+      cell.className = 'book-cal-day';
+      cell.textContent = day;
+      if (d < today) cell.classList.add('disabled');
+      if (d.getTime() === today.getTime()) cell.classList.add('today');
+      if (inviteCalSelected && d.getTime() === inviteCalSelected.getTime()) cell.classList.add('sel');
+      if (d >= today) cell.onclick = () => inviteCalPick(d);
+      grid.appendChild(cell);
+    }
+  }
+  function inviteCalPick(d) {
+    inviteCalSelected = d;
+    const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+    document.getElementById('invite-date').value = y + '-' + m + '-' + day;
+    inviteCalRender();
+  }
+  function inviteCalReset() {
+    inviteCalSelected = null;
+    inviteCalView = new Date();
+    const dateInput = document.getElementById('invite-date');
+    if (dateInput) dateInput.value = '';
+    inviteCalRender();
+  }
+
   let inviteCache = null;        // ultimo risultato di invites_mine()
   let invitePopupShown = false;  // il popup leggero appare una volta a sessione
 
