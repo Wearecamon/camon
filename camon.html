@@ -6432,7 +6432,7 @@
           </div>
           <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <div style="font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;color:var(--bg);text-align:center;letter-spacing:0.3px;line-height:1.3;white-space:nowrap">TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE</div>
+            <div id="ba-table-hint" style="font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;color:var(--bg);text-align:center;letter-spacing:0.3px;line-height:1.3;white-space:nowrap">TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE</div>
           </div>
           <!-- Icona mappa del tesoro: rimanda al gioco "trova il tuo tavolo"
                della mappa del locale, al posto della vecchia icona tavolo.
@@ -9216,12 +9216,18 @@
 
     const confermato = inviteConfirmedUpcoming();
     if (confermato) {
+      // Il banner intero e' un tasto: entra nella prenotazione vera.
+      // "Come funziona" resta come richiamo secondario, non tocca la
+      // navigazione — per questo ferma la propagazione del click.
       slot.innerHTML =
-        '<div class="invite-banner success">'
+        '<div class="invite-banner success" onclick="inviteEnterBooking(\'' + confermato.id + '\')" style="cursor:pointer">'
         + '<div class="invite-banner-head"><span class="invite-banner-tag" style="color:var(--success)">✓ Invito accettato</span></div>'
         + '<div class="invite-banner-title">Tavolo condiviso confermato</div>'
         + '<div class="invite-banner-sub">Per il <b>' + huEscape(inviteFmtData(confermato.reschedule_date || confermato.proposed_date)) + '</b>. Chi ti ha invitato sarà lì, seduto con te — ma resta un mistero: <b>l\'app non te lo dice</b>.</div>'
-        + '<button class="invite-banner-dismiss" onclick="inviteOpenDetail(\'' + confermato.id + '\')">Come funziona</button>'
+        + '<div class="invite-banner-actions">'
+        +   '<button class="invite-banner-btn accept" onclick="event.stopPropagation();inviteEnterBooking(\'' + confermato.id + '\')">Gestisci la prenotazione</button>'
+        + '</div>'
+        + '<button class="invite-banner-dismiss" onclick="event.stopPropagation();inviteOpenDetail(\'' + confermato.id + '\')">Come funziona</button>'
         + '</div>';
       return;
     }
@@ -9319,6 +9325,95 @@
     } catch (e) {
       alert((e && e.message) || 'Non sono riuscito ad accettare l\'invito.');
     }
+  }
+
+  /* Apre la vera schermata "LA TUA PRENOTAZIONE" (#book-active) con
+     i dati reali della prenotazione che l'accettazione dell'invito
+     ha creato — non il vecchio riepilogo finto legato a
+     currentBooking, che sapeva solo del flusso di prenotazione
+     manuale e non del database. invites_mine() non porta i dettagli
+     del tavolo (solo l'id): li si prende al volo da 'bookings', che
+     chi ha accettato puo' gia' leggere (e' la sua prenotazione).*/
+  async function inviteEnterBooking(id) {
+    const inv = inviteFindById(id);
+    if (!inv || !inv.booking_id) return;
+    let booking = null;
+    try {
+      const { data, error } = await window.sb.from('bookings').select('*').eq('id', inv.booking_id).single();
+      if (error) throw error;
+      booking = data;
+    } catch (e) {
+      alert('Non sono riuscito ad aprire la prenotazione. Riprova tra poco.');
+      return;
+    }
+
+    const dataBuona = inv.reschedule_date || inv.proposed_date;
+    const d = new Date(dataBuona + 'T12:00:00');
+    const dataFmt = bookCalGiorni[d.getDay()] + ' ' + d.getDate() + ' ' + bookCalMesi[d.getMonth()].slice(0, 3).toLowerCase();
+    const nomeInput = document.getElementById('edit-nome');
+    const nome = (nomeInput && nomeInput.value.trim()) || 'Tu';
+
+    document.getElementById('ba-table').textContent = booking.table_code || '—';
+    // Il richiamo "tocca per vedere dove sei" non ha senso finche' lo
+    // staff non ha assegnato un tavolo: dice il contrario di quello
+    // che succederebbe toccando (vedi il fermo aggiunto in bookShowMap).
+    const tableHint = document.getElementById('ba-table-hint');
+    if (tableHint) {
+      tableHint.innerHTML = booking.table_code
+        ? 'TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE'
+        : 'TAVOLO DA ASSEGNARE<br>ARRIVA PRIMA DELLA SERATA';
+    }
+    document.getElementById('ba-datetime').textContent = dataFmt;
+    document.getElementById('ba-type').textContent = 'Tavolo condiviso';
+    document.getElementById('ba-nome').textContent = nome;
+
+    // La griglia di riempimento posti e' scenografia del vecchio
+    // flusso locale (inventa compagni di tavolo finti): non ha senso
+    // qui, dove gli altri al tavolo sono per definizione sconosciuti.
+    const fillBox = document.getElementById('book-fill-box');
+    if (fillBox) fillBox.style.display = 'none';
+
+    bookApplyTypeColor('shared');
+
+    // Marcatore leggero: dice al resto del codice (bookShowMap, il
+    // pulsante Annulla) che questa non e' una prenotazione del
+    // vecchio flusso locale, e quale invito rappresenta.
+    currentBooking = {
+      fromInvite: true, inviteId: inv.id,
+      table: booking.table_code || null,
+      dataFmt: dataFmt, ora: '', nome: nome,
+      type: 'Tavolo condiviso', bookType: 'shared'
+    };
+
+    // "Annulla prenotazione" del vecchio flusso non tocca il
+    // database: per una prenotazione vera sarebbe una bugia (la riga
+    // resterebbe 'attiva'). Meglio nasconderlo che lasciare un
+    // bottone che promette qualcosa che non fa.
+    const cancelBtn = document.querySelector('#book-active .book-cancel-btn');
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    const newBtn = document.querySelector('#book-active .book-new-btn');
+    if (newBtn) newBtn.textContent = '← Torna alle prenotazioni';
+
+    // Piccolo richiamo al mistero, sempre a portata: non serve
+    // riaprire da capo la pagina di spiegazione per ricordarselo.
+    let nota = document.getElementById('ba-invite-note');
+    if (!nota) {
+      nota = document.createElement('div');
+      nota.id = 'ba-invite-note';
+      nota.className = 'invite-banner';
+      nota.style.margin = '4px 0 0';
+      document.querySelector('#book-active .book-active-wrap').insertBefore(
+        nota, document.querySelector('#book-active .book-active-actions')
+      );
+    }
+    nota.innerHTML =
+      '<div class="invite-banner-head"><span class="invite-banner-tag">Invito segreto</span></div>'
+      + '<div class="invite-banner-sub">Una delle persone al tuo tavolo ti ha invitata in segreto — resta un mistero, l\'app non te lo dice.</div>'
+      + '<button class="invite-banner-dismiss" onclick="inviteOpenDetail(\'' + inv.id + '\')">Come funziona</button>';
+
+    document.getElementById('book-step1').style.display = 'none';
+    document.getElementById('book-step2').style.display = 'none';
+    document.getElementById('book-active').style.display = 'flex';
   }
 
   async function inviteDecline(id) {
@@ -9589,6 +9684,12 @@
   function bookShowMap() {
     // dalla vista attiva → apre la mappa (step3) con il tavolo evidenziato
     if (!currentBooking) return;
+    if (!currentBooking.table) {
+      // capita con le prenotazioni nate da un invito segreto: il
+      // tavolo lo assegna lo staff, non e' detto ci sia gia'.
+      alert('Il tavolo non è stato ancora assegnato — passa in cassa o aspetta, te lo diciamo appena è pronto.');
+      return;
+    }
     bookHighlightTable(currentBooking.table);
     document.getElementById('book-confirmed-detail').textContent = currentBooking.nome + ' · ' + currentBooking.dataFmt + ' alle ' + currentBooking.ora + ' — CAMON';
     document.getElementById('book-table-number').textContent = currentBooking.table;
