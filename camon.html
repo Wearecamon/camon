@@ -3950,22 +3950,14 @@
     font-size: 14px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
 
-  /* distintivo tavolo/asporto sulle card del menu */
-  .drink-badge {
-    display: inline-block; font-family: 'Manrope', sans-serif;
-    font-size: 9px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase;
-    padding: 3px 8px; border-radius: 20px; margin-top: 7px;
-  }
-  .drink-badge-tavolo {
-    background: rgba(247,204,73,0.14); color: var(--brand);
-    border: 1px solid rgba(247,204,73,0.32);
-  }
+  /* Avviso self-service sulle card del menu: solo testo, nessuna
+     pillola. "Al tavolo/Asporto" era il caso normale e non si segnala
+     piu'; questo e' l'eccezione, e il rosso da solo la fa notare
+     senza bisogno di un contorno attorno. */
   .drink-badge-self {
-    background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.32);
-    border: 1px solid rgba(255,255,255,0.09);
-  }
-  .drink-badge-sep {
-    color: rgba(247,204,73,0.35); margin: 0 2px;
+    display: block; font-family: 'Manrope', sans-serif;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.2px;
+    color: var(--error); margin-top: 7px;
   }
 
   /* ============================================================
@@ -14088,11 +14080,14 @@
     card.dataset.cat = p.category || '';
     card.dataset.available = p.available ? 'true' : 'false';
     if (p.macro === 'cibo') card.style.display = 'none';
+    // "Al tavolo / Asporto" non si segnala piu': è il caso normale,
+    // dirlo su ogni card era solo rumore. Il self-service invece è
+    // l'eccezione — un vincolo vero — e resta segnalato, ma come testo
+    // rosso nudo: nessuna pillola, nessuna emoji, il colore fa già
+    // capire che è un'informazione diversa dalle altre.
     var badge = '';
-    if (p.macro !== 'cibo') {
-      badge = isAppOrderable(p)
-        ? '<div class="drink-badge drink-badge-tavolo">🛎 Al tavolo <span class="drink-badge-sep">·</span> 🥡 Asporto</div>'
-        : '<div class="drink-badge drink-badge-self">🍺 Solo al self-service</div>';
+    if (p.macro !== 'cibo' && !isAppOrderable(p)) {
+      badge = '<div class="drink-badge-self">Disponibile solo al self-service</div>';
     }
     card.innerHTML =
       `<div class="drink-emoji"><img src="${img}" alt="${p.name}" decoding="async" onerror="this.onerror=null;this.src='${camonProductImgFallback(p)}'"></div>` +
