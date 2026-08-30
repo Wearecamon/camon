@@ -9283,6 +9283,10 @@
     const inv = inviteFindById(id);
     if (!inv) return;
     const decidere = inv.direzione === 'ricevuto' && inv.status === 'in_attesa';
+    // Gia' accettato: qui in fondo non basta "Ho capito" — deve
+    // portare dove si vedono tavolo/data veri e si puo' annullare,
+    // altrimenti la spiegazione e' un vicolo cieco.
+    const gestibile = inv.direzione === 'ricevuto' && inv.status === 'accettato';
     const dataBuona = inv.reschedule_date || inv.proposed_date;
 
     const ov = document.createElement('div');
@@ -9314,6 +9318,10 @@
               + '<button class="invite-banner-btn accept" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteAccept(\'' + inv.id + '\')">Accetta</button>'
               + '<button class="invite-banner-btn reschedule" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteOpenReschedule(\'' + inv.id + '\')">Proponi un\'altra data</button>'
               + '<button class="invite-banner-btn decline" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteDecline(\'' + inv.id + '\')">Rifiuta</button>'
+              + '</div>'
+            : gestibile
+            ? '<div class="invite-detail-actions">'
+              + '<button class="invite-banner-btn accept" onclick="this.closest(\'.invite-popup-overlay\').remove();inviteEnterBooking(\'' + inv.id + '\')">Vedi tavolo, data e annulla</button>'
               + '</div>'
             : '<button class="invite-popup-cta" onclick="this.closest(\'.invite-popup-overlay\').remove()">Ho capito</button>')
       + '</div>'
