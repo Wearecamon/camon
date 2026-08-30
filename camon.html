@@ -1198,6 +1198,138 @@
   .invite-concept-ico { font-size:20px; flex-shrink:0; }
   .invite-concept b { color:var(--brand); font-weight:700; }
   .invite-ig-note { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.4); line-height:1.5; margin-top:9px; }
+  .invite-date-input {
+    width:100%; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1);
+    color:var(--text); padding:13px 15px; border-radius:12px; font-family:'Manrope',sans-serif;
+    font-size:15px; outline:none; -webkit-tap-highlight-color:transparent;
+  }
+  .invite-date-input::-webkit-calendar-picker-indicator { filter:invert(0.8); }
+
+  /* ---- Popup leggero "sei stato invitato" / "proponi un'altra data" ----
+     Non e' bloccante: si chiude con la X o toccando fuori, e non
+     impedisce di continuare a usare l'app da sotto. */
+  .invite-popup-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0; animation: sqFade 0.2s ease;
+  }
+  .invite-popup {
+    position: relative; width: 100%; max-width: 430px;
+    background: var(--surface); border-radius: 26px 26px 0 0;
+    padding: 32px 26px calc(28px + var(--safe-bottom));
+    text-align: center;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+  }
+  .invite-popup-close {
+    position: absolute; top: 14px; right: 14px;
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.08); color: var(--text);
+    font-size: 18px; line-height: 1; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .invite-popup-ico { font-size: 44px; line-height: 1; }
+  .invite-popup-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 32px; line-height: 0.95;
+    letter-spacing: 1px; color: var(--text); margin-top: 12px;
+  }
+  .invite-popup-body {
+    font-family: 'Manrope', sans-serif; font-size: 13.5px; color: var(--text-sub);
+    line-height: 1.55; margin-top: 14px;
+  }
+  .invite-popup-body b { color: var(--brand); font-weight: 700; }
+  .invite-popup-cta {
+    width: 100%; margin-top: 20px; background: var(--brand); color: var(--on-brand);
+    border: none; border-radius: 14px; padding: 16px;
+    font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 0.3px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ---- Banner in cima a Prenotazioni ----
+     Vetro scuro con un filo giallo a sinistra, come i richiami del
+     Brand Book: e' un avviso che riguarda il brand, non uno stato
+     di sistema. La variante "success" e "muted" riusano la stessa
+     struttura per gli aggiornamenti (accettato/rifiutato/annullato). */
+  .invite-banner {
+    position: relative; overflow: hidden;
+    background: var(--surface); border: 1px solid rgba(247,204,73,0.25);
+    border-radius: 16px; padding: 16px 17px 15px;
+    margin: 0 16px 14px;
+  }
+  .invite-banner::before {
+    content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
+    background: var(--brand);
+  }
+  .invite-banner.success::before { background: var(--success); }
+  .invite-banner.success { border-color: rgba(76,217,100,0.25); }
+  .invite-banner.muted::before { background: var(--text-muted); }
+  .invite-banner-head { display: flex; align-items: center; margin-bottom: 8px; }
+  .invite-banner-tag {
+    font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand);
+  }
+  .invite-banner-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.3px;
+    line-height: 1.1; color: var(--text);
+  }
+  .invite-banner-sub {
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; color: var(--text-sub);
+    line-height: 1.5; margin-top: 6px;
+  }
+  .invite-banner-sub b { color: var(--text); font-weight: 700; }
+  .invite-banner-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+  .invite-banner-btn {
+    flex: 1 1 auto; border: none; border-radius: 11px; padding: 11px 14px;
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 800;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s, opacity 0.15s;
+  }
+  .invite-banner-btn:active { transform: scale(0.97); }
+  .invite-banner-btn.accept { background: var(--brand); color: var(--on-brand); }
+  .invite-banner-btn.reschedule { background: rgba(255,255,255,0.08); color: var(--text); }
+  .invite-banner-btn.decline { background: transparent; color: var(--error-soft); border: 1px solid rgba(239,68,68,0.35); }
+  .invite-banner-dismiss {
+    display: block; width: 100%; margin-top: 13px; background: rgba(255,255,255,0.06);
+    color: var(--text); border: none; border-radius: 11px; padding: 11px;
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ---- "I tuoi inviti segreti": elenco mandati + ricevuti ---- */
+  .invite-list-popup { max-height: 82vh; display: flex; flex-direction: column; padding-bottom: calc(20px + var(--safe-bottom)); }
+  .invite-list-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-top: 18px; text-align: left; scrollbar-width: none; }
+  .invite-list-scroll::-webkit-scrollbar { display: none; }
+  .invite-list-section-lbl {
+    font-family: 'Manrope', sans-serif; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+    margin: 18px 0 9px;
+  }
+  .invite-list-section-lbl:first-child { margin-top: 0; }
+  .invite-list-empty {
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; color: var(--text-muted);
+    padding: 10px 2px;
+  }
+  .invite-list-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 4px; border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .invite-list-row:last-child { border-bottom: none; }
+  .invite-list-avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+    background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .invite-list-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .invite-list-body { flex: 1; min-width: 0; }
+  .invite-list-name { font-family: 'Manrope', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .invite-list-sub { font-family: 'Manrope', sans-serif; font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+  .invite-list-status {
+    flex-shrink: 0; font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.3px; text-transform: uppercase; padding: 5px 10px; border-radius: 20px;
+  }
+  .invite-list-status.pending { background: rgba(247,204,73,0.14); color: var(--brand); }
+  .invite-list-status.ok { background: rgba(76,217,100,0.14); color: var(--success); }
+  .invite-list-status.no { background: rgba(239,68,68,0.12); color: var(--error-soft); }
   .ig-results-head { font-family:'Manrope',sans-serif; font-size:9.5px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.32); padding:9px 14px 5px; }
   .ig-empty { padding:11px 14px; font-family:'Manrope',sans-serif; font-size:12.5px; color:rgba(255,255,255,0.42); line-height:1.45; }
   /* riga-indicazione sotto la barra (passa a Instagram / torna a CAMON) */
@@ -3474,6 +3606,16 @@
   .nav-games-dot {
     display: none;
   }
+  /* Pallino "hai un invito da decidere" sull'icona Prenota. Il
+     display:none di base sta gia' inline nel bottone: qui c'e' solo
+     l'aspetto, per quando lo stato lo rende visibile via JS. */
+  .nav-invite-dot {
+    position: absolute; top: 4px; right: 10px;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--live); border: 1.5px solid var(--bg);
+    animation: navInviteDotPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes navInviteDotPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
 
   /* ============================================
      LIQUID GLASS (stile iOS) — vetro lucido su tutta l'app
@@ -4420,6 +4562,7 @@
 
     /* Elementi pulsanti / infiniti: spenti esplicitamente */
     .kings-tap-hint,
+    .nav-invite-dot,
     .gsq-lamp,
     .gsq-face,
     .gsq-excl,
@@ -4550,6 +4693,19 @@
           <div>
             <div class="settings-row-lbl">Condividi CAMON</div>
             <div class="settings-row-sub">Invita i tuoi amici al bar</div>
+          </div>
+        </div>
+        <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+
+      <div class="settings-row" onclick="inviteOpenList()">
+        <div class="settings-row-left">
+          <div class="settings-row-ico accent">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F7CC49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 6 10-6"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-lbl">I tuoi inviti segreti</div>
+            <div class="settings-row-sub">Chi hai invitato, e cosa ha risposto</div>
           </div>
         </div>
         <div class="settings-row-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
@@ -6319,6 +6475,9 @@
         </div>
       </div>
       <div class="book-scroll">
+        <!-- Banner invito segreto in sospeso: prima di ogni altra opzione
+             di prenotazione. Popolato/nascosto da inviteBannerRender(). -->
+        <div id="invite-banner-slot"></div>
         <div class="book-type-list">
 
           <!-- Tavolo condiviso -->
@@ -6454,15 +6613,18 @@
               <div>C'è qualcuno che vorresti conoscere? Mandagli un <b>invito segreto</b> al CAMON. Resti <b>anonimo</b>: gli sveliamo chi sei <b>solo se accetta</b>.</div>
             </div>
             <div class="invite-steps">
-              <div class="invite-step"><span class="invite-step-n">1</span><span>Scegli la persona, sull'app o su Instagram.</span></div>
-              <div class="invite-step"><span class="invite-step-n">2</span><span>Riceve l'invito e <b>propone lei giorno e ora</b>.</span></div>
-              <div class="invite-step"><span class="invite-step-n">3</span><span>Ti avvisiamo: <b>accetti</b> e il tavolo è prenotato.</span></div>
+              <div class="invite-step"><span class="invite-step-n">1</span><span>Scegli la persona e <b>proponi una data</b>.</span></div>
+              <div class="invite-step"><span class="invite-step-n">2</span><span>Se quella data non va, <b>può proporne un'altra</b> — decidi tu se va bene.</span></div>
+              <div class="invite-step"><span class="invite-step-n">3</span><span>Appena <b>accetta</b>, il tavolo condiviso è prenotato.</span></div>
             </div>
             <label>Chi vuoi invitare?</label>
             <div class="companion-slot" id="invite-slot"></div>
             <!-- riga-indicazione: passa a Instagram se non è su CAMON / torna indietro -->
             <div id="invite-switch"></div>
             <div class="invite-ig-note" id="invite-hint"></div>
+
+            <label style="margin-top:16px">Che sera proponi?</label>
+            <input type="date" id="invite-date" class="invite-date-input" min="">
           </div>
 
 
@@ -7623,9 +7785,10 @@
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-btn" id="nav-book" onclick="goTo('book')">
+    <button class="nav-btn" id="nav-book" onclick="goTo('book')" style="position:relative">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span class="nav-label">Prenota</span>
+      <span class="nav-invite-dot" id="nav-invite-dot" style="display:none"></span>
     </button>
     <button class="nav-btn" id="nav-menu" onclick="goTo('menu')">
       <svg class="nav-icon" viewBox="0 0 24 24"><path d="M5 3l7 9 7-9z"/><line x1="12" y1="12" x2="12" y2="19"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
@@ -8421,7 +8584,15 @@
     document.getElementById('bfield-note').style.display     = isInvite ? 'none' : 'flex';
     const confirmBtn = document.querySelector('.book-confirm-btn');
     if (confirmBtn) confirmBtn.textContent = isInvite ? 'Invia invito segreto' : 'Conferma prenotazione';
-    if (isInvite) inviteReset();
+    if (isInvite) {
+      inviteReset();
+      const dateInput = document.getElementById('invite-date');
+      if (dateInput) {
+        // non si propone una sera gia' passata
+        dateInput.min = new Date().toISOString().slice(0, 10);
+        dateInput.value = '';
+      }
+    }
     // mostra step 2
     document.getElementById('book-step1').style.display = 'none';
     document.getElementById('book-step2').style.display = 'flex';
@@ -8737,13 +8908,49 @@
     ov.addEventListener('click', function(e) { if (e.target === ov) ov.remove(); });
   }
 
-  function bookConfirm() {
+  async function bookConfirm() {
     const btn = document.querySelector('.book-confirm-btn');
     if (bookType === 'invite') {
-      let target = null;
-      if (inviteUser) target = inviteUser.name;
-      else if (inviteIgHandle) target = inviteIgHandle;
-      else if (inviteMode === 'ig') {
+      const dateInput = document.getElementById('invite-date');
+      const dataProposta = dateInput ? dateInput.value : '';
+      if (!dataProposta) {
+        alert('Proponi una sera per l\'invito.');
+        return;
+      }
+      if (inviteUser) {
+        // Persona reale su CAMON: l'invito scrive sul database e le
+        // arriva davvero, non e' un messaggio finto.
+        btn.disabled = true;
+        const testoOriginale = btn.textContent;
+        btn.textContent = 'Invio…';
+        try {
+          if (!window.sb || !window.camonUser) throw new Error('Devi accedere per mandare un invito.');
+          const { error } = await window.sb.rpc('invite_send', {
+            p_recipient_id: inviteUser.id,
+            p_date: dataProposta
+          });
+          if (error) {
+            if (/gia_in_attesa/i.test(error.message || '')) {
+              throw new Error('Hai già un invito in sospeso con questa persona.');
+            }
+            throw error;
+          }
+          btn.textContent = '✓ Invito inviato! Ti avvisiamo se accetta';
+          btn.style.background = 'var(--success)';
+          setTimeout(() => {
+            btn.textContent = testoOriginale; btn.style.background = 'var(--brand)'; btn.disabled = false;
+            goTo('book');
+          }, 2200);
+        } catch (e) {
+          alert((e && e.message) || 'Non sono riuscito a mandare l\'invito. Riprova.');
+          btn.textContent = testoOriginale; btn.disabled = false;
+        }
+        return;
+      }
+      // Non e' ancora su CAMON: nessun account a cui scrivere sul
+      // database, resta il percorso "lo contattiamo noi su Instagram".
+      let target = inviteIgHandle;
+      if (!target && inviteMode === 'ig') {
         const typed = (document.getElementById('invite-input') || {}).value;
         if (typed && typed.trim()) target = typed.trim();
       }
@@ -8753,7 +8960,7 @@
           : 'Scegli la persona da invitare, oppure invitala su Instagram.');
         return;
       }
-      btn.textContent = '✓ Invito inviato! Ti avvisiamo se accetta';
+      btn.textContent = '✓ Richiesta presa in carico, la contattiamo noi';
       btn.style.background = 'var(--success)';
       btn.disabled = true;
       setTimeout(() => { btn.textContent = 'Invia invito segreto'; btn.style.background = 'var(--brand)'; btn.disabled = false; }, 2600);
@@ -8786,6 +8993,274 @@
     document.getElementById('book-pick-sub').textContent = 'Tavoli disponibili per ' + personeNum + (personeNum === 1 ? ' persona' : ' persone');
     document.getElementById('book-step2').style.display = 'none';
     document.getElementById('book-step-pick').style.display = 'flex';
+  }
+
+  /* ============================================================
+     INVITI SEGRETI — stato lato client
+     Una persona puo' ricevere piu' inviti insieme, ma ne vede uno
+     alla volta: quello arrivato per primo tra quelli 'in_attesa'.
+     Gli altri restano in coda, silenziosi, finche' quello in cima
+     non e' deciso (accettato/rifiutato/cambiata data — tutti stati
+     che lo tolgono da 'in_attesa'). Se una stessa serata finisce con
+     piu' inviti accettati da persone diverse, ognuno resta comunque
+     una prenotazione condivisa a se': e' l'abbinamento dei tavoli
+     condivisi, gia' esistente, che puo' sedere piu' persone insieme.
+     ============================================================ */
+  let inviteCache = null;        // ultimo risultato di invites_mine()
+  let invitePopupShown = false;  // il popup leggero appare una volta a sessione
+
+  function inviteQueueTop() {
+    if (!inviteCache) return null;
+    const inAttesa = inviteCache
+      .filter(i => i.direzione === 'ricevuto' && i.status === 'in_attesa')
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    return inAttesa[0] || null;
+  }
+
+  // Inviti mandati o ricevuti con un aggiornamento non ancora visto
+  // (risposta, cambio data, disdetta) — quelli non contano nella coda
+  // sopra, ma vanno comunque segnalati.
+  function inviteUnseenUpdates() {
+    if (!inviteCache) return [];
+    return inviteCache.filter(i => i.non_letto && i.status !== 'in_attesa');
+  }
+
+  async function inviteRefresh() {
+    if (!window.sb || !window.camonUser) { inviteCache = null; return; }
+    try {
+      const { data, error } = await window.sb.rpc('invites_mine');
+      if (error) throw error;
+      inviteCache = data || [];
+    } catch (e) {
+      if (!/find the function|does not exist|schema cache/i.test((e && e.message) || '')) {
+        console.warn('CAMON: inviti non caricati —', (e && e.message) || e);
+      }
+      inviteCache = null;
+    }
+    inviteRenderDot();
+    inviteBannerRender();
+  }
+
+  function inviteRenderDot() {
+    const dot = document.getElementById('nav-invite-dot');
+    if (!dot) return;
+    const daDecidere = !!inviteQueueTop();
+    dot.style.display = daDecidere ? 'block' : 'none';
+  }
+
+  function inviteFmtData(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T12:00:00');
+    const giorni = ['dom','lun','mar','mer','gio','ven','sab'];
+    const mesi = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+    return giorni[d.getDay()] + ' ' + d.getDate() + ' ' + mesi[d.getMonth()];
+  }
+
+  /* Popup leggero, non bloccante: appare una volta a sessione quando
+     c'e' un invito in cima alla coda, e si chiude con la X senza
+     impedire di navigare altrove. Il banner in Prenotazioni resta
+     comunque li' finche' non si decide. */
+  function inviteMaybeShowPopup() {
+    if (invitePopupShown) return;
+    const top = inviteQueueTop();
+    if (!top) return;
+    invitePopupShown = true;
+    const ov = document.createElement('div');
+    ov.className = 'invite-popup-overlay';
+    ov.innerHTML =
+      '<div class="invite-popup">'
+      + '<button class="invite-popup-close" aria-label="Chiudi">×</button>'
+      + '<div class="invite-popup-ico">💌</div>'
+      + '<div class="invite-popup-title">SEI STATO<br>INVITATO</div>'
+      + '<div class="invite-popup-body">Qualcuno ti ha proposto un <b>tavolo condiviso</b> al CAMON, in segreto — non sai ancora chi. Se accetti scopri subito di chi si tratta; se rifiuti resta anonimo per sempre.</div>'
+      + '<button class="invite-popup-cta" onclick="this.closest(\'.invite-popup-overlay\').remove();goTo(\'book\')">Guarda l\'invito</button>'
+      + '</div>';
+    ov.querySelector('.invite-popup-close').onclick = function () { ov.remove(); };
+    ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
+    document.body.appendChild(ov);
+  }
+
+  /* Banner in cima a Prenotazioni. Tre casi diversi coesistono:
+     1) invito in coda da decidere (accetta/rifiuta/altra data)
+     2) tuo invito appena accettato o rifiutato (non letto)
+     3) l'altra persona ha cambiato data e la prenotazione e' gia'
+        fatta su quella — puoi disdire se non ti va */
+  function inviteBannerRender() {
+    const slot = document.getElementById('invite-banner-slot');
+    if (!slot) return;
+
+    const top = inviteQueueTop();
+    if (top) {
+      slot.innerHTML =
+        '<div class="invite-banner">'
+        + '<div class="invite-banner-head">'
+        +   '<span class="invite-banner-tag">💌 Invito segreto</span>'
+        + '</div>'
+        + '<div class="invite-banner-title">Sei stato invitato a un tavolo condiviso</div>'
+        + '<div class="invite-banner-sub">Qualcuno vorrebbe conoscerti al CAMON — resta anonimo finché non accetti. Data proposta: <b>' + huEscape(inviteFmtData(top.proposed_date)) + '</b>.</div>'
+        + '<div class="invite-banner-actions">'
+        +   '<button class="invite-banner-btn accept" onclick="inviteAccept(\'' + top.id + '\')">Accetta</button>'
+        +   '<button class="invite-banner-btn reschedule" onclick="inviteOpenReschedule(\'' + top.id + '\')">Proponi un\'altra data</button>'
+        +   '<button class="invite-banner-btn decline" onclick="inviteDecline(\'' + top.id + '\')">Rifiuta</button>'
+        + '</div>'
+        + '</div>';
+      return;
+    }
+
+    // Nessun invito da decidere: mostra al massimo un aggiornamento
+    // non ancora visto (il piu' recente).
+    const aggiornamenti = inviteUnseenUpdates().sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    const u = aggiornamenti[0];
+    if (!u) { slot.innerHTML = ''; return; }
+
+    if (u.direzione === 'mandato' && u.status === 'accettato') {
+      slot.innerHTML = '<div class="invite-banner success">'
+        + '<div class="invite-banner-title">✓ ' + huEscape(u.altra_persona_nome || 'La persona che hai invitato') + ' ha accettato!</div>'
+        + '<div class="invite-banner-sub">Il tavolo condiviso è prenotato per il <b>' + huEscape(inviteFmtData(u.reschedule_date || u.proposed_date)) + '</b>.'
+        + (u.reschedule_date ? ' Ha scelto lei/lui questa data al posto di quella che avevi proposto.' : '') + '</div>'
+        + (u.reschedule_date ? '<div class="invite-banner-actions"><button class="invite-banner-btn decline" onclick="inviteSenderCancel(\'' + u.id + '\')">Quella sera non posso, disdici</button></div>' : '')
+        + '<button class="invite-banner-dismiss" onclick="inviteMarkSeenAndRefresh(\'' + u.id + '\')">Va bene, chiudi</button>'
+        + '</div>';
+    } else if (u.direzione === 'mandato' && u.status === 'rifiutato') {
+      slot.innerHTML = '<div class="invite-banner muted">'
+        + '<div class="invite-banner-title">Il tuo invito segreto non è stato accettato</div>'
+        + '<div class="invite-banner-sub">Resta anonimo: non sapremo chi era, e nemmeno lei/lui sa che sei stato tu.</div>'
+        + '<button class="invite-banner-dismiss" onclick="inviteMarkSeenAndRefresh(\'' + u.id + '\')">Chiudi</button>'
+        + '</div>';
+    } else if (u.direzione === 'ricevuto' && u.status === 'annullato') {
+      slot.innerHTML = '<div class="invite-banner muted">'
+        + '<div class="invite-banner-title">L\'invito che avevi accettato è stato annullato</div>'
+        + '<div class="invite-banner-sub">Per la data che avevi scelto, chi ti aveva invitato non può più esserci. La prenotazione è stata tolta.</div>'
+        + '<button class="invite-banner-dismiss" onclick="inviteMarkSeenAndRefresh(\'' + u.id + '\')">Chiudi</button>'
+        + '</div>';
+    } else {
+      slot.innerHTML = '';
+    }
+  }
+
+  async function inviteMarkSeenAndRefresh(id) {
+    try { await window.sb.rpc('invite_mark_seen', { p_invite_id: id }); } catch (e) {}
+    await inviteRefresh();
+  }
+
+  async function inviteAccept(id) {
+    try {
+      const { error } = await window.sb.rpc('invite_accept', { p_invite_id: id });
+      if (error) throw error;
+      await inviteRefresh();
+      camonConfirm('Tavolo condiviso prenotato! Ora sai anche chi ti ha invitato: guarda nella tua lista inviti.', function () {});
+    } catch (e) {
+      alert((e && e.message) || 'Non sono riuscito ad accettare l\'invito.');
+    }
+  }
+
+  async function inviteDecline(id) {
+    camonConfirm('Rifiutare questo invito? Resterà anonimo per sempre — non sapremo chi era.', async function () {
+      try {
+        const { error } = await window.sb.rpc('invite_decline', { p_invite_id: id });
+        if (error) throw error;
+        await inviteRefresh();
+      } catch (e) {
+        alert((e && e.message) || 'Non sono riuscito a rifiutare l\'invito.');
+      }
+    });
+  }
+
+  function inviteOpenReschedule(id) {
+    const oggi = new Date().toISOString().slice(0, 10);
+    const ov = document.createElement('div');
+    ov.className = 'invite-popup-overlay';
+    ov.innerHTML =
+      '<div class="invite-popup">'
+      + '<button class="invite-popup-close" aria-label="Chiudi">×</button>'
+      + '<div class="invite-popup-title" style="font-size:26px">PROPONI<br>UN\'ALTRA DATA</div>'
+      + '<div class="invite-popup-body">La prenotazione si fa subito su questa data: chi ti ha invitato viene avvisato, e se quella sera non può disdice lui.</div>'
+      + '<input type="date" class="invite-date-input" id="invite-reschedule-date" min="' + oggi + '" style="margin:14px 0">'
+      + '<button class="invite-popup-cta" id="invite-reschedule-confirm">Conferma questa data</button>'
+      + '</div>';
+    ov.querySelector('.invite-popup-close').onclick = function () { ov.remove(); };
+    ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
+    ov.querySelector('#invite-reschedule-confirm').onclick = async function () {
+      const val = document.getElementById('invite-reschedule-date').value;
+      if (!val) { alert('Scegli una data.'); return; }
+      try {
+        const { error } = await window.sb.rpc('invite_reschedule', { p_invite_id: id, p_date: val });
+        if (error) throw error;
+        ov.remove();
+        await inviteRefresh();
+      } catch (e) {
+        alert((e && e.message) || 'Non sono riuscito a proporre la nuova data.');
+      }
+    };
+    document.body.appendChild(ov);
+  }
+
+  async function inviteSenderCancel(id) {
+    camonConfirm('Disdire questo tavolo? La persona che avevi invitato viene avvisata.', async function () {
+      try {
+        const { error } = await window.sb.rpc('invite_sender_cancel', { p_invite_id: id });
+        if (error) throw error;
+        await inviteRefresh();
+      } catch (e) {
+        alert((e && e.message) || 'Non sono riuscito a disdire.');
+      }
+    });
+  }
+
+  /* "I tuoi inviti segreti" — elenco completo, mandati e ricevuti,
+     raggiungibile dalle impostazioni. E' la vista che risponde a "chi
+     ho invitato, e chi cosa mi ha risposto": qui l'anonimato non
+     nasconde piu' nulla di quanto invites_mine() gia' non nasconda —
+     un invito ricevuto ancora anonimo resta "Anonimo" anche qui. */
+  const INVITE_STATUS_LBL = {
+    in_attesa: 'In attesa',
+    accettato: 'Accettato',
+    rifiutato: 'Rifiutato',
+    annullato: 'Annullato'
+  };
+  const INVITE_STATUS_CLS = {
+    in_attesa: 'pending',
+    accettato: 'ok',
+    rifiutato: 'no',
+    annullato: 'no'
+  };
+
+  async function inviteOpenList() {
+    await inviteRefresh();
+    const lista = inviteCache || [];
+    const mandati  = lista.filter(i => i.direzione === 'mandato');
+    const ricevuti = lista.filter(i => i.direzione === 'ricevuto');
+
+    function riga(i) {
+      const nome = i.altra_persona_nome || 'Anonimo';
+      const dataBuona = i.reschedule_date || i.proposed_date;
+      const cambiata = !!i.reschedule_date;
+      return '<div class="invite-list-row">'
+        + '<div class="invite-list-avatar">' + (i.altra_persona_foto ? '<img src="' + huEscape(i.altra_persona_foto) + '" alt="">' : (i.direzione === 'ricevuto' && i.status !== 'accettato' ? '❔' : '👤')) + '</div>'
+        + '<div class="invite-list-body">'
+        +   '<div class="invite-list-name">' + huEscape(nome) + '</div>'
+        +   '<div class="invite-list-sub">' + huEscape(inviteFmtData(dataBuona)) + (cambiata ? ' (data cambiata)' : '') + '</div>'
+        + '</div>'
+        + '<span class="invite-list-status ' + INVITE_STATUS_CLS[i.status] + '">' + INVITE_STATUS_LBL[i.status] + '</span>'
+        + '</div>';
+    }
+
+    const ov = document.createElement('div');
+    ov.className = 'invite-popup-overlay';
+    ov.innerHTML =
+      '<div class="invite-popup invite-list-popup">'
+      + '<button class="invite-popup-close" aria-label="Chiudi">×</button>'
+      + '<div class="invite-popup-title" style="font-size:26px;text-align:left">I TUOI<br><span style="color:var(--brand)">INVITI</span></div>'
+      + '<div class="invite-list-scroll">'
+      +   '<div class="invite-list-section-lbl">Mandati (' + mandati.length + ')</div>'
+      +   (mandati.length ? mandati.map(riga).join('') : '<div class="invite-list-empty">Non hai ancora mandato nessun invito.</div>')
+      +   '<div class="invite-list-section-lbl">Ricevuti (' + ricevuti.length + ')</div>'
+      +   (ricevuti.length ? ricevuti.map(riga).join('') : '<div class="invite-list-empty">Non hai ricevuto nessun invito, per ora.</div>')
+      + '</div>'
+      + '</div>';
+    ov.querySelector('.invite-popup-close').onclick = function () { ov.remove(); };
+    ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
+    document.body.appendChild(ov);
   }
 
   function bookTableFits(tableId, personeNum) {
@@ -13273,6 +13748,7 @@
     if (page === 'home' && typeof renderHomeEventi === 'function') renderHomeEventi();
     if (page === 'story' && typeof storyRender === 'function') storyRender();
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
+    if (page === 'book' && typeof inviteRefresh === 'function') inviteRefresh();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
@@ -14576,6 +15052,12 @@
         if (document.getElementById('page-profile') &&
             document.getElementById('page-profile').classList.contains('active') &&
             typeof profEnter === 'function') profEnter();
+        // inviti: pallino, banner, ed eventuale popup leggero — una
+        // volta sola all'avvio, non ogni volta che si cambia pagina
+        if (typeof inviteRefresh === 'function') {
+          await inviteRefresh();
+          if (typeof inviteMaybeShowPopup === 'function') inviteMaybeShowPopup();
+        }
       }
       if (typeof cartaGate === 'function') cartaGate();
       window.sb.auth.onAuthStateChange(function (_event, session) {
@@ -14584,6 +15066,8 @@
         camonSyncAuthUI();
         if (session && typeof bandsSync === 'function') bandsSync();
         if (typeof cartaGate === 'function') cartaGate(); // login/logout mentre sei sulla Carta
+        // login appena fatto (es. da profilo vuoto): carica anche i suoi inviti
+        if (session && typeof inviteRefresh === 'function') inviteRefresh();
       });
     } catch (e) { console.warn('Init auth:', e); }
   }
