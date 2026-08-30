@@ -1,6 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="it">
 <head>
+  <!-- Le foto prodotto arrivano da qui: apre la connessione in anticipo,
+       cosi' la prima immagine non aspetta DNS+TLS oltre al download. -->
+  <link rel="preconnect" href="https://vbwttxfkyvbrmykwodqi.supabase.co" crossorigin>
 <meta charset="UTF-8">
 <!-- iOS tiene in cache la pagina del bookmark con molta insistenza:
      senza questo si continua a vedere la versione precedente. -->
@@ -754,10 +757,10 @@
   /* Banner Offerte & Promo (in fondo al menu, d'impatto) */
   .menu-offers-hero {
     position:relative; overflow:hidden;
-    display:flex; flex-direction:column; align-items:flex-start; gap:10px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:6px;
     width:calc(100% - 32px); margin:2px 16px 14px;
     background:linear-gradient(150deg,var(--brand) 0%,#E8530E 100%);
-    border:none; border-radius:20px; padding:18px 18px 16px;
+    border:none; border-radius:18px; padding:13px 16px 12px;
     cursor:pointer; -webkit-tap-highlight-color:transparent;
     box-shadow:0 8px 26px rgba(232,83,14,0.35);
     transition:transform 0.15s;
@@ -770,28 +773,19 @@
   }
   @keyframes mohPulse { 0%,100%{opacity:0.5;transform:scale(1)} 50%{opacity:0.9;transform:scale(1.12)} }
   .moh-top { display:flex; align-items:center; justify-content:space-between; width:100%; position:relative; z-index:1; }
-  .moh-badge {
-    font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:0.3px;
-    color:var(--text); background:rgba(0,0,0,0.22); padding:5px 11px; border-radius:30px;
-  }
   .moh-tag {
     font-family:'Manrope',sans-serif; font-size:9px; font-weight:800; letter-spacing:2.5px;
     text-transform:uppercase; color:rgba(0,0,0,0.4);
   }
   .moh-title {
-    font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:0.92; letter-spacing:1px;
+    font-family:'Bebas Neue',sans-serif; font-size:30px; line-height:0.92; letter-spacing:1px;
     color:var(--bg); position:relative; z-index:1;
   }
   .moh-title span { color:var(--text); }
-  .moh-chips { display:flex; flex-wrap:wrap; gap:7px; position:relative; z-index:1; }
-  .moh-chips span {
-    font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; color:var(--bg);
-    background:rgba(255,255,255,0.45); padding:6px 11px; border-radius:30px;
-  }
   .moh-cta {
-    display:flex; align-items:center; gap:7px; margin-top:4px; position:relative; z-index:1;
-    font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; color:var(--bg);
-    background:var(--text); padding:11px 16px; border-radius:30px;
+    display:flex; align-items:center; gap:7px; margin-top:2px; position:relative; z-index:1;
+    font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; color:var(--bg);
+    background:var(--text); padding:9px 14px; border-radius:30px;
     box-shadow:0 3px 10px rgba(0,0,0,0.18);
   }
 
@@ -4056,13 +4050,9 @@
   #page-menu .moh-glow {
     background: radial-gradient(circle, rgba(255,255,255,0.30), transparent 70%);
   }
-  #page-menu .moh-badge { background: rgba(0,0,0,0.26); color: var(--text); }
   #page-menu .moh-tag { color: rgba(0,0,0,0.42); }
   #page-menu .moh-title { color: #14110A; }
   #page-menu .moh-title span { color: rgba(20,17,10,0.5); }
-  #page-menu .moh-chips span {
-    background: rgba(255,255,255,0.62); color: #14110A;
-  }
   #page-menu .moh-cta {
     background: #14110A; color: var(--brand);
     box-shadow: 0 4px 12px rgba(0,0,0,0.22);
@@ -6104,15 +6094,9 @@
       <button class="menu-offers-hero" onclick="goTo('offerte')">
         <div class="moh-glow"></div>
         <div class="moh-top">
-          <span class="moh-badge">🔥 Promo attive</span>
           <span class="moh-tag">Offerte</span>
         </div>
         <div class="moh-title">OFFERTE <span>&amp; PROMO</span></div>
-        <div class="moh-chips">
-          <span>🍻 Happy Hour</span>
-          <span>🏓 Tornei</span>
-          <span>🍹 2x1 Spritz</span>
-        </div>
         <div class="moh-cta">
           Scopri tutte le offerte
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -11771,7 +11755,7 @@
   const OT_GENDERS = [
     { v:'m', lbl:'♂ M' },
     { v:'f', lbl:'♀ F' },
-    { v:'x', lbl:'⚧ Altro' }
+    { v:'x', lbl:'Altro' }
   ];
   function obbligoStart() {
     // la rosa (nomi + sesso) arriva gia' completa dalla pagina condivisa
@@ -14117,7 +14101,7 @@
         : '<div class="drink-badge drink-badge-self">🍺 Solo al self-service</div>';
     }
     card.innerHTML =
-      `<div class="drink-emoji"><img src="${img}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='${camonProductImgFallback(p)}'"></div>` +
+      `<div class="drink-emoji"><img src="${img}" alt="${p.name}" decoding="async" onerror="this.onerror=null;this.src='${camonProductImgFallback(p)}'"></div>` +
       `<div class="drink-name">${p.name}</div>` +
       `<div class="drink-price">${camonFmtPrice(p.price_cents)}</div>` +
       badge;
