@@ -9349,15 +9349,28 @@
      del tavolo (solo l'id): li si prende al volo da 'bookings', che
      chi ha accettato puo' gia' leggere (e' la sua prenotazione).*/
   async function inviteEnterBooking(id) {
+    // Prima si riprende sempre l'ultimo stato dal server: se questa
+    // funzione parte da un tocco su dati un po' vecchi (la cache non
+    // ancora aggiornata dopo un accetta fatto un attimo prima), senza
+    // questo la riga sotto poteva non trovare ancora booking_id e
+    // uscire — silenziosamente, senza dire niente a chi ha toccato.
+    await inviteRefresh();
     const inv = inviteFindById(id);
-    if (!inv || !inv.booking_id) return;
+    if (!inv) {
+      alert('Non trovo più questo invito. Prova a tornare indietro e riaprire.');
+      return;
+    }
+    if (!inv.booking_id) {
+      alert('La prenotazione non risulta ancora pronta. Aspetta un momento e riprova — se il problema resta, contattaci.');
+      return;
+    }
     let booking = null;
     try {
       const { data, error } = await window.sb.from('bookings').select('*').eq('id', inv.booking_id).single();
       if (error) throw error;
       booking = data;
     } catch (e) {
-      alert('Non sono riuscito ad aprire la prenotazione. Riprova tra poco.');
+      alert('Non sono riuscito ad aprire la prenotazione: ' + ((e && e.message) || 'errore sconosciuto') + '. Riprova tra poco.');
       return;
     }
 
