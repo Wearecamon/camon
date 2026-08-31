@@ -9833,10 +9833,35 @@
     bookPickedTable = null;
   }
 
-  function bookFinalizeWithTable(assigned) {
+  async function bookFinalizeWithTable(assigned) {
     if (!bookPendingData) return;
     var p = bookPendingData;
     bookOccupied[assigned] = true;
+
+    // Scrive davvero la prenotazione: prima di questo, l'intero
+    // flusso manuale (condiviso/privato/stanza) restava solo nella
+    // memoria del telefono, persa al reload — e "Annulla prenotazione"
+    // non aveva niente su cui agire sul serio. Senza accesso fatto si
+    // tiene il vecchio comportamento solo-locale (demo), non blocca
+    // la prova dell'interfaccia a chi non e' loggato.
+    var bookingIdReale = null;
+    if (window.sb && window.camonUser) {
+      try {
+        var ins = await window.sb.from('bookings').insert({
+          user_id: window.camonUser.id,
+          booking_type: bookType,
+          booking_date: p.data,
+          booking_time: p.ora,
+          people: p.personeNum,
+          table_code: assigned,
+          status: 'attiva'
+        }).select('id').single();
+        if (ins.error) throw ins.error;
+        bookingIdReale = ins.data.id;
+      } catch (e) {
+        console.warn('CAMON: prenotazione non salvata sul database —', (e && e.message) || e);
+      }
+    }
 
     document.getElementById('book-confirmed-detail').textContent = p.nome + ' · ' + p.dataFmt + ' alle ' + p.ora + ' — CAMON';
     document.getElementById('book-table-number').textContent = assigned;
@@ -9872,7 +9897,7 @@
     }
 
     var typeLabel = {shared:'Tavolo Condiviso', private:'Tavolo Privato', room:'Stanza Privata', invite:'Invito Segreto'};
-    currentBooking = { table: assigned, nome: p.nome, data: p.data, ora: p.ora, dataFmt: p.dataFmt, type: typeLabel[bookType] || bookType, persone: p.personeNum, bookType: bookType };
+    currentBooking = { id: bookingIdReale, table: assigned, nome: p.nome, data: p.data, ora: p.ora, dataFmt: p.dataFmt, type: typeLabel[bookType] || bookType, persone: p.personeNum, bookType: bookType };
 
     bookAddedGuests = companionSlots
       .filter(function(s){ return s.selectedUser; })
@@ -10333,13 +10358,27 @@
   }
 
   function bookCancelConfirm() {
-    camonConfirm('Sei sicuro di voler annullare la prenotazione?', function() {
+    camonConfirm('Sei sicuro di voler annullare la prenotazione?', async function() {
+      // Se la prenotazione ha un id vero (scritta sul database in
+      // bookFinalizeWithTable), la annulla per davvero prima di
+      // pulire lo stato locale — senza questo il bottone non faceva
+      // niente di reale, solo un reset del telefono.
+      if (currentBooking && currentBooking.id && window.sb) {
+        try {
+          const { error } = await window.sb.rpc('booking_cancel_mine', { p_booking_id: currentBooking.id });
+          if (error) throw error;
+        } catch (e) {
+          alert((e && e.message) || 'Non sono riuscito ad annullare la prenotazione. Riprova.');
+          return;
+        }
+      }
       bookAddedGuests = [];
       currentBooking = null;
       document.getElementById('book-active').style.display = 'none';
       document.getElementById('book-step3').style.display = 'none';
       document.getElementById('book-step-pick').style.display = 'none';
       document.getElementById('book-step1').style.display = 'flex';
+      if (typeof inviteBannerRender === 'function') inviteBannerRender();
     });
   }
 
