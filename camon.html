@@ -9281,7 +9281,15 @@
     // fronte di chi ha mandato inviti.
     const aggiornamenti = inviteUnseenUpdates().sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
     const u = aggiornamenti[0];
-    if (!u) { slot.innerHTML = ''; return; }
+    if (!u) {
+      // Niente di legato agli inviti: se c'e' una prenotazione fatta
+      // a mano (tavolo condiviso scelto normalmente, privato, stanza),
+      // e' lei ad occupare lo stesso posto in cima — stesso trattamento
+      // a banner, non piu' una pagina che sostituisce l'intera lista.
+      if (typeof bookRenderOwnBanner === 'function' && bookRenderOwnBanner(slot)) return;
+      slot.innerHTML = '';
+      return;
+    }
 
     if (u.direzione === 'mandato' && u.status === 'accettato') {
       // Si arriva qui solo se la serata e' gia' passata (l'invito
@@ -9883,6 +9891,64 @@
   var bookOccupied = {};
   var currentBooking = null;
 
+  /* Popola il banner in cima a "Prenota un posto" per una prenotazione
+     fatta a mano (non da invito): stesso trattamento visivo delle
+     prenotazioni nate da un invito, cosi' la pagina si comporta allo
+     stesso modo qualunque sia l'origine. Ritorna true se ha scritto
+     qualcosa, false se non c'e' nessuna prenotazione da mostrare —
+     cosi' chi chiama sa se deve ripiegare su un banner vuoto. */
+  function bookRenderOwnBanner(slot) {
+    if (!currentBooking) return false;
+    var etichetta = { shared: 'Tavolo condiviso', private: 'Tavolo privato', room: 'Stanza privata' };
+    slot.innerHTML =
+      '<div class="invite-banner success" onclick="bookShowActiveNormal()" style="cursor:pointer">'
+      + '<div class="invite-banner-head"><span class="invite-banner-tag" style="color:var(--success)">✓ Prenotazione attiva</span></div>'
+      + '<div class="invite-banner-title">' + huEscape(etichetta[currentBooking.bookType] || currentBooking.type) + '</div>'
+      + '<div class="invite-banner-sub">' + huEscape(currentBooking.dataFmt) + ' alle <b>' + huEscape(currentBooking.ora) + '</b>'
+      + (currentBooking.table ? ' · tavolo <b>' + huEscape(currentBooking.table) + '</b>' : '') + '</div>'
+      + '<div class="invite-banner-actions">'
+      +   '<button class="invite-banner-btn accept" onclick="event.stopPropagation();bookShowActiveNormal()">Dettagli prenotazione</button>'
+      + '</div>'
+      + '</div>';
+    return true;
+  }
+
+  /* Apre "LA TUA PRENOTAZIONE" per una prenotazione fatta a mano:
+     stessa schermata #book-active usata dagli inviti, ripristinata
+     al suo comportamento originale (griglia posti vera con eventuali
+     altri avventori simulati, bottone Annulla generico). */
+  function bookShowActiveNormal() {
+    if (!currentBooking) return;
+    document.getElementById('ba-table').textContent = currentBooking.table || '—';
+    const tableHint = document.getElementById('ba-table-hint');
+    if (tableHint) {
+      tableHint.innerHTML = currentBooking.table
+        ? 'TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE'
+        : 'TAVOLO DA ASSEGNARE<br>ARRIVA PRIMA DELLA SERATA';
+    }
+    document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
+    document.getElementById('ba-type').textContent = currentBooking.type;
+    document.getElementById('ba-nome').textContent = currentBooking.nome;
+    bookApplyTypeColor(currentBooking.bookType);
+    bookRenderFill(currentBooking.table);
+    bookUpdateMinimap(currentBooking.table);
+
+    // via l'eventuale richiamo al mistero lasciato da una vista invito
+    const nota = document.getElementById('ba-invite-note');
+    if (nota) nota.remove();
+
+    // il bottone annulla torna al comportamento generico (le viste
+    // invito lo agganciavano alla loro funzione specifica)
+    const cancelBtn = document.querySelector('#book-active .book-cancel-btn');
+    if (cancelBtn) { cancelBtn.style.display = ''; cancelBtn.onclick = bookCancelConfirm; }
+    const newBtn = document.querySelector('#book-active .book-new-btn');
+    if (newBtn) newBtn.textContent = '+ Nuova prenotazione';
+
+    document.getElementById('book-step1').style.display = 'none';
+    document.getElementById('book-step2').style.display = 'none';
+    document.getElementById('book-active').style.display = 'flex';
+  }
+
   function bookShowMap() {
     // dalla vista attiva → apre la mappa (step3) con il tavolo evidenziato
     if (!currentBooking) return;
@@ -10292,15 +10358,11 @@
   function bookReset() {
     document.getElementById('book-step3').style.display = 'none';
     if (currentBooking) {
-      // torna alla vista prenotazione attiva
-      document.getElementById('ba-table').textContent = currentBooking.table;
-      document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
-      document.getElementById('ba-type').textContent = currentBooking.type;
-      document.getElementById('ba-nome').textContent = currentBooking.nome;
-      bookApplyTypeColor(currentBooking.bookType);
-      document.getElementById('book-active').style.display = 'flex';
-      bookRenderFill(currentBooking.table);
-      bookUpdateMinimap(currentBooking.table);
+      // Passa da bookShowActiveNormal(): oltre a popolare i campi,
+      // ripulisce eventuali residui lasciati da una vista invito vista
+      // in precedenza nella stessa sessione (bottone annulla agganciato
+      // alla funzione sbagliata, nota del mistero rimasta li').
+      bookShowActiveNormal();
     } else {
       document.getElementById('book-step1').style.display = 'flex';
     }
@@ -14185,22 +14247,15 @@
         var s = document.getElementById(id);
         if (s) s.style.display = 'none';
       });
+      // La lista dei tipi di tavolo resta SEMPRE visibile, come le
+      // pagine con un invito in ballo: una prenotazione attiva (fatta
+      // a mano, non da invito) compare come banner in cima — vedi
+      // bookRenderOwnBanner() — non sostituisce piu' l'intera pagina.
       var attiva = document.getElementById('book-active');
       var passo1 = document.getElementById('book-step1');
-      if (typeof currentBooking !== 'undefined' && currentBooking) {
-        document.getElementById('ba-table').textContent = currentBooking.table;
-        document.getElementById('ba-datetime').textContent = currentBooking.dataFmt + ' alle ' + currentBooking.ora;
-        document.getElementById('ba-type').textContent = currentBooking.type;
-        document.getElementById('ba-nome').textContent = currentBooking.nome;
-        if (typeof bookApplyTypeColor === 'function') bookApplyTypeColor(currentBooking.bookType);
-        if (attiva) attiva.style.display = 'flex';
-        if (passo1) passo1.style.display = 'none';
-        if (typeof bookRenderFill === 'function') bookRenderFill(currentBooking.table);
-        if (typeof bookUpdateMinimap === 'function') bookUpdateMinimap(currentBooking.table);
-      } else {
-        if (attiva) attiva.style.display = 'none';
-        if (passo1) passo1.style.display = 'flex';
-      }
+      if (attiva) attiva.style.display = 'none';
+      if (passo1) passo1.style.display = 'flex';
+      if (typeof inviteBannerRender === 'function') inviteBannerRender();
     }
     /* Bollini flottanti, come nell'app: la carta sparisce dove darebbe
        fastidio, la storia si vede solo in home e nel menu, il salva
