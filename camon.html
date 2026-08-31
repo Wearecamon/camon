@@ -4276,6 +4276,77 @@
   }
 
   /* ============================================================
+     PAGINA CLIENTE — a tutto schermo, come la propria pagina
+     profilo nell'app: foto grande, nome sovrapposto, i dati sotto
+     uno per riga. Colonna unica sempre, anche su schermo largo —
+     e' una scheda da leggere dall'alto in basso, non una lista da
+     confrontare in orizzontale.
+     ============================================================ */
+  .adm-profile-overlay {
+    position: fixed; inset: 0; z-index: 700;
+    background: var(--bg);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .adm-profile-back {
+    position: fixed; top: 18px; left: 18px; z-index: 2;
+    width: 40px; height: 40px; border-radius: 50%; border: none;
+    background: rgba(0,0,0,0.4); color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .adm-profile-hero {
+    position: relative; width: 100%; height: 46vh; min-height: 300px;
+    background: var(--surface); overflow: hidden;
+  }
+  .adm-profile-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .adm-profile-hero-empty {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: 0.15;
+  }
+  .adm-profile-hero-fade {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 160px;
+    background: linear-gradient(transparent, var(--bg)); pointer-events: none;
+  }
+  .adm-profile-name {
+    position: absolute; bottom: 20px; left: 24px; right: 24px;
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px, 7vw, 52px);
+    color: var(--text); line-height: 1; letter-spacing: 0.5px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .adm-profile-name span { color: var(--brand); }
+  .adm-profile-body {
+    max-width: 560px; margin: 0 auto; padding: 24px 22px calc(60px + var(--safe-bottom));
+  }
+  .adm-profile-row {
+    padding: 14px 0; border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .adm-profile-row-lbl {
+    font-family: 'Manrope', sans-serif; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 1.4px; text-transform: uppercase; color: var(--text-muted);
+  }
+  .adm-profile-row-val {
+    font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; color: var(--text);
+  }
+  .adm-profile-row textarea, .adm-profile-row input {
+    width: 100%; background: var(--surface-2); border: 1.5px solid var(--border);
+    color: var(--text); padding: 10px 12px; border-radius: 10px;
+    font-family: 'Manrope', sans-serif; font-size: 15px; outline: none;
+  }
+  .adm-profile-row textarea { resize: vertical; min-height: 70px; }
+  .adm-profile-row input[type="checkbox"] { width: 20px; height: 20px; }
+  .adm-profile-edit-btn, .adm-profile-save-btn {
+    position: fixed; top: 18px; right: 18px; z-index: 2;
+    padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer;
+    font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 800;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .adm-profile-edit-btn { background: rgba(255,255,255,0.12); color: var(--text); }
+  .adm-profile-save-btn { background: var(--brand); color: var(--on-brand); }
+  @media (min-width: 900px) {
+    .adm-profile-hero { height: 40vh; }
+  }
+
+  /* ============================================================
      AREA TITOLARE — SCHERMO LARGO (tablet orizzontale, computer)
      Chi gestisce i dati lo fa quasi sempre da qui, non dal telefono:
      sotto i 900px resta l'app-telefono di sempre; da 900px in su
@@ -7275,8 +7346,7 @@
       <div class="gd-title">AREA <span style="color:var(--brand)">TITOLARE</span></div>
     </div>
     <div class="adm-tabs" id="adm-tabs">
-      <button class="adm-tab active" onclick="admGo('panoramica')">Panoramica</button>
-      <button class="adm-tab" onclick="admGo('clienti')">Clienti</button>
+      <button class="adm-tab active" onclick="admGo('clienti')">Clienti</button>
       <button class="adm-tab" onclick="admGo('prenotazioni')">Prenotazioni</button>
       <button class="adm-tab" onclick="admGo('comande')">Comande</button>
       <button class="adm-tab" onclick="admGo('shot')">Shot</button>
@@ -7292,7 +7362,7 @@
        database: se chi guarda non e' segnato come staff, le query
        tornano vuote. Nascondere la voce non e' la protezione. */
 
-    var admSec = 'panoramica';
+    var admSec = 'clienti';
     var admStaff = false;
 
     async function camonAvatarUrl(valore) {
@@ -7341,7 +7411,7 @@
     function admGo(sec) {
       admSec = sec;
       var tabs = document.querySelectorAll('#adm-tabs .adm-tab');
-      var nomi = ['panoramica','clienti','prenotazioni','comande','shot','menu','giochi','dati'];
+      var nomi = ['clienti','prenotazioni','comande','shot','menu','giochi','dati'];
       tabs.forEach(function (t, i) { t.classList.toggle('active', nomi[i] === sec); });
       admRender();
     }
@@ -7365,87 +7435,13 @@
 
     function admRender() {
       if (!admStaff) return;
-      if (admSec === 'panoramica')    admPanoramica();
-      else if (admSec === 'clienti')       admClienti();
+      if (admSec === 'clienti')       admClienti();
       else if (admSec === 'prenotazioni') admPrenotazioni();
       else if (admSec === 'comande')  admComande();
       else if (admSec === 'shot')     admShot();
       else if (admSec === 'menu')     admMenu();
       else if (admSec === 'giochi')   admGiochi();
       else                            admDati();
-    }
-
-    /* ---------------- PANORAMICA ----------------
-       Il quadro d'insieme: quello che prima serviva aprire ogni
-       scheda per sapere, qui e' un colpo d'occhio solo. Conta le
-       righe invece di scaricarle tutte (head:true), leggero anche
-       con tanti dati. */
-    async function admPanoramica() {
-      admCarico();
-      try {
-        var conta = function (tabella, filtro) {
-          var q = window.sb.from(tabella).select('id', { count: 'exact', head: true });
-          return filtro ? filtro(q) : q;
-        };
-        // allSettled invece di Promise.all: se UN conteggio fallisce
-        // (es. una tabella non ancora migrata), gli altri cinque si
-        // vedono comunque — prima bastava un solo errore per far
-        // sparire tutta la pagina dietro un "[object Object]".
-        var etichette = ['clienti', 'prenotazioni attive', 'richieste feste', 'prodotti esauriti', 'giochi nascosti', 'saldo portafogli'];
-        var esiti = await Promise.allSettled([
-          conta('profiles'),
-          conta('bookings', function (q) { return q.eq('status', 'attiva'); }),
-          conta('event_requests', function (q) { return q.eq('status', 'nuova'); }),
-          conta('products', function (q) { return q.eq('available', false); }),
-          conta('games', function (q) { return q.eq('enabled', false); }),
-          window.sb.from('wallets').select('balance_cents')
-        ]);
-        var errori = [];
-        var valore = function (i) {
-          var e = esiti[i];
-          if (e.status !== 'fulfilled') { errori.push(etichette[i] + ': ' + admMsgErrore(e.reason)); return null; }
-          if (e.value.error) { errori.push(etichette[i] + ': ' + admMsgErrore(e.value.error)); return null; }
-          return e.value;
-        };
-
-        var vClienti = valore(0), vPren = valore(1), vRich = valore(2), vProd = valore(3), vGio = valore(4), vWallet = valore(5);
-        var nClienti = vClienti ? (vClienti.count || 0) : '—';
-        var nPrenotazioniAttive = vPren ? (vPren.count || 0) : '—';
-        var nRichiesteNuove = vRich ? (vRich.count || 0) : '—';
-        var nEsauriti = vProd ? (vProd.count || 0) : '—';
-        var nGiochiSpenti = vGio ? (vGio.count || 0) : '—';
-        var saldoTotale = vWallet ? (vWallet.data || []).reduce(function (s, w) { return s + (w.balance_cents || 0); }, 0) : null;
-
-        var h = '';
-        if (errori.length) {
-          h += '<div class="adm-err">Alcuni dati non si sono caricati:<br>' + admEsc(errori.join(' · ')) + '</div>';
-        }
-        h += '<div class="adm-group-title">Colpo d\'occhio</div>'
-          + '<div class="adm-stats">'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Clienti</div><div class="adm-stat-val">' + nClienti + '</div></div>'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + (saldoTotale == null ? '—' : admEuro(saldoTotale)) + '</div></div>'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Prenotazioni attive</div><div class="adm-stat-val">' + nPrenotazioniAttive + '</div></div>'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Richieste feste nuove</div><div class="adm-stat-val' + (typeof nRichiesteNuove === 'number' && nRichiesteNuove > 0 ? ' warn' : '') + '">' + nRichiesteNuove + '</div></div>'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Prodotti esauriti</div><div class="adm-stat-val">' + nEsauriti + '</div></div>'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Giochi nascosti</div><div class="adm-stat-val">' + nGiochiSpenti + '</div></div>'
-          + '</div>';
-
-        h += '<div class="adm-group-title">Scorciatoie</div>'
-          + admPanoramicaScorciatoia('📅', 'Prenotazioni', 'Tavoli, richieste feste, inviti segreti', 'prenotazioni')
-          + admPanoramicaScorciatoia('👥', 'Clienti', 'Anagrafica, saldi, tessere', 'clienti')
-          + admPanoramicaScorciatoia('🍸', 'Menu', 'Disponibilita\' dei prodotti', 'menu')
-          + admPanoramicaScorciatoia('🎲', 'Giochi', 'Cosa e\' acceso stasera', 'giochi')
-          + admPanoramicaScorciatoia('📊', 'Dati', 'Vendite e movimenti', 'dati');
-
-        admBody().innerHTML = h;
-      } catch (e) { admErrore(e); }
-    }
-    function admPanoramicaScorciatoia(emoji, titolo, sotto, sezione) {
-      return '<div class="adm-row" onclick="admGo(\'' + sezione + '\')" style="cursor:pointer">'
-        + '<div class="adm-avatar-empty">' + emoji + '</div>'
-        + '<div class="adm-grow"><div class="adm-name">' + titolo + '</div><div class="adm-sub">' + sotto + '</div></div>'
-        + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
-        + '</div>';
     }
 
     /* ---------------- CLIENTI + SALDI ---------------- */
@@ -7470,9 +7466,10 @@
             return {
               id: p.id,
               nome: [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Senza nome',
-              eta: p.age, telefono: p.phone, lingue: p.languages,
+              nomeF: p.first_name, nomeL: p.last_name,
+              eta: p.age, telefono: p.phone, lingue: p.languages, bio: p.bio,
               erasmus: p.erasmus, staff: p.is_staff, creato: p.created_at,
-              foto: foto,
+              foto: foto, fotoPath: p.photo_url,
               saldo: w ? w.balance_cents : 0,
               ultimoMov: w ? w.updated_at : null
             };
@@ -7564,42 +7561,125 @@
     // Un dettaglio alla volta: aprirne uno nuovo chiude quello sotto,
     // invece di impilarli (es. dalla prenotazione si apre il cliente).
     function admChiudiDettagli() {
-      document.querySelectorAll('.adm-detail-overlay').forEach(function (o) { o.remove(); });
+      document.querySelectorAll('.adm-detail-overlay, .adm-profile-overlay').forEach(function (o) { o.remove(); });
     }
 
+    /* Pagina cliente a tutto schermo — come la propria pagina profilo
+       nell'app: foto grande, nome sovrapposto, i dati sotto uno per
+       riga. Il bottone in alto a destra passa in modifica: gli stessi
+       campi diventano input, "Salva" scrive con admin_update_profile
+       (solo l'anagrafica — il ruolo staff non si tocca da qui). */
     function admApriCliente(id) {
       var c = (admClientiCache || []).find(function (x) { return x.id === id; });
       if (!c) return;
       admChiudiDettagli();
-      var righe = [
+      var ov = document.createElement('div');
+      ov.className = 'adm-profile-overlay';
+      ov.id = 'adm-profile-overlay';
+      document.body.appendChild(ov);
+      admRenderProfilo(c, false);
+    }
+
+    function admRenderProfilo(c, modifica) {
+      var ov = document.getElementById('adm-profile-overlay');
+      if (!ov) return;
+
+      var righeLettura = [
         ['Telefono', c.telefono || '—'],
         ['Età', c.eta ? (c.eta + ' anni') : '—'],
         ['Lingue', c.lingue || '—'],
+        ['Bio', c.bio || '—'],
         ['Erasmus', c.erasmus ? 'Sì' : 'No'],
         ['Staff', c.staff ? 'Sì' : 'No'],
         ['Iscritto dal', admData(c.creato)],
         ['Saldo tessera', admEuro(c.saldo)],
         ['Ultimo movimento', c.ultimoMov ? admData(c.ultimoMov) : '—']
       ];
-      var ov = document.createElement('div');
-      ov.className = 'adm-detail-overlay';
+
+      var corpoLettura = righeLettura.map(function (r) {
+        return '<div class="adm-profile-row"><span class="adm-profile-row-lbl">' + admEsc(r[0]) + '</span>'
+          + '<span class="adm-profile-row-val">' + admEsc(r[1]) + '</span></div>';
+      }).join('');
+
+      var corpoModifica =
+          campoModifica('Nome', 'adm-ed-nomeF', 'text', c.nomeF || '')
+        + campoModifica('Cognome', 'adm-ed-nomeL', 'text', c.nomeL || '')
+        + campoModifica('Telefono', 'adm-ed-telefono', 'tel', c.telefono || '')
+        + campoModifica('Età', 'adm-ed-eta', 'number', c.eta || '')
+        + campoModifica('Lingue', 'adm-ed-lingue', 'text', c.lingue || '')
+        + '<div class="adm-profile-row"><span class="adm-profile-row-lbl">Bio</span>'
+        +   '<textarea id="adm-ed-bio">' + admEsc(c.bio || '') + '</textarea></div>'
+        + '<div class="adm-profile-row"><span class="adm-profile-row-lbl">Erasmus</span>'
+        +   '<input type="checkbox" id="adm-ed-erasmus"' + (c.erasmus ? ' checked' : '') + '></div>'
+        + '<div class="adm-profile-row"><span class="adm-profile-row-lbl">Staff</span>'
+        +   '<span class="adm-profile-row-val">' + (c.staff ? 'Sì' : 'No') + ' <span style="color:var(--text-muted);font-weight:600;font-size:12px">— non modificabile da qui</span></span></div>'
+        + '<div class="adm-profile-row"><span class="adm-profile-row-lbl">Saldo tessera</span>'
+        +   '<span class="adm-profile-row-val">' + admEuro(c.saldo) + ' <span style="color:var(--text-muted);font-weight:600;font-size:12px">— si muove dalla scheda Carta del cliente</span></span></div>';
+
+      function campoModifica(lbl, idc, tipo, valore) {
+        return '<div class="adm-profile-row"><span class="adm-profile-row-lbl">' + admEsc(lbl) + '</span>'
+          + '<input type="' + tipo + '" id="' + idc + '" value="' + admEsc(valore) + '"></div>';
+      }
+
       ov.innerHTML =
-        '<div class="adm-detail">'
-        + '<button class="adm-detail-close" aria-label="Chiudi">×</button>'
-        + '<div class="adm-detail-scroll">'
+        '<button class="adm-profile-back" id="adm-profile-back" aria-label="Indietro">'
+        +   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>'
+        + '</button>'
+        + (modifica
+            ? '<button class="adm-profile-save-btn" id="adm-profile-save">Salva</button>'
+            : '<button class="adm-profile-edit-btn" id="adm-profile-edit">Modifica</button>')
+        + '<div class="adm-profile-hero">'
         +   (c.foto
-              ? '<img class="adm-detail-photo" src="' + admEsc(c.foto) + '" alt="">'
-              : '<div class="adm-detail-photo adm-detail-photo-empty">👤</div>')
-        +   '<div class="adm-detail-title">' + admEsc(c.nome) + '</div>'
-        +   righe.map(function (r) {
-              return '<div class="adm-detail-kv"><span class="adm-detail-kv-lbl">' + admEsc(r[0]) + '</span>'
-                + '<span class="adm-detail-kv-val">' + admEsc(r[1]) + '</span></div>';
-            }).join('')
+              ? '<img src="' + admEsc(c.foto) + '" alt="">'
+              : '<div class="adm-profile-hero-empty"><svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M3 20c0-4 4-7 9-7s9 3 9 7"/></svg></div>')
+        +   '<div class="adm-profile-hero-fade"></div>'
+        +   '<div class="adm-profile-name">' + admEsc(c.nomeF || c.nome) + (c.nomeL ? ' <span>' + admEsc(c.nomeL) + '</span>' : '') + '</div>'
         + '</div>'
-        + '</div>';
-      ov.querySelector('.adm-detail-close').onclick = function () { ov.remove(); };
-      ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
-      document.body.appendChild(ov);
+        + '<div class="adm-profile-body">' + (modifica ? corpoModifica : corpoLettura) + '</div>';
+
+      ov.querySelector('#adm-profile-back').onclick = function () { ov.remove(); };
+      var editBtn = ov.querySelector('#adm-profile-edit');
+      if (editBtn) editBtn.onclick = function () { admRenderProfilo(c, true); };
+      var saveBtn = ov.querySelector('#adm-profile-save');
+      if (saveBtn) saveBtn.onclick = function () { admSalvaProfilo(c); };
+    }
+
+    async function admSalvaProfilo(c) {
+      var val = function (idc) { var el = document.getElementById(idc); return el ? el.value : ''; };
+      var nuovo = {
+        nomeF: val('adm-ed-nomeF').trim(),
+        nomeL: val('adm-ed-nomeL').trim(),
+        telefono: val('adm-ed-telefono').trim(),
+        eta: val('adm-ed-eta') ? parseInt(val('adm-ed-eta'), 10) : null,
+        lingue: val('adm-ed-lingue').trim(),
+        bio: val('adm-ed-bio').trim(),
+        erasmus: !!(document.getElementById('adm-ed-erasmus') || {}).checked
+      };
+      var saveBtn = document.getElementById('adm-profile-save');
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvo…'; }
+      try {
+        var r = await window.sb.rpc('admin_update_profile', {
+          p_user_id: c.id,
+          p_first_name: nuovo.nomeF || null,
+          p_last_name: nuovo.nomeL || null,
+          p_phone: nuovo.telefono || null,
+          p_age: nuovo.eta,
+          p_languages: nuovo.lingue || null,
+          p_erasmus: nuovo.erasmus,
+          p_bio: nuovo.bio || null
+        });
+        if (r.error) throw r.error;
+        // aggiorna la cache locale, cosi' la lista dietro riflette subito il cambio
+        c.nomeF = nuovo.nomeF; c.nomeL = nuovo.nomeL;
+        c.nome = [nuovo.nomeF, nuovo.nomeL].filter(Boolean).join(' ') || 'Senza nome';
+        c.telefono = nuovo.telefono; c.eta = nuovo.eta; c.lingue = nuovo.lingue;
+        c.bio = nuovo.bio; c.erasmus = nuovo.erasmus;
+        admRenderProfilo(c, false);
+        if (admSec === 'clienti' && typeof admClientiListRender === 'function') admClientiListRender();
+      } catch (e) {
+        alert('Non sono riuscito a salvare: ' + admMsgErrore(e));
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Salva'; }
+      }
     }
 
     /* ---------------- PRENOTAZIONI + RICHIESTE ---------------- */
@@ -7748,9 +7828,10 @@
         var c = {
           id: p.data.id,
           nome: [p.data.first_name, p.data.last_name].filter(Boolean).join(' ') || 'Senza nome',
-          eta: p.data.age, telefono: p.data.phone, lingue: p.data.languages,
+          nomeF: p.data.first_name, nomeL: p.data.last_name,
+          eta: p.data.age, telefono: p.data.phone, lingue: p.data.languages, bio: p.data.bio,
           erasmus: p.data.erasmus, staff: p.data.is_staff, creato: p.data.created_at,
-          foto: foto,
+          foto: foto, fotoPath: p.data.photo_url,
           saldo: (w && w.data) ? w.data.balance_cents : 0,
           ultimoMov: (w && w.data) ? w.data.updated_at : null
         };
