@@ -4212,6 +4212,69 @@
   .adm-group-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1.6px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin:16px 0 9px; }
   .adm-err { background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.35); border-radius:12px; padding:12px 14px; font-family:'Manrope',sans-serif; font-size:12.5px; color:var(--error-soft); line-height:1.5; margin-bottom:12px; }
 
+  /* Overlay di dettaglio (cliente, prenotazione…): sempre una sola
+     colonna verticale, indipendentemente da quante colonne ha la
+     lista da cui si apre — e' un pannello a se', fuori dalla griglia
+     di #adm-body. */
+  .adm-detail-overlay {
+    position: fixed; inset: 0; z-index: 600;
+    background: rgba(0,0,0,0.65);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .adm-detail {
+    position: relative; width: 100%; max-width: 440px; max-height: 86vh;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
+  }
+  .adm-detail-close {
+    position: absolute; top: 14px; right: 14px; z-index: 1;
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.1); color: var(--text);
+    font-size: 18px; line-height: 1; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .adm-detail-scroll {
+    overflow-y: auto; padding: 28px 24px 26px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .adm-detail-photo {
+    width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+    background: rgba(255,255,255,0.06); flex-shrink: 0;
+  }
+  .adm-detail-photo-empty { display: flex; align-items: center; justify-content: center; font-size: 34px; }
+  .adm-detail-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.5px;
+    color: var(--text); margin-top: 14px; text-align: center;
+  }
+  .adm-detail-sub {
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; color: var(--text-sub);
+    margin-top: 4px; text-align: center;
+  }
+  /* Ogni riga dato: sempre etichetta sopra, valore sotto — una sotto
+     l'altra, mai due dati affiancati sulla stessa riga. */
+  .adm-detail-kv {
+    width: 100%; padding: 11px 0; border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .adm-detail-kv:first-of-type { margin-top: 18px; }
+  .adm-detail-kv-lbl {
+    font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800;
+    letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted);
+  }
+  .adm-detail-kv-val {
+    font-family: 'Manrope', sans-serif; font-size: 14.5px; font-weight: 700; color: var(--text);
+  }
+  .adm-detail-actions { width: 100%; display: flex; flex-direction: column; gap: 9px; margin-top: 18px; }
+  .adm-detail-link {
+    font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--brand); cursor: pointer; text-decoration: underline;
+  }
+  @media (min-width: 900px) {
+    .adm-detail { max-width: 480px; }
+  }
+
   /* ============================================================
      AREA TITOLARE — SCHERMO LARGO (tablet orizzontale, computer)
      Chi gestisce i dati lo fa quasi sempre da qui, non dal telefono:
@@ -4287,19 +4350,36 @@
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 12px;
     }
-    #page-admin.active > .adm-body > .adm-row,
-    #page-admin.active > .adm-body > .adm-card {
+    #page-admin.active > .adm-body > .adm-row {
       flex: 1 1 380px;
       max-width: calc(50% - 6px);
       margin-bottom: 0;
+    }
+    /* Le card dense (prenotazioni, comande: piu' righe di dettaglio,
+       azioni, note dentro alla stessa scheda) restano sempre a piena
+       larghezza — comprimerle in colonna le rendeva illeggibili,
+       "sparse" invece che ordinate come richiesto. */
+    #page-admin.active > .adm-body > .adm-card {
+      flex-basis: 100%; width: 100%; margin-bottom: 0;
+    }
+    /* Le sezioni che si dividono in gruppi (Menu per categoria, Dati
+       per classifica/movimenti) tornano verticali: un gruppo con
+       poche righe accanto a uno con tante creava un affiancamento
+       incoerente ("un po' risultati un po' verticali"). Le liste
+       SENZA gruppi (Clienti, Giochi) restano su piu' colonne — sono
+       quelle che l'utente ha confermato andar bene cosi'. */
+    #page-admin.active > .adm-body:has(.adm-group-title) > .adm-row {
+      flex-basis: 100%; max-width: 100%;
     }
     /* Oltre 1400px di larghezza reale c'e' spazio per tre colonne
        invece di due — la scheda Clienti in particolare ne approfitta,
        e' quella con piu' righe da confrontare in un colpo d'occhio. */
     @media (min-width: 1400px) {
-      #page-admin.active > .adm-body > .adm-row,
-      #page-admin.active > .adm-body > .adm-card {
+      #page-admin.active > .adm-body > .adm-row {
         max-width: calc(33.333% - 8px);
+      }
+      #page-admin.active > .adm-body:has(.adm-group-title) > .adm-row {
+        max-width: 100%;
       }
     }
   }
@@ -7243,9 +7323,19 @@
     function admCarico(msg) {
       admBody().innerHTML = '<div class="adm-empty">' + admEsc(msg || 'Carico…') + '</div>';
     }
+    // Non fidarsi che l'errore abbia sempre un .message leggibile:
+    // un oggetto senza quel campo, passato dritto a String(), diventa
+    // "[object Object]" — inutile per capire cosa e' andato storto.
+    function admMsgErrore(e) {
+      if (!e) return 'errore sconosciuto';
+      if (typeof e === 'string') return e;
+      var m = e.message || e.error_description || e.details || e.hint;
+      if (m) return m;
+      try { return JSON.stringify(e); } catch (err) { return String(e); }
+    }
     function admErrore(e) {
       admBody().innerHTML = '<div class="adm-err">Non riesco a caricare i dati.<br>'
-        + admEsc((e && e.message) || e) + '</div>';
+        + admEsc(admMsgErrore(e)) + '</div>';
     }
 
     function admGo(sec) {
@@ -7297,7 +7387,12 @@
           var q = window.sb.from(tabella).select('id', { count: 'exact', head: true });
           return filtro ? filtro(q) : q;
         };
-        var risultati = await Promise.all([
+        // allSettled invece di Promise.all: se UN conteggio fallisce
+        // (es. una tabella non ancora migrata), gli altri cinque si
+        // vedono comunque — prima bastava un solo errore per far
+        // sparire tutta la pagina dietro un "[object Object]".
+        var etichette = ['clienti', 'prenotazioni attive', 'richieste feste', 'prodotti esauriti', 'giochi nascosti', 'saldo portafogli'];
+        var esiti = await Promise.allSettled([
           conta('profiles'),
           conta('bookings', function (q) { return q.eq('status', 'attiva'); }),
           conta('event_requests', function (q) { return q.eq('status', 'nuova'); }),
@@ -7305,22 +7400,32 @@
           conta('games', function (q) { return q.eq('enabled', false); }),
           window.sb.from('wallets').select('balance_cents')
         ]);
-        risultati.slice(0, 5).forEach(function (r) { if (r.error) throw r.error; });
-        if (risultati[5].error) throw risultati[5].error;
+        var errori = [];
+        var valore = function (i) {
+          var e = esiti[i];
+          if (e.status !== 'fulfilled') { errori.push(etichette[i] + ': ' + admMsgErrore(e.reason)); return null; }
+          if (e.value.error) { errori.push(etichette[i] + ': ' + admMsgErrore(e.value.error)); return null; }
+          return e.value;
+        };
 
-        var nClienti = risultati[0].count || 0;
-        var nPrenotazioniAttive = risultati[1].count || 0;
-        var nRichiesteNuove = risultati[2].count || 0;
-        var nEsauriti = risultati[3].count || 0;
-        var nGiochiSpenti = risultati[4].count || 0;
-        var saldoTotale = (risultati[5].data || []).reduce(function (s, w) { return s + (w.balance_cents || 0); }, 0);
+        var vClienti = valore(0), vPren = valore(1), vRich = valore(2), vProd = valore(3), vGio = valore(4), vWallet = valore(5);
+        var nClienti = vClienti ? (vClienti.count || 0) : '—';
+        var nPrenotazioniAttive = vPren ? (vPren.count || 0) : '—';
+        var nRichiesteNuove = vRich ? (vRich.count || 0) : '—';
+        var nEsauriti = vProd ? (vProd.count || 0) : '—';
+        var nGiochiSpenti = vGio ? (vGio.count || 0) : '—';
+        var saldoTotale = vWallet ? (vWallet.data || []).reduce(function (s, w) { return s + (w.balance_cents || 0); }, 0) : null;
 
-        var h = '<div class="adm-group-title">Colpo d\'occhio</div>'
+        var h = '';
+        if (errori.length) {
+          h += '<div class="adm-err">Alcuni dati non si sono caricati:<br>' + admEsc(errori.join(' · ')) + '</div>';
+        }
+        h += '<div class="adm-group-title">Colpo d\'occhio</div>'
           + '<div class="adm-stats">'
           +   '<div class="adm-stat"><div class="adm-stat-lbl">Clienti</div><div class="adm-stat-val">' + nClienti + '</div></div>'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + admEuro(saldoTotale) + '</div></div>'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + (saldoTotale == null ? '—' : admEuro(saldoTotale)) + '</div></div>'
           +   '<div class="adm-stat"><div class="adm-stat-lbl">Prenotazioni attive</div><div class="adm-stat-val">' + nPrenotazioniAttive + '</div></div>'
-          +   '<div class="adm-stat"><div class="adm-stat-lbl">Richieste feste nuove</div><div class="adm-stat-val' + (nRichiesteNuove ? ' warn' : '') + '">' + nRichiesteNuove + '</div></div>'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Richieste feste nuove</div><div class="adm-stat-val' + (typeof nRichiesteNuove === 'number' && nRichiesteNuove > 0 ? ' warn' : '') + '">' + nRichiesteNuove + '</div></div>'
           +   '<div class="adm-stat"><div class="adm-stat-lbl">Prodotti esauriti</div><div class="adm-stat-val">' + nEsauriti + '</div></div>'
           +   '<div class="adm-stat"><div class="adm-stat-lbl">Giochi nascosti</div><div class="adm-stat-val">' + nGiochiSpenti + '</div></div>'
           + '</div>';
@@ -7377,10 +7482,41 @@
       } catch (e) { admErrore(e); }
     }
 
+    // Divisa in due: la parte fissa (statistiche + barra di ricerca) si
+    // scrive UNA volta sola quando si entra nella scheda; solo la lista
+    // sotto si riscrive ad ogni tocco. Prima riscriveva tutto insieme,
+    // campo di ricerca compreso — il browser perdeva il focus sull'input
+    // ad ogni lettera digitata, e sul telefono sembrava che la tastiera
+    // si bloccasse dopo il primo carattere.
     function admClientiDisegna() {
       var lista = admClientiCache || [];
-      var q = (document.getElementById('adm-q') || {}).value || '';
-      var ordine = (document.getElementById('adm-ord') || {}).value || 'saldo';
+      var totale = lista.reduce(function (s, c) { return s + (c.saldo || 0); }, 0);
+
+      var h = ''
+        + '<div class="adm-stats">'
+        +   '<div class="adm-stat"><div class="adm-stat-lbl">Clienti</div><div class="adm-stat-val">' + lista.length + '</div></div>'
+        +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + admEuro(totale) + '</div></div>'
+        + '</div>'
+        + '<div class="adm-toolbar">'
+        +   '<input class="adm-search" id="adm-q" placeholder="Cerca nome o telefono…" oninput="admClientiListRender()">'
+        +   '<select class="adm-select" id="adm-ord" onchange="admClientiListRender()">'
+        +     '<option value="saldo">Saldo</option>'
+        +     '<option value="movimento">Ultimo movimento</option>'
+        +     '<option value="recenti">Iscritti di recente</option>'
+        +     '<option value="nome">Nome</option>'
+        +   '</select>'
+        + '</div>'
+        + '<div id="adm-clienti-list"></div>';
+      admBody().innerHTML = h;
+      admClientiListRender();
+    }
+
+    function admClientiListRender() {
+      var lista = admClientiCache || [];
+      var qEl = document.getElementById('adm-q');
+      var ordEl = document.getElementById('adm-ord');
+      var q = qEl ? qEl.value : '';
+      var ordine = ordEl ? ordEl.value : 'saldo';
 
       var filtrata = lista.filter(function (c) {
         if (!q.trim()) return true;
@@ -7395,51 +7531,80 @@
         return new Date(b.ultimoMov || 0) - new Date(a.ultimoMov || 0);
       });
 
-      var totale = lista.reduce(function (s, c) { return s + (c.saldo || 0); }, 0);
-
-      var h = ''
-        + '<div class="adm-stats">'
-        +   '<div class="adm-stat"><div class="adm-stat-lbl">Clienti</div><div class="adm-stat-val">' + lista.length + '</div></div>'
-        +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + admEuro(totale) + '</div></div>'
-        + '</div>'
-        + '<div class="adm-toolbar">'
-        +   '<input class="adm-search" id="adm-q" placeholder="Cerca nome o telefono…" oninput="admClientiDisegna()" value="' + admEsc(q) + '">'
-        +   '<select class="adm-select" id="adm-ord" onchange="admClientiDisegna()">'
-        +     '<option value="saldo">Saldo</option>'
-        +     '<option value="movimento">Ultimo movimento</option>'
-        +     '<option value="recenti">Iscritti di recente</option>'
-        +     '<option value="nome">Nome</option>'
-        +   '</select>'
-        + '</div>';
+      var list = document.getElementById('adm-clienti-list');
+      if (!list) return;
 
       if (!filtrata.length) {
-        h += '<div class="adm-empty">Nessun cliente trovato.</div>';
-      } else {
-        filtrata.forEach(function (c) {
-          var dettagli = [];
-          if (c.eta) dettagli.push(c.eta + ' anni');
-          if (c.telefono) dettagli.push(c.telefono);
-          if (c.erasmus) dettagli.push('Erasmus');
-          if (c.staff) dettagli.push('STAFF');
-          h += '<div class="adm-row">'
-            + (c.foto
-                ? '<img class="adm-avatar" src="' + admEsc(c.foto) + '" alt="">'
-                : '<div class="adm-avatar-empty">👤</div>')
-            + '<div class="adm-grow">'
-            +   '<div class="adm-name">' + admEsc(c.nome) + '</div>'
-            +   '<div class="adm-sub">' + admEsc(dettagli.join(' · ') || '—') + '</div>'
-            + '</div>'
-            + '<div class="adm-amount">' + admEuro(c.saldo) + '</div>'
-            + '</div>';
-        });
+        list.innerHTML = '<div class="adm-empty">Nessun cliente trovato.</div>';
+        return;
       }
-      admBody().innerHTML = h;
+      list.innerHTML = filtrata.map(function (c) {
+        var dettagli = [];
+        if (c.eta) dettagli.push(c.eta + ' anni');
+        if (c.telefono) dettagli.push(c.telefono);
+        if (c.erasmus) dettagli.push('Erasmus');
+        if (c.staff) dettagli.push('STAFF');
+        return '<div class="adm-row" onclick="admApriCliente(\'' + c.id + '\')" style="cursor:pointer">'
+          + (c.foto
+              ? '<img class="adm-avatar" src="' + admEsc(c.foto) + '" alt="">'
+              : '<div class="adm-avatar-empty">👤</div>')
+          + '<div class="adm-grow">'
+          +   '<div class="adm-name">' + admEsc(c.nome) + '</div>'
+          +   '<div class="adm-sub">' + admEsc(dettagli.join(' · ') || '—') + '</div>'
+          + '</div>'
+          + '<div class="adm-amount">' + admEuro(c.saldo) + '</div>'
+          + '</div>';
+      }).join('');
+    }
 
-      var sel = document.getElementById('adm-ord');
-      if (sel) sel.value = ordine;
+    /* Scheda cliente: foto, tutti i dati del profilo, saldo. Sempre
+       ad una colonna sola — e' un overlay a se', fuori dalla griglia
+       di #adm-body, quindi non risente delle regole a piu' colonne
+       pensate per le liste. */
+    // Un dettaglio alla volta: aprirne uno nuovo chiude quello sotto,
+    // invece di impilarli (es. dalla prenotazione si apre il cliente).
+    function admChiudiDettagli() {
+      document.querySelectorAll('.adm-detail-overlay').forEach(function (o) { o.remove(); });
+    }
+
+    function admApriCliente(id) {
+      var c = (admClientiCache || []).find(function (x) { return x.id === id; });
+      if (!c) return;
+      admChiudiDettagli();
+      var righe = [
+        ['Telefono', c.telefono || '—'],
+        ['Età', c.eta ? (c.eta + ' anni') : '—'],
+        ['Lingue', c.lingue || '—'],
+        ['Erasmus', c.erasmus ? 'Sì' : 'No'],
+        ['Staff', c.staff ? 'Sì' : 'No'],
+        ['Iscritto dal', admData(c.creato)],
+        ['Saldo tessera', admEuro(c.saldo)],
+        ['Ultimo movimento', c.ultimoMov ? admData(c.ultimoMov) : '—']
+      ];
+      var ov = document.createElement('div');
+      ov.className = 'adm-detail-overlay';
+      ov.innerHTML =
+        '<div class="adm-detail">'
+        + '<button class="adm-detail-close" aria-label="Chiudi">×</button>'
+        + '<div class="adm-detail-scroll">'
+        +   (c.foto
+              ? '<img class="adm-detail-photo" src="' + admEsc(c.foto) + '" alt="">'
+              : '<div class="adm-detail-photo adm-detail-photo-empty">👤</div>')
+        +   '<div class="adm-detail-title">' + admEsc(c.nome) + '</div>'
+        +   righe.map(function (r) {
+              return '<div class="adm-detail-kv"><span class="adm-detail-kv-lbl">' + admEsc(r[0]) + '</span>'
+                + '<span class="adm-detail-kv-val">' + admEsc(r[1]) + '</span></div>';
+            }).join('')
+        + '</div>'
+        + '</div>';
+      ov.querySelector('.adm-detail-close').onclick = function () { ov.remove(); };
+      ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
+      document.body.appendChild(ov);
     }
 
     /* ---------------- PRENOTAZIONI + RICHIESTE ---------------- */
+    var admPrenotazioniCache = null; // { richieste:[], prenotazioni:[], nomiPerUserId:{} } — serve ai click di dettaglio
+
     async function admPrenotazioni() {
       admCarico();
       try {
@@ -7450,6 +7615,23 @@
 
         var richieste = rq.data || [], prenotazioni = bk.data || [];
         var nuove = richieste.filter(function (r) { return r.status === 'nuova'; }).length;
+
+        // Chi ha prenotato: prima la scheda non lo diceva affatto.
+        // Un'unica query in blocco sugli id coinvolti, non una per riga.
+        var userIds = Array.from(new Set(prenotazioni.map(function (b) { return b.user_id; }).filter(Boolean)));
+        var nomiPerUserId = {};
+        if (userIds.length) {
+          var pr = await window.sb.from('profiles').select('id,first_name,last_name,photo_url,phone').in('id', userIds);
+          if (!pr.error) {
+            (pr.data || []).forEach(function (p) {
+              nomiPerUserId[p.id] = {
+                nome: [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Senza nome',
+                foto: p.photo_url, telefono: p.phone
+              };
+            });
+          }
+        }
+        admPrenotazioniCache = { richieste: richieste, prenotazioni: prenotazioni, nomiPerUserId: nomiPerUserId };
 
         var h = '<div class="adm-stats">'
           + '<div class="adm-stat"><div class="adm-stat-lbl">Richieste nuove</div><div class="adm-stat-val">' + nuove + '</div></div>'
@@ -7483,27 +7665,101 @@
 
         h += '<div class="adm-group-title">Prenotazioni tavoli</div>';
         if (!prenotazioni.length) {
-          h += '<div class="adm-empty">Nessuna prenotazione salvata.<br>Il flusso dei tavoli non scrive ancora sul database.</div>';
+          h += '<div class="adm-empty">Nessuna prenotazione salvata.</div>';
         } else {
           var etichetta = { shared:'Tavolo condiviso', private:'Tavolo privato', room:'Stanza privata', invite:'Invito segreto' };
           prenotazioni.forEach(function (b) {
-            h += '<div class="adm-card">'
+            var chi = nomiPerUserId[b.user_id];
+            h += '<div class="adm-card" onclick="admApriPrenotazione(\'' + b.id + '\')" style="cursor:pointer">'
               + '<div class="adm-card-head">'
               +   '<div class="adm-card-title">' + admEsc(etichetta[b.booking_type] || b.booking_type) + '</div>'
               +   '<span class="adm-chip ' + admEsc(b.status) + '">' + admEsc(b.status) + '</span>'
               + '</div>'
+              + '<div class="adm-kv"><b>Chi</b><span>' + admEsc(chi ? chi.nome : 'Account non trovato') + '</span></div>'
               + '<div class="adm-kv"><b>Quando</b><span>' + admData(b.booking_date) + (b.booking_time ? ' · ' + admEsc(b.booking_time) : '') + '</span></div>'
-              + '<div class="adm-kv"><b>Fascia</b><span>' + admEsc(
-                  { cena:'🍽️ Solo cena', cena_dopocena:'🍸 Cena e dopocena', dopocena:'🌙 Solo dopocena' }[b.dining_slot] || '—'
-                ) + '</span></div>'
               + '<div class="adm-kv"><b>Persone</b><span>' + admEsc(b.people || '—') + '</span></div>'
-              + '<div class="adm-kv"><b>Tavolo</b><span>' + admEsc(b.table_code || '—') + '</span></div>'
-              + (b.notes ? '<div class="adm-note">' + admEsc(b.notes) + '</div>' : '')
+              + '<div class="adm-kv"><b>Tavolo</b><span>' + admEsc(b.table_code || 'Da assegnare') + '</span></div>'
               + '</div>';
           });
         }
         admBody().innerHTML = h;
       } catch (e) { admErrore(e); }
+    }
+
+    /* Dettaglio di una prenotazione tavolo: tutti i campi, chi l'ha
+       fatta con un link al suo account, sempre una colonna sola —
+       stesso overlay usato per il cliente, stessa regola. */
+    function admApriPrenotazione(id) {
+      if (!admPrenotazioniCache) return;
+      var b = admPrenotazioniCache.prenotazioni.find(function (x) { return x.id === id; });
+      if (!b) return;
+      admChiudiDettagli();
+      var chi = admPrenotazioniCache.nomiPerUserId[b.user_id];
+      var etichetta = { shared:'Tavolo condiviso', private:'Tavolo privato', room:'Stanza privata', invite:'Invito segreto' };
+      var fascia = { cena:'Solo cena', cena_dopocena:'Cena e dopocena', dopocena:'Solo dopocena' }[b.dining_slot];
+
+      var righe = [
+        ['Tipo', etichetta[b.booking_type] || b.booking_type],
+        ['Stato', b.status],
+        ['Quando', admData(b.booking_date) + (b.booking_time ? ' · ' + b.booking_time : '')],
+        ['Fascia', fascia || '—'],
+        ['Persone', b.people || '—'],
+        ['Tavolo', b.table_code || 'Da assegnare'],
+        ['Occasione', b.occasion || '—']
+      ];
+      if (b.notes) righe.push(['Note', b.notes]);
+
+      var ov = document.createElement('div');
+      ov.className = 'adm-detail-overlay';
+      ov.innerHTML =
+        '<div class="adm-detail">'
+        + '<button class="adm-detail-close" aria-label="Chiudi">×</button>'
+        + '<div class="adm-detail-scroll">'
+        +   (chi && chi.foto
+              ? '<img class="adm-detail-photo" src="' + admEsc(chi.foto) + '" alt="">'
+              : '<div class="adm-detail-photo adm-detail-photo-empty">🍽️</div>')
+        +   '<div class="adm-detail-title">' + admEsc(chi ? chi.nome : 'Account non trovato') + '</div>'
+        +   (chi ? '<div class="adm-detail-link" onclick="admApriClienteById(\'' + b.user_id + '\')">Vedi la sua scheda cliente</div>' : '')
+        +   righe.map(function (r) {
+              return '<div class="adm-detail-kv"><span class="adm-detail-kv-lbl">' + admEsc(r[0]) + '</span>'
+                + '<span class="adm-detail-kv-val">' + admEsc(r[1]) + '</span></div>';
+            }).join('')
+        + '</div>'
+        + '</div>';
+      ov.querySelector('.adm-detail-close').onclick = function () { ov.remove(); };
+      ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
+      document.body.appendChild(ov);
+    }
+
+    /* Apre la scheda cliente da altrove (es. dal dettaglio di una
+       prenotazione): usa la cache se il cliente c'e' gia', altrimenti
+       lo va a cercare al volo — la scheda Clienti potrebbe non essere
+       mai stata aperta in questa sessione. */
+    async function admApriClienteById(userId) {
+      var trovato = (admClientiCache || []).find(function (c) { return c.id === userId; });
+      if (trovato) { admApriCliente(userId); return; }
+      try {
+        var p = await window.sb.from('profiles').select('*').eq('id', userId).maybeSingle();
+        if (p.error) throw p.error;
+        if (!p.data) { alert('Account non trovato.'); return; }
+        var w = await window.sb.from('wallets').select('*').eq('user_id', userId).maybeSingle();
+        var foto = null;
+        try { foto = await camonAvatarUrl(p.data.photo_url); } catch (e) {}
+        var c = {
+          id: p.data.id,
+          nome: [p.data.first_name, p.data.last_name].filter(Boolean).join(' ') || 'Senza nome',
+          eta: p.data.age, telefono: p.data.phone, lingue: p.data.languages,
+          erasmus: p.data.erasmus, staff: p.data.is_staff, creato: p.data.created_at,
+          foto: foto,
+          saldo: (w && w.data) ? w.data.balance_cents : 0,
+          ultimoMov: (w && w.data) ? w.data.updated_at : null
+        };
+        if (!admClientiCache) admClientiCache = [];
+        admClientiCache.push(c);
+        admApriCliente(c.id);
+      } catch (e) {
+        alert('Non sono riuscito ad aprire l\'account: ' + admMsgErrore(e));
+      }
     }
 
     async function admStatoRichiesta(id, stato) {
