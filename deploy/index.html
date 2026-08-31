@@ -4347,6 +4347,47 @@
   }
 
   /* ============================================================
+     PAGINA PRENOTAZIONE — stessa idea della scheda cliente (pagina
+     intera, colonna unica) ma senza foto in testa: qui la prima
+     cosa da vedere e' l'origine (tavolo condiviso normale o invito
+     segreto — e con chi) e se il tavolo e' gia' assegnato.
+     ============================================================ */
+  .adm-booking-page { max-width: 620px; margin: 0 auto; padding: 76px 22px calc(60px + var(--safe-bottom)); }
+  .adm-booking-title { font-family:'Bebas Neue',sans-serif; font-size: 34px; letter-spacing: 0.5px; color: var(--text); line-height: 1; }
+  .adm-booking-sub { font-family:'Manrope',sans-serif; font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+  /* Da dove nasce: un riquadro a se', per non confonderla con i dati
+     normali della prenotazione — e' il pezzo di contesto in piu' che
+     prima non c'era. */
+  .adm-origin-box {
+    margin-top: 22px; padding: 16px 18px; border-radius: 14px;
+    background: rgba(247,204,73,0.08); border: 1px solid rgba(247,204,73,0.25);
+  }
+  .adm-origin-box.plain { background: var(--surface); border-color: var(--border); }
+  .adm-origin-tag { font-family:'Manrope',sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--brand); }
+  .adm-origin-txt { font-family:'Manrope',sans-serif; font-size: 14px; color: var(--text); line-height: 1.5; margin-top: 6px; }
+  .adm-origin-txt b { color: var(--brand); }
+  /* Il tavolo: stato + azione, sempre in evidenza */
+  .adm-table-box {
+    margin-top: 18px; padding: 18px; border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  }
+  .adm-table-box-lbl { font-family:'Manrope',sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--text-muted); }
+  .adm-table-box-val { font-family:'Bebas Neue',sans-serif; font-size: 30px; color: var(--text); letter-spacing: 1px; margin-top: 2px; }
+  .adm-table-box-val.unset { color: var(--error-soft); font-size: 20px; }
+  .adm-table-assign-btn {
+    padding: 11px 20px; border-radius: 30px; border: none; cursor: pointer;
+    background: var(--brand); color: var(--on-brand);
+    font-family:'Manrope',sans-serif; font-size: 13px; font-weight: 800;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Mappa di assegnazione: la stessa griglia che sceglie il cliente,
+     clonata e rimessa in gioco con azioni sue — vedi admApriMappa(). */
+  .adm-map-box { margin-top: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .adm-map-box svg { width: 100%; height: auto; border-radius: 10px; }
+  .adm-map-hint { font-family:'Manrope',sans-serif; font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: center; }
+
+  /* ============================================================
      AREA TITOLARE — SCHERMO LARGO (tablet orizzontale, computer)
      Chi gestisce i dati lo fa quasi sempre da qui, non dal telefono:
      sotto i 900px resta l'app-telefono di sempre; da 900px in su
@@ -7684,6 +7725,7 @@
 
     /* ---------------- PRENOTAZIONI + RICHIESTE ---------------- */
     var admPrenotazioniCache = null; // { richieste:[], prenotazioni:[], nomiPerUserId:{} } — serve ai click di dettaglio
+    var admOrigineCache = {}; // booking_id -> {tipo:'normale'|'invito', ...} — evita di ricontrollare ad ogni ridisegno
 
     async function admPrenotazioni() {
       admCarico();
@@ -7766,49 +7808,170 @@
       } catch (e) { admErrore(e); }
     }
 
-    /* Dettaglio di una prenotazione tavolo: tutti i campi, chi l'ha
-       fatta con un link al suo account, sempre una colonna sola —
-       stesso overlay usato per il cliente, stessa regola. */
-    function admApriPrenotazione(id) {
+    /* Pagina prenotazione a tutto schermo: chi l'ha fatta, come e'
+       nata (tavolo condiviso normale o invito segreto — e con chi:
+       qui, lato staff, non c'e' il segreto che l'app tiene al
+       cliente, serve per il servizio in sala), e l'assegnazione del
+       tavolo con la stessa mappa che sceglie il cliente. */
+    async function admApriPrenotazione(id) {
       if (!admPrenotazioniCache) return;
       var b = admPrenotazioniCache.prenotazioni.find(function (x) { return x.id === id; });
       if (!b) return;
       admChiudiDettagli();
+
+      var ov = document.createElement('div');
+      ov.className = 'adm-profile-overlay';
+      ov.id = 'adm-profile-overlay';
+      document.body.appendChild(ov);
+      var origineNota = admOrigineCache[b.id];
+      admRenderPrenotazione(b, origineNota || null);
+      if (!origineNota) admCaricaOrigine(b);
+    }
+
+    async function admCaricaOrigine(b) {
+      var origine = { tipo: 'normale' };
+      try {
+        if (window.sb) {
+          var inv = await window.sb.from('invites').select('*').eq('booking_id', b.id).maybeSingle();
+          if (!inv.error && inv.data) {
+            var idsDaTrovare = [inv.data.sender_id, inv.data.recipient_id].filter(function (uid) {
+              return !admPrenotazioniCache.nomiPerUserId[uid];
+            });
+            if (idsDaTrovare.length) {
+              var pr = await window.sb.from('profiles').select('id,first_name,last_name,photo_url').in('id', idsDaTrovare);
+              (pr.data || []).forEach(function (p) {
+                admPrenotazioniCache.nomiPerUserId[p.id] = { nome: [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Senza nome', foto: p.photo_url };
+              });
+            }
+            var mittente = admPrenotazioniCache.nomiPerUserId[inv.data.sender_id];
+            var destinatario = admPrenotazioniCache.nomiPerUserId[inv.data.recipient_id];
+            origine = { tipo: 'invito', mittenteNome: mittente ? mittente.nome : '—', destinatarioNome: destinatario ? destinatario.nome : '—' };
+          }
+        }
+      } catch (e) { /* nessun invito legato, resta 'normale' */ }
+      // solo se la pagina e' ancora quella giusta (non si e' chiusa nel frattempo)
+      admOrigineCache[b.id] = origine;
+      var ov = document.getElementById('adm-profile-overlay');
+      if (ov) admRenderPrenotazione(b, origine);
+    }
+
+    function admRenderPrenotazione(b, origine) {
+      var ov = document.getElementById('adm-profile-overlay');
+      if (!ov) return;
       var chi = admPrenotazioniCache.nomiPerUserId[b.user_id];
       var etichetta = { shared:'Tavolo condiviso', private:'Tavolo privato', room:'Stanza privata', invite:'Invito segreto' };
       var fascia = { cena:'Solo cena', cena_dopocena:'Cena e dopocena', dopocena:'Solo dopocena' }[b.dining_slot];
 
       var righe = [
-        ['Tipo', etichetta[b.booking_type] || b.booking_type],
         ['Stato', b.status],
         ['Quando', admData(b.booking_date) + (b.booking_time ? ' · ' + b.booking_time : '')],
         ['Fascia', fascia || '—'],
         ['Persone', b.people || '—'],
-        ['Tavolo', b.table_code || 'Da assegnare'],
         ['Occasione', b.occasion || '—']
       ];
       if (b.notes) righe.push(['Note', b.notes]);
 
-      var ov = document.createElement('div');
-      ov.className = 'adm-detail-overlay';
+      var origineHtml;
+      if (!origine) {
+        origineHtml = '<div class="adm-origin-box plain"><div class="adm-origin-txt">Verifico se nasce da un invito segreto…</div></div>';
+      } else if (origine.tipo === 'invito') {
+        origineHtml = '<div class="adm-origin-box">'
+          + '<div class="adm-origin-tag">Nato da un invito segreto</div>'
+          + '<div class="adm-origin-txt"><b>' + admEsc(origine.mittenteNome) + '</b> ha invitato <b>' + admEsc(origine.destinatarioNome) + '</b>. '
+          + 'Il cliente non lo sa (l\'app non lo rivela mai) — questa informazione serve solo al servizio in sala.</div>'
+          + '</div>';
+      } else {
+        origineHtml = '<div class="adm-origin-box plain"><div class="adm-origin-txt">Prenotazione normale, non nata da un invito.</div></div>';
+      }
+
       ov.innerHTML =
-        '<div class="adm-detail">'
-        + '<button class="adm-detail-close" aria-label="Chiudi">×</button>'
-        + '<div class="adm-detail-scroll">'
-        +   (chi && chi.foto
-              ? '<img class="adm-detail-photo" src="' + admEsc(chi.foto) + '" alt="">'
-              : '<div class="adm-detail-photo adm-detail-photo-empty">🍽️</div>')
-        +   '<div class="adm-detail-title">' + admEsc(chi ? chi.nome : 'Account non trovato') + '</div>'
-        +   (chi ? '<div class="adm-detail-link" onclick="admApriClienteById(\'' + b.user_id + '\')">Vedi la sua scheda cliente</div>' : '')
+        '<button class="adm-profile-back" id="adm-profile-back" aria-label="Indietro">'
+        +   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>'
+        + '</button>'
+        + '<div class="adm-booking-page">'
+        +   '<div class="adm-booking-title">' + admEsc(etichetta[b.booking_type] || b.booking_type) + '</div>'
+        +   '<div class="adm-booking-sub">' + admEsc(chi ? chi.nome : 'Account non trovato') + (chi ? '' : '') + '</div>'
+        +   (chi ? '<div class="adm-detail-link" style="margin-top:8px" onclick="admApriClienteById(\'' + b.user_id + '\')">Vedi la sua scheda cliente</div>' : '')
+        +   origineHtml
+        +   '<div class="adm-table-box">'
+        +     '<div>'
+        +       '<div class="adm-table-box-lbl">Tavolo</div>'
+        +       '<div class="adm-table-box-val' + (b.table_code ? '' : ' unset') + '">' + (b.table_code ? admEsc(b.table_code) : 'Non assegnato') + '</div>'
+        +     '</div>'
+        +     '<button class="adm-table-assign-btn" id="adm-btn-assegna">' + (b.table_code ? 'Riassegna' : 'Assegna tavolo') + '</button>'
+        +   '</div>'
+        +   '<div id="adm-map-slot"></div>'
         +   righe.map(function (r) {
-              return '<div class="adm-detail-kv"><span class="adm-detail-kv-lbl">' + admEsc(r[0]) + '</span>'
-                + '<span class="adm-detail-kv-val">' + admEsc(r[1]) + '</span></div>';
+              return '<div class="adm-profile-row"><span class="adm-profile-row-lbl">' + admEsc(r[0]) + '</span>'
+                + '<span class="adm-profile-row-val">' + admEsc(r[1]) + '</span></div>';
             }).join('')
-        + '</div>'
         + '</div>';
-      ov.querySelector('.adm-detail-close').onclick = function () { ov.remove(); };
-      ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
-      document.body.appendChild(ov);
+
+      ov.querySelector('#adm-profile-back').onclick = function () { ov.remove(); };
+      ov.querySelector('#adm-btn-assegna').onclick = function () { admApriMappaAssegnazione(b); };
+    }
+
+    /* Mappa di assegnazione: la stessa griglia interattiva che usa il
+       cliente per scegliere il tavolo (clonata da #book-pick-svg),
+       rimessa in gioco con azioni sue. I tavoli gia' occupati quella
+       sera (altre prenotazioni attive con un tavolo assegnato) sono
+       segnati come non disponibili — capacita' dalla stessa mappa
+       dei posti che usa il resto dell'app. */
+    function admApriMappaAssegnazione(b) {
+      var slot = document.getElementById('adm-map-slot');
+      if (!slot) return;
+      var sorgente = document.getElementById('book-pick-svg');
+      if (!sorgente) { alert('Mappa del locale non trovata.'); return; }
+
+      var occupati = {};
+      (admPrenotazioniCache.prenotazioni || []).forEach(function (x) {
+        if (x.id !== b.id && x.status === 'attiva' && x.table_code && x.booking_date === b.booking_date) {
+          occupati[x.table_code] = true;
+        }
+      });
+
+      var svg = sorgente.cloneNode(true);
+      svg.removeAttribute('id');
+      svg.querySelectorAll('[id^="pick-"]').forEach(function (g) {
+        var tavolo = g.id.replace('pick-', '');
+        g.removeAttribute('onclick');
+        g.classList.remove('unavailable', 'available', 'selected');
+        var forma = g.querySelector('rect:not(.svg-hit)') || g.querySelector('circle:not(.svg-hit)');
+        var testo = g.querySelector('text');
+        var occupato = !!occupati[tavolo];
+        if (forma) {
+          forma.setAttribute('fill', occupato ? 'var(--surface-2)' : 'var(--success-dim)');
+          forma.setAttribute('stroke', occupato ? '#444444' : 'var(--success)');
+        }
+        if (testo) testo.setAttribute('fill', occupato ? '#777777' : 'var(--success)');
+        g.style.cursor = occupato ? 'default' : 'pointer';
+        if (!occupato) {
+          g.onclick = function () { admConfermaAssegnazione(b, tavolo); };
+        }
+      });
+
+      slot.innerHTML = '';
+      var box = document.createElement('div');
+      box.className = 'adm-map-box';
+      box.appendChild(svg);
+      var hint = document.createElement('div');
+      hint.className = 'adm-map-hint';
+      hint.textContent = 'Verde = libero quella sera, tocca per assegnare. Grigio = gia\' occupato.';
+      box.appendChild(hint);
+      slot.appendChild(box);
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    async function admConfermaAssegnazione(b, tavolo) {
+      try {
+        var r = await window.sb.from('bookings').update({ table_code: tavolo }).eq('id', b.id);
+        if (r.error) throw r.error;
+        b.table_code = tavolo;
+        admRenderPrenotazione(b, admOrigineCache[b.id] || null);
+        if (!admOrigineCache[b.id]) admCaricaOrigine(b);
+      } catch (e) {
+        alert('Non sono riuscito ad assegnare il tavolo: ' + admMsgErrore(e));
+      }
     }
 
     /* Apre la scheda cliente da altrove (es. dal dettaglio di una
