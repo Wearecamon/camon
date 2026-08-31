@@ -4388,6 +4388,59 @@
   .adm-map-hint { font-family:'Manrope',sans-serif; font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: center; }
 
   /* ============================================================
+     MENU (area titolare) — stessa card che vede il cliente: foto,
+     nome, prezzo. In piu' solo l'interruttore di disponibilita',
+     sovrapposto in alto a destra — non un elenco a righe separato
+     dal menu vero, la STESSA cosa che il cliente guarda.
+     ============================================================ */
+  .adm-menu-card {
+    position: relative; border-radius: 16px; overflow: hidden;
+    background: var(--surface-2); border: 1px solid var(--border);
+  }
+  .adm-menu-card.esaurito { opacity: 0.55; }
+  .adm-menu-card-photo { width: 100%; aspect-ratio: 1/1; background: var(--surface); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .adm-menu-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .adm-menu-card-photo .placeholder { font-size: 34px; opacity: 0.3; }
+  .adm-menu-card-body { padding: 10px 12px 12px; }
+  .adm-menu-card-name { font-family:'Manrope',sans-serif; font-size: 13.5px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .adm-menu-card-price { font-family:'Bebas Neue',sans-serif; font-size: 19px; color: var(--brand); letter-spacing: 0.5px; margin-top: 2px; }
+  .adm-menu-card-toggle {
+    position: absolute; top: 8px; right: 8px; z-index: 1;
+    width: 40px; height: 23px; border-radius: 20px; border: none; cursor: pointer;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); -webkit-tap-highlight-color: transparent;
+  }
+  .adm-menu-card-toggle::after { content:''; position:absolute; top:3px; left:3px; width:17px; height:17px; border-radius:50%; background:#fff; transition:transform 0.18s; }
+  .adm-menu-card-toggle.on { background: var(--success); }
+  .adm-menu-card-toggle.on::after { transform: translateX(17px); }
+  .adm-menu-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  }
+  @media (min-width: 900px) {
+    .adm-menu-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+
+  /* ============================================================
+     DATI — il giorno per giorno, non solo il totale. Barre in CSS
+     puro (niente libreria di grafici): larghezza proporzionale al
+     massimo dei sette giorni, numeri in tabular-nums per allinearsi
+     bene in colonna.
+     ============================================================ */
+  .adm-daybars { display: flex; flex-direction: column; gap: 9px; }
+  .adm-daybar { display: grid; grid-template-columns: 52px 1fr 72px; align-items: center; gap: 10px; }
+  .adm-daybar-lbl { font-family:'Manrope',sans-serif; font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: capitalize; }
+  .adm-daybar-lbl.oggi { color: var(--brand); font-weight: 800; }
+  .adm-daybar-track { height: 20px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+  .adm-daybar-fill { height: 100%; background: var(--brand); border-radius: 6px; transition: width 0.4s ease; }
+  .adm-daybar-val { font-family:'Manrope',sans-serif; font-size: 12.5px; font-weight: 800; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { .adm-daybar-fill { transition: none; } }
+  .adm-rank-badge {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family:'Bebas Neue',sans-serif; font-size: 14px; color: var(--brand);
+    background: rgba(247,204,73,0.12); border: 1px solid rgba(247,204,73,0.3);
+  }
+
+  /* ============================================================
      AREA TITOLARE — SCHERMO LARGO (tablet orizzontale, computer)
      Chi gestisce i dati lo fa quasi sempre da qui, non dal telefono:
      sotto i 900px resta l'app-telefono di sempre; da 900px in su
@@ -4454,6 +4507,8 @@
     #page-admin.active > .adm-body > .adm-stats,
     #page-admin.active > .adm-body > .adm-toolbar,
     #page-admin.active > .adm-body > .adm-group-title,
+    #page-admin.active > .adm-body > .adm-menu-grid,
+    #page-admin.active > .adm-body > .adm-daybars,
     #page-admin.active > .adm-body > .adm-empty,
     #page-admin.active > .adm-body > .adm-err {
       flex-basis: 100%; width: 100%;
@@ -8038,6 +8093,20 @@
           (perOrdine[r.order_id] = perOrdine[r.order_id] || []).push(r);
         });
 
+        // Chi ha ordinato: prima la scheda non lo diceva, solo tavolo
+        // e orario — poco da "leggerci dentro". Stessa idea gia' usata
+        // per le prenotazioni: una query in blocco, non una per riga.
+        var userIds = Array.from(new Set(ordini.map(function (x) { return x.user_id; }).filter(Boolean)));
+        var nomiOrdini = {};
+        if (userIds.length) {
+          var pro = await window.sb.from('profiles').select('id,first_name,last_name,photo_url').in('id', userIds);
+          if (!pro.error) {
+            (pro.data || []).forEach(function (p) {
+              nomiOrdini[p.id] = { nome: [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Senza nome', foto: p.photo_url };
+            });
+          }
+        }
+
         var daServire = ordini.filter(function (x) { return x.status === 'paid'; });
         var incassoOggi = ordini
           .filter(function (x) { return new Date(x.created_at).toDateString() === new Date().toDateString(); })
@@ -8057,12 +8126,16 @@
             var dove = x.service_mode === 'tavolo'
               ? (x.table_code ? '🍽️ Tavolo ' + admEsc(x.table_code) : '🍽️ Al tavolo')
               : '🥤 Ritiro al banco';
+            var chiOrdina = nomiOrdini[x.user_id];
             h += '<div class="adm-card">'
               + '<div class="adm-card-head">'
               +   '<div class="adm-card-title">' + dove + ' · ' + quando + '</div>'
               +   '<span class="adm-chip ' + (x.status === 'served' ? 'completata' : x.status === 'cancelled' ? 'annullata' : 'nuova') + '">'
               +     (x.status === 'served' ? 'Servito' : x.status === 'cancelled' ? 'Annullato' : 'Da servire') + '</span>'
               + '</div>'
+              + '<div class="adm-kv"><b>Chi</b><span>' + (chiOrdina
+                    ? '<span class="adm-detail-link" style="display:inline" onclick="admApriClienteById(\'' + x.user_id + '\')">' + admEsc(chiOrdina.nome) + '</span>'
+                    : admEsc('Account non trovato')) + '</span></div>'
               + lista.map(function (r) {
                   return '<div class="adm-kv"><b>' + r.quantity + '×</b><span>' + admEsc(r.name)
                     + ' — ' + admEuro(r.unit_cents * r.quantity) + '</span></div>';
@@ -8217,22 +8290,31 @@
         if (!prodotti.length) {
           h += '<div class="adm-empty">Nessun prodotto nel database.</div>';
         } else {
+          // Stessa card che vede il cliente nel menu — foto, nome,
+          // prezzo — invece di una riga anonima con la sola emoji.
+          // Solo l'interruttore in piu', sovrapposto in alto.
           var categoriaCorrente = '';
           prodotti.forEach(function (p) {
             var cat = p.macro + ' · ' + p.category;
             if (cat !== categoriaCorrente) {
+              if (categoriaCorrente) h += '</div>'; // chiude la griglia della categoria precedente
               categoriaCorrente = cat;
               h += '<div class="adm-group-title">' + admEsc(cat) + '</div>';
+              h += '<div class="adm-menu-grid">';
             }
-            h += '<div class="adm-row">'
-              + '<div class="adm-avatar-empty">' + admEsc(p.emoji || '🍸') + '</div>'
-              + '<div class="adm-grow">'
-              +   '<div class="adm-name">' + admEsc(p.name) + '</div>'
-              +   '<div class="adm-sub">' + admEuro(p.price_cents) + (p.available ? '' : ' · esaurito') + '</div>'
+            var img = camonProductImg(p);
+            h += '<div class="adm-menu-card' + (p.available ? '' : ' esaurito') + '" id="adm-mc-' + p.id + '">'
+              + '<button class="adm-menu-card-toggle' + (p.available ? ' on' : '') + '" onclick="admToggleProdotto(this,\'' + p.id + '\')" aria-label="Disponibile"></button>'
+              + '<div class="adm-menu-card-photo">'
+              +   (img ? '<img src="' + admEsc(img) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '<span class="placeholder">' + admEsc(p.emoji || '🍸') + '</span>')
               + '</div>'
-              + '<button class="adm-switch' + (p.available ? ' on' : '') + '" onclick="admToggleProdotto(this,\'' + p.id + '\')" aria-label="Disponibile"></button>'
+              + '<div class="adm-menu-card-body">'
+              +   '<div class="adm-menu-card-name">' + admEsc(p.name) + '</div>'
+              +   '<div class="adm-menu-card-price">' + admEuro(p.price_cents) + '</div>'
+              + '</div>'
               + '</div>';
           });
+          if (categoriaCorrente) h += '</div>';
         }
         admBody().innerHTML = h;
       } catch (e) { admErrore(e); }
@@ -8240,7 +8322,9 @@
 
     async function admToggleProdotto(btn, id) {
       var acceso = !btn.classList.contains('on');
+      var card = document.getElementById('adm-mc-' + id); // e' null per lo switch vecchio stile, non usato piu' ma innocuo
       btn.classList.toggle('on', acceso);       // risposta immediata al tocco
+      if (card) card.classList.toggle('esaurito', !acceso);
       btn.disabled = true;
       try {
         var r = await window.sb.from('products').update({ available: acceso }).eq('id', id);
@@ -8248,6 +8332,7 @@
         if (typeof camonSyncMenu === 'function') { try { camonSyncMenu(); } catch (e) {} }
       } catch (e) {
         btn.classList.toggle('on', !acceso);    // il database ha rifiutato: torno indietro
+        if (card) card.classList.toggle('esaurito', acceso);
         alert('Non sono riuscito a salvare: ' + ((e && e.message) || e));
       } finally { btn.disabled = false; }
     }
@@ -8325,7 +8410,12 @@
         var mov = await window.sb.from('transactions').select('*').order('created_at', { ascending: false }).limit(20);
         if (mov.error) throw mov.error;
 
-        var incasso = (ordini.data || []).reduce(function (s, o) { return s + (o.total_cents || 0); }, 0);
+        var listaOrdini = ordini.data || [];
+        var incasso = listaOrdini.reduce(function (s, o) { return s + (o.total_cents || 0); }, 0);
+
+        var oggiStr = new Date().toDateString();
+        var ordiniOggi = listaOrdini.filter(function (o) { return new Date(o.created_at).toDateString() === oggiStr; });
+        var incassoOggi = ordiniOggi.reduce(function (s, o) { return s + (o.total_cents || 0); }, 0);
 
         // classifica prodotti per pezzi venduti
         var perProdotto = {};
@@ -8339,11 +8429,36 @@
           .sort(function (a, b) { return b.pezzi - a.pezzi; })
           .slice(0, 10);
 
+        // incasso per ciascuno degli ultimi 7 giorni, oggi compreso
+        var giorniSett = ['dom','lun','mar','mer','gio','ven','sab'];
+        var giorni = [];
+        for (var i = 6; i >= 0; i--) {
+          var d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
+          giorni.push({ data: d, etichetta: giorniSett[d.getDay()] + ' ' + d.getDate(), incasso: 0, oggi: i === 0 });
+        }
+        listaOrdini.forEach(function (o) {
+          var d = new Date(o.created_at); d.setHours(0,0,0,0);
+          var g = giorni.find(function (x) { return x.data.getTime() === d.getTime(); });
+          if (g) g.incasso += (o.total_cents || 0);
+        });
+        var maxGiorno = Math.max.apply(null, giorni.map(function (g) { return g.incasso; }).concat([1]));
+
         var h = '<div class="adm-stats">'
-          + '<div class="adm-stat"><div class="adm-stat-lbl">Ordini</div><div class="adm-stat-val">' + (ordini.data || []).length + '</div></div>'
-          + '<div class="adm-stat"><div class="adm-stat-lbl">Incassato</div><div class="adm-stat-val">' + admEuro(incasso) + '</div></div>'
-          + '<div class="adm-stat"><div class="adm-stat-lbl">Movimenti</div><div class="adm-stat-val">' + (mov.data || []).length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Incassato oggi</div><div class="adm-stat-val">' + admEuro(incassoOggi) + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Ordini oggi</div><div class="adm-stat-val">' + ordiniOggi.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Ordini totali</div><div class="adm-stat-val">' + listaOrdini.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Incassato totale</div><div class="adm-stat-val">' + admEuro(incasso) + '</div></div>'
           + '</div>';
+
+        h += '<div class="adm-group-title">Ultimi 7 giorni</div>';
+        h += '<div class="adm-daybars">' + giorni.map(function (g) {
+          var perc = Math.max(3, Math.round(g.incasso / maxGiorno * 100));
+          return '<div class="adm-daybar">'
+            + '<span class="adm-daybar-lbl' + (g.oggi ? ' oggi' : '') + '">' + (g.oggi ? 'Oggi' : admEsc(g.etichetta)) + '</span>'
+            + '<span class="adm-daybar-track"><span class="adm-daybar-fill" style="width:' + perc + '%"></span></span>'
+            + '<span class="adm-daybar-val">' + admEuro(g.incasso) + '</span>'
+            + '</div>';
+        }).join('') + '</div>';
 
         h += '<div class="adm-group-title">Prodotti più venduti</div>';
         if (!classifica.length) {
@@ -8351,7 +8466,7 @@
         } else {
           classifica.forEach(function (p, i) {
             h += '<div class="adm-row">'
-              + '<div class="adm-avatar-empty">' + (i + 1) + '</div>'
+              + '<div class="adm-rank-badge">' + (i + 1) + '</div>'
               + '<div class="adm-grow"><div class="adm-name">' + admEsc(p.nome) + '</div>'
               + '<div class="adm-sub">' + p.pezzi + ' pezzi</div></div>'
               + '<div class="adm-amount">' + admEuro(p.incasso) + '</div>'
