@@ -1537,6 +1537,10 @@
   .book-fill-seat { width:30px; height:30px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.15); background:transparent; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .book-fill-seat.taken { background:var(--brand); border-color:var(--brand); }
   .book-fill-seat.taken.me { background:var(--text); border-color:var(--text); }
+  /* Il posto della persona invitata, visto dal mittente: colore
+     diverso da "Tu" e dagli altri normali avventori del tavolo
+     condiviso, cosi' si riconosce a colpo d'occhio chi e' chi. */
+  .book-fill-seat.taken.invited { background:#F472B6; border-color:#F472B6; }
   .book-fill-seat.add-btn { border:1.5px dashed rgba(247,204,73,0.6); background:rgba(247,204,73,0.08); cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .book-fill-seat.add-btn:active { background:rgba(247,204,73,0.2); }
   .book-fill-seat svg { display:block; }
@@ -9178,6 +9182,16 @@
       .filter(i => i.direzione === 'ricevuto' && i.status === 'accettato' && inviteDataFutura(i.reschedule_date || i.proposed_date))
       .sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))[0] || null;
   }
+  // Lo stesso, ma per un invito che HAI mandato e che e' stato
+  // accettato: anche il mittente deve poter gestire/disdire finche'
+  // la serata non e' passata, non solo vederselo sparire dopo averlo
+  // "letto" una volta.
+  function inviteSenderConfirmedUpcoming() {
+    if (!inviteCache) return null;
+    return inviteCache
+      .filter(i => i.direzione === 'mandato' && i.status === 'accettato' && inviteDataFutura(i.reschedule_date || i.proposed_date))
+      .sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))[0] || null;
+  }
 
   /* Popup leggero, non bloccante: appare una volta a sessione quando
      c'e' un invito in cima alla coda, e si chiude con la X senza
@@ -9243,6 +9257,25 @@
       return;
     }
 
+    // Lo stesso, dal lato di chi ha mandato un invito che e' stato
+    // accettato: anche lui deve poter gestire/disdire, non solo
+    // vederselo passare una volta come notifica e sparire.
+    const mandatoConfermato = inviteSenderConfirmedUpcoming();
+    if (mandatoConfermato) {
+      const nomeInv = huEscape(mandatoConfermato.altra_persona_nome || 'La persona che hai invitato');
+      slot.innerHTML =
+        '<div class="invite-banner success" onclick="inviteSenderEnterBooking(\'' + mandatoConfermato.id + '\')" style="cursor:pointer">'
+        + '<div class="invite-banner-head"><span class="invite-banner-tag" style="color:var(--success)">✓ Invito accettato</span></div>'
+        + '<div class="invite-banner-title">' + nomeInv + ' ha accettato</div>'
+        + '<div class="invite-banner-sub">Tavolo condiviso per il <b>' + huEscape(inviteFmtData(mandatoConfermato.reschedule_date || mandatoConfermato.proposed_date)) + '</b>.'
+        + (mandatoConfermato.reschedule_date ? ' Ha scelto questa data al posto di quella che avevi proposto.' : '') + '</div>'
+        + '<div class="invite-banner-actions">'
+        +   '<button class="invite-banner-btn accept" onclick="event.stopPropagation();inviteSenderEnterBooking(\'' + mandatoConfermato.id + '\')">Gestisci la prenotazione</button>'
+        + '</div>'
+        + '</div>';
+      return;
+    }
+
     // Nessun invito da decidere e nessuna prenotazione da mostrare:
     // resta solo un eventuale aggiornamento non ancora visto sul
     // fronte di chi ha mandato inviti.
@@ -9251,11 +9284,12 @@
     if (!u) { slot.innerHTML = ''; return; }
 
     if (u.direzione === 'mandato' && u.status === 'accettato') {
+      // Si arriva qui solo se la serata e' gia' passata (l'invito
+      // ancora futuro lo mostra inviteSenderConfirmedUpcoming() sopra,
+      // con azioni vere): resta solo da prendere atto.
       slot.innerHTML = '<div class="invite-banner success">'
-        + '<div class="invite-banner-title">✓ ' + huEscape(u.altra_persona_nome || 'La persona che hai invitato') + ' ha accettato!</div>'
-        + '<div class="invite-banner-sub">Il tavolo condiviso è prenotato per il <b>' + huEscape(inviteFmtData(u.reschedule_date || u.proposed_date)) + '</b>.'
-        + (u.reschedule_date ? ' Ha scelto lei/lui questa data al posto di quella che avevi proposto.' : '') + '</div>'
-        + (u.reschedule_date ? '<div class="invite-banner-actions"><button class="invite-banner-btn decline" onclick="inviteSenderCancel(\'' + u.id + '\')">Quella sera non posso, disdici</button></div>' : '')
+        + '<div class="invite-banner-title">✓ ' + huEscape(u.altra_persona_nome || 'La persona che hai invitato') + ' aveva accettato</div>'
+        + '<div class="invite-banner-sub">Tavolo condiviso del <b>' + huEscape(inviteFmtData(u.reschedule_date || u.proposed_date)) + '</b>.</div>'
         + '<button class="invite-banner-dismiss" onclick="inviteMarkSeenAndRefresh(\'' + u.id + '\')">Va bene, chiudi</button>'
         + '</div>';
     } else if (u.direzione === 'mandato' && u.status === 'rifiutato') {
@@ -9451,6 +9485,113 @@
       '<div class="invite-banner-head"><span class="invite-banner-tag">Invito segreto</span></div>'
       + '<div class="invite-banner-sub">Una delle persone al tuo tavolo ti ha invitata in segreto — resta un mistero, l\'app non te lo dice.</div>'
       + '<button class="invite-banner-dismiss" onclick="inviteOpenDetail(\'' + inv.id + '\')">Come funziona</button>';
+
+    document.getElementById('book-step1').style.display = 'none';
+    document.getElementById('book-step2').style.display = 'none';
+    document.getElementById('book-active').style.display = 'flex';
+  }
+
+  /* Stessa schermata "LA TUA PRENOTAZIONE", ma vista da chi ha
+     mandato l'invito. Qui l'identita' NON e' un segreto — l'ha scelta
+     lui/lei stessa — quindi al contrario della vista del destinatario
+     si vede il nome, e la griglia dei posti torna a mostrarsi: non
+     e' piu' un tavolo con estranei anonimi, sono i due posti che
+     l'invito ha riservato, con quello della persona invitata in un
+     colore diverso dal proprio. */
+  async function inviteSenderEnterBooking(id) {
+    await inviteRefresh();
+    const inv = inviteFindById(id, 'mandato');
+    if (!inv) {
+      alert('Non trovo più questo invito. Prova a tornare indietro e riaprire.');
+      return;
+    }
+    if (!inv.booking_id) {
+      alert('La prenotazione non risulta ancora pronta. Aspetta un momento e riprova.');
+      return;
+    }
+    let booking = null;
+    try {
+      const { data, error } = await window.sb.rpc('invite_booking_for_sender', { p_invite_id: inv.id });
+      if (error) throw error;
+      booking = (data || [])[0];
+      if (!booking) throw new Error('Prenotazione non trovata.');
+    } catch (e) {
+      alert('Non sono riuscito ad aprire la prenotazione: ' + ((e && e.message) || 'errore sconosciuto') + '.');
+      return;
+    }
+
+    const dataBuona = inv.reschedule_date || inv.proposed_date;
+    const d = new Date(dataBuona + 'T12:00:00');
+    const dataFmt = bookCalGiorni[d.getDay()] + ' ' + d.getDate() + ' ' + bookCalMesi[d.getMonth()].slice(0, 3).toLowerCase();
+    const nomeInvitato = inv.altra_persona_nome || 'La persona che hai invitato';
+
+    document.getElementById('ba-table').textContent = booking.table_code || '—';
+    const tableHint = document.getElementById('ba-table-hint');
+    if (tableHint) {
+      tableHint.innerHTML = booking.table_code
+        ? 'TOCCA PER VEDERE<br>DOVE SEI NEL LOCALE'
+        : 'TAVOLO DA ASSEGNARE<br>ARRIVA PRIMA DELLA SERATA';
+    }
+    document.getElementById('ba-datetime').textContent = dataFmt;
+    document.getElementById('ba-type').textContent = 'Tavolo condiviso';
+    document.getElementById('ba-nome').textContent = nomeInvitato;
+    bookApplyTypeColor('shared');
+
+    // I due posti riservati dall'invito: il tuo, e quello di chi hai
+    // invitato — colorati diversi apposta. Nessun altro avventore
+    // inventato: non sappiamo (e non inventiamo) chi altro ci sia.
+    const fillBox = document.getElementById('book-fill-box');
+    if (fillBox) {
+      fillBox.style.display = 'flex';
+      fillBox.className = 'book-fill-box';
+      document.getElementById('book-fill-count').textContent = '2 posti riservati';
+      document.getElementById('book-fill-count').className = 'book-fill-count';
+      const seatsEl = document.getElementById('book-fill-seats');
+      seatsEl.innerHTML = '';
+      const seatHtml = function (cls, label, iconColor) {
+        return '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">'
+          + '<div class="book-fill-seat taken ' + cls + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + iconColor + '" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>'
+          + '<div class="book-fill-seat-lbl">' + huEscape(label) + '</div>'
+          + '</div>';
+      };
+      seatsEl.innerHTML = seatHtml('me', 'Tu', '#F7CC49') + seatHtml('invited', nomeInvitato.split(' ')[0], '#F472B6');
+      const legend = document.getElementById('book-fill-legend');
+      if (legend) legend.innerHTML = '';
+    }
+
+    const cancelBtn = document.querySelector('#book-active .book-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.style.display = '';
+      cancelBtn.onclick = function () {
+        camonConfirm('Disdire questo tavolo? ' + nomeInvitato + ' viene avvisata che non ci sarai.', async function () {
+          try {
+            const { error } = await window.sb.rpc('invite_sender_cancel', { p_invite_id: inv.id });
+            if (error) throw error;
+            document.getElementById('book-active').style.display = 'none';
+            document.getElementById('book-step1').style.display = 'flex';
+            await inviteRefresh();
+          } catch (e) {
+            alert((e && e.message) || 'Non sono riuscito a disdire.');
+          }
+        });
+      };
+    }
+    const newBtn = document.querySelector('#book-active .book-new-btn');
+    if (newBtn) newBtn.textContent = '← Torna alle prenotazioni';
+
+    let nota = document.getElementById('ba-invite-note');
+    if (!nota) {
+      nota = document.createElement('div');
+      nota.id = 'ba-invite-note';
+      nota.className = 'invite-banner';
+      nota.style.margin = '4px 0 0';
+      document.querySelector('#book-active .book-active-wrap').insertBefore(
+        nota, document.querySelector('#book-active .book-active-actions')
+      );
+    }
+    nota.innerHTML =
+      '<div class="invite-banner-head"><span class="invite-banner-tag">Invito segreto</span></div>'
+      + '<div class="invite-banner-sub">' + huEscape(nomeInvitato) + ' non sa che sei stato tu — resta cosi\' finche\' non lo scopre di persona.</div>';
 
     document.getElementById('book-step1').style.display = 'none';
     document.getElementById('book-step2').style.display = 'none';
