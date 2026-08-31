@@ -4173,6 +4173,7 @@
   .adm-stat { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:13px 14px; }
   .adm-stat-lbl { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
   .adm-stat-val { font-family:'Bebas Neue',sans-serif; font-size:27px; letter-spacing:1px; color:var(--brand); line-height:1.1; margin-top:3px; }
+  .adm-stat-val.warn { color: var(--error-soft); }
 
   .adm-row { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:11px 13px; margin-bottom:8px; }
   .adm-avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; flex-shrink:0; background:rgba(255,255,255,0.08); }
@@ -4210,6 +4211,98 @@
   .adm-empty { text-align:center; font-family:'Manrope',sans-serif; font-size:13px; color:rgba(255,255,255,0.3); padding:34px 20px; line-height:1.6; }
   .adm-group-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1.6px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin:16px 0 9px; }
   .adm-err { background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.35); border-radius:12px; padding:12px 14px; font-family:'Manrope',sans-serif; font-size:12.5px; color:var(--error-soft); line-height:1.5; margin-bottom:12px; }
+
+  /* ============================================================
+     AREA TITOLARE — SCHERMO LARGO (tablet orizzontale, computer)
+     Chi gestisce i dati lo fa quasi sempre da qui, non dal telefono:
+     sotto i 900px resta l'app-telefono di sempre; da 900px in su
+     l'area titolare esce dalla sagoma a 430px (#app) e diventa una
+     vera pagina da scrivania — barra laterale invece di schede in
+     alto, contenuto che si dispone su piu' colonne invece di un'unica
+     lista impilata. Nessuna riga di JS toccata: le stesse funzioni
+     che gia' scrivono .adm-stats/.adm-row/.adm-card restano identiche,
+     e' il contenitore attorno a cambiare forma.
+     ============================================================ */
+  @media (min-width: 900px) {
+    body.adm-open .bottom-nav,
+    body.adm-open .card-fab-wrap,
+    body.adm-open .story-fab-wrap {
+      display: none !important;
+    }
+    #page-admin.active {
+      position: fixed !important;
+      inset: 0 !important;
+      max-width: none !important;
+      width: 100vw; height: 100vh;
+      display: grid !important;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: auto 1fr;
+      z-index: 550;
+      background: var(--bg);
+      overflow: hidden !important;
+    }
+    /* Riga 1, colonna 1: il titolo, ora in cima alla barra laterale
+       invece che in una testata larga quanto lo schermo. */
+    #page-admin.active > .gd-header {
+      grid-area: 1 / 1 / 2 / 2;
+      flex-direction: column; align-items: flex-start;
+      gap: 10px; padding: 26px 22px 18px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    #page-admin.active > .gd-header .gd-title { font-size: 26px; }
+    /* Riga 2, colonna 1: le schede, verticali, sotto il titolo —
+       la stessa barra laterale continua. */
+    #page-admin.active > .adm-tabs {
+      grid-area: 2 / 1 / 3 / 2;
+      flex-direction: column; overflow-x: visible; overflow-y: auto;
+      gap: 3px; padding: 10px 14px 24px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+    }
+    #page-admin.active > .adm-tabs .adm-tab {
+      width: 100%; text-align: left; justify-content: flex-start;
+      border-radius: 10px; padding: 11px 14px;
+    }
+    /* Colonna 2, tutta l'altezza: il contenuto vero. Diventa una
+       griglia — i blocchi larghi (statistiche, barra di ricerca,
+       titoli di sezione, avvisi) restano a piena riga forzando
+       flex-basis:100%, le righe/card che prima erano impilate una
+       sotto l'altra si affiancano invece in colonne. */
+    #page-admin.active > .adm-body {
+      grid-area: 1 / 2 / 3 / 3;
+      padding: 34px 42px calc(34px + var(--safe-bottom));
+      display: flex; flex-wrap: wrap; align-content: flex-start;
+      gap: 12px;
+    }
+    #page-admin.active > .adm-body > .adm-stats,
+    #page-admin.active > .adm-body > .adm-toolbar,
+    #page-admin.active > .adm-body > .adm-group-title,
+    #page-admin.active > .adm-body > .adm-empty,
+    #page-admin.active > .adm-body > .adm-err {
+      flex-basis: 100%; width: 100%;
+    }
+    #page-admin.active > .adm-body > .adm-stats {
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+    #page-admin.active > .adm-body > .adm-row,
+    #page-admin.active > .adm-body > .adm-card {
+      flex: 1 1 380px;
+      max-width: calc(50% - 6px);
+      margin-bottom: 0;
+    }
+    /* Oltre 1400px di larghezza reale c'e' spazio per tre colonne
+       invece di due — la scheda Clienti in particolare ne approfitta,
+       e' quella con piu' righe da confrontare in un colpo d'occhio. */
+    @media (min-width: 1400px) {
+      #page-admin.active > .adm-body > .adm-row,
+      #page-admin.active > .adm-body > .adm-card {
+        max-width: calc(33.333% - 8px);
+      }
+    }
+  }
 
   /* intestazioni di sotto-sezione */
   #page-menu .menu-subhead {
@@ -7102,7 +7195,8 @@
       <div class="gd-title">AREA <span style="color:var(--brand)">TITOLARE</span></div>
     </div>
     <div class="adm-tabs" id="adm-tabs">
-      <button class="adm-tab active" onclick="admGo('clienti')">Clienti</button>
+      <button class="adm-tab active" onclick="admGo('panoramica')">Panoramica</button>
+      <button class="adm-tab" onclick="admGo('clienti')">Clienti</button>
       <button class="adm-tab" onclick="admGo('prenotazioni')">Prenotazioni</button>
       <button class="adm-tab" onclick="admGo('comande')">Comande</button>
       <button class="adm-tab" onclick="admGo('shot')">Shot</button>
@@ -7118,7 +7212,7 @@
        database: se chi guarda non e' segnato come staff, le query
        tornano vuote. Nascondere la voce non e' la protezione. */
 
-    var admSec = 'clienti';
+    var admSec = 'panoramica';
     var admStaff = false;
 
     async function camonAvatarUrl(valore) {
@@ -7157,7 +7251,7 @@
     function admGo(sec) {
       admSec = sec;
       var tabs = document.querySelectorAll('#adm-tabs .adm-tab');
-      var nomi = ['clienti','prenotazioni','comande','shot','menu','giochi','dati'];
+      var nomi = ['panoramica','clienti','prenotazioni','comande','shot','menu','giochi','dati'];
       tabs.forEach(function (t, i) { t.classList.toggle('active', nomi[i] === sec); });
       admRender();
     }
@@ -7181,13 +7275,72 @@
 
     function admRender() {
       if (!admStaff) return;
-      if (admSec === 'clienti')       admClienti();
+      if (admSec === 'panoramica')    admPanoramica();
+      else if (admSec === 'clienti')       admClienti();
       else if (admSec === 'prenotazioni') admPrenotazioni();
       else if (admSec === 'comande')  admComande();
       else if (admSec === 'shot')     admShot();
       else if (admSec === 'menu')     admMenu();
       else if (admSec === 'giochi')   admGiochi();
       else                            admDati();
+    }
+
+    /* ---------------- PANORAMICA ----------------
+       Il quadro d'insieme: quello che prima serviva aprire ogni
+       scheda per sapere, qui e' un colpo d'occhio solo. Conta le
+       righe invece di scaricarle tutte (head:true), leggero anche
+       con tanti dati. */
+    async function admPanoramica() {
+      admCarico();
+      try {
+        var conta = function (tabella, filtro) {
+          var q = window.sb.from(tabella).select('id', { count: 'exact', head: true });
+          return filtro ? filtro(q) : q;
+        };
+        var risultati = await Promise.all([
+          conta('profiles'),
+          conta('bookings', function (q) { return q.eq('status', 'attiva'); }),
+          conta('event_requests', function (q) { return q.eq('status', 'nuova'); }),
+          conta('products', function (q) { return q.eq('available', false); }),
+          conta('games', function (q) { return q.eq('enabled', false); }),
+          window.sb.from('wallets').select('balance_cents')
+        ]);
+        risultati.slice(0, 5).forEach(function (r) { if (r.error) throw r.error; });
+        if (risultati[5].error) throw risultati[5].error;
+
+        var nClienti = risultati[0].count || 0;
+        var nPrenotazioniAttive = risultati[1].count || 0;
+        var nRichiesteNuove = risultati[2].count || 0;
+        var nEsauriti = risultati[3].count || 0;
+        var nGiochiSpenti = risultati[4].count || 0;
+        var saldoTotale = (risultati[5].data || []).reduce(function (s, w) { return s + (w.balance_cents || 0); }, 0);
+
+        var h = '<div class="adm-group-title">Colpo d\'occhio</div>'
+          + '<div class="adm-stats">'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Clienti</div><div class="adm-stat-val">' + nClienti + '</div></div>'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Saldo totale</div><div class="adm-stat-val">' + admEuro(saldoTotale) + '</div></div>'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Prenotazioni attive</div><div class="adm-stat-val">' + nPrenotazioniAttive + '</div></div>'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Richieste feste nuove</div><div class="adm-stat-val' + (nRichiesteNuove ? ' warn' : '') + '">' + nRichiesteNuove + '</div></div>'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Prodotti esauriti</div><div class="adm-stat-val">' + nEsauriti + '</div></div>'
+          +   '<div class="adm-stat"><div class="adm-stat-lbl">Giochi nascosti</div><div class="adm-stat-val">' + nGiochiSpenti + '</div></div>'
+          + '</div>';
+
+        h += '<div class="adm-group-title">Scorciatoie</div>'
+          + admPanoramicaScorciatoia('📅', 'Prenotazioni', 'Tavoli, richieste feste, inviti segreti', 'prenotazioni')
+          + admPanoramicaScorciatoia('👥', 'Clienti', 'Anagrafica, saldi, tessere', 'clienti')
+          + admPanoramicaScorciatoia('🍸', 'Menu', 'Disponibilita\' dei prodotti', 'menu')
+          + admPanoramicaScorciatoia('🎲', 'Giochi', 'Cosa e\' acceso stasera', 'giochi')
+          + admPanoramicaScorciatoia('📊', 'Dati', 'Vendite e movimenti', 'dati');
+
+        admBody().innerHTML = h;
+      } catch (e) { admErrore(e); }
+    }
+    function admPanoramicaScorciatoia(emoji, titolo, sotto, sezione) {
+      return '<div class="adm-row" onclick="admGo(\'' + sezione + '\')" style="cursor:pointer">'
+        + '<div class="adm-avatar-empty">' + emoji + '</div>'
+        + '<div class="adm-grow"><div class="adm-name">' + titolo + '</div><div class="adm-sub">' + sotto + '</div></div>'
+        + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+        + '</div>';
     }
 
     /* ---------------- CLIENTI + SALDI ---------------- */
@@ -14317,6 +14470,10 @@
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
+    // Segnale per il layout desktop dell'area titolare (vedi il
+    // blocco @media min-width:900px): si aggiorna ad ogni cambio
+    // pagina, non solo entrando, cosi' torna via da solo uscendo.
+    document.body.classList.toggle('adm-open', page === 'admin');
     if (page === 'admin' && typeof admEnter === 'function') admEnter();
     if (typeof cartRenderFab === 'function') cartRenderFab();
 
