@@ -2082,33 +2082,97 @@
     line-height:1.4; margin-top:8px; max-width:290px; margin-left:auto; margin-right:auto;
   }
 
-  /* ---- I tre passi: una scaletta, non tre righe sciolte ----
-     Il filo verticale che unisce i numeri dice che e' una sequenza; sfuma
-     verso il basso perche' il passo che conta e' il primo. */
-  .story-steps { display:flex; flex-direction:column; margin:2px 0 14px; }
+  /* ---- I tre passi: raccontati come una storia Instagram ----
+     La pagina chiede di fare una storia, e spiega come farlo con una
+     storia: tre barre in alto che si riempiono, un passo per schermata.
+     Tocco a destra = avanti, a sinistra = indietro, tenere premuto =
+     pausa: gli stessi gesti che chi legge usa ogni giorno su Instagram.
+     Colori del brand, non quelli di Instagram (vedi sopra). */
+  .story-steps {
+    position:relative; height:246px; margin:2px 0 16px; padding:12px 16px 18px;
+    border-radius:22px; overflow:hidden; cursor:pointer; outline:none;
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(247,204,73,0.16), transparent 60%),
+      linear-gradient(180deg, var(--surface-2), var(--surface));
+    border:1px solid rgba(247,204,73,0.18);
+    -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+  .story-steps:focus-visible { border-color:var(--brand); }
   /* Il codice ce l'hai gia', o stasera non si puo': le istruzioni per
      ottenerlo diventano ingombro. Spariscono, e tutto sta in una
      schermata sola senza far scorrere niente. */
   #page-story.ha-esito .story-steps { display:none; }
-  .story-step {
-    position:relative; display:flex; align-items:flex-start; gap:14px;
-    padding-bottom:12px;
-    font-family:'Manrope',sans-serif; font-size:13.5px;
-    color:var(--text-sub); line-height:1.45;
-  }
-  .story-step:last-child { padding-bottom:0; }
-  .story-step:not(:last-child)::before {
-    content:''; position:absolute; left:15px; top:33px; bottom:1px; width:1.5px;
-    background:linear-gradient(180deg, rgba(247,204,73,0.4), rgba(247,204,73,0.06));
-  }
-  .story-step b { color:var(--text); font-weight:700; }
-  .story-step-n {
-    position:relative; z-index:1; flex-shrink:0;
-    width:31px; height:31px; border-radius:50%;
+
+  .ss-bars { position:relative; z-index:2; display:flex; gap:4px; }
+  .ss-bar { flex:1; height:3px; border-radius:2px; background:rgba(255,255,255,0.18); overflow:hidden; }
+  .ss-bar i { display:block; height:100%; width:0; background:var(--brand); border-radius:2px; }
+  .ss-bar.done i { width:100%; }
+  .ss-bar.on i { animation:ssFill 4.2s linear forwards; }
+  .story-steps.hold .ss-bar.on i { animation-play-state:paused; }
+  @keyframes ssFill { from { width:0; } to { width:100%; } }
+
+  .ss-head { position:relative; z-index:2; display:flex; align-items:center; gap:8px; margin-top:10px; font-family:'Manrope',sans-serif; }
+  .ss-ava {
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:0.5px;
-    color:var(--brand); background:var(--brand-dim);
-    border:1.5px solid rgba(247,204,73,0.4);
+    background:var(--brand); color:var(--on-brand);
+    font-family:'Bebas Neue',sans-serif; font-size:16px; padding-top:1px;
+    box-shadow:0 0 0 2px var(--surface-2), 0 0 0 3.5px var(--brand);
+  }
+  .ss-user { font-size:12.5px; font-weight:700; color:var(--text); }
+  .ss-time { font-size:12px; color:var(--text-sub); }
+
+  .ss-slide {
+    position:absolute; inset:58px 16px 18px; display:flex; flex-direction:column;
+    opacity:0; transform:translateX(14px); pointer-events:none;
+  }
+  /* solo chi entra scivola dentro: chi esce sparisce subito, cosi' i
+     due testi non si sovrappongono a meta' passaggio */
+  .ss-slide.on { opacity:1; transform:none; transition:opacity 0.35s ease, transform 0.35s ease; }
+  .ss-num {
+    position:absolute; right:-6px; bottom:-34px; z-index:0;
+    font-family:'Bebas Neue',sans-serif; font-size:150px; line-height:1;
+    color:transparent; -webkit-text-stroke:1.5px rgba(247,204,73,0.13);
+  }
+  .ss-visual { position:relative; z-index:1; flex:1; display:flex; align-items:center; }
+  .ss-title {
+    position:relative; z-index:1;
+    font-family:'Bebas Neue',sans-serif; font-size:34px; line-height:0.95; letter-spacing:0.5px; color:var(--text);
+  }
+  .ss-title span { color:var(--brand); }
+  .ss-text {
+    position:relative; z-index:1; margin-top:6px; max-width:250px;
+    font-family:'Manrope',sans-serif; font-size:13px; line-height:1.4; color:var(--text-sub);
+  }
+  .ss-text b { color:var(--text); font-weight:700; }
+
+  /* le tre "figurine" sopra al titolo, una per passo */
+  .ss-sticker {
+    display:inline-block; padding:7px 13px 5px; border-radius:9px; transform:rotate(-5deg);
+    background:var(--brand); color:var(--on-brand);
+    font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:0.5px;
+    box-shadow:0 8px 22px rgba(0,0,0,0.45);
+  }
+  .ss-ticket {
+    display:inline-block; padding:6px 16px 4px; border-radius:12px;
+    background:var(--brand-dim); border:1.5px dashed rgba(247,204,73,0.55);
+    font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:2px; color:var(--brand);
+  }
+  .ss-ticket span { letter-spacing:4px; opacity:0.75; }
+  .ss-stamp {
+    width:78px; height:78px; border-radius:50%; transform:rotate(9deg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    border:2px solid var(--brand); color:var(--brand);
+    font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1.5px;
+    box-shadow:inset 0 0 0 4px var(--surface), inset 0 0 0 5px rgba(247,204,73,0.35);
+  }
+  .ss-stamp svg { width:24px; height:24px; }
+
+  /* Riduci movimento: niente avanzamento automatico ne' scivolamenti,
+     si cambia passo solo toccando. */
+  @media (prefers-reduced-motion: reduce) {
+    .ss-bar.on i { animation:none; width:100%; }
+    .ss-slide { transition:none; transform:none; }
   }
 
   /* ---- Bottoni ---- */
@@ -7298,10 +7362,27 @@
         <div class="story-hero-title">UNO SHOT <span>GRATIS</span><br>PER UNA STORIA</div>
         <div class="story-hero-sub">Tagga il CAMON nella tua storia Instagram e l'aperitivo lo offriamo noi.</div>
       </div>
-      <div class="story-steps">
-        <div class="story-step"><span class="story-step-n">1</span><div>Pubblica una <b>storia su Instagram</b> taggando <b>@camon.torino</b>.</div></div>
-        <div class="story-step"><span class="story-step-n">2</span><div>Torna qui e genera il tuo <b>codice del giorno</b>.</div></div>
-        <div class="story-step"><span class="story-step-n">3</span><div>Mostra allo staff <b>il codice + la storia ancora online</b>: shot servito.</div></div>
+      <div class="story-steps" id="story-steps" tabindex="0" role="group" aria-roledescription="storia" aria-label="Come funziona, in tre passi. Tocca a destra o a sinistra per cambiare passo.">
+        <div class="ss-bars"><span class="ss-bar"><i></i></span><span class="ss-bar"><i></i></span><span class="ss-bar"><i></i></span></div>
+        <div class="ss-head"><span class="ss-ava">C</span><span class="ss-user">camon.torino</span><span class="ss-time">come funziona</span></div>
+        <div class="ss-slide">
+          <div class="ss-num">01</div>
+          <div class="ss-visual"><span class="ss-sticker">@camon.torino</span></div>
+          <div class="ss-title">PUBBLICA <span>LA STORIA</span></div>
+          <div class="ss-text">Una storia su Instagram che tagga <b>@camon.torino</b>.</div>
+        </div>
+        <div class="ss-slide">
+          <div class="ss-num">02</div>
+          <div class="ss-visual"><span class="ss-ticket">CMN-<span>&bull;&bull;&bull;&bull;</span></span></div>
+          <div class="ss-title">GENERA <span>IL CODICE</span></div>
+          <div class="ss-text">Torna qui e genera il tuo <b>codice del giorno</b>.</div>
+        </div>
+        <div class="ss-slide">
+          <div class="ss-num">03</div>
+          <div class="ss-visual"><span class="ss-stamp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12l-1.6 13.5a2 2 0 0 1-2 1.5H9.6a2 2 0 0 1-2-1.5L6 4z"/><path d="M7 8h10"/></svg>SERVITO</span></div>
+          <div class="ss-title">MOSTRALO <span>ALLO STAFF</span></div>
+          <div class="ss-text">Codice + <b>storia ancora online</b>: lo shot è tuo.</div>
+        </div>
       </div>
       <div class="story-action" id="story-action"></div>
       <div class="story-warn">
@@ -14602,6 +14683,45 @@
     return (h > 0 ? p(h) + ':' : '') + p(m) + ':' + p(ss);
   }
 
+  /* Scaletta "a storia": tre passi che avanzano da soli come le storie
+     di Instagram. L'avanzamento lo fa l'animazione CSS della barra: a
+     pagina nascosta l'animazione si ferma da sola, quindi non serve un
+     timer da spegnere uscendo. */
+  let ssIdx = 0, ssDownAt = 0, ssBound = false;
+  function ssShow(i) {
+    const root = document.getElementById('story-steps');
+    if (!root) return;
+    ssIdx = ((i % 3) + 3) % 3;
+    const bars = root.querySelectorAll('.ss-bar');
+    bars.forEach(function (b, k) {
+      b.classList.remove('on');
+      b.classList.toggle('done', k < ssIdx);
+    });
+    void bars[ssIdx].offsetWidth; // riparte l'animazione anche sullo stesso passo
+    bars[ssIdx].classList.add('on');
+    root.querySelectorAll('.ss-slide').forEach(function (sl, k) { sl.classList.toggle('on', k === ssIdx); });
+    if (!ssBound) {
+      ssBound = true;
+      bars.forEach(function (b, k) {
+        b.querySelector('i').addEventListener('animationend', function () { if (k === ssIdx) ssShow(ssIdx + 1); });
+      });
+      root.addEventListener('pointerdown', function () { ssDownAt = Date.now(); root.classList.add('hold'); });
+      root.addEventListener('pointerup', function (e) {
+        root.classList.remove('hold');
+        if (Date.now() - ssDownAt > 300) return; // era una pausa, non un tocco
+        const r = root.getBoundingClientRect();
+        ssShow(e.clientX - r.left < r.width / 3 ? Math.max(0, ssIdx - 1) : ssIdx + 1);
+      });
+      ['pointercancel', 'pointerleave'].forEach(function (ev) {
+        root.addEventListener(ev, function () { root.classList.remove('hold'); });
+      });
+      root.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') ssShow(ssIdx + 1);
+        if (e.key === 'ArrowLeft') ssShow(Math.max(0, ssIdx - 1));
+      });
+    }
+  }
+
   function storyRender() {
     storyStopTimer();
     const action = document.getElementById('story-action');
@@ -15064,6 +15184,7 @@
       if (typeof renderWallet === 'function') renderWallet();
     }
     if (page === 'carta' && typeof cartaGate === 'function') cartaGate();
+    if (page === 'carta') walletTxExpanded = false; // si rientra sempre con i movimenti ridotti
     if (page === 'carta' && typeof renderWallet === 'function') renderWallet();
     if (page === 'carta' && typeof bandsSync === 'function') bandsSync();
 
@@ -15099,6 +15220,7 @@
     if (page === 'eventi' && typeof renderEventiPage === 'function') renderEventiPage();
     if (page === 'home' && typeof renderHomeEventi === 'function') renderHomeEventi();
     if (page === 'story' && typeof storyRender === 'function') storyRender();
+    if (page === 'story' && typeof ssShow === 'function') ssShow(0);
     if (page === 'profile' && typeof profEnter === 'function') profEnter();
     if (page === 'book' && typeof inviteRefresh === 'function') inviteRefresh();
     if (page === 'event' && typeof eventEnter === 'function') eventEnter();
