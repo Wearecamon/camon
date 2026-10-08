@@ -18,6 +18,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0A0A0A">
+<!-- rete di sicurezza per gli iOS che non riconoscono display-mode: vedi --top-extra -->
+<script>if (window.navigator.standalone) document.documentElement.style.setProperty('--top-extra', '10px');</script>
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
@@ -86,7 +88,11 @@
      a zero (bug noto), uno script al lancio imposta questi valori
      a mano in base al modello di telefono. */
   :root {
-    --safe-top: env(safe-area-inset-top, 0px);
+    /* +10px in cima solo nell'app aperta dalla Home: li' iOS 26 stende una
+       sfocatura sotto l'orologio che arrivava sopra titoli e icone.
+       Vale 0 in Safari e su desktop (vedi la @media subito sotto). */
+    --top-extra: 0px;
+    --safe-top: calc(env(safe-area-inset-top, 0px) + var(--top-extra));
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     /* iOS in modalita' app puo' dare all'app un'area piu' corta dello
        schermo: --vp-gap e' quanto manca in fondo, --app-h l'altezza reale.
@@ -97,6 +103,9 @@
        e un po' d'aria. Una sola fonte per tutte le pagine, cosi' non ci
        sono numeri sparsi che si disallineano. */
     --nav-space: calc(96px + var(--safe-bottom));
+  }
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    :root { --top-extra: 10px; }
   }
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
@@ -4795,7 +4804,7 @@
     overflow: visible !important;
     height: auto !important;
     max-height: none !important;
-    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-top: var(--safe-top) !important;
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important;
   }
 
@@ -4932,7 +4941,7 @@
     top: 0; left: 0; right: 0;
     z-index: 300;
     background: var(--bg-deep);
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: var(--safe-top);
   }
   /* Lo spazio del notch lo mette la fascia: dentro non va ripetuto,
      altrimenti su iPhone verrebbe contato due volte. Margini ridotti
@@ -4965,7 +4974,7 @@
      l'orologio. Quel tanto che basta per liberarli, non di piu'. */
   .prof-edit-fab,
   .prof-tondo-alto {
-    top: calc(6px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(6px + var(--safe-top)) !important;
   }
 
   /* ============================================================
