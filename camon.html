@@ -9311,6 +9311,12 @@
   }
   function bookScrollGuard(e) {
     if (!book2Fits) return;
+    /* Il controllo sul pulsante da solo non basta: dopo aver fatto scorrere
+       un po' la pagina il pulsante sale, sembra "starci" e il blocco
+       fermava il dito su calendario, ore e persone. Si blocca solo se il
+       documento davvero non ha niente da scorrere. */
+    const se = document.scrollingElement || document.documentElement;
+    if (se.scrollHeight - se.clientHeight > 1 || se.scrollTop > 0) return;
     // le aree con scroll proprio (fasce orarie, risultati ricerca compagni,
     // controlli nativi) devono continuare a funzionare normalmente
     if (e.target.closest('.book-time-grid, .add-guest-results, select, textarea, input')) return;
