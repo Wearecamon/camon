@@ -10,12 +10,14 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- Stessa impostazione della pagina di prova che funziona:
-     niente maximum-scale, barra di stato trasparente, viewport-fit=cover -->
+<!-- Niente maximum-scale, viewport-fit=cover.
+     Barra di stato NERA PIENA, non trasparente: con "black-translucent"
+     la pagina passava sotto ora/batteria e iOS sfoca quella fascia, che
+     arrivava a coprire le scritte in cima (app aperta dalla Home). -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0A0A0A">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
@@ -2063,23 +2065,23 @@
      legge come "premio" senza rubare la scena al bottone d'azione, che
      resta l'unica cosa in giallo pieno della schermata. */
   .story-hero-badge {
-    position:relative; width:44px; height:44px; margin:0 auto; border-radius:50%;
+    position:relative; width:60px; height:60px; margin:4px auto 0; border-radius:50%;
     background:var(--brand-dim); border:1.5px solid rgba(247,204,73,0.45);
     display:flex; align-items:center; justify-content:center;
   }
   .story-hero-badge::after {
-    content:''; position:absolute; inset:-9px; border-radius:50%; z-index:-1;
+    content:''; position:absolute; inset:-12px; border-radius:50%; z-index:-1;
     background:radial-gradient(circle, rgba(247,204,73,0.18), transparent 70%);
   }
-  .story-hero-badge svg { width:21px; height:21px; color:var(--brand); }
+  .story-hero-badge svg { width:28px; height:28px; color:var(--brand); }
   .story-hero-title {
-    font-family:'Bebas Neue',sans-serif; font-size:29px; line-height:0.94;
-    letter-spacing:1px; color:var(--text); margin-top:9px;
+    font-family:'Bebas Neue',sans-serif; font-size:36px; line-height:0.94;
+    letter-spacing:1px; color:var(--text); margin-top:12px;
   }
   .story-hero-title span { color:var(--brand); }
   .story-hero-sub {
-    font-family:'Manrope',sans-serif; font-size:12.5px; color:var(--text-sub);
-    line-height:1.4; margin-top:6px; max-width:290px; margin-left:auto; margin-right:auto;
+    font-family:'Manrope',sans-serif; font-size:13.5px; color:var(--text-sub);
+    line-height:1.4; margin-top:8px; max-width:300px; margin-left:auto; margin-right:auto;
   }
 
   /* ---- I tre passi: raccontati come una storia Instagram ----
@@ -2293,6 +2295,10 @@
      pixel, cosi' la pagina resta ferma anche li'. Se non basta ancora,
      .page-fit la fa scorrere. */
   @media (max-height: 700px) {
+    .story-hero-badge { width:44px; height:44px; margin-top:0; }
+    .story-hero-badge svg { width:21px; height:21px; }
+    .story-hero-title { font-size:29px; margin-top:9px; }
+    .story-hero-sub { font-size:12.5px; margin-top:6px; }
     .story-steps { height:200px; }
     .ss-slide { inset:50px 16px 14px; }
     .ss-title { font-size:27px; }
