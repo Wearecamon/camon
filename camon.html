@@ -2054,32 +2054,32 @@
      fuori dall'app"); ovunque altro sarebbe decorazione — e il premio
      lo offre il CAMON, non Instagram. */
   #page-story { background: var(--bg); }
-  .story-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:4px 22px calc(110px + var(--safe-bottom)); scrollbar-width:none; }
+  .story-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:4px 22px calc(86px + var(--safe-bottom)); scrollbar-width:none; }
   .story-body::-webkit-scrollbar { display:none; }
 
   /* ---- Testata: il premio ---- */
-  .story-hero { position:relative; text-align:center; padding:4px 0 16px; }
+  .story-hero { position:relative; text-align:center; padding:0 0 12px; }
   /* Il bicchierino sta in un disco giallo spento con un alone dietro:
      legge come "premio" senza rubare la scena al bottone d'azione, che
      resta l'unica cosa in giallo pieno della schermata. */
   .story-hero-badge {
-    position:relative; width:62px; height:62px; margin:0 auto; border-radius:50%;
+    position:relative; width:44px; height:44px; margin:0 auto; border-radius:50%;
     background:var(--brand-dim); border:1.5px solid rgba(247,204,73,0.45);
     display:flex; align-items:center; justify-content:center;
   }
   .story-hero-badge::after {
-    content:''; position:absolute; inset:-12px; border-radius:50%; z-index:-1;
+    content:''; position:absolute; inset:-9px; border-radius:50%; z-index:-1;
     background:radial-gradient(circle, rgba(247,204,73,0.18), transparent 70%);
   }
-  .story-hero-badge svg { width:28px; height:28px; color:var(--brand); }
+  .story-hero-badge svg { width:21px; height:21px; color:var(--brand); }
   .story-hero-title {
-    font-family:'Bebas Neue',sans-serif; font-size:33px; line-height:0.94;
-    letter-spacing:1px; color:var(--text); margin-top:12px;
+    font-family:'Bebas Neue',sans-serif; font-size:29px; line-height:0.94;
+    letter-spacing:1px; color:var(--text); margin-top:9px;
   }
   .story-hero-title span { color:var(--brand); }
   .story-hero-sub {
-    font-family:'Manrope',sans-serif; font-size:13px; color:var(--text-sub);
-    line-height:1.4; margin-top:8px; max-width:290px; margin-left:auto; margin-right:auto;
+    font-family:'Manrope',sans-serif; font-size:12.5px; color:var(--text-sub);
+    line-height:1.4; margin-top:6px; max-width:290px; margin-left:auto; margin-right:auto;
   }
 
   /* ---- I tre passi: raccontati come una storia Instagram ----
@@ -2089,7 +2089,7 @@
      pausa: gli stessi gesti che chi legge usa ogni giorno su Instagram.
      Colori del brand, non quelli di Instagram (vedi sopra). */
   .story-steps {
-    position:relative; height:246px; margin:2px 0 16px; padding:12px 16px 18px;
+    position:relative; height:206px; margin:0 0 12px; padding:12px 16px 16px;
     border-radius:22px; overflow:hidden; cursor:pointer; outline:none;
     background:
       radial-gradient(120% 90% at 100% 0%, rgba(247,204,73,0.16), transparent 60%),
@@ -2123,7 +2123,7 @@
   .ss-time { font-size:12px; color:var(--text-sub); }
 
   .ss-slide {
-    position:absolute; inset:58px 16px 18px; display:flex; flex-direction:column;
+    position:absolute; inset:54px 16px 16px; display:flex; flex-direction:column;
     opacity:0; transform:translateX(14px); pointer-events:none;
   }
   /* solo chi entra scivola dentro: chi esce sparisce subito, cosi' i
@@ -2131,13 +2131,13 @@
   .ss-slide.on { opacity:1; transform:none; transition:opacity 0.35s ease, transform 0.35s ease; }
   .ss-num {
     position:absolute; right:-6px; bottom:-34px; z-index:0;
-    font-family:'Bebas Neue',sans-serif; font-size:150px; line-height:1;
+    font-family:'Bebas Neue',sans-serif; font-size:130px; line-height:1;
     color:transparent; -webkit-text-stroke:1.5px rgba(247,204,73,0.13);
   }
   .ss-visual { position:relative; z-index:1; flex:1; display:flex; align-items:center; }
   .ss-title {
     position:relative; z-index:1;
-    font-family:'Bebas Neue',sans-serif; font-size:34px; line-height:0.95; letter-spacing:0.5px; color:var(--text);
+    font-family:'Bebas Neue',sans-serif; font-size:30px; line-height:0.95; letter-spacing:0.5px; color:var(--text);
   }
   .ss-title span { color:var(--brand); }
   .ss-text {
@@ -2178,7 +2178,7 @@
   /* ---- Bottoni ---- */
   .story-btn {
     display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
-    border:none; border-radius:14px; padding:14px;
+    border:none; border-radius:14px; padding:13px;
     font-family:'Manrope',sans-serif; font-size:14px; font-weight:800; letter-spacing:0.3px;
     cursor:pointer; -webkit-tap-highlight-color:transparent;
     transition:transform 0.12s, opacity 0.15s, background 0.15s;
@@ -2248,14 +2248,25 @@
   .story-warn {
     display:flex; gap:11px; align-items:flex-start;
     background:rgba(247,204,73,0.07); border:1px solid rgba(247,204,73,0.22);
-    border-radius:12px; padding:10px 13px; margin-top:10px;
-    font-family:'Manrope',sans-serif; font-size:11.5px; color:var(--text-sub); line-height:1.4;
+    border-radius:12px; padding:9px 12px; margin-top:10px;
+    font-family:'Manrope',sans-serif; font-size:11px; color:var(--text-sub); line-height:1.38;
   }
   .story-warn-ico { flex-shrink:0; margin-top:1px; color:var(--brand); }
   .story-warn b { color:var(--brand); font-weight:700; }
   .story-fineprint {
     font-family:'Manrope',sans-serif; font-size:10.5px; color:var(--text-muted);
-    line-height:1.4; text-align:center; margin-top:9px;
+    line-height:1.4; text-align:center; margin-top:7px;
+  }
+  /* Schermi bassi (iPhone SE e simili): la scheda storia cede qualche
+     pixel, badge e sottotitolo spariscono, cosi' la pagina resta ferma anche
+     li'. Se non basta ancora, .page-fit la fa scorrere. */
+  @media (max-height: 700px) {
+    .story-hero-badge, .story-hero-sub { display:none; }
+    .story-hero-title { margin-top:0; }
+    .story-steps { height:192px; }
+    .ss-slide { inset:50px 16px 14px; }
+    .ss-title { font-size:27px; }
+    .ss-num { font-size:110px; }
   }
 
   /* ---- Bonus gia' usato ---- */
@@ -7349,7 +7360,7 @@
   <!-- ============================
        PROFILO PAGE
   ============================ -->
-  <div class="page game-detail" id="page-story">
+  <div class="page game-detail page-fit" id="page-story">
     <div class="gd-header">
       <button class="back-btn" onclick="goTo('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">STORIA <span style="color:var(--brand)">= SHOT</span></div>
