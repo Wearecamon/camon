@@ -4912,6 +4912,11 @@
     border-color: rgba(255,255,255,0.1);
   }
   #page-players .sq-start-btn { flex: none; }
+  /* Pagina ferma: la scheda e' alta quanto il suo contenuto, non quanto
+     lo schermo. Senza nomi resta piccola con "Continua" subito sotto;
+     cresce coi giocatori e, arrivata in fondo, scorre solo l'elenco. */
+  #page-players.page-fit.active.is-fixed .sq-setup-card { flex: 0 1 auto; }
+  #page-players.page-fit.active.is-fixed .sq-players { flex: 0 1 auto; }
 
   /* Il profilo centra i suoi contenuti con flex:1: senza una colonna a
      tutta altezza restava alto quanto il testo e sotto si vedeva il
