@@ -10,14 +10,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- Niente maximum-scale, viewport-fit=cover.
-     Barra di stato NERA PIENA, non trasparente: con "black-translucent"
-     la pagina passava sotto ora/batteria e iOS sfoca quella fascia, che
-     arrivava a coprire le scritte in cima (app aperta dalla Home). -->
+<!-- Niente maximum-scale, barra di stato trasparente, viewport-fit=cover.
+     (La barra nera piena e' stata provata e scartata: fascia nera in cima.
+     La sfocatura di iOS 26 la tiene a bada .statusbar-scrim.) -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0A0A0A">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
@@ -103,13 +102,20 @@
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
 
-  /* velatura dietro ora/batteria: il contenuto che scorre le passa
-     dietro ma restano leggibili (alta 0 su desktop = invisibile) */
+  /* Velatura dietro ora/batteria, alta esattamente quanto quella fascia
+     (0 su desktop = invisibile).
+     Serve anche a iOS 26: nell'app aperta dalla Home, con la barra
+     trasparente, iOS stende da solo una sfocatura "vetro" in cima che
+     scende fin sopra titoli e icone. Se in cima c'e' un elemento fisso
+     dell'app, iOS non la mette: la sfocatura la fa questa striscia, e
+     finisce dove finisce l'orologio. */
   .statusbar-scrim {
-    position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 430px; height: var(--safe-top);
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--safe-top);
     z-index: 400; pointer-events: none;
-    background: linear-gradient(180deg, rgba(8,8,8,0.88) 0%, rgba(8,8,8,0.45) 60%, rgba(8,8,8,0) 100%);
+    background: rgba(17,17,17,0.55);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
   }
 
   /* ===== APP SHELL ===== */
@@ -5077,6 +5083,7 @@
 </style>
 </head>
 <body>
+<div class="statusbar-scrim" aria-hidden="true"></div>
   <!-- Coperchio mostrato solo se il telefono viene coricato -->
   <div id="ruota-schermo">
     <div class="ruota-ico">📱</div>
