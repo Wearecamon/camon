@@ -14839,6 +14839,9 @@
   }
 
   function storyInfoFirstTime() {
+    // senza account la pagina chiede solo di registrarsi: le regole si
+    // mostrano la prima volta che ci si entra da registrati
+    if (!storyHasProfile()) return;
     let seen = false;
     try { seen = !!localStorage.getItem(STORY_INFO_KEY); } catch (e) {}
     if (!seen) setTimeout(storyInfoOpen, 450); // dopo l'ingresso della pagina
