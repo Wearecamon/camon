@@ -16993,13 +16993,20 @@
       const q = ic.getBoundingClientRect();
       if (!q.width || !q.height) return;
       const cx = q.left + q.width / 2, cy = q.top + q.height / 2;
-      const dx = q.width * 0.4, dy = q.height * 0.4;
-      let chiari = 0;
-      [[0, 0], [-dx, 0], [dx, 0], [0, -dy], [0, dy]].forEach(function (d) {
-        const c = coloreDietro(nav, cx + d[0], cy + d[1]);
-        if (c && serveScuro(c)) chiari++;
+      /* Il vetro della barra e' sfocato: dietro un'icona si vede la media
+         di una zona ben piu' larga dell'icona. Si guarda quindi un'area
+         ampia (5 x 3 punti, circa 60 x 24 px): un logo sopra una sottile
+         striscia nera tra due schede gialle sta comunque "sul giallo". */
+      const rx = Math.max(q.width, 30), ry = 12;
+      let chiari = 0, tot = 0;
+      [-1, -0.5, 0, 0.5, 1].forEach(function (fx) {
+        [-1, 0, 1].forEach(function (fy) {
+          const c = coloreDietro(nav, cx + fx * rx, cy + fy * ry);
+          tot++;
+          if (c && serveScuro(c)) chiari++;
+        });
       });
-      const chiaro = chiari >= 3;
+      const chiaro = chiari * 2 >= tot; // almeno meta' dell'area e' chiara
       btn.classList.toggle('on-light', chiaro);
       if (chiaro) qualcuna = true;
     });
