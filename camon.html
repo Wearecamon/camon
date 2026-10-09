@@ -211,6 +211,17 @@
   .nav-btn.active .nav-icon { stroke: var(--brand); }
   .nav-btn.active .nav-label { color: var(--brand); }
 
+  /* Barra sopra uno sfondo chiaro (le schede gialle del menu, le offerte...):
+     icone bianche e gialle li' sparivano. La classe la mette navTint()
+     guardando cosa c'e' davvero sotto la barra mentre si scorre. */
+  .bottom-nav .nav-logo { transition: filter 0.2s, opacity 0.2s; }
+  .bottom-nav.on-light { border-color: rgba(0,0,0,0.14); }
+  .bottom-nav.on-light .nav-icon { stroke: rgba(17,17,17,0.62); }
+  .bottom-nav.on-light .nav-btn.active { background: rgba(17,17,17,0.14); }
+  .bottom-nav.on-light .nav-btn.active .nav-icon { stroke: #111111; }
+  .bottom-nav.on-light .nav-logo { filter: brightness(0); }
+  .bottom-nav.on-light .nav-btn:not(.active) .nav-logo { opacity: 0.6; }
+
   /* ===== SCROLLABLE CONTENT ===== */
   .scroll-area {
     flex: 1;
@@ -16711,6 +16722,107 @@
   // se il modulo Supabase ha già finito prima di questo script, parte subito
   if (window.sb) camonAuthInit();
   else window.dispatchEvent(new Event('camon-init-ready'));
+</script>
+<script>
+/* ===== BOTTOM BAR CHE SI ADATTA ALLO SFONDO =====
+   La barra e' di vetro: sopra le schede gialle (menu, offerte, pulsanti)
+   le icone bianche e gialle non si vedevano piu'. Qui si guarda cosa c'e'
+   sotto la barra in dieci punti (due righe da cinque): se almeno quattro
+   sono chiari, la barra passa alle icone scure (.on-light).
+   Le foto (menu, offerte) si "leggono" ricaricandone una copia col
+   permesso CORS e facendone la media su una tela 8x8: il risultato resta
+   in memoria per indirizzo. Finche' non c'e', o se il sito non lo
+   permette, la foto conta come scura e la barra resta com'e'. */
+(function () {
+  function rgbaDa(str) {
+    const m = str.match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(parseFloat);
+    return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+  }
+  function luce(c) {
+    const f = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+  }
+  const lumeFoto = {}; // src -> colore medio, oppure false se non leggibile
+  function coloreFoto(src) {
+    if (!src) return null;
+    if (Object.prototype.hasOwnProperty.call(lumeFoto, src)) return lumeFoto[src] || null;
+    lumeFoto[src] = false; // in caricamento
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = function () {
+      try {
+        const c = document.createElement('canvas'); c.width = c.height = 8;
+        const x = c.getContext('2d'); x.drawImage(im, 0, 0, 8, 8);
+        const d = x.getImageData(0, 0, 8, 8).data;
+        let r = 0, g = 0, b = 0;
+        for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+        const n = d.length / 4;
+        lumeFoto[src] = { r: r / n, g: g / n, b: b / n, a: 1 };
+        navTintSoon();
+      } catch (e) { /* il sito non concede la lettura: resta false */ }
+    };
+    im.src = src;
+    return null;
+  }
+  // colore "pieno" del primo antenato che ha un fondo coprente; null se non si sa
+  function fondoDi(el) {
+    for (let e = el; e && e !== document.documentElement; e = e.parentElement) {
+      if (e.tagName === 'IMG') return coloreFoto(e.currentSrc || e.src);
+      if (e.tagName === 'VIDEO' || e.tagName === 'CANVAS') return null;
+      const cs = getComputedStyle(e);
+      const img = cs.backgroundImage;
+      if (img && img !== 'none') {
+        if (img.indexOf('url(') >= 0) return null;
+        const colori = (img.match(/rgba?\([^)]+\)/g) || []).map(rgbaDa).filter(Boolean);
+        if (colori.length) {
+          const a = colori.reduce(function (t, c) { return t + c.a; }, 0) / colori.length;
+          if (a >= 0.5) {
+            const n = colori.length;
+            return {
+              r: colori.reduce(function (t, c) { return t + c.r; }, 0) / n,
+              g: colori.reduce(function (t, c) { return t + c.g; }, 0) / n,
+              b: colori.reduce(function (t, c) { return t + c.b; }, 0) / n, a: 1
+            };
+          }
+        }
+      }
+      const c = rgbaDa(cs.backgroundColor);
+      if (c && c.a >= 0.5) return c;
+    }
+    return null;
+  }
+  function navTint() {
+    const nav = document.querySelector('.bottom-nav');
+    if (!nav) return;
+    const r = nav.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    let chiari = 0;
+    [0.35, 0.65].forEach(function (fy) {
+      [0.1, 0.3, 0.5, 0.7, 0.9].forEach(function (fx) {
+        const sotto = document.elementsFromPoint(r.left + r.width * fx, r.top + r.height * fy)
+          .find(function (el) { return !nav.contains(el); });
+        const c = sotto && fondoDi(sotto);
+        if (c && luce(c) > 0.4) chiari++;
+      });
+    });
+    // basta che il chiaro copra una buona parte della barra (4 punti su 10)
+    nav.classList.toggle('on-light', chiari >= 4);
+  }
+  let attesa = null;
+  function navTintSoon() {
+    if (attesa) return;
+    attesa = requestAnimationFrame(function () { attesa = null; navTint(); });
+  }
+  window.navTintSoon = navTintSoon;
+  // qualsiasi scorrimento, anche dentro i caroselli o le liste
+  document.addEventListener('scroll', navTintSoon, { capture: true, passive: true });
+  window.addEventListener('resize', navTintSoon);
+  // cambi pagina, schede che si aprono, animazioni: un controllo leggero ogni tanto
+  setInterval(navTint, 700);
+  navTintSoon();
+})();
 </script>
 </body>
 </html>
