@@ -1106,21 +1106,9 @@
   }
   #page-games .games-scroll { position: relative; z-index: 1; }
 
-  /* toggle Fissi / Rotazione */
-  .games-toggle {
-    position: absolute; top: calc(14px + var(--safe-top)); left: 50%; transform: translateX(-50%);
-    z-index: 50; display: flex; gap: 4px;
-    background: rgba(0,0,0,0.45); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.15); border-radius: 30px; padding: 4px;
-  }
-  .games-toggle-btn {
-    border: none; background: transparent; color: rgba(255,255,255,0.6);
-    font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 800;
-    letter-spacing: 1px; text-transform: uppercase; padding: 9px 20px;
-    border-radius: 30px; cursor: pointer; -webkit-tap-highlight-color: transparent;
-    transition: all 0.15s;
-  }
-  .games-toggle-btn.active { background: var(--brand); color: var(--bg); }
+  /* Etichetta dei giochi a rotazione: stanno in cima alla lista finche'
+     il titolare li tiene accesi, e devono leggersi come novita' a tempo. */
+  .game-badge-new { background: var(--brand); color: var(--bg); margin-left: 8px; }
 
 
   /* ========================================
@@ -5643,10 +5631,6 @@
 
   <div class="page" id="page-games">
     <div class="games-bg" id="games-bg"></div>
-    <div class="games-toggle">
-      <button id="gt-fixed" class="games-toggle-btn active" onclick="gamesSwitch('fixed')">Fissi</button>
-      <button id="gt-rotation" class="games-toggle-btn" onclick="gamesSwitch('rotation')">Rotazione</button>
-    </div>
     <div class="games-scroll" id="games-scroll" onscroll="updateGamesBg()"></div>
   </div>
     <script type="text/html" id="tpl-headsup">
@@ -8515,30 +8499,39 @@
         var elenco = (typeof GAMES !== 'undefined' ? GAMES : []).map(function (g, i) {
           var k = admChiaveGioco(g.name);
           return {
-            key: k, nome: g.name, emoji: g.emoji, sub: g.sub, ordine: i,
-            attivo: salvati[k] ? salvati[k].enabled : true,
+            key: k, nome: g.name, emoji: g.emoji, sub: g.sub, ordine: i, sec: g.sec,
+            // mai toccato: i fissi sono accesi, quelli a rotazione spenti
+            attivo: salvati[k] ? salvati[k].enabled : g.sec === 'fixed',
             registrato: !!salvati[k]
           };
         });
-        var spenti = elenco.filter(function (g) { return !g.attivo; }).length;
+        var fissi = elenco.filter(function (g) { return g.sec !== 'rotation'; });
+        var rotazione = elenco.filter(function (g) { return g.sec === 'rotation'; });
+        var rotAccesi = rotazione.filter(function (g) { return g.attivo; }).length;
 
         var h = '<div class="adm-stats">'
-          + '<div class="adm-stat"><div class="adm-stat-lbl">Giochi</div><div class="adm-stat-val">' + elenco.length + '</div></div>'
-          + '<div class="adm-stat"><div class="adm-stat-lbl">Nascosti</div><div class="adm-stat-val">' + spenti + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">Fissi visibili</div><div class="adm-stat-val">' + fissi.filter(function (g) { return g.attivo; }).length + ' / ' + fissi.length + '</div></div>'
+          + '<div class="adm-stat"><div class="adm-stat-lbl">A rotazione accesi</div><div class="adm-stat-val">' + rotAccesi + ' / ' + rotazione.length + '</div></div>'
           + '</div>';
 
-        elenco.forEach(function (g) {
-          h += '<div class="adm-row">'
-            + '<div class="adm-avatar-empty">' + admEsc(g.emoji || '🎲') + '</div>'
-            + '<div class="adm-grow">'
-            +   '<div class="adm-name">' + admEsc(g.nome) + '</div>'
-            +   '<div class="adm-sub">' + admEsc(g.sub || '') + '</div>'
-            + '</div>'
-            + '<button class="adm-switch' + (g.attivo ? ' on' : '') + '" onclick="admToggleGioco(this,\'' + admEsc(g.key) + '\',\'' + admEsc(g.nome).replace(/'/g, "\\'") + '\',' + g.ordine + ')"></button>'
-            + '</div>';
-        });
+        h += '<div class="adm-group-title">A rotazione</div>'
+          + '<div class="adm-sub" style="margin:-4px 2px 10px">Quelli accesi compaiono per primi nella pagina Giochi, con l\'etichetta "Nuovo · a tempo".</div>';
+        rotazione.forEach(function (g) { h += admRigaGioco(g); });
+        h += '<div class="adm-group-title" style="margin-top:22px">Fissi</div>';
+        fissi.forEach(function (g) { h += admRigaGioco(g); });
         admBody().innerHTML = h;
       } catch (e) { admErrore(e); }
+    }
+
+    function admRigaGioco(g) {
+      return '<div class="adm-row">'
+        + '<div class="adm-avatar-empty">' + admEsc(g.emoji || '🎲') + '</div>'
+        + '<div class="adm-grow">'
+        +   '<div class="adm-name">' + admEsc(g.nome) + '</div>'
+        +   '<div class="adm-sub">' + admEsc(g.sub || '') + '</div>'
+        + '</div>'
+        + '<button class="adm-switch' + (g.attivo ? ' on' : '') + '" onclick="admToggleGioco(this,\'' + admEsc(g.key) + '\',\'' + admEsc(g.nome).replace(/'/g, "\\'") + '\',' + g.ordine + ')"></button>'
+        + '</div>';
     }
 
     async function admToggleGioco(btn, key, nome, ordine) {
@@ -15049,7 +15042,33 @@
     { sec:'rotation', emoji:'🔫', name:'Roulette Russa', type:'app', players:'2+', c:'#20242A', sub:'Sei shot, uno è il colpo', rules:'Sei shot, uno è il "colpo". L\'app sceglie a turno chi tocca: chi becca il colpo beve lo shot forte. (Versione solo app.)' },
   ];
 
-  let gamesCat = 'fixed';
+  /* Quali giochi si vedono lo decide il titolare (Area titolare > Giochi,
+     tabella "games"). Finche' la risposta non arriva, o se un gioco non e'
+     mai stato toccato: i fissi si vedono, quelli a rotazione no. */
+  let gamesEnabled = null; // { chiave: true/false } dal database
+  function gameKey(nome) {
+    // stessa chiave di admChiaveGioco nell'area titolare
+    return nome.toLowerCase()
+      .replace(/[àáâä]/g,'a').replace(/[èéêë]/g,'e').replace(/[ìíîï]/g,'i')
+      .replace(/[òóôö]/g,'o').replace(/[ùúûü]/g,'u')
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  }
+  function gameIsOn(g) {
+    const k = gameKey(g.name);
+    if (gamesEnabled && Object.prototype.hasOwnProperty.call(gamesEnabled, k)) return !!gamesEnabled[k];
+    return g.sec === 'fixed';
+  }
+  async function gamesLoadEnabled() {
+    try {
+      if (!window.sb) return;
+      const r = await window.sb.from('games').select('key,enabled');
+      if (r.error) return;
+      const m = {};
+      (r.data || []).forEach(function (x) { m[x.key] = x.enabled; });
+      gamesEnabled = m;
+      gamesRender();
+    } catch (e) { /* senza rete restano i valori di partenza */ }
+  }
   let gamesScrollTop = 0; // memorizza la posizione per tornare sullo stesso gioco
 
   // converte un hex #RRGGBB in rgba con alpha
@@ -15076,7 +15095,7 @@
     }
     const badgeTxt = g.type === 'app' ? '📱 Gioca in app' : '🎴 Kit · ritira allo staff';
     const ctaTxt = g.page ? 'Gioca ora' : 'Come si gioca';
-    const featured = g.featured ? '<span class="game-badge" style="background:var(--brand);color:var(--bg);margin-left:8px">Questo mese</span>' : '';
+    const featured = g.sec === 'rotation' ? '<span class="game-badge game-badge-new">Nuovo · a tempo</span>' : '';
     const hint = isFirst
       ? '<div class="scroll-hint"><span>scorri</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>'
       : '';
@@ -15091,23 +15110,25 @@
       + '</div>';
   }
 
-  let gamesRenderedCat = null; // categoria attualmente costruita nel DOM
+  let gamesRenderedSig = null; // elenco attualmente costruito nel DOM
 
   function gamesRender() {
     const scroll = document.getElementById('games-scroll');
     if (!scroll) return;
-    document.getElementById('gt-fixed').classList.toggle('active', gamesCat === 'fixed');
-    document.getElementById('gt-rotation').classList.toggle('active', gamesCat === 'rotation');
-    // se le slide di questa categoria ci sono già, NON ricostruirle:
-    // ricostruire azzererebbe lo scroll (e lo snap) — così resti sullo stesso gioco
-    if (gamesRenderedCat === gamesCat && scroll.children.length) {
+    /* Una lista sola: prima i giochi a rotazione accesi dal titolare
+       (con l'etichetta "Nuovo · a tempo"), poi i fissi. */
+    const tutti = GAMES.map((g, i) => ({ g, i })).filter(x => gameIsOn(x.g));
+    const list = tutti.filter(x => x.g.sec === 'rotation').concat(tutti.filter(x => x.g.sec !== 'rotation'));
+    const sig = list.map(x => x.i).join(',');
+    // se le slide ci sono gia' uguali, NON ricostruirle: ricostruire
+    // azzererebbe lo scroll (e lo snap) — cosi' resti sullo stesso gioco
+    if (gamesRenderedSig === sig && scroll.children.length) {
       updateGamesBg();
       return;
     }
-    const list = GAMES.map((g, i) => ({ g, i })).filter(x => x.g.sec === gamesCat);
     gamesColors = list.map(x => x.g.c);
     scroll.innerHTML = list.map((x, idx) => gameSlideHTML(x.g, x.i, idx === 0)).join('');
-    gamesRenderedCat = gamesCat;
+    gamesRenderedSig = sig;
     updateGamesBg();
   }
 
@@ -15131,14 +15152,6 @@
     const frac = pos - Math.floor(pos);
     // a riposo (frac=0) è il colore esatto del gioco → tinta piatta; durante lo scroll sfuma verso il successivo
     bg.style.background = lerpHex(gamesColors[idx], gamesColors[next], frac);
-  }
-
-  function gamesSwitch(cat) {
-    gamesCat = cat;
-    gamesScrollTop = 0; // cambio categoria: riparti dall'alto
-    gamesRender();
-    document.getElementById('games-scroll').scrollTop = 0;
-    updateGamesBg();
   }
 
   function openGame(i) {
@@ -15310,6 +15323,7 @@
        al ritorno da un gioco resti sulla stessa slide. */
     if (page === 'players' && typeof rosterRender === 'function') rosterRender();
     if (page === 'games' && typeof gamesRender === 'function') {
+      if (typeof gamesLoadEnabled === 'function') gamesLoadEnabled(); // giochi accesi/spenti dal titolare
       gamesRender();
       var sc = document.getElementById('games-scroll');
       if (sc) {
