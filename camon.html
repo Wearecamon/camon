@@ -223,6 +223,10 @@
   .nav-btn.on-light .nav-logo { filter: brightness(0); }
   .nav-btn.on-light:not(.active) .nav-logo { opacity: 0.6; }
   .bottom-nav.has-light { border-color: rgba(0,0,0,0.14); }
+  /* Per un istante, mentre navTint() guarda cosa c'e' dietro le icone,
+     tutto diventa "colpibile": cosi' conta anche quello che si vede ma non
+     si tocca (es. i due colori finali di Obbligo o Verita'). */
+  html.nav-sonda *:not(.bottom-nav):not(.bottom-nav *) { pointer-events: auto !important; }
   /* Ridotta e' al 75%: sul chiaro si vedeva attraverso (scritte comprese)
      e le icone scure si perdevano. Li' resta piena, identica alla grande. */
   .bottom-nav.nav-shrink.has-light { opacity: 1; }
@@ -16886,10 +16890,9 @@
     }
     return null;
   }
-  // come elementsFromPoint: salta pannelli trasparenti o non toccabili
-  // (es. la scheda prodotto chiusa, che resta li' a opacita' 0)
+  // salta pannelli trasparenti o nascosti (es. la scheda prodotto chiusa,
+  // che resta li' a opacita' 0, o il banner "Aggiungi alla home" chiuso)
   function siVede(el) {
-    if (getComputedStyle(el).pointerEvents === 'none') return false;
     for (let e = el; e && e !== document.body; e = e.parentElement) {
       const cs = getComputedStyle(e);
       if (cs.opacity === '0' || cs.visibility === 'hidden' || cs.display === 'none') return false;
@@ -16911,6 +16914,8 @@
     if (!nav) return;
     rettiCache = null;
     let qualcuna = false;
+    document.documentElement.classList.add('nav-sonda');
+    try {
     nav.querySelectorAll('.nav-btn').forEach(function (btn) {
       const ic = btn.querySelector('.nav-icon, .nav-logo') || btn;
       const q = ic.getBoundingClientRect();
@@ -16927,6 +16932,11 @@
       btn.classList.toggle('on-light', chiaro);
       if (chiaro) qualcuna = true;
     });
+    } finally {
+      // sempre, anche se qualcosa va storto: se no i pannelli invisibili
+      // resterebbero "colpibili" e bloccherebbero i tocchi
+      document.documentElement.classList.remove('nav-sonda');
+    }
     nav.classList.toggle('has-light', qualcuna);
   }
   let attesa = null;
@@ -16954,7 +16964,7 @@
   document.addEventListener('touchmove', suScroll, { passive: true });
   window.addEventListener('resize', navTintSoon);
   // cambi pagina, schede che si aprono, animazioni: un controllo leggero ogni tanto
-  setInterval(navTint, 700);
+  setInterval(navTint, 300);
   navTintSoon();
 })();
 </script>
