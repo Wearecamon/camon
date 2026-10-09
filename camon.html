@@ -8509,10 +8509,16 @@
 
         var elenco = (typeof GAMES !== 'undefined' ? GAMES : []).map(function (g, i) {
           var k = admChiaveGioco(g.name);
+          var at = salvati[k] && salvati[k].updated_at ? new Date(salvati[k].updated_at).getTime() : 0;
+          var fine = (g.sec === 'rotation' && at) ? gameRotationEnd(at) : 0;
+          var acceso = salvati[k] ? salvati[k].enabled : g.sec === 'fixed';
+          var scaduto = !!(acceso && fine && Date.now() >= fine);
           return {
             key: k, nome: g.name, emoji: g.emoji, sub: g.sub, ordine: i, sec: g.sec,
-            // mai toccato: i fissi sono accesi, quelli a rotazione spenti
-            attivo: salvati[k] ? salvati[k].enabled : g.sec === 'fixed',
+            // mai toccato: i fissi sono accesi, quelli a rotazione spenti;
+            // un gioco a rotazione scaduto conta come spento
+            attivo: acceso && !scaduto,
+            fine: fine, scaduto: scaduto,
             registrato: !!salvati[k]
           };
         });
@@ -8526,12 +8532,21 @@
           + '</div>';
 
         h += '<div class="adm-group-title">A rotazione</div>'
-          + '<div class="adm-sub" style="margin:-4px 2px 10px">Quelli accesi compaiono per primi nella pagina Giochi, con l\'etichetta "Nuovo · a tempo".</div>';
+          + '<div class="adm-sub" style="margin:-4px 2px 10px">Quelli accesi compaiono per primi nella pagina Giochi come "Novità". Si spengono da soli dopo circa due settimane: la domenica dopo i 14 giorni, alle 5:00 del lunedì.</div>';
         rotazione.forEach(function (g) { h += admRigaGioco(g); });
         h += '<div class="adm-group-title" style="margin-top:22px">Fissi</div>';
         fissi.forEach(function (g) { h += admRigaGioco(g); });
         admBody().innerHTML = h;
       } catch (e) { admErrore(e); }
+    }
+
+    // sotto i giochi a rotazione: fino a quando restano accesi, o quando sono scaduti
+    function admScadenzaGioco(g) {
+      if (g.sec !== 'rotation' || !g.fine) return '';
+      var quando = new Date(g.fine).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }) + ', 5:00';
+      if (g.attivo) return '<div class="adm-sub" style="color:var(--brand)">Acceso fino a ' + admEsc(quando) + '</div>';
+      if (g.scaduto) return '<div class="adm-sub">Scaduto ' + admEsc(quando) + ' — riaccendilo per altre due settimane</div>';
+      return '';
     }
 
     function admRigaGioco(g) {
@@ -8540,6 +8555,7 @@
         + '<div class="adm-grow">'
         +   '<div class="adm-name">' + admEsc(g.nome) + '</div>'
         +   '<div class="adm-sub">' + admEsc(g.sub || '') + '</div>'
+        +   admScadenzaGioco(g)
         + '</div>'
         + '<button class="adm-switch' + (g.attivo ? ' on' : '') + '" onclick="admToggleGioco(this,\'' + admEsc(g.key) + '\',\'' + admEsc(g.nome).replace(/'/g, "\\'") + '\',' + g.ordine + ')"></button>'
         + '</div>';
@@ -8556,6 +8572,7 @@
           key: key, name: nome, enabled: acceso, sort_order: ordine, updated_at: new Date().toISOString()
         }, { onConflict: 'key' });
         if (r.error) throw r.error;
+        admGiochi(); // ridisegna: data di scadenza dei giochi a rotazione aggiornata
       } catch (e) {
         btn.classList.toggle('on', !acceso);
         alert('Non sono riuscito a salvare: ' + ((e && e.message) || e));
@@ -15056,7 +15073,19 @@
   /* Quali giochi si vedono lo decide il titolare (Area titolare > Giochi,
      tabella "games"). Finche' la risposta non arriva, o se un gioco non e'
      mai stato toccato: i fissi si vedono, quelli a rotazione no. */
-  let gamesEnabled = null; // { chiave: true/false } dal database
+  let gamesEnabled = null; // { chiave: { on: true/false, at: ms attivazione } } dal database
+
+  /* Un gioco a rotazione resta acceso circa due settimane: dal giorno in
+     cui il titolare lo accende si contano 14 giorni, poi si arriva alla
+     domenica successiva e si spegne da solo alle 5:00 del lunedi', a
+     locale chiuso. Cosi' la domenica si gioca tutta. */
+  function gameRotationEnd(attivatoMs) {
+    const d = new Date(attivatoMs + 14 * 864e5);
+    while (d.getDay() !== 0) d.setDate(d.getDate() + 1); // fino a domenica
+    d.setDate(d.getDate() + 1);                           // lunedi'...
+    d.setHours(5, 0, 0, 0);                               // ...alle 5 di mattina
+    return d.getTime();
+  }
   function gameKey(nome) {
     // stessa chiave di admChiaveGioco nell'area titolare
     return nome.toLowerCase()
@@ -15064,18 +15093,33 @@
       .replace(/[òóôö]/g,'o').replace(/[ùúûü]/g,'u')
       .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   }
-  function gameIsOn(g) {
+  function gameState(g) {
     const k = gameKey(g.name);
-    if (gamesEnabled && Object.prototype.hasOwnProperty.call(gamesEnabled, k)) return !!gamesEnabled[k];
-    return g.sec === 'fixed';
+    return gamesEnabled && Object.prototype.hasOwnProperty.call(gamesEnabled, k) ? gamesEnabled[k] : null;
+  }
+  function gameIsOn(g) {
+    const st = gameState(g);
+    if (!st) return g.sec === 'fixed';
+    if (!st.on) return false;
+    if (g.sec === 'rotation' && st.at) return Date.now() < gameRotationEnd(st.at);
+    return true;
+  }
+  // "Novità · ancora 9 giorni" / "Novità · ultimo giorno"
+  function gameNewLabel(g) {
+    const st = gameState(g);
+    if (!st || !st.at) return 'Novità';
+    const giorni = Math.ceil((gameRotationEnd(st.at) - Date.now()) / 864e5);
+    return 'Novità · ' + (giorni <= 1 ? 'ultimo giorno' : 'ancora ' + giorni + ' giorni');
   }
   async function gamesLoadEnabled() {
     try {
       if (!window.sb) return;
-      const r = await window.sb.from('games').select('key,enabled');
+      const r = await window.sb.from('games').select('key,enabled,updated_at');
       if (r.error) return;
       const m = {};
-      (r.data || []).forEach(function (x) { m[x.key] = x.enabled; });
+      (r.data || []).forEach(function (x) {
+        m[x.key] = { on: !!x.enabled, at: x.updated_at ? new Date(x.updated_at).getTime() : 0 };
+      });
       gamesEnabled = m;
       gamesRender();
     } catch (e) { /* senza rete restano i valori di partenza */ }
@@ -15106,7 +15150,7 @@
     }
     const badgeTxt = g.type === 'app' ? '📱 Gioca in app' : '🎴 Kit · ritira allo staff';
     const ctaTxt = g.page ? 'Gioca ora' : 'Come si gioca';
-    const featured = g.sec === 'rotation' ? '<span class="game-badge game-badge-new">Nuovo · a tempo</span>' : '';
+    const featured = g.sec === 'rotation' ? '<span class="game-badge game-badge-new">' + gameNewLabel(g) + '</span>' : '';
     const hint = isFirst
       ? '<div class="scroll-hint"><span>scorri</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>'
       : '';
@@ -15130,7 +15174,7 @@
        (con l'etichetta "Nuovo · a tempo"), poi i fissi. */
     const tutti = GAMES.map((g, i) => ({ g, i })).filter(x => gameIsOn(x.g));
     const list = tutti.filter(x => x.g.sec === 'rotation').concat(tutti.filter(x => x.g.sec !== 'rotation'));
-    const sig = list.map(x => x.i).join(',');
+    const sig = list.map(x => x.i + (x.g.sec === 'rotation' ? gameNewLabel(x.g) : '')).join(',');
     // se le slide ci sono gia' uguali, NON ricostruirle: ricostruire
     // azzererebbe lo scroll (e lo snap) — cosi' resti sullo stesso gioco
     if (gamesRenderedSig === sig && scroll.children.length) {
