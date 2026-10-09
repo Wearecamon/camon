@@ -202,7 +202,9 @@
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
-    transition: stroke 0.2s;
+    /* niente transizione sul colore: dentro la barra che si rimpicciolisce
+       (anche lei in transizione) restava bloccata a meta' e le icone non
+       diventavano scure sugli sfondi chiari */
   }
   .nav-label { display: none; }
   /* logo CAMON come icona del pulsante Home */
@@ -214,13 +216,18 @@
   /* Barra sopra uno sfondo chiaro (le schede gialle del menu, le offerte...):
      icone bianche e gialle li' sparivano. La classe la mette navTint()
      guardando cosa c'e' davvero sotto la barra mentre si scorre. */
-  .bottom-nav .nav-logo { transition: filter 0.2s, opacity 0.2s; }
   .bottom-nav.on-light { border-color: rgba(0,0,0,0.14); }
   .bottom-nav.on-light .nav-icon { stroke: rgba(17,17,17,0.62); }
   .bottom-nav.on-light .nav-btn.active { background: rgba(17,17,17,0.14); }
   .bottom-nav.on-light .nav-btn.active .nav-icon { stroke: #111111; }
   .bottom-nav.on-light .nav-logo { filter: brightness(0); }
   .bottom-nav.on-light .nav-btn:not(.active) .nav-logo { opacity: 0.6; }
+  /* Ridotta (mentre si scorre) la barra e' semitrasparente e piu' piccola:
+     sul chiaro le icone scure sparivano lo stesso. Li' resta piena, con
+     icone piu' scure e un tratto piu' spesso. */
+  .bottom-nav.nav-shrink.on-light { opacity: 1; }
+  .bottom-nav.nav-shrink.on-light .nav-icon { stroke: rgba(17,17,17,0.85); stroke-width: 2.1; }
+  .bottom-nav.nav-shrink.on-light .nav-btn:not(.active) .nav-logo { opacity: 0.8; }
 
   /* ===== SCROLLABLE CONTENT ===== */
   .scroll-area {
