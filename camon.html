@@ -16801,6 +16801,11 @@
     const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(parseFloat);
     return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
   }
+  /* Icone scure quando su quel fondo si leggono meglio delle chiare: il
+     punto in cui nero e bianco hanno lo stesso contrasto e' a luminanza
+     ~0.18. Il vetro della barra schiarisce e satura un po' quello che ha
+     sotto (brightness 1.25), quindi la soglia sul colore "vero" scende. */
+  function serveScuro(c) { return luce(c) * 1.25 > 0.18; }
   function luce(c) {
     const f = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
     return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
@@ -16830,7 +16835,32 @@
   /* Colore che un elemento dipinge da se': { colore } se coprente,
      'ignoto' se e' una foto non leggibile o un'immagine di sfondo,
      null se e' trasparente (allora conta quello che c'e' sotto). */
-  function coloreProprio(e) {
+  /* Colore di una sfumatura lineare nel punto (x, y) dell'elemento: si
+     proietta il punto sulla direzione della sfumatura e si interpola tra
+     i colori (presi a distanze uguali). Serve per fondi come quello di
+     Diktat, giallo in alto e arancio scuro in basso: la media dei due non
+     dice nulla di cosa c'e' davvero dietro le icone. */
+  function coloreSfumatura(img, colori, e, x, y) {
+    const m = img.match(/^linear-gradient\(\s*([^,]+),/);
+    let ang = 180; // predefinito: dall'alto in basso
+    if (m) {
+      const t = m[1].trim();
+      if (/deg$/.test(t)) ang = parseFloat(t);
+      else if (t === 'to top') ang = 0;
+      else if (t === 'to right') ang = 90;
+      else if (t === 'to left') ang = 270;
+      else if (t === 'to bottom') ang = 180;
+    }
+    const q = e.getBoundingClientRect();
+    const rad = ang * Math.PI / 180, dx = Math.sin(rad), dy = -Math.cos(rad);
+    const lung = Math.abs(q.width * dx) + Math.abs(q.height * dy) || 1;
+    let t = ((x - (q.left + q.width / 2)) * dx + (y - (q.top + q.height / 2)) * dy) / lung + 0.5;
+    t = Math.max(0, Math.min(1, t)) * (colori.length - 1);
+    const i = Math.min(Math.floor(t), colori.length - 2), f = t - i;
+    const A = colori[i], B = colori[i + 1];
+    return { r: A.r + (B.r - A.r) * f, g: A.g + (B.g - A.g) * f, b: A.b + (B.b - A.b) * f, a: A.a + (B.a - A.a) * f };
+  }
+  function coloreProprio(e, x, y) {
     if (e.tagName === 'IMG') return coloreFoto(e.currentSrc || e.src) || 'ignoto';
     if (e.tagName === 'VIDEO' || e.tagName === 'CANVAS') return 'ignoto';
     const cs = getComputedStyle(e);
@@ -16839,6 +16869,11 @@
       if (img.indexOf('url(') >= 0) return 'ignoto';
       const colori = (img.match(/rgba?\([^)]+\)/g) || []).map(rgbaDa).filter(Boolean);
       if (colori.length) {
+        // sfumatura lineare semplice e punto noto: colore esatto nel punto
+        if (colori.length > 1 && x != null && /^linear-gradient\(/.test(img) && img.indexOf('gradient', 16) < 0) {
+          const c = coloreSfumatura(img, colori, e, x, y);
+          if (c.a >= 0.5) return c;
+        }
         const a = colori.reduce(function (t, c) { return t + c.a; }, 0) / colori.length;
         if (a >= 0.5) {
           const n = colori.length;
@@ -16855,9 +16890,9 @@
     return null;
   }
   // colore "pieno" del primo antenato che ha un fondo coprente; null se non si sa
-  function fondoDi(el) {
+  function fondoDi(el, x, y) {
     for (let e = el; e && e !== document.documentElement; e = e.parentElement) {
-      const c = coloreProprio(e);
+      const c = coloreProprio(e, x, y);
       if (c) return c === 'ignoto' ? null : c;
     }
     return null;
@@ -16919,13 +16954,13 @@
     const vuoto = !primo || primo === document.documentElement || primo === document.body;
     if (!vuoto && y < document.documentElement.clientHeight) {
       for (let i = 0; i < lista.length; i++) {
-        const c = coloreProprio(lista[i]);
+        const c = coloreProprio(lista[i], x, y);
         if (c) return c === 'ignoto' ? null : c;
       }
       return null;
     }
     const aMano = sottoAMano(x, y);
-    return aMano ? fondoDi(aMano) : null;
+    return aMano ? fondoDi(aMano, x, y) : null;
   }
   function navTint() {
     const nav = document.querySelector('.bottom-nav');
@@ -16943,7 +16978,7 @@
       let chiari = 0;
       [[0, 0], [-dx, 0], [dx, 0], [0, -dy], [0, dy]].forEach(function (d) {
         const c = coloreDietro(nav, cx + d[0], cy + d[1]);
-        if (c && luce(c) > 0.4) chiari++;
+        if (c && serveScuro(c)) chiari++;
       });
       const chiaro = chiari >= 3;
       btn.classList.toggle('on-light', chiaro);
