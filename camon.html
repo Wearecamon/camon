@@ -2465,6 +2465,20 @@
   /* Shot Quest */
   #page-diktat { background: var(--surface); transition: background 0.35s ease; }
   #page-diktat .gd-title span { color: var(--brand); }
+  /* Striscia fissa dietro ora/batteria con lo stesso fondo della pagina
+     (eredita la sfumatura di ogni carta): con un elemento fisso colorato
+     in cima iOS non stende la sua sfocatura, e il colore sale pulito
+     fino al bordo. Solo in Diktat. */
+  .sq-topstrip {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+    height: env(safe-area-inset-top, 0px);
+    background: inherit; background-size: 100% 100dvh; background-position: top center;
+    pointer-events: none;
+  }
+  /* titolo DIKTAT piu' in alto */
+  #page-diktat .gd-header { padding-top: calc(6px + var(--safe-top)); }
+  /* niente etichetta sopra la frase (A TUTTI, VERITA', RACCONTA...) */
+  #page-diktat .sq-prompt-cat { display: none !important; }
 
   /* Diktat — nota sotto la scelta del livello */
   .sq-modes-note {
@@ -5956,6 +5970,7 @@
   </div>
 
   <div class="page game-detail page-fit" data-fit="always" id="page-diktat">
+    <div class="sq-topstrip" aria-hidden="true"></div>
     <div class="gd-header">
       <button class="back-btn" onclick="sqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">DIK<span>TAT</span></div>
