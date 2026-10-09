@@ -16841,16 +16841,55 @@
     }
     return null;
   }
+  /* Safari su iPhone: scorrendo verso il basso la sua barra degli indirizzi
+     si rimpicciolisce e la bottom bar finisce in una fascia che
+     elementsFromPoint non vede (risponde vuoto). Li' si cerca a mano:
+     l'ultimo elemento della pagina, in ordine di disegno, il cui
+     rettangolo contiene il punto. */
+  let rettiCache = null;
+  function sottoAMano(x, y) {
+    if (!rettiCache) {
+      const pagina = document.querySelector('.page.active') || document.body;
+      rettiCache = [];
+      pagina.querySelectorAll('*').forEach(function (el) {
+        if (el.closest('svg') && el.tagName !== 'svg') return;
+        const q = el.getBoundingClientRect();
+        if (q.width && q.height) rettiCache.push({ el: el, q: q });
+      });
+    }
+    for (let i = rettiCache.length - 1; i >= 0; i--) {
+      const q = rettiCache[i].q;
+      if (x >= q.left && x <= q.right && y >= q.top && y <= q.bottom && siVede(rettiCache[i].el)) return rettiCache[i].el;
+    }
+    return null;
+  }
+  // come elementsFromPoint: salta pannelli trasparenti o non toccabili
+  // (es. la scheda prodotto chiusa, che resta li' a opacita' 0)
+  function siVede(el) {
+    if (getComputedStyle(el).pointerEvents === 'none') return false;
+    for (let e = el; e && e !== document.body; e = e.parentElement) {
+      const cs = getComputedStyle(e);
+      if (cs.opacity === '0' || cs.visibility === 'hidden' || cs.display === 'none') return false;
+    }
+    return true;
+  }
+  function elementoSotto(nav, x, y) {
+    const lista = document.elementsFromPoint(x, y).filter(function (el) { return !nav.contains(el); });
+    const primo = lista[0];
+    const vuoto = !primo || primo === document.documentElement || primo === document.body;
+    if (!vuoto && y < document.documentElement.clientHeight) return primo;
+    return sottoAMano(x, y) || primo;
+  }
   function navTint() {
     const nav = document.querySelector('.bottom-nav');
     if (!nav) return;
     const r = nav.getBoundingClientRect();
     if (!r.width || !r.height) return;
+    rettiCache = null;
     let chiari = 0;
     [0.35, 0.65].forEach(function (fy) {
       [0.1, 0.3, 0.5, 0.7, 0.9].forEach(function (fx) {
-        const sotto = document.elementsFromPoint(r.left + r.width * fx, r.top + r.height * fy)
-          .find(function (el) { return !nav.contains(el); });
+        const sotto = elementoSotto(nav, r.left + r.width * fx, r.top + r.height * fy);
         const c = sotto && fondoDi(sotto);
         if (c && luce(c) > 0.4) chiari++;
       });
