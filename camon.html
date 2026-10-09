@@ -1894,6 +1894,28 @@
      quello vero. Resta l'invito, scritto e basta. */
   .ot-start-cta { font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(247,204,73,0.75); -webkit-tap-highlight-color:transparent; }
 
+  /* -- Schermata di partenza di ogni gioco: stessa di Obbligo o Verita'
+     (etichetta, titolo, frase, "Tocca per giocare") piu' un riassunto
+     della partita che sta per iniziare. Tutta la schermata e' il tasto.
+     Centrata con flex: niente posizioni in pixel. -- */
+  .game-intro {
+    /* sopra ai tasti fissi dei giochi (es. Penitenza/Fatto di Diktat, 150)
+       ma sotto la bottom bar (200), come in Obbligo o Verita' */
+    position:absolute; inset:0; z-index:160;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:0 8%; text-align:center;
+    background:var(--bg); cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:opacity 0.3s ease;
+  }
+  .game-intro.via { opacity:0; pointer-events:none; }
+  .game-intro .ot-start-sub { margin-bottom:18px; }
+  .game-intro-sum { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:34px; }
+  .game-intro-sum span {
+    font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; color:rgba(255,255,255,0.7);
+    padding:6px 12px; border-radius:30px;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+  }
+
   /* -- Layout centrale: Verità · Consiglio · Obbligo impilati -- */
   .ot-consiglio-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:6; pointer-events:auto; display:none; flex-direction:column; align-items:center; gap:14px; animation:otConsIn 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
   @keyframes otConsIn { from { opacity:0; transform:translate(-50%,-50%) scale(0.85); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
@@ -12777,6 +12799,34 @@
     else if (target === 'shotiq') siqShowModes();
   }
 
+  /* Schermata di partenza comune a tutti i giochi (come Obbligo o Verita').
+     Si appoggia sopra la pagina del gioco, gia' pronta sotto: un tocco la
+     fa sparire e si gioca. cfg: { title (html), sub, sum: [riassunto] } */
+  function gameIntro(pageId, cfg) {
+    const page = document.getElementById(pageId);
+    if (!page) return;
+    const vecchia = page.querySelector('.game-intro');
+    if (vecchia) vecchia.remove();
+    const el = document.createElement('div');
+    el.className = 'game-intro';
+    if (cfg.z) el.style.zIndex = cfg.z; // es. Heads Up: il palco sta sopra a tutto
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', 'Tocca per giocare');
+    el.innerHTML = '<div class="ot-start-label">gioco da bar</div>'
+      + '<div class="ot-start-title">' + cfg.title + '</div>'
+      + '<div class="ot-start-sub">' + cfg.sub + '</div>'
+      + ((cfg.sum && cfg.sum.length)
+          ? '<div class="game-intro-sum">' + cfg.sum.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>'
+          : '')
+      + '<div class="ot-start-cta">Tocca per giocare</div>';
+    el.addEventListener('click', function () {
+      el.classList.add('via');
+      setTimeout(function () { el.remove(); }, 300);
+    });
+    page.appendChild(el);
+  }
+  function giocatoriTxt(n) { return n + (n === 1 ? ' giocatore' : ' giocatori'); }
+
   // ingresso nel gioco dalla pagina giocatori → schermata scelta difficolta'
   function sqStart() {
     if (roster.length < 2) return;
@@ -12820,6 +12870,12 @@
     document.getElementById('sq-modes').style.display = 'none';
     document.getElementById('sq-area').style.display = '';
     sqNextPrompt();
+    const modo = sqModes.find(function (m) { return m.lv === lv; });
+    gameIntro('page-diktat', {
+      title: 'DIK<span>TAT</span>',
+      sub: 'Le carte comandano: chi non esegue, beve',
+      sum: [giocatoriTxt(sqPlayers.length), modo ? modo.emoji + ' ' + modo.name : 'Difficolta\' ' + lv]
+    });
   }
   function sqPick(exclude) {
     let i;
@@ -13619,6 +13675,11 @@
     siqBuildWheel();
     siqShowSpin();
     siqUpdateHeaderBtn();
+    gameIntro('page-shotiq', {
+      title: 'TRI<span>VIAL</span>',
+      sub: 'Gira la ruota e rispondi: sbagli, bevi',
+      sum: [giocatoriTxt(siqPlayers.length), siqSelected.length + ' argomenti']
+    });
   }
 
   // disegna la ruota (gradiente conico + emoji per spicchio) — segmenti fissi per la partita
@@ -14352,6 +14413,12 @@
     huMode = key;
     huActiveCatName = cat.emoji + ' ' + cat.name;
     huShowWord(huDraw(cat), huActiveCatName);
+    gameIntro('page-headsup', {
+      title: 'HEADS <span>UP!</span>',
+      sub: 'Telefono in fronte: gli altri ti fanno indovinare',
+      sum: [huActiveCatName],
+      z: 310
+    });
   }
   function huDraw(cat) {
     var pool = huPools[cat.key];
@@ -14604,6 +14671,11 @@
     document.getElementById('cs-setup').style.display = 'none';
     document.getElementById('cs-play').style.display = 'flex';
     csShowReady(true);
+    gameIntro('page-cantastorie', {
+      title: 'IL <span>CANTASTORIE</span>',
+      sub: 'Una storia, una frase a testa: chi perde il filo, beve',
+      sum: [theme.emoji + ' Tema ' + theme.name]
+    });
   }
   // schermata "passa il telefono": nessun timer finché il prossimo non inizia
   function csShowReady(isOpener) {
@@ -14717,6 +14789,11 @@
     document.getElementById('ra-play').style.display = 'flex';
     raNewChallenge();
     raRenderScores();
+    gameIntro('page-raffica', {
+      title: 'A <span>RAFFICA</span>',
+      sub: 'Categoria + lettera: chi si blocca, beve',
+      sum: [giocatoriTxt(raPlayers.length)]
+    });
   }
   function raNewChallenge() {
     // categoria diversa dall'ultima
@@ -15541,6 +15618,11 @@
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
+    if (page === 'kings' && typeof gameIntro === 'function') gameIntro('page-kings', {
+      title: 'KINGS <span>👑</span>',
+      sub: 'Pesca una carta e segui la regola: il re comanda',
+      sum: ['Tocca il mazzo per pescare']
+    });
     // Segnale per il layout desktop dell'area titolare (vedi il
     // blocco @media min-width:900px): si aggiorna ad ogni cambio
     // pagina, non solo entrando, cosi' torna via da solo uscendo.
@@ -17055,7 +17137,8 @@
   function inGiocoDiktat() {
     const pg = document.getElementById('page-diktat');
     const area = document.getElementById('sq-area');
-    return !!(pg && pg.classList.contains('active') && area && area.style.display !== 'none');
+    // durante la schermata di partenza (fondo scuro) la barra resta normale
+    return !!(pg && pg.classList.contains('active') && area && area.style.display !== 'none' && !pg.querySelector('.game-intro'));
   }
   function navTint() {
     const nav = document.querySelector('.bottom-nav');
