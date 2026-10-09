@@ -871,7 +871,6 @@
   .amt-custom input::placeholder { color:rgba(255,255,255,0.25); }
   .wallet-recharge-btn { width:100%; margin-top:16px; background:var(--brand); color:var(--bg); border:none; border-radius:12px; padding:16px; font-family:'Manrope',sans-serif; font-size:15px; font-weight:800; letter-spacing:0.5px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
   .wallet-recharge-btn:active { opacity:0.85; }
-  .wallet-note { display:flex; align-items:center; gap:8px; justify-content:center; margin-top:14px; font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.35); text-align:center; }
 
   /* I miei braccialetti */
   .band-add { display:flex; gap:9px; }
@@ -896,9 +895,9 @@
     border:1px solid rgba(255,255,255,0.08);
     border-radius:18px; padding:18px 15px 16px; margin-top:26px;
   }
-  .bands-head { margin-bottom:15px; }
+  .bands-head { margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .bands-info-btn { color:var(--brand); }
   .bands-title { font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:1px; color:var(--text); line-height:1; }
-  .bands-sub { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.4); margin-top:4px; }
 
   .band-list { display:flex; flex-direction:column; gap:11px; margin-top:14px; }
   .band-item {
@@ -6874,23 +6873,37 @@
       <button class="wallet-recharge-btn" onclick="doRecharge()">Ricarica ora</button>
       <div style="text-align:center;font-family:'Manrope',sans-serif;font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px">Ricarica minima da app €10 · Importi inferiori al banco</div>
 
-      <div class="wallet-note">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Credito spendibile solo all'interno del locale
-      </div>
-
-      <!-- I miei braccialetti -->
+      <!-- I miei braccialetti — le spiegazioni stanno dietro la "i" -->
       <div class="bands-block">
         <div class="bands-head">
           <div class="bands-title">I miei braccialetti</div>
-          <div class="bands-sub">Stesso saldo su tutti, uno attivo per volta</div>
+          <button class="back-btn bands-info-btn" onclick="infoSheetOpen('band-info')" aria-label="Come funzionano i braccialetti"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="10.5" x2="12" y2="18"/><circle cx="12" cy="6.3" r="1.6" fill="currentColor" stroke="none"/></svg></button>
         </div>
         <div class="band-add">
           <input id="band-code-input" type="text" placeholder="Inserisci codice braccialetto" autocomplete="off" maxlength="12" oninput="this.value=this.value.toUpperCase()">
           <button class="band-add-btn" onclick="bandLink()">Collega</button>
         </div>
-        <div class="band-hint">Trovi il codice stampato sul braccialetto.</div>
         <div id="band-list" class="band-list"></div>
+      </div>
+
+      <div class="story-info" id="band-info" onclick="if(event.target===this)infoSheetClose('band-info')" aria-hidden="true">
+        <div class="story-info-sheet" role="dialog" aria-modal="true" aria-labelledby="band-info-title">
+          <div class="story-info-grab"></div>
+          <div class="story-info-title" id="band-info-title">I TUOI <span>BRACCIALETTI</span></div>
+          <div class="story-info-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="6"/><circle cx="16" cy="12" r="2"/></svg>
+            <div><b>Stesso saldo su tutti.</b> Ogni braccialetto collegato usa il credito della tua carta, uno attivo per volta.</div>
+          </div>
+          <div class="story-info-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <div><b>Il codice è stampato sul braccialetto.</b> Scrivilo qui sopra e premi Collega.</div>
+          </div>
+          <div class="story-info-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <div><b>Il credito si spende solo nel locale.</b></div>
+          </div>
+          <button class="story-btn go" onclick="infoSheetClose('band-info')">Ho capito</button>
+        </div>
       </div>
 
       <!-- Storico movimenti -->
@@ -14905,6 +14918,49 @@
     }
     sheet.addEventListener('pointerup', fine);
     sheet.addEventListener('pointercancel', fine);
+  }
+
+  /* Fogli informativi generici (es. braccialetti nella carta): stesso
+     aspetto e stessi gesti delle regole del bonus — sopra la bottom bar,
+     si chiudono con il tasto, toccando fuori o trascinando giu'. */
+  function infoSheetOpen(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.parentNode !== document.body) document.body.appendChild(el);
+    if (!el.dataset.trascina) {
+      el.dataset.trascina = '1';
+      const sheet = el.querySelector('.story-info-sheet');
+      let startY = 0, startT = 0, dy = 0, dragging = false;
+      sheet.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('button')) return;
+        dragging = true; startY = e.clientY; startT = Date.now(); dy = 0;
+        el.classList.add('dragging');
+        try { sheet.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+      sheet.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        dy = Math.max(0, e.clientY - startY);
+        sheet.style.transform = 'translateY(' + dy + 'px)';
+      });
+      const fine = function () {
+        if (!dragging) return;
+        dragging = false;
+        el.classList.remove('dragging');
+        sheet.style.transform = '';
+        const veloce = dy > 30 && (dy / Math.max(1, Date.now() - startT)) > 0.6;
+        if (dy > 90 || veloce) infoSheetClose(id);
+      };
+      sheet.addEventListener('pointerup', fine);
+      sheet.addEventListener('pointercancel', fine);
+    }
+    el.classList.add('open');
+    el.setAttribute('aria-hidden', 'false');
+  }
+  function infoSheetClose(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('open');
+    el.setAttribute('aria-hidden', 'true');
   }
 
   function storyInfoFirstTime() {
