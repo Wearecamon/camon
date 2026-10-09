@@ -222,6 +222,9 @@
   .bottom-nav.on-light .nav-btn.active .nav-icon { stroke: #111111; }
   .bottom-nav.on-light .nav-logo { filter: brightness(0); }
   .bottom-nav.on-light .nav-btn:not(.active) .nav-logo { opacity: 0.6; }
+  /* Ridotta e' al 75%: sul chiaro si vedeva attraverso (scritte comprese)
+     e le icone scure si perdevano. Li' resta piena, identica alla grande. */
+  .bottom-nav.nav-shrink.on-light { opacity: 1; }
 
   /* ===== SCROLLABLE CONTENT ===== */
   .scroll-area {
