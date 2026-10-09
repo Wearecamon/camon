@@ -1488,7 +1488,10 @@
   .bfield-row-cal { display:flex; align-items:stretch; gap:10px; }
   .bfield-cal { flex:1; min-width:0; }
   .bfield-cal label span { color:var(--brand); text-transform:none; letter-spacing:0.3px; font-weight:700; }
-  .bfield-time { flex:none; width:108px; }
+  /* La colonna delle ore e' alta quanto quella del calendario (la riga
+     si allinea a lui): il riquadro ore riempie lo spazio sotto "Ora"
+     ma non spinge la riga, le ore in piu' si scorrono dentro. */
+  .bfield-time { flex:none; width:108px; display:flex; flex-direction:column; }
   .book-cal-pop { width:100%; max-width:268px; aspect-ratio:1/1; display:flex; flex-direction:column; background:var(--surface); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; }
   /* Il calendario dell'invito sta da solo, non affiancato alle fasce
      orarie: il quadrato stretto pensato per quel layout a due colonne
@@ -1513,7 +1516,7 @@
   .book-cal-day.full { color:rgba(255,255,255,0.15); text-decoration:line-through; pointer-events:none; }
 
   /* Fasce orarie disponibili — barra verticale sempre aperta, di fianco al calendario */
-  .book-time-wrap { height:268px; display:flex; flex-direction:column; background:var(--surface); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:8px; }
+  .book-time-wrap { flex:1 1 0; min-height:0; display:flex; flex-direction:column; background:var(--surface); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:8px; }
   .book-time-hint { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; color:rgba(255,255,255,0.35); font-family:'Manrope',sans-serif; font-size:11.5px; padding:8px; }
   .book-time-grid { display:flex; flex-direction:column; gap:5px; overflow-y:auto; flex:1; }
   .book-time-slot { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:var(--text); padding:8px 4px; border-radius:9px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; cursor:pointer; text-align:center; flex:none; }
