@@ -213,18 +213,19 @@
   .nav-btn.active .nav-icon { stroke: var(--brand); }
   .nav-btn.active .nav-label { color: var(--brand); }
 
-  /* Barra sopra uno sfondo chiaro (le schede gialle del menu, le offerte...):
-     icone bianche e gialle li' sparivano. La classe la mette navTint()
-     guardando cosa c'e' davvero sotto la barra mentre si scorre. */
-  .bottom-nav.on-light { border-color: rgba(0,0,0,0.14); }
-  .bottom-nav.on-light .nav-icon { stroke: rgba(17,17,17,0.62); }
-  .bottom-nav.on-light .nav-btn.active { background: rgba(17,17,17,0.14); }
-  .bottom-nav.on-light .nav-btn.active .nav-icon { stroke: #111111; }
-  .bottom-nav.on-light .nav-logo { filter: brightness(0); }
-  .bottom-nav.on-light .nav-btn:not(.active) .nav-logo { opacity: 0.6; }
+  /* Icone sopra uno sfondo chiaro (le schede gialle del menu, le offerte...):
+     bianche e gialle li' sparivano. Ogni icona guarda cosa ha dietro di se'
+     e si scurisce da sola (.nav-btn.on-light, messa da navTint()): conta
+     lo sfondo dietro l'icona, non quello dietro la barra intera. */
+  .nav-btn.on-light .nav-icon { stroke: rgba(17,17,17,0.62); }
+  .nav-btn.on-light.active { background: rgba(17,17,17,0.14); }
+  .nav-btn.on-light.active .nav-icon { stroke: #111111; }
+  .nav-btn.on-light .nav-logo { filter: brightness(0); }
+  .nav-btn.on-light:not(.active) .nav-logo { opacity: 0.6; }
+  .bottom-nav.has-light { border-color: rgba(0,0,0,0.14); }
   /* Ridotta e' al 75%: sul chiaro si vedeva attraverso (scritte comprese)
      e le icone scure si perdevano. Li' resta piena, identica alla grande. */
-  .bottom-nav.nav-shrink.on-light { opacity: 1; }
+  .bottom-nav.nav-shrink.has-light { opacity: 1; }
 
   /* ===== SCROLLABLE CONTENT ===== */
   .scroll-area {
@@ -16775,8 +16776,10 @@
 /* ===== BOTTOM BAR CHE SI ADATTA ALLO SFONDO =====
    La barra e' di vetro: sopra le schede gialle (menu, offerte, pulsanti)
    le icone bianche e gialle non si vedevano piu'. Qui si guarda cosa c'e'
-   sotto la barra in dieci punti (due righe da cinque): se almeno quattro
-   sono chiari, la barra passa alle icone scure (.on-light).
+   dietro OGNI icona, in cinque punti attorno al suo centro: se almeno tre
+   sono chiari, quell'icona passa allo scuro (.nav-btn.on-light). Conta
+   l'icona, non la barra: la barra puo' essere quasi fuori dal giallo
+   mentre un'icona ci sta ancora sopra.
    Le foto (menu, offerte) si "leggono" ricaricandone una copia col
    permesso CORS e facendone la media su una tela 8x8: il risultato resta
    in memoria per indirizzo. Finche' non c'e', o se il sito non lo
@@ -16845,17 +16848,31 @@
      si rimpicciolisce e la bottom bar finisce in una fascia che
      elementsFromPoint non vede (risponde vuoto). Li' si cerca a mano:
      l'ultimo elemento della pagina, in ordine di disegno, il cui
-     rettangolo contiene il punto. */
+     rettangolo contiene il punto.
+     Per non pesare durante lo scorrimento si guardano solo gli elementi
+     che "dipingono" qualcosa (foto o fondo colorato): l'elenco si prepara
+     una volta per pagina e si rinfresca ogni secondo e mezzo; a ogni
+     fotogramma si rileggono solo le loro posizioni. */
+  let pittori = null, pittoriPagina = null, pittoriQuando = 0;
+  function elencoPittori() {
+    const pagina = document.querySelector('.page.active') || document.body;
+    const ora = Date.now();
+    if (pittori && pittoriPagina === pagina && ora - pittoriQuando < 1500) return pittori;
+    pittori = []; pittoriPagina = pagina; pittoriQuando = ora;
+    pagina.querySelectorAll('*').forEach(function (el) {
+      if (el.closest('svg')) return;
+      if (el.tagName === 'IMG') { pittori.push(el); return; }
+      const cs = getComputedStyle(el);
+      const c = rgbaDa(cs.backgroundColor);
+      if ((c && c.a > 0) || (cs.backgroundImage && cs.backgroundImage !== 'none')) pittori.push(el);
+    });
+    return pittori;
+  }
   let rettiCache = null;
   function sottoAMano(x, y) {
     if (!rettiCache) {
-      const pagina = document.querySelector('.page.active') || document.body;
-      rettiCache = [];
-      pagina.querySelectorAll('*').forEach(function (el) {
-        if (el.closest('svg') && el.tagName !== 'svg') return;
-        const q = el.getBoundingClientRect();
-        if (q.width && q.height) rettiCache.push({ el: el, q: q });
-      });
+      rettiCache = elencoPittori().map(function (el) { return { el: el, q: el.getBoundingClientRect() }; })
+        .filter(function (o) { return o.q.width && o.q.height; });
     }
     for (let i = rettiCache.length - 1; i >= 0; i--) {
       const q = rettiCache[i].q;
@@ -16883,19 +16900,25 @@
   function navTint() {
     const nav = document.querySelector('.bottom-nav');
     if (!nav) return;
-    const r = nav.getBoundingClientRect();
-    if (!r.width || !r.height) return;
     rettiCache = null;
-    let chiari = 0;
-    [0.35, 0.65].forEach(function (fy) {
-      [0.1, 0.3, 0.5, 0.7, 0.9].forEach(function (fx) {
-        const sotto = elementoSotto(nav, r.left + r.width * fx, r.top + r.height * fy);
+    let qualcuna = false;
+    nav.querySelectorAll('.nav-btn').forEach(function (btn) {
+      const ic = btn.querySelector('.nav-icon, .nav-logo') || btn;
+      const q = ic.getBoundingClientRect();
+      if (!q.width || !q.height) return;
+      const cx = q.left + q.width / 2, cy = q.top + q.height / 2;
+      const dx = q.width * 0.4, dy = q.height * 0.4;
+      let chiari = 0;
+      [[0, 0], [-dx, 0], [dx, 0], [0, -dy], [0, dy]].forEach(function (d) {
+        const sotto = elementoSotto(nav, cx + d[0], cy + d[1]);
         const c = sotto && fondoDi(sotto);
         if (c && luce(c) > 0.4) chiari++;
       });
+      const chiaro = chiari >= 3;
+      btn.classList.toggle('on-light', chiaro);
+      if (chiaro) qualcuna = true;
     });
-    // basta che il chiaro copra una buona parte della barra (4 punti su 10)
-    nav.classList.toggle('on-light', chiari >= 4);
+    nav.classList.toggle('has-light', qualcuna);
   }
   let attesa = null;
   function navTintSoon() {
@@ -16903,8 +16926,23 @@
     attesa = requestAnimationFrame(function () { attesa = null; navTint(); });
   }
   window.navTintSoon = navTintSoon;
+  /* Mentre si scorre (anche col dito gia' staccato, nell'inerzia) il
+     controllo gira a ogni fotogramma, e continua ancora un attimo dopo
+     l'ultimo evento: cosi' l'icona cambia mentre il giallo le passa dietro,
+     non solo quando ci si ferma. */
+  let scorreFinoA = 0, giro = false;
+  function ciclo() {
+    navTint();
+    if (performance.now() < scorreFinoA) requestAnimationFrame(ciclo);
+    else giro = false;
+  }
+  function suScroll() {
+    scorreFinoA = performance.now() + 400;
+    if (!giro) { giro = true; requestAnimationFrame(ciclo); }
+  }
   // qualsiasi scorrimento, anche dentro i caroselli o le liste
-  document.addEventListener('scroll', navTintSoon, { capture: true, passive: true });
+  document.addEventListener('scroll', suScroll, { capture: true, passive: true });
+  document.addEventListener('touchmove', suScroll, { passive: true });
   window.addEventListener('resize', navTintSoon);
   // cambi pagina, schede che si aprono, animazioni: un controllo leggero ogni tanto
   setInterval(navTint, 700);
