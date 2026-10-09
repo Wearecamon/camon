@@ -16827,30 +16827,38 @@
     im.src = src;
     return null;
   }
+  /* Colore che un elemento dipinge da se': { colore } se coprente,
+     'ignoto' se e' una foto non leggibile o un'immagine di sfondo,
+     null se e' trasparente (allora conta quello che c'e' sotto). */
+  function coloreProprio(e) {
+    if (e.tagName === 'IMG') return coloreFoto(e.currentSrc || e.src) || 'ignoto';
+    if (e.tagName === 'VIDEO' || e.tagName === 'CANVAS') return 'ignoto';
+    const cs = getComputedStyle(e);
+    const img = cs.backgroundImage;
+    if (img && img !== 'none') {
+      if (img.indexOf('url(') >= 0) return 'ignoto';
+      const colori = (img.match(/rgba?\([^)]+\)/g) || []).map(rgbaDa).filter(Boolean);
+      if (colori.length) {
+        const a = colori.reduce(function (t, c) { return t + c.a; }, 0) / colori.length;
+        if (a >= 0.5) {
+          const n = colori.length;
+          return {
+            r: colori.reduce(function (t, c) { return t + c.r; }, 0) / n,
+            g: colori.reduce(function (t, c) { return t + c.g; }, 0) / n,
+            b: colori.reduce(function (t, c) { return t + c.b; }, 0) / n, a: 1
+          };
+        }
+      }
+    }
+    const c = rgbaDa(cs.backgroundColor);
+    if (c && c.a >= 0.5) return c;
+    return null;
+  }
   // colore "pieno" del primo antenato che ha un fondo coprente; null se non si sa
   function fondoDi(el) {
     for (let e = el; e && e !== document.documentElement; e = e.parentElement) {
-      if (e.tagName === 'IMG') return coloreFoto(e.currentSrc || e.src);
-      if (e.tagName === 'VIDEO' || e.tagName === 'CANVAS') return null;
-      const cs = getComputedStyle(e);
-      const img = cs.backgroundImage;
-      if (img && img !== 'none') {
-        if (img.indexOf('url(') >= 0) return null;
-        const colori = (img.match(/rgba?\([^)]+\)/g) || []).map(rgbaDa).filter(Boolean);
-        if (colori.length) {
-          const a = colori.reduce(function (t, c) { return t + c.a; }, 0) / colori.length;
-          if (a >= 0.5) {
-            const n = colori.length;
-            return {
-              r: colori.reduce(function (t, c) { return t + c.r; }, 0) / n,
-              g: colori.reduce(function (t, c) { return t + c.g; }, 0) / n,
-              b: colori.reduce(function (t, c) { return t + c.b; }, 0) / n, a: 1
-            };
-          }
-        }
-      }
-      const c = rgbaDa(cs.backgroundColor);
-      if (c && c.a >= 0.5) return c;
+      const c = coloreProprio(e);
+      if (c) return c === 'ignoto' ? null : c;
     }
     return null;
   }
@@ -16899,15 +16907,25 @@
     }
     return true;
   }
-  function elementoSotto(nav, x, y) {
-    /* Si saltano gli elementi invisibili: il banner "Aggiungi alla home"
-       chiuso resta li', trasparente, proprio dietro la barra, e faceva
-       credere che sotto le icone ci fosse sempre il suo fondo scuro. */
+  /* Che colore si vede in (x, y) sotto la barra. Si scende tra gli strati
+     sovrapposti, dal piu' alto, fino al primo che dipinge davvero
+     qualcosa: una fascia trasparente sopra (es. "Tocca per scegliere" in
+     Obbligo o Verita') non deve nascondere i colori che stanno sotto.
+     Si saltano gli elementi invisibili: il banner "Aggiungi alla home"
+     chiuso resta li', trasparente, proprio dietro la barra. */
+  function coloreDietro(nav, x, y) {
     const lista = document.elementsFromPoint(x, y).filter(function (el) { return !nav.contains(el) && siVede(el); });
     const primo = lista[0];
     const vuoto = !primo || primo === document.documentElement || primo === document.body;
-    if (!vuoto && y < document.documentElement.clientHeight) return primo;
-    return sottoAMano(x, y) || primo;
+    if (!vuoto && y < document.documentElement.clientHeight) {
+      for (let i = 0; i < lista.length; i++) {
+        const c = coloreProprio(lista[i]);
+        if (c) return c === 'ignoto' ? null : c;
+      }
+      return null;
+    }
+    const aMano = sottoAMano(x, y);
+    return aMano ? fondoDi(aMano) : null;
   }
   function navTint() {
     const nav = document.querySelector('.bottom-nav');
@@ -16924,8 +16942,7 @@
       const dx = q.width * 0.4, dy = q.height * 0.4;
       let chiari = 0;
       [[0, 0], [-dx, 0], [dx, 0], [0, -dy], [0, dy]].forEach(function (d) {
-        const sotto = elementoSotto(nav, cx + d[0], cy + d[1]);
-        const c = sotto && fondoDi(sotto);
+        const c = coloreDietro(nav, cx + d[0], cy + d[1]);
         if (c && luce(c) > 0.4) chiari++;
       });
       const chiaro = chiari >= 3;
