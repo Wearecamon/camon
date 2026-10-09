@@ -19,7 +19,7 @@
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0A0A0A">
 <!-- rete di sicurezza per gli iOS che non riconoscono display-mode: vedi --top-extra -->
-<script>if (window.navigator.standalone) document.documentElement.style.setProperty('--top-extra', '9px');</script>
+<script>if (window.navigator.standalone) document.documentElement.style.setProperty('--top-extra', '11px');</script>
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
@@ -88,7 +88,7 @@
      a zero (bug noto), uno script al lancio imposta questi valori
      a mano in base al modello di telefono. */
   :root {
-    /* +9px in cima solo nell'app aperta dalla Home: li' iOS 26 stende una
+    /* +11px in cima solo nell'app aperta dalla Home: li' iOS 26 stende una
        sfocatura sotto l'orologio che arrivava sopra titoli e icone.
        Vale 0 in Safari e su desktop (vedi la @media subito sotto). */
     --top-extra: 0px;
@@ -105,7 +105,7 @@
     --nav-space: calc(96px + var(--safe-bottom));
   }
   @media (display-mode: standalone), (display-mode: fullscreen) {
-    :root { --top-extra: 9px; }
+    :root { --top-extra: 11px; }
   }
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
