@@ -448,9 +448,12 @@
     display: flex; align-items: flex-start; gap: 12px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     transform: translateY(120%); opacity: 0;
-    transition: transform 0.38s cubic-bezier(0.32,0,0.2,1), opacity 0.38s;
+    /* chiuso e' invisibile ma resta dietro la bottom bar: non deve
+       ricevere tocchi ne' contare come sfondo */
+    pointer-events: none; visibility: hidden;
+    transition: transform 0.38s cubic-bezier(0.32,0,0.2,1), opacity 0.38s, visibility 0s linear 0.38s;
   }
-  .pwa-banner.show { transform: translateY(0); opacity: 1; }
+  .pwa-banner.show { transform: translateY(0); opacity: 1; pointer-events: auto; visibility: visible; transition-delay: 0s; }
   .pwa-banner-ico { width: 42px; height: 42px; border-radius: 12px; background: var(--brand); display: flex; align-items: flex-start; justify-content: center; flex-shrink: 0; }
   .pwa-banner-txt { flex: 1; }
   .pwa-banner-lbl { font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); }
@@ -16891,7 +16894,10 @@
     return true;
   }
   function elementoSotto(nav, x, y) {
-    const lista = document.elementsFromPoint(x, y).filter(function (el) { return !nav.contains(el); });
+    /* Si saltano gli elementi invisibili: il banner "Aggiungi alla home"
+       chiuso resta li', trasparente, proprio dietro la barra, e faceva
+       credere che sotto le icone ci fosse sempre il suo fondo scuro. */
+    const lista = document.elementsFromPoint(x, y).filter(function (el) { return !nav.contains(el) && siVede(el); });
     const primo = lista[0];
     const vuoto = !primo || primo === document.documentElement || primo === document.body;
     if (!vuoto && y < document.documentElement.clientHeight) return primo;
