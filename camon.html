@@ -229,6 +229,15 @@
   .bottom-nav.nav-diktat .nav-icon { stroke: rgba(17,17,17,0.62); }
   .bottom-nav.nav-diktat .nav-btn.active .nav-icon { stroke: var(--brand); }
   .bottom-nav.nav-diktat .nav-logo [fill="#FFFFFF"] { fill: #111111; }
+  /* Pagina Menu: barra sempre scura (icone scure, "ON" giallo), anche
+     l'icona selezionata, che gialla sparirebbe sopra le schede gialle.
+     Torna normale solo quando dietro e' tutto nero (es. fondo pagina). */
+  .bottom-nav.nav-menu-scura .nav-icon { stroke: rgba(17,17,17,0.62); }
+  .bottom-nav.nav-menu-scura .nav-btn.active { background: rgba(17,17,17,0.14); }
+  .bottom-nav.nav-menu-scura .nav-btn.active .nav-icon { stroke: #111111; }
+  .bottom-nav.nav-menu-scura .nav-logo [fill="#FFFFFF"] { fill: #111111; }
+  .bottom-nav.nav-menu-scura { border-color: rgba(0,0,0,0.14); }
+  .bottom-nav.nav-shrink.nav-menu-scura { opacity: 1; }
   /* Per un istante, mentre navTint() guarda cosa c'e' dietro le icone,
      tutto diventa "colpibile": cosi' conta anche quello che si vede ma non
      si tocca (es. i due colori finali di Obbligo o Verita'). */
@@ -16880,13 +16889,16 @@
           const c = coloreSfumatura(img, colori, e, x, y);
           if (c.a >= 0.5) return c;
         }
-        const a = colori.reduce(function (t, c) { return t + c.a; }, 0) / colori.length;
-        if (a >= 0.5) {
-          const n = colori.length;
+        /* Media pesata sulla trasparenza: un velo quasi invisibile (es. il
+           bagliore giallo al 16% sopra il nero del Menu) pesa poco, il
+           colore pieno sotto pesa tanto. Basta un colore coprente. */
+        const pesi = colori.reduce(function (t, c) { return t + c.a; }, 0);
+        const piena = colori.some(function (c) { return c.a >= 0.5; });
+        if (piena && pesi > 0) {
           return {
-            r: colori.reduce(function (t, c) { return t + c.r; }, 0) / n,
-            g: colori.reduce(function (t, c) { return t + c.g; }, 0) / n,
-            b: colori.reduce(function (t, c) { return t + c.b; }, 0) / n, a: 1
+            r: colori.reduce(function (t, c) { return t + c.r * c.a; }, 0) / pesi,
+            g: colori.reduce(function (t, c) { return t + c.g * c.a; }, 0) / pesi,
+            b: colori.reduce(function (t, c) { return t + c.b * c.a; }, 0) / pesi, a: 1
           };
         }
       }
@@ -16981,11 +16993,12 @@
     nav.classList.toggle('nav-diktat', diktat);
     if (diktat) {
       nav.querySelectorAll('.nav-btn.on-light').forEach(function (b) { b.classList.remove('on-light'); });
-      nav.classList.remove('has-light');
+      nav.classList.remove('has-light', 'nav-menu-scura');
       return;
     }
+    const menu = !!document.querySelector('#page-menu.active');
     rettiCache = null;
-    let qualcuna = false;
+    let qualcuna = false, puntiTot = 0, puntiNeri = 0;
     document.documentElement.classList.add('nav-sonda');
     try {
     nav.querySelectorAll('.nav-btn').forEach(function (btn) {
@@ -17002,8 +17015,9 @@
       [-1, -0.5, 0, 0.5, 1].forEach(function (fx) {
         [-1, 0, 1].forEach(function (fy) {
           const c = coloreDietro(nav, cx + fx * rx, cy + fy * ry);
-          tot++;
+          tot++; puntiTot++;
           if (c && serveScuro(c)) chiari++;
+          if (c && luce(c) < 0.03) puntiNeri++; // nero o quasi
         });
       });
       const chiaro = chiari * 2 >= tot; // almeno meta' dell'area e' chiara
@@ -17015,6 +17029,14 @@
       // resterebbero "colpibili" e bloccherebbero i tocchi
       document.documentElement.classList.remove('nav-sonda');
     }
+    if (menu) {
+      // nel Menu niente icone a se': scura ovunque tranne sul nero pieno
+      nav.querySelectorAll('.nav-btn.on-light').forEach(function (b) { b.classList.remove('on-light'); });
+      nav.classList.remove('has-light');
+      nav.classList.toggle('nav-menu-scura', !(puntiTot && puntiNeri === puntiTot));
+      return;
+    }
+    nav.classList.remove('nav-menu-scura');
     nav.classList.toggle('has-light', qualcuna);
   }
   let attesa = null;
