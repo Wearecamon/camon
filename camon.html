@@ -223,6 +223,12 @@
   .nav-btn.on-light .nav-logo { filter: brightness(0); }
   .nav-btn.on-light:not(.active) .nav-logo { opacity: 0.6; }
   .bottom-nav.has-light { border-color: rgba(0,0,0,0.14); }
+  /* Mentre si gioca a Diktat i fondi sono sempre chiari: niente controllo
+     automatico, la barra ha un aspetto fisso. Il bianco diventa scuro;
+     restano gialli la sezione selezionata e "ON" del logo. */
+  .bottom-nav.nav-diktat .nav-icon { stroke: rgba(17,17,17,0.62); }
+  .bottom-nav.nav-diktat .nav-btn.active .nav-icon { stroke: var(--brand); }
+  .bottom-nav.nav-diktat .nav-logo [fill="#FFFFFF"] { fill: #111111; }
   /* Per un istante, mentre navTint() guarda cosa c'e' dietro le icone,
      tutto diventa "colpibile": cosi' conta anche quello che si vede ma non
      si tocca (es. i due colori finali di Obbligo o Verita'). */
@@ -16962,9 +16968,22 @@
     const aMano = sottoAMano(x, y);
     return aMano ? fondoDi(aMano, x, y) : null;
   }
+  // si sta giocando a Diktat (non la scelta della difficolta')
+  function inGiocoDiktat() {
+    const pg = document.getElementById('page-diktat');
+    const area = document.getElementById('sq-area');
+    return !!(pg && pg.classList.contains('active') && area && area.style.display !== 'none');
+  }
   function navTint() {
     const nav = document.querySelector('.bottom-nav');
     if (!nav) return;
+    const diktat = inGiocoDiktat();
+    nav.classList.toggle('nav-diktat', diktat);
+    if (diktat) {
+      nav.querySelectorAll('.nav-btn.on-light').forEach(function (b) { b.classList.remove('on-light'); });
+      nav.classList.remove('has-light');
+      return;
+    }
     rettiCache = null;
     let qualcuna = false;
     document.documentElement.classList.add('nav-sonda');
