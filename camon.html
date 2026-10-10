@@ -15378,7 +15378,7 @@
     </svg>`
   };
 
-  const inv = { players: [], step: '', i: 0, sel: null, accusa: null };
+  const inv = { players: [], step: '', i: 0, sel: null, accusa: null, m: null, err: '', joinCode: '' };
   const invEsc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
   function invChar(id) { return INV_STORIA.personaggi.find(function (c) { return c.id === id; }); }
   function invPlayerOf(id) { return inv.players.find(function (p) { return p.char === id; }); }
@@ -15394,6 +15394,7 @@
 
   // ingresso dalla pagina giocatori
   function invStart() {
+    invLeave(); inv.err = '';
     inv.players = rosterNamesList().map(function (n) { return { name: n, char: 0, selfie: '' }; });
     inv.i = 0; inv.sel = null; inv.accusa = null;
     const n = inv.players.length;
@@ -15409,9 +15410,12 @@
   }
   function invBack() {
     invPeekClose();
+    if (inv.step === 'modo' || !inv.step) { inv.step = ''; goTo('games'); return; }
+    if (inv.step === 'mmenu' || inv.step === 'collego') { invMenu(); return; }
+    if (inv.m) { invEsci(); return; }   // a piu' telefoni: indietro = esco dalla partita
     goTo(inv.step === 'finale' ? 'games' : 'players');
   }
-  function invGo(step) { inv.step = step; inv.i = 0; inv.sel = null; invRender(); window.scrollTo(0, 0); }
+  function invGo(step) { inv.step = step; inv.i = 0; inv.sel = null; inv.err = ''; invRender(); window.scrollTo(0, 0); }
 
   function invRender() {
     const body = document.getElementById('inv-body');
@@ -15421,7 +15425,10 @@
     document.getElementById('inv-tools-btn').style.display =
       (['prologo', 'turno1', 'turno2', 'accusa'].indexOf(inv.step) >= 0) ? '' : 'none';
 
-    if (inv.step === 'numero') {
+    const hm = invMultiHtml();
+    if (hm !== null) {
+      h = hm;
+    } else if (inv.step === 'numero') {
       h = '<div class="inv-tag">Quanti siete?</div>'
         + '<div class="inv-h">Servono da <span>4 a 8</span> giocatori</div>'
         + '<div class="inv-p">Ora siete in ' + inv.players.length + '. Ognuno interpreta un passeggero del treno: con meno di 4 non ci sono abbastanza sospetti, con più di 8 non ci sono abbastanza cabine.</div>'
@@ -15458,7 +15465,8 @@
         +   S.fatti.map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul></div>'
         + '<div class="inv-card"><div class="inv-sheet-lbl">Il vagone letto</div>' + invPianta() + '</div>'
         + '<div class="inv-p"><b>La regola:</b> gli innocenti non mentono mai sui fatti. Possono tacere il loro segreto finché nessuno glielo chiede in faccia. <b>L\'assassino può mentire su tutto.</b></div>'
-        + invBtn('Leggete le schede segrete →', "invGo('schede')");
+        + (inv.m ? invMSchedaBtn() + invNext('Tutti hanno letto la scheda: turno 1 →', 'turno1')
+                 : invBtn('Leggete le schede segrete →', "invGo('schede')"));
 
     } else if (inv.step === 'schede') {
       const c = invChar(p.char);
@@ -15474,7 +15482,7 @@
       const docs = invFuori().filter(function (c) { return c.doc && c.doc['t' + t]; });
       h = '<div class="inv-tag">Turno ' + t + ' di 2</div>'
         + '<div class="inv-h">' + (t === 1 ? 'Chi l\'ha visto <span>vivo?</span>' : 'Dov\'eravate <span>al buio?</span>') + '</div>'
-        + '<div class="inv-p">A turno, ognuno racconta il suo <b>indizio del turno ' + t + '</b> (è sulla scheda segreta). Poi discutete, fate domande, incastrate gli orari. Per rileggere la scheda tocca le persone in alto a destra.</div>';
+        + '<div class="inv-p">A turno, ognuno racconta il suo <b>indizio del turno ' + t + '</b> (è sulla scheda segreta). Poi discutete, fate domande, incastrate gli orari. Per rileggere la scheda tocca le persone in alto a destra.</div>' + (inv.m ? invMSchedaBtn() : '');
       if (t === 1) {
         h += '<div class="inv-foto">' + INV_FOTO.orologio + '<div class="inv-foto-cap"><b>Foto 1.</b> L\'orologio da taschino di Ferrante, trovato sul tappeto della cabina 3 con il vetro incrinato.</div></div>'
           + '<div class="inv-foto">' + invScenaRistorante() + '<div class="inv-foto-cap"><b>Foto 2.</b> Il vagone ristorante, scattata col lampo al magnesio da un viaggiatore. L\'orologio a muro segna l\'1:20. Guardate chi c\'è, e chi non c\'è.</div></div>';
@@ -15489,8 +15497,8 @@
       docs.forEach(function (c) {
         h += '<div class="inv-doc"><div class="inv-doc-t">📄 ' + c.doc.titolo + '</div>' + c.doc['t' + t] + '</div>';
       });
-      h += invBtn(t === 1 ? 'Turno 2 →' : 'È il momento di accusare →', "invGo('" + (t === 1 ? 'turno2' : 'accusa') + "')");
-      if (t === 2) h += invBtn('← Rivedi il turno 1', "invGo('turno1')", 'ghost');
+      h += invNext(t === 1 ? 'Turno 2 →' : 'È il momento di accusare →', t === 1 ? 'turno2' : 'accusa');
+      if (t === 2 && (!inv.m || inv.m.host)) h += invBtn('← Rivedi il turno 1', inv.m ? "invHost('turno1')" : "invGo('turno1')", 'ghost');
 
     } else if (inv.step === 'accusa') {
       h = '<div class="inv-tag">L\'accusa</div><div class="inv-h">Chi è <span>l\'assassino?</span></div>'
@@ -15514,8 +15522,9 @@
         +   '<div class="inv-news-title">' + (giusto ? 'Arrestato sul Torino–Parigi' : 'Delitto del vagone letto: il colpevole era lui') + '</div>'
         +   '<div class="inv-news-scene">' + invScenaArresto(k.id) + '</div><div class="inv-news-txt"><b>' + k.nome + '</b>, ' + k.ruolo.toLowerCase() + ' (interpretato da ' + invEsc(pk.name) + ')</div></div>'
         + '<div class="inv-card"><div class="inv-sheet-lbl">Com\'è andata davvero</div><div class="inv-p">' + S.finale + '<br><br><b>' + S.chiusa + '</b></div></div>'
-        + invBtn('Torna ai giochi', "goTo('games')")
-        + invBtn('↺ Rigioca con altri ruoli', 'invStart()', 'ghost');
+        + invBtn('Torna ai giochi', 'invEsci()')
+        + (inv.m ? (inv.m.host ? invBtn('↺ Rigioca con altri ruoli', "invHost('scegli')", 'ghost') : '')
+                 : invBtn('↺ Rigioca con altri ruoli', 'invStart()', 'ghost'));
     }
     body.innerHTML = h;
   }
@@ -15651,6 +15660,290 @@
       + '</svg>';
   }
 
+  /* ============================================================
+     L'INVESTIGATORE · OGNUNO SUL SUO TELEFONO
+     I telefoni si parlano su un canale "broadcast" di Supabase
+     (inv:CODICE): niente tabelle, niente dati salvati, non serve
+     l'account. Chi crea la partita ("capotavolo") tiene lo stato
+     vero e lo rimanda a tutti a ogni cambio e ogni 4 secondi;
+     gli altri mandano solo le loro azioni (entro, scelgo, voto).
+     I selfie viaggiano da telefono a telefono e spariscono a fine
+     partita.
+     ============================================================ */
+  const INV_ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // niente O/0, I/1
+  function invMe() { return inv.m ? inv.players.find(function (p) { return p.pid === inv.m.pid; }) : null; }
+  function invCapo() { const G = inv.m && inv.m.G; const p = G && G.players[0]; return p ? p.name : 'il capotavolo'; }
+  function invMSend(msg) { if (inv.m && inv.m.ch) inv.m.ch.send({ type: 'broadcast', event: 'm', payload: msg }); }
+
+  // ingresso dalla lista giochi: riprende la partita in corso, altrimenti chiede come si gioca
+  function invEnter() {
+    const inCorso = inv.step && ['modo', 'mmenu', 'numero', 'finale'].indexOf(inv.step) < 0;
+    if (inCorso) { invRender(); return; }
+    invMenu();
+  }
+  function invMenu() {
+    invLeave();
+    inv.players = []; inv.i = 0; inv.sel = null; inv.accusa = null; inv.err = '';
+    inv.step = 'modo';
+    invRender();
+  }
+  function invSolo() { rosterOpenFor('investigatore'); }
+  function invEsci() { invLeave(); inv.step = ''; goTo('games'); }
+  function invLeave() {
+    if (!inv.m) return;
+    try { invMSend({ t: 'leave', pid: inv.m.pid }); } catch (e) {}
+    clearInterval(inv.m.battito); clearInterval(inv.m.riprova);
+    try { window.sb.removeChannel(inv.m.ch); } catch (e) {}
+    inv.m = null;
+  }
+
+  function invNome() {
+    const el = document.getElementById('inv-name');
+    const n = (el ? el.value : '').trim().slice(0, 14);
+    if (!n) { inv.err = 'Scrivi prima il tuo nome.'; invRender(); return ''; }
+    try { localStorage.setItem('camon_inv_nome', n); } catch (e) {}
+    return n;
+  }
+  async function invApri(code, host, name) {
+    if (!window.sb) { inv.err = 'Non riesco a collegarmi: controlla la connessione.'; invRender(); return false; }
+    invLeave();
+    const pid = Math.random().toString(36).slice(2, 10);
+    const ch = window.sb.channel('inv:' + code, { config: { broadcast: { self: false } } });
+    inv.m = { code: code, pid: pid, host: host, ch: ch, name: name, faces: {}, G: null, locale: 'pick', ultimo: '' };
+    ch.on('broadcast', { event: 'm' }, function (p) { invOnMsg(p.payload || {}); });
+    const stato = await new Promise(function (res) {
+      ch.subscribe(function (s) { if (s === 'SUBSCRIBED' || s === 'CHANNEL_ERROR' || s === 'TIMED_OUT') res(s); });
+      setTimeout(function () { res('LENTO'); }, 9000);
+    });
+    if (stato !== 'SUBSCRIBED') { invLeave(); inv.err = 'Non riesco a collegarmi: controlla la connessione.'; invRender(); return false; }
+    return true;
+  }
+  async function invCreate() {
+    const name = invNome(); if (!name) return;
+    let code = '';
+    for (let i = 0; i < 4; i++) code += INV_ALFABETO[Math.floor(Math.random() * INV_ALFABETO.length)];
+    if (!(await invApri(code, true, name))) return;
+    inv.m.G = { phase: 'lobby', players: [{ pid: inv.m.pid, name: name, char: 0 }], votes: {}, accusa: null };
+    inv.m.battito = setInterval(invHostSend, 4000);
+    invHostSend();
+  }
+  async function invJoin() {
+    const name = invNome(); if (!name) return;
+    const el = document.getElementById('inv-code');
+    const code = (el ? el.value : '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+    if (code.length !== 4) { inv.err = 'Il codice ha 4 caratteri.'; invRender(); return; }
+    inv.err = ''; inv.step = 'collego'; invRender();
+    if (!(await invApri(code, false, name))) { inv.step = 'mmenu'; invRender(); return; }
+    // "ci sono": si ripete finche' il capotavolo non risponde con lo stato
+    let giri = 0;
+    const ciao = function () { invMSend({ t: 'hello', pid: inv.m.pid, name: name }); };
+    ciao();
+    inv.m.riprova = setInterval(function () {
+      if (!inv.m || inv.m.G) { if (inv.m) clearInterval(inv.m.riprova); return; }
+      if (++giri > 6) { invLeave(); inv.err = 'Partita non trovata. Controlla il codice e che il capotavolo abbia l\'app aperta.'; inv.step = 'mmenu'; invRender(); return; }
+      ciao();
+    }, 1500);
+  }
+
+  // ---- capotavolo: tiene lo stato e lo manda a tutti ----
+  function invHostSend() {
+    if (!inv.m || !inv.m.host) return;
+    invMSend({ t: 'state', G: inv.m.G });
+    invOnState(inv.m.G);
+  }
+  function invHostMsg(m) {
+    const G = inv.m.G, n = G.players.length;
+    const io = G.players.find(function (p) { return p.pid === m.pid; });
+    if (m.t === 'hello') {
+      if (io) io.name = m.name;
+      else if (G.phase === 'lobby' && n < 8) G.players.push({ pid: m.pid, name: String(m.name || '').slice(0, 14), char: 0 });
+      else { invMSend({ t: 'no', pid: m.pid, why: n >= 8 ? 'La partita è al completo (8 giocatori).' : 'La partita è già iniziata.' }); return; }
+    } else if (m.t === 'pick' && io && G.phase === 'scegli') {
+      const libero = !G.players.some(function (p) { return p.char === m.char && p.pid !== m.pid; });
+      if (m.char >= 1 && m.char <= n && libero) io.char = m.char;
+    } else if (m.t === 'vote' && io && G.phase === 'accusa') {
+      G.votes[m.pid] = m.char;
+    } else if (m.t === 'leave' && io && G.phase === 'lobby') {
+      G.players = G.players.filter(function (p) { return p.pid !== m.pid; });
+    } else return;
+    invHostSend();
+  }
+  // il capotavolo manda avanti la partita per tutti
+  function invHost(phase) {
+    if (!inv.m || !inv.m.host) return;
+    const G = inv.m.G;
+    if (phase === 'scegli') { G.players.forEach(function (p) { p.char = 0; }); G.votes = {}; G.accusa = null; }
+    G.phase = phase;
+    invHostSend();
+    window.scrollTo(0, 0);
+  }
+  function invHostChiudiVoto() {
+    const G = inv.m.G, conta = {};
+    let top = 0, chi = 0;
+    G.players.forEach(function (p) {   // a parita' vince chi e' stato votato da chi e' entrato prima
+      const v = G.votes[p.pid]; if (!v) return;
+      conta[v] = (conta[v] || 0) + 1;
+      if (conta[v] > top) { top = conta[v]; chi = v; }
+    });
+    if (!chi) return;
+    G.accusa = chi; invHost('finale');
+  }
+
+  // ---- tutti: messaggi in arrivo ----
+  function invOnMsg(m) {
+    if (!inv.m) return;
+    if (m.t === 'face') { inv.m.faces[m.pid] = m.selfie; if (inv.m.G) invOnState(inv.m.G, true); return; }
+    // quando entra qualcuno, ognuno gli rimanda la propria foto
+    if (m.t === 'hello' && m.pid !== inv.m.pid && inv.m.faces[inv.m.pid]) {
+      setTimeout(function () { if (inv.m) invMSend({ t: 'face', pid: inv.m.pid, selfie: inv.m.faces[inv.m.pid] }); }, 300 + Math.random() * 900);
+    }
+    if (inv.m.host) { invHostMsg(m); return; }
+    if (m.t === 'state') { inv.m.G = m.G; invOnState(m.G); }
+    else if (m.t === 'no' && m.pid === inv.m.pid) { const why = m.why; invLeave(); inv.err = why; inv.step = 'mmenu'; invRender(); }
+  }
+  // lo stato del capotavolo diventa cio' che si vede: si ridisegna solo se e' cambiato qualcosa
+  function invOnState(G, forza) {
+    const firma = JSON.stringify(G) + '|' + Object.keys(inv.m.faces).length;
+    if (inv.m.attendo) { forza = true; inv.m.attendo = false; } // aspettavo una conferma: ridisegno comunque
+    if (!forza && firma === inv.m.ultimo) return;
+    const cambioFase = !inv.m.fase || inv.m.fase !== G.phase;
+    inv.m.ultimo = firma; inv.m.fase = G.phase;
+    inv.players = G.players.map(function (p) { return { pid: p.pid, name: p.name, char: p.char, selfie: inv.m.faces[p.pid] || '' }; });
+    if (!inv.players.some(function (p) { return p.pid === inv.m.pid; })) {   // non sono (piu') nella lista
+      if (G.phase !== 'lobby') { invLeave(); inv.err = 'La partita è già iniziata.'; inv.step = 'mmenu'; invRender(); }
+      return;
+    }
+    inv.accusa = G.accusa;
+    inv.step = G.phase === 'scegli' ? 'mscegli' : G.phase;
+    if (G.phase === 'scegli' && !invMe().char) inv.m.locale = 'pick';
+    // chi sta scrivendo o scegliendo la foto non va interrotto da un ridisegno
+    if (!cambioFase && document.activeElement && document.activeElement.tagName === 'INPUT') return;
+    invRender();
+    if (cambioFase) window.scrollTo(0, 0);
+  }
+
+  // ---- le mie azioni ----
+  function invMAzione(msg) {
+    msg.pid = inv.m.pid;
+    if (inv.m.host) invHostMsg(msg); else invMSend(msg);
+  }
+  // La scelta vale solo quando la conferma il capotavolo: se due toccano lo
+  // stesso personaggio quasi insieme, il secondo torna alla lista.
+  function invMPick(id) { inv.m.locale = 'selfie'; inv.m.attendo = true; invMAzione({ t: 'pick', char: id }); window.scrollTo(0, 0); }
+  function invMFace(selfie) { inv.m.faces[inv.m.pid] = selfie; invMSend({ t: 'face', pid: inv.m.pid, selfie: selfie }); }
+  function invMSelfieOk() { inv.m.locale = 'attesa'; invRender(); window.scrollTo(0, 0); }
+  function invMVote(id) { inv.m.voto = id; invMAzione({ t: 'vote', char: id }); invRender(); }
+  function invMScheda() {
+    const me = invMe(); if (!me || !me.char) return;
+    invPeekClose();
+    const el = document.createElement('div');
+    el.className = 'inv-peek'; el.id = 'inv-peek';
+    el.innerHTML = '<div class="inv-body">' + invScheda(invChar(me.char)) + invBtn('Chiudi', 'invPeekClose()') + '</div>';
+    document.body.appendChild(el);
+  }
+  function invMSchedaBtn() { return invBtn('🔒 La mia scheda segreta', 'invMScheda()', 'ghost'); }
+  function invCondividi(btn) {
+    const url = location.origin + location.pathname + '?inv=' + inv.m.code;
+    const txt = 'Entra nella partita de L\'Investigatore su CamOn. Codice: ' + inv.m.code;
+    if (navigator.share) { navigator.share({ title: 'CamOn · L\'Investigatore', text: txt, url: url }).catch(function () {}); return; }
+    const fatto = function () { btn.textContent = '✓ Link copiato'; };
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(fatto, function () { btn.textContent = url; });
+    else btn.textContent = url;
+  }
+  // tasto "avanti": lo vede chi comanda; gli altri vedono chi stanno aspettando
+  function invNext(txt, step) {
+    if (!inv.m) return invBtn(txt, "invGo('" + step + "')");
+    return inv.m.host ? invBtn(txt, "invHost('" + step + "')")
+      : '<div class="inv-p" style="text-align:center">Aspetta che <b>' + invEsc(invCapo()) + '</b> mandi avanti.</div>';
+  }
+
+  // ---- schermate della partita a piu' telefoni (null = non e' una di queste) ----
+  function invMultiHtml() {
+    const err = inv.err ? '<div class="inv-killer">' + invEsc(inv.err) + '</div>' : '';
+    if (inv.step === 'modo') {
+      return '<div class="inv-tag">Cena con delitto · 4–8 giocatori</div><div class="inv-h">Come <span>giocate?</span></div>'
+        + '<div class="inv-chars">'
+        + '<button class="inv-char" onclick="invGo(\'mmenu\')"><span class="inv-ava">📲</span><span><span class="inv-char-role">Ognuno sul suo telefono</span>'
+        +   '<span class="inv-char-sub" style="display:block">Scheda segreta privata, nessun passaggio di telefono. Uno crea la partita, gli altri entrano col codice.</span></span></button>'
+        + '<button class="inv-char" onclick="invSolo()"><span class="inv-ava">📱</span><span><span class="inv-char-role">Un telefono solo</span>'
+        +   '<span class="inv-char-sub" style="display:block">Ve lo passate per leggere, uno alla volta, la propria scheda segreta.</span></span></button></div>';
+    }
+    if (inv.step === 'mmenu') {
+      let nome = ''; try { nome = localStorage.getItem('camon_inv_nome') || ''; } catch (e) {}
+      const campo = 'width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:14px 15px;color:var(--text);font-family:Manrope,sans-serif;font-size:16px;font-weight:700;outline:none';
+      return '<div class="inv-tag">Ognuno sul suo telefono</div><div class="inv-h">Chi <span>sei?</span></div>' + err
+        + '<input id="inv-name" type="text" maxlength="14" placeholder="Il tuo nome" autocomplete="off" value="' + invEsc(nome) + '" style="' + campo + '">'
+        + '<div class="inv-card gold"><div class="inv-sheet-lbl">Sei il primo?</div><div class="inv-p" style="margin-bottom:12px">Crea la partita: riceverai un codice da dare agli altri.</div>' + invBtn('Crea una partita', 'invCreate()') + '</div>'
+        + '<div class="inv-card"><div class="inv-sheet-lbl">Hai un codice?</div>'
+        +   '<input id="inv-code" type="text" maxlength="4" placeholder="CODICE" autocomplete="off" autocapitalize="characters" value="' + invEsc(inv.joinCode || '') + '" oninput="this.value=this.value.toUpperCase()" style="' + campo + ';text-align:center;letter-spacing:0.5em;font-size:22px;margin-bottom:12px">'
+        +   invBtn('Entra nella partita', 'invJoin()', 'ghost') + '</div>';
+    }
+    if (inv.step === 'collego') return '<div class="inv-pass"><div class="inv-tag">Un attimo</div><div class="inv-pass-name">Mi collego…</div></div>';
+    if (!inv.m) return null;
+    const G = inv.m.G, n = inv.players.length, me = invMe();
+    if (inv.step === 'lobby') {
+      return '<div class="inv-pass"><div class="inv-tag">Codice partita</div><div class="inv-pass-name" style="letter-spacing:0.3em;margin-right:-0.3em">' + inv.m.code + '</div></div>'
+        + '<button class="story-btn ghost" onclick="invCondividi(this)">Condividi il link</button>'
+        + '<div class="inv-card"><div class="inv-sheet-lbl">Ci sono (' + n + ' su 4–8)</div><div class="inv-p">'
+        +   inv.players.map(function (p, k) { return '<b>' + invEsc(p.name) + '</b>' + (k === 0 ? ' · capotavolo' : '') + (p.pid === inv.m.pid ? ' · tu' : ''); }).join('<br>') + '</div></div>'
+        + (inv.m.host
+            ? (n >= 4 ? invBtn('Ci siamo tutti: scegliete i personaggi →', "invHost('scegli')")
+                      : '<div class="inv-p" style="text-align:center">Servono almeno 4 giocatori per partire.</div>')
+            : '<div class="inv-p" style="text-align:center">Quando ci siete tutti, <b>' + invEsc(invCapo()) + '</b> fa partire la partita.</div>');
+    }
+    if (inv.step === 'mscegli') {
+      if (!me.char) {
+        return '<div class="inv-tag">' + invEsc(me.name) + ', tocca a te</div><div class="inv-h">Chi sei su <span>questo treno?</span></div>'
+          + '<div class="inv-chars">' + invInGioco().map(function (c) {
+              const preso = invPlayerOf(c.id);
+              return '<button class="inv-char"' + (preso ? ' disabled' : '') + ' onclick="invMPick(' + c.id + ')"><span class="inv-ava">' + c.emoji + '</span>'
+                + '<span><span class="inv-char-role">' + c.ruolo + '</span><span class="inv-char-sub" style="display:block">' + (preso ? 'Scelto da ' + invEsc(preso.name) : c.pub) + '</span></span></button>';
+            }).join('') + '</div>';
+      }
+      const c = invChar(me.char);
+      if (inv.m.locale === 'selfie') {
+        return '<div class="inv-pass"><div class="inv-tag">' + invEsc(me.name) + ', sei</div><div class="inv-pass-name">' + c.ruolo + '</div>'
+          + '<div class="inv-p">' + c.nome + '</div>' + invAva(c.id, 'big') + '</div>'
+          + '<div class="inv-p" style="text-align:center">Fatti una foto: la vedranno gli altri giocatori negli indizi. Non viene salvata: sparisce a fine partita.</div>'
+          + '<label class="story-btn go" style="cursor:pointer">📸 ' + (me.selfie ? 'Rifai la foto' : 'Scatta il selfie')
+          +   '<input type="file" accept="image/*" capture="user" style="display:none" onchange="invSelfie(this)"></label>'
+          + invBtn(me.selfie ? 'Va bene così →' : 'Salta, niente foto →', 'invMSelfieOk()', me.selfie ? 'go' : 'ghost');
+      }
+      const mancano = inv.players.filter(function (p) { return !p.char; });
+      return '<div class="inv-tag">Sei ' + c.ruolo + '</div><div class="inv-h">Leggi la tua <span>scheda</span></div>'
+        + '<div class="inv-p">Mentre gli altri scelgono, leggi chi sei e cosa sai. Resta solo sul tuo telefono.</div>'
+        + invBtn('🔒 La mia scheda segreta', 'invMScheda()')
+        + '<div class="inv-card"><div class="inv-sheet-lbl">Personaggi</div>' + invCast() + '</div>'
+        + (mancano.length
+            ? '<div class="inv-p" style="text-align:center">Devono ancora scegliere: <b>' + mancano.map(function (p) { return invEsc(p.name); }).join(', ') + '</b></div>'
+            : invNext('Tutti pronti: inizia la storia →', 'prologo'));
+    }
+    if (inv.step === 'accusa') {
+      const voti = Object.keys(G.votes).length, mio = G.votes[inv.m.pid] || inv.m.voto;
+      return '<div class="inv-tag">L\'accusa</div><div class="inv-h">Chi è <span>l\'assassino?</span></div>'
+        + '<div class="inv-p">Ognuno vota in segreto dal suo telefono. Vince la maggioranza: si accusa una volta sola.</div>'
+        + '<div class="inv-chars">' + invInGioco().map(function (ch) {
+            const pl = invPlayerOf(ch.id);
+            return '<button class="inv-char' + (mio === ch.id ? ' sel' : '') + '" onclick="invMVote(' + ch.id + ')">' + invAva(ch.id)
+              + '<span><span class="inv-char-role">' + ch.ruolo + '</span><span class="inv-char-sub" style="display:block">' + ch.nome + ' · ' + invEsc(pl.name) + '</span></span></button>';
+          }).join('') + '</div>'
+        + '<div class="inv-p" style="text-align:center">' + (mio ? 'Hai votato <b>' + invChar(mio).ruolo + '</b>. Puoi cambiare finché il voto è aperto.' : 'Tocca chi vuoi accusare.') + '<br>Hanno votato in ' + voti + ' su ' + n + '.</div>'
+        + (inv.m.host ? (voti ? invBtn('Chiudi il voto e accusa →', 'invHostChiudiVoto()') : '') + invBtn('← Torna agli indizi', "invHost('turno2')", 'ghost')
+                      : '<div class="inv-p" style="text-align:center"><b>' + invEsc(invCapo()) + '</b> chiude il voto.</div>');
+    }
+    return null;
+  }
+
+  // link di invito: ?inv=CODICE apre subito la schermata per entrare
+  (function () {
+    let c = '';
+    try { c = (new URLSearchParams(location.search).get('inv') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); } catch (e) {}
+    if (c.length !== 4) return;
+    window.addEventListener('load', function () {
+      setTimeout(function () { if (typeof goTo !== 'function') return; goTo('investigatore'); invMenu(); inv.joinCode = c; invGo('mmenu'); }, 900);
+    });
+  })();
+
   // ---- scelta dei personaggi e selfie ----
   function invPick(id) { inv.sel = id; invRender(); }
   function invPickOk() {
@@ -15672,7 +15965,8 @@
         const L = 320, cv = document.createElement('canvas'); cv.width = cv.height = L;
         const lato = Math.min(im.width, im.height);
         cv.getContext('2d').drawImage(im, (im.width - lato) / 2, (im.height - lato) / 2, lato, lato, 0, 0, L, L);
-        inv.players[inv.i].selfie = cv.toDataURL('image/jpeg', 0.82);
+        const foto = cv.toDataURL('image/jpeg', 0.82);
+        if (inv.m) { invMe().selfie = foto; invMFace(foto); } else inv.players[inv.i].selfie = foto;
         invRender();
       };
       im.src = rd.result;
@@ -15734,11 +16028,12 @@
     document.getElementById('inv-tools-body').innerHTML =
       '<div class="inv-sheet-lbl">Passeggeri</div>' + invCast()
       + '<div class="inv-sheet-lbl" style="margin-top:14px">Il vagone</div>' + invPianta()
-      + '<div class="inv-sheet-lbl" style="margin-top:14px">Rileggi la tua scheda</div>'
+      + (inv.m ? '<div style="margin-top:14px">' + invBtn('🔒 La mia scheda segreta', "infoSheetClose('inv-tools');invMScheda()", 'ghost') + '</div>'
+      : '<div class="inv-sheet-lbl" style="margin-top:14px">Rileggi la tua scheda</div>'
       + '<div class="inv-chars">' + inv.players.map(function (p, k) {
           return '<button class="inv-char" onclick="invPeek(' + k + ')">' + invAva(p.char)
             + '<span><span class="inv-char-role">' + invEsc(p.name) + '</span><span class="inv-char-sub" style="display:block">' + invChar(p.char).ruolo + '</span></span></button>';
-        }).join('') + '</div>';
+        }).join('') + '</div>');
     infoSheetOpen('inv-tools');
   }
   function invPeek(k) {
@@ -15836,7 +16131,7 @@
   // giochi che richiedono la rosa condivisa (vedi rosterOpenFor)
   // Giochi con sesso obbligatorio | solo nome | diretti senza rosa
   const ROSTER_GAMES_GENDER = ['diktat', 'obbligo'];  // sesso richiesto
-  const ROSTER_GAMES_NAME   = ['shotiq', 'raffica', 'investigatore'];     // solo nome, no sesso
+  const ROSTER_GAMES_NAME   = ['shotiq', 'raffica'];     // solo nome, no sesso
   const ROSTER_GAMES = ROSTER_GAMES_GENDER.concat(ROSTER_GAMES_NAME); // tutti quelli che passano dalla pagina giocatori
   const GAMES = [
     // ---- FISSI ----
@@ -16238,6 +16533,7 @@
     if (page === 'shotiq' && typeof siqEnter === 'function') siqEnter();
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
+    if (page === 'investigatore' && typeof invEnter === 'function') invEnter();
     if (page === 'kings' && typeof gameIntro === 'function') gameIntro('page-kings', {
       title: 'KINGS <span>👑</span>',
       sub: 'Pesca una carta e segui la regola: il re comanda',
