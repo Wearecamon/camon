@@ -2106,6 +2106,96 @@
   .cs-timer.expired .cs-timer-fill { background:var(--error); }
   .cs-timer.expired .cs-timer-num { color:var(--error); }
 
+  /* ============================================================
+     L'INVESTIGATORE — cena con delitto, un telefono che gira.
+     Storie e regole: cartella investigatore/ del progetto.
+     Misure in % / flex / clamp: deve stare su telefoni diversi.
+     ============================================================ */
+  #page-investigatore { background: var(--bg); }
+  .inv-body { padding: 4px 6% calc(var(--nav-space) + 24px); display:flex; flex-direction:column; gap:14px; }
+  .inv-tag { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:var(--brand); }
+  .inv-h { font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,8.5vw,40px); letter-spacing:1px; line-height:0.98; color:var(--text); }
+  .inv-h span { color:var(--brand); }
+  .inv-p { font-family:'Manrope',sans-serif; font-size:14px; line-height:1.55; color:var(--text-sub); }
+  .inv-p b { color:var(--text); font-weight:700; }
+  .inv-card { background:var(--surface); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:16px; }
+  .inv-card.gold { border-color:rgba(247,204,73,0.3); background:linear-gradient(180deg, rgba(247,204,73,0.07), var(--surface)); }
+  .inv-list { margin:0; padding-left:18px; display:flex; flex-direction:column; gap:7px; }
+  .inv-btn-row { display:flex; gap:10px; }
+  .inv-btn-row .story-btn { flex:1; margin-top:0; }
+  .inv-pass { text-align:center; padding:8% 0 2%; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .inv-pass-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,13vw,60px); line-height:1; color:var(--brand); letter-spacing:1px; }
+
+  /* avatar: selfie nel tondo, oppure l'emoji del personaggio */
+  .inv-ava {
+    flex-shrink:0; border-radius:50%; background:var(--surface-2) center/cover no-repeat;
+    border:2px solid rgba(247,204,73,0.55); display:flex; align-items:center; justify-content:center;
+    width:44px; height:44px; font-size:20px; line-height:1;
+  }
+  .inv-ava.big { width:42%; max-width:170px; height:auto; aspect-ratio:1/1; font-size:64px; border-width:3px; }
+  .inv-ava.ghost { border-style:dashed; border-color:rgba(255,255,255,0.2); opacity:0.55; }
+
+  /* scelta del personaggio */
+  .inv-chars { display:flex; flex-direction:column; gap:10px; }
+  .inv-char {
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left; cursor:pointer;
+    background:var(--surface); border:1.5px solid rgba(255,255,255,0.1); border-radius:16px; padding:12px 14px;
+    color:var(--text); -webkit-tap-highlight-color:transparent; transition:border-color 0.15s, transform 0.12s;
+  }
+  .inv-char:active { transform:scale(0.985); }
+  .inv-char.sel { border-color:var(--brand); background:rgba(247,204,73,0.08); }
+  .inv-char:disabled { opacity:0.38; cursor:default; }
+  .inv-char-role { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:0.5px; line-height:1; }
+  .inv-char-sub { font-family:'Manrope',sans-serif; font-size:12px; color:var(--text-sub); line-height:1.35; margin-top:3px; }
+
+  /* foto ricordo e lista passeggeri */
+  .inv-cast { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 4%; }
+  .inv-cast-item { width:21%; display:flex; flex-direction:column; align-items:center; gap:5px; text-align:center; }
+  .inv-cast-item .inv-ava { width:100%; height:auto; aspect-ratio:1/1; font-size:26px; }
+  .inv-cast-role { font-family:'Manrope',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:var(--text); line-height:1.15; }
+  .inv-cast-name { font-family:'Manrope',sans-serif; font-size:10.5px; color:var(--text-sub); line-height:1.1; }
+
+  /* pianta del vagone: otto cabine in fila, a coppie comunicanti */
+  .inv-car { display:flex; align-items:stretch; gap:1.2%; padding:10px 2%; border-radius:14px; background:#0c0c0c; border:1px solid rgba(255,255,255,0.1); }
+  .inv-pair { flex:1; display:flex; border:1px solid rgba(255,255,255,0.16); border-radius:9px; overflow:hidden; }
+  .inv-cab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 0 6px; min-width:0; }
+  .inv-cab + .inv-cab { border-left:1px dashed rgba(247,204,73,0.55); }
+  .inv-cab-n { font-family:'Bebas Neue',sans-serif; font-size:15px; color:var(--text-sub); line-height:1; }
+  .inv-cab-e { font-size:17px; line-height:1; }
+  .inv-cab.vittima { background:rgba(239,68,68,0.16); }
+  .inv-car-note { font-family:'Manrope',sans-serif; font-size:11.5px; color:var(--text-sub); line-height:1.45; margin-top:8px; }
+
+  /* foto-indizio (per ora disegnate) e documenti */
+  .inv-foto { border-radius:16px; overflow:hidden; background:#16120c; border:1px solid rgba(247,204,73,0.22); }
+  .inv-foto svg { display:block; width:100%; height:auto; }
+  .inv-foto-cap { padding:10px 14px 12px; font-family:'Manrope',sans-serif; font-size:12px; line-height:1.4; color:var(--text-sub); }
+  .inv-foto-cap b { color:var(--brand); }
+  .inv-clip { margin:14px 5% 4px; padding:14px 14px 16px; background:#e9dfc6; color:#221d14; transform:rotate(-1.6deg); box-shadow:0 8px 22px rgba(0,0,0,0.5); font-family:Georgia,'Times New Roman',serif; }
+  .inv-clip-date { font-size:10px; letter-spacing:1px; text-transform:uppercase; border-bottom:1px solid #221d14; padding-bottom:4px; margin-bottom:8px; }
+  .inv-clip-title { font-size:19px; font-weight:700; line-height:1.12; }
+  .inv-clip-txt { font-size:12px; line-height:1.4; margin-top:8px; }
+  .inv-clip-tear { display:inline-block; width:38%; height:0.9em; vertical-align:middle; background:repeating-linear-gradient(135deg,#221d14 0 3px,#e9dfc6 3px 6px); opacity:0.55; }
+  .inv-doc { background:#f1ead8; color:#2a251b; border-radius:6px; padding:13px 14px; font-family:Georgia,'Times New Roman',serif; font-size:13.5px; line-height:1.5; box-shadow:0 6px 18px rgba(0,0,0,0.4); }
+  .inv-doc-t { font-family:'Manrope',sans-serif; font-size:10.5px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#7a5a12; margin-bottom:6px; }
+
+  /* scheda segreta */
+  .inv-sheet-sec { border-top:1px solid rgba(255,255,255,0.07); padding-top:12px; margin-top:12px; }
+  .inv-sheet-sec:first-child { border-top:none; padding-top:0; margin-top:0; }
+  .inv-sheet-lbl { font-family:'Manrope',sans-serif; font-size:10.5px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--brand); margin-bottom:5px; }
+  .inv-killer { background:rgba(239,68,68,0.14); border:1px solid rgba(239,68,68,0.5); border-radius:12px; padding:11px 13px; font-family:'Manrope',sans-serif; font-size:13.5px; font-weight:700; color:#ffb4b4; line-height:1.4; }
+  .inv-peek { position:fixed; inset:0; z-index:170; background:var(--bg); overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .inv-peek .inv-body { padding-top:calc(24px + var(--safe-top)); }
+
+  /* finale: prima pagina del giornale */
+  .inv-news { background:#e9dfc6; color:#221d14; padding:16px 16px 18px; transform:rotate(1.2deg); box-shadow:0 10px 28px rgba(0,0,0,0.55); font-family:Georgia,'Times New Roman',serif; text-align:center; margin:6px 2%; }
+  .inv-news-head { font-size:11px; letter-spacing:3px; text-transform:uppercase; border-top:3px double #221d14; border-bottom:3px double #221d14; padding:5px 0; }
+  .inv-news-title { font-size:clamp(24px,7.5vw,34px); font-weight:700; line-height:1.02; margin:12px 0 10px; }
+  .inv-news .inv-ava { width:46%; height:auto; aspect-ratio:1/1; margin:0 auto 10px; border-radius:4px; border:2px solid #221d14; filter:grayscale(1) contrast(1.1) sepia(0.25); font-size:64px; }
+  .inv-news-txt { font-size:12.5px; line-height:1.4; }
+  .inv-esito { text-align:center; font-family:'Bebas Neue',sans-serif; font-size:clamp(34px,10vw,48px); letter-spacing:1px; line-height:1; }
+  .inv-esito.ok { color:var(--success); }
+  .inv-esito.ko { color:#ff7a7a; }
+
   /* ---- Storia = shot gratis ----
      La pagina sta sui colori del brand come tutto il resto dell'app.
      Il gradiente Instagram e' ammesso in UN punto solo: il bottone che
@@ -6527,6 +6617,23 @@
   <!-- ============================
        STORIA = SHOT GRATIS
   ============================ -->
+  <div class="page game-detail" id="page-investigatore">
+    <div class="gd-header">
+      <button class="back-btn" onclick="invBack()" aria-label="Indietro"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="gd-title">L'INVESTI<span style="color:var(--brand)">GATORE</span></div>
+      <button class="back-btn" id="inv-tools-btn" onclick="invOpenTools()" aria-label="Passeggeri, vagone e schede" style="display:none;margin-left:auto;color:var(--brand)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.2-5.4 6.5-5.4s5.9 1.8 6.5 5.4"/><circle cx="17.5" cy="9" r="2.6"/><path d="M17 14.4c2.6.2 4.2 1.8 4.6 4.4"/></svg></button>
+    </div>
+    <div class="inv-body" id="inv-body"></div>
+    <!-- passeggeri, pianta del vagone e "rileggi la tua scheda" -->
+    <div class="story-info" id="inv-tools" onclick="if(event.target===this)infoSheetClose('inv-tools')" aria-hidden="true">
+      <div class="story-info-sheet" role="dialog" aria-modal="true" style="max-height:84dvh;overflow-y:auto;touch-action:pan-y">
+        <div class="story-info-grab"></div>
+        <div id="inv-tools-body"></div>
+        <button class="story-btn go" onclick="infoSheetClose('inv-tools')">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="page-profile">
 
     <!-- STATO VUOTO: nessun account ancora -->
@@ -12797,6 +12904,7 @@
     else if (target === 'raffica') raStart();
     else if (target === 'diktat') sqStart();
     else if (target === 'shotiq') siqShowModes();
+    else if (target === 'investigatore') invStart();
   }
 
   /* Schermata di partenza comune a tutti i giochi (come Obbligo o Verita').
@@ -15136,6 +15244,375 @@
       + '<button class="story-btn go" onclick="storyClaim()">Ho pubblicato la storia → genera il codice</button>';
   }
 
+  /* ============================================================
+     L'INVESTIGATORE — cena con delitto su un telefono che gira.
+     Da 4 a 8 giocatori. Ogni storia ha 8 personaggi: i primi 4 si
+     giocano sempre (l'assassino e' tra loro), gli altri entrano in
+     ordine; quelli non giocati parlano tramite un "documento".
+     Testi e regole di scrittura: cartella investigatore/ del progetto.
+     I selfie restano in memoria e spariscono a fine partita: non
+     vengono salvati ne' inviati da nessuna parte.
+     ============================================================ */
+  const INV_STORIA = {
+    titolo: 'Il treno delle 23:40',
+    sotto: 'Torino – Parigi, 15 gennaio 1934',
+    ambiente: `Il rapido delle 23:40 lascia Torino Porta Nuova sotto la neve. In coda c'è il vagone letto: otto cabine, un corridoio stretto, un conduttore in divisa. All'1:10, poco prima del traforo, una slavina blocca la linea. Il treno si ferma e le luci si spengono: restano le candele fino all'1:40. Alle 2:15 il conduttore forza la porta della cabina 3. Dentro c'è un uomo morto. Fuori, due metri di neve. Nessuno è salito, nessuno è sceso.`,
+    vittima: `<b>Comm. Aurelio Ferrante</b>, industriale tessile torinese, cabina 3. Ricco, sgradevole, collezionista dei segreti altrui: prestava denaro, comprava debiti e non dimenticava mai una faccia. Su questo vagone quasi tutti gli dovevano qualcosa.`,
+    fatti: [
+      `Il corpo è nella <b>cabina 3</b>, strangolato con il cordone della tenda.`,
+      `La porta sul corridoio era chiusa con il <b>chiavistello dall'interno</b>: una chiave non basta, il conduttore l'ha dovuta forzare.`,
+      `<b>Luci spente dall'1:10 all'1:40.</b>`,
+      `Le cabine comunicano a coppie con una porta interna (1–2, 3–4, 5–6, 7–8). Ogni porta ha un chiavistello per lato.`,
+      `Dopo il vagone letto c'è il vagone ristorante, poi la locomotiva.`
+    ],
+    // ordine delle cabine da 1 a 8: id del personaggio, 0 = la vittima
+    cabine: [2, 4, 0, 3, 5, 6, 7, 8],
+    finale: `Il commendatore aveva un vizio: non dimenticava mai una faccia. A Porta Nuova ne ha riconosciuta una, quella di un medico che cinque anni fa aveva perso una paziente, la licenza e il nome. All'1:15, al buio, qualcuno ha bussato alla porta tra le cabine 3 e 4: «Le porto il sonnifero.» Ferrante ha aperto. All'1:22 il suo orologio è caduto sul tappeto. L'assassino è tornato da dove era venuto, e venti minuti dopo beveva un brandy al vagone ristorante con la mano che tremava.`,
+    chiusa: `Dottor Bassi, il treno riparte. Lei no.`,
+    personaggi: [
+      { id:1, ruolo:'Il Conduttore', nome:'Ernesto Gallo', emoji:'🎫',
+        pub:`Conduttore del vagone letto da vent'anni. Divisa impeccabile, conosce ogni rumore del suo treno.`,
+        segreto:`Nel ripostiglio di servizio porti orologi svizzeri di contrabbando. Ferrante se n'è accorto e ha promesso di denunciarti alla Compagnia.`,
+        dove:`All'1:12 sei andato alla locomotiva a parlare col macchinista, passando dal ristorante. Sei tornato all'1:35.`,
+        t1:`All'1:00 Ferrante ha suonato per un cognac. Era vivo e di pessimo umore: «Stanotte non voglio visite. A Parigi ho una denuncia da fare.»`,
+        t2:`Tornando, all'1:35, hai incrociato <b>il Dottore in corridoio</b> che andava verso il ristorante: «Vado a scaldarmi.» All'1:38 hai bussato alla cabina 3: nessuna risposta, chiavistello tirato.` },
+      { id:2, ruolo:'La Contessa', nome:'Olga di Serravalle', emoji:'👒',
+        pub:`Vedova, un cognome antico e un guardaroba che ha visto tempi migliori. Viaggia verso Parigi «per affari di famiglia».`,
+        segreto:`Ferrante ha comprato tutti i tuoi debiti e sta per prendersi la villa. Nella borsetta hai una piccola pistola.`,
+        dove:`All'1:05 sei andata nella cabina 3 a supplicarlo. Sei uscita all'1:12, quando si è spenta la luce. Dall'1:15 eri al vagone ristorante.`,
+        t1:`All'1:12 Ferrante era <b>vivo</b>. Teneva in mano un ritaglio di giornale e rideva: «Non siete l'unica che tengo in pugno su questo treno, contessa. C'è chi ha molto più da perdere di una villa.» Uscendo l'hai sentito tirare il chiavistello dietro di te.`,
+        t2:`Al ristorante c'era già l'Illusionista, e ci è rimasto. Il Dottore è arrivato <b>verso l'1:40</b>, ha chiesto un brandy e gli tremava la mano.` },
+      { id:3, ruolo:'Il Dottore', nome:'Carlo Bassi', emoji:'🩺', assassino:true,
+        pub:`Medico genovese, modi gentili, valigetta sempre a portata di mano. Va a Parigi «per un incarico in una clinica».`,
+        segreto:`Sei stato radiato dall'albo nel 1929. Ferrante ti ha riconosciuto e voleva denunciarti. L'hai ucciso tu, all'1:22, entrando dalla porta comunicante tra la tua cabina e la sua.`,
+        dove:`<b>La tua versione:</b> eri al vagone ristorante dall'1:05. Hai lasciato la cabina 4 aperta: chiunque può esserci passato.`,
+        t1:`Da medico dichiari che l'uomo è stato strangolato e che il corpo era ancora caldo: «È morto <b>non prima dell'1:45</b>.»`,
+        t2:`Fai notare che un illusionista sa uscire da una stanza chiusa, e che il conduttore ha una chiave per ogni porta.`,
+        dritta:`Tu puoi mentire, gli altri no. Semina dubbi sull'orologio («si può fermare a mano») e sulla cabina 4 lasciata aperta.` },
+      { id:4, ruolo:"L'Illusionista", nome:'«Il Grande Zoran»', emoji:'🎩',
+        pub:`Prestigiatore in tournée: mantello, baffi a punta e un baule pieno di corde, manette e grimaldelli.`,
+        segreto:`Ferrante era il tuo impresario. Ti ha rubato il numero migliore e ti ha lasciato senza un soldo.`,
+        dove:`Al vagone ristorante dall'1:00 alle 2:15, a fare giochi di carte al lume di candela.`,
+        t1:`Hai visto il Conduttore attraversare il ristorante verso la locomotiva all'<b>1:12</b> e ripassare all'<b>1:35</b>, coperto di neve. La Contessa è arrivata all'1:15.`,
+        t2:`Il Dottore è entrato al ristorante all'<b>1:40</b>, non prima. E hai guardato bene la porta forzata: «Un chiavistello non si chiude da fuori senza un filo e senza lasciare segni. Lì non c'è né l'uno né l'altro: chi ha ucciso non è uscito dal corridoio.»` },
+      { id:5, ruolo:'La Segretaria', nome:'Emma Rolle', emoji:'📓',
+        pub:`Segretaria personale di Ferrante. Precisa, silenziosa, sa stenografare al buio.`,
+        segreto:`Stai vendendo copie delle carte dell'azienda al suo rivale, l'ingegner Arnaud.`,
+        dove:`Nella tua cabina, la 5, a riordinare documenti a lume di candela.`,
+        t1:`Alle 23:50 Ferrante ti ha dettato l'inizio di un telegramma: «Alla Prefettura di Parigi. Segnalo sul rapido da Torino un medico radiato…» Poi si è interrotto: «Lo finisco domattina.»`,
+        t2:`Verso l'1:20 hai sentito, dalla parte delle cabine 3 e 4, un tonfo e un rumore di vetro che si rompe.`,
+        doc:{ titolo:'Taccuino stenografico della segretaria',
+          t1:`«Ore 23:50. Telegramma dettato dal comm. Ferrante: Alla Prefettura di Parigi. Segnalo sul rapido da Torino un medico radiato… (interrotto: "lo finisco domattina").»`,
+          t2:`«Ore 1:20 circa. Tonfo e vetro rotto, dal lato delle cabine 3–4.»` } },
+      { id:6, ruolo:"L'Ingegnere", nome:'Vittorio Arnaud', emoji:'📐',
+        pub:`Industriale italo-francese, concorrente di Ferrante. Sorride molto e non si fida di nessuno.`,
+        segreto:`Stai comprando di nascosto i segreti della fabbrica Ferrante. Se lui l'avesse scoperto, saresti finito.`,
+        dove:`In fondo al corridoio, a fumare al finestrino.`,
+        t1:`A cena Ferrante ti ha detto: «A Parigi rovino un uomo, ingegnere. E per una volta non siete voi.»`,
+        t2:`Verso l'1:35, alla luce della candela, hai visto <b>la porta della cabina 4 aprirsi</b> e un uomo uscire in corridoio. Eri lontano: non l'hai riconosciuto.`,
+        doc:{ titolo:"Dichiarazione dell'ing. Arnaud",
+          t1:`«A cena il commendatore mi disse: "A Parigi rovino un uomo, ingegnere. E per una volta non siete voi."»`,
+          t2:`«Verso l'1:35 ho visto la porta della cabina 4 aprirsi e un uomo uscire in corridoio. Era buio, non l'ho riconosciuto.»` } },
+      { id:7, ruolo:'La Cantante', nome:'Lia Morandi', emoji:'🎼',
+        pub:`Soprano attesa all'Opéra. Voce celebre, nervi fragili.`,
+        segreto:`Sei stata l'amante di Ferrante. Lui conservava le tue lettere e minacciava di mostrarle al tuo impresario.`,
+        dove:`Nella cabina 7, a letto.`,
+        t1:`Alle 0:45 hai chiesto al Dottore delle gocce per dormire. Te le ha date e ha detto: «Anch'io <b>vado dritto a letto</b>, signora.»`,
+        t2:`Hai dormito fino alle grida delle 2:15. Non hai sentito nulla.`,
+        doc:{ titolo:'Biglietto della signora Morandi',
+          t1:`«Gentile dottore, grazie per le gocce delle 0:45. Come mi avete detto voi, "anch'io vado dritto a letto". Buonanotte. L. M.»`,
+          t2:'' } },
+      { id:8, ruolo:'Il Nipote', nome:'Guido Ferrante', emoji:'🃏',
+        pub:`Nipote ed erede del commendatore. Elegante, simpatico, sempre senza soldi.`,
+        segreto:`Hai debiti di gioco enormi. Con la morte dello zio erediti tutto.`,
+        dove:`Nella cabina 8, poi in corridoio.`,
+        t1:`A Porta Nuova lo zio ti ha detto: «Ho riconosciuto un tale sul marciapiede. Cinque anni fa ha ammazzato una donna con una diagnosi sbagliata.»`,
+        t2:`Verso l'1:20 hai bussato alla cabina 3 per chiedergli denaro. Non ha aperto, ma dentro hai sentito <b>due voci di uomo</b>, basse.`,
+        doc:{ titolo:'Verbale del nipote',
+          t1:`«A Porta Nuova lo zio mi disse: "Ho riconosciuto un tale sul marciapiede. Cinque anni fa ha ammazzato una donna con una diagnosi sbagliata."»`,
+          t2:`«Verso l'1:20 bussai alla cabina 3. Non aprì, ma dentro si sentivano due voci di uomo, basse.»` } }
+    ]
+  };
+
+  /* Le tre foto-indizio. Per ora sono disegnate qui (prova): quando ci
+     saranno le immagini vere basta sostituire l'SVG con una <img>. */
+  const INV_FOTO = {
+    orologio: `<svg viewBox="0 0 320 200" role="img" aria-label="Orologio da taschino fermo all'una e ventidue">
+      <rect width="320" height="200" fill="#3a1f1a"/>
+      <path d="M0 150 Q80 135 160 150 T320 150 V200 H0Z" fill="#2b1512"/>
+      <path d="M150 40 q-40 -40 -90 -10" fill="none" stroke="#b8963a" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 5"/>
+      <circle cx="160" cy="108" r="64" fill="#c9a441"/><circle cx="160" cy="108" r="56" fill="#f3ead2"/>
+      <rect x="153" y="30" width="14" height="18" rx="4" fill="#c9a441"/>
+      <g stroke="#2a2218" stroke-width="3" stroke-linecap="round">
+        <line x1="160" y1="58" x2="160" y2="66"/><line x1="210" y1="108" x2="202" y2="108"/><line x1="160" y1="158" x2="160" y2="150"/><line x1="110" y1="108" x2="118" y2="108"/>
+      </g>
+      <line x1="160" y1="108" x2="182" y2="83" stroke="#2a2218" stroke-width="6" stroke-linecap="round"/>
+      <line x1="160" y1="108" x2="195" y2="139" stroke="#2a2218" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="160" cy="108" r="4.5" fill="#2a2218"/>
+      <g stroke="#ffffff" stroke-width="1.6" fill="none" opacity="0.85">
+        <path d="M132 70 L158 104 L120 128"/><path d="M158 104 L196 92"/><path d="M158 104 L170 150"/>
+      </g>
+    </svg>`,
+    porta: `<svg viewBox="0 0 320 200" role="img" aria-label="Porta comunicante con il chiavistello aperto">
+      <rect width="320" height="200" fill="#241a12"/>
+      <rect x="20" y="0" width="34" height="200" fill="#3b2a1b"/>
+      <rect x="54" y="10" width="190" height="190" rx="4" fill="#6b4a2c"/>
+      <rect x="72" y="28" width="154" height="70" rx="3" fill="#5a3d24"/><rect x="72" y="114" width="154" height="74" rx="3" fill="#5a3d24"/>
+      <rect x="244" y="0" width="76" height="200" fill="#3b2a1b"/>
+      <rect x="256" y="20" width="44" height="26" rx="3" fill="#c9a441"/><text x="278" y="39" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#2a2218">4</text>
+      <rect x="150" y="96" width="84" height="22" rx="4" fill="#8f8a80"/>
+      <rect x="156" y="102" width="58" height="10" rx="5" fill="#d8d3c8"/>
+      <circle cx="168" cy="107" r="7" fill="#c9a441" stroke="#2a2218" stroke-width="1.5"/>
+      <rect x="250" y="96" width="22" height="22" rx="3" fill="#8f8a80"/><rect x="250" y="102" width="14" height="10" fill="#15100b"/>
+      <path d="M214 107 h30" stroke="#f7cc49" stroke-width="2" stroke-dasharray="3 4"/>
+      <path d="M238 101 l8 6 -8 6" fill="none" stroke="#f7cc49" stroke-width="2"/>
+    </svg>`
+  };
+
+  const inv = { players: [], step: '', i: 0, sel: null, accusa: null };
+  const invEsc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
+  function invChar(id) { return INV_STORIA.personaggi.find(function (c) { return c.id === id; }); }
+  function invPlayerOf(id) { return inv.players.find(function (p) { return p.char === id; }); }
+  function invInGioco() { return INV_STORIA.personaggi.slice(0, inv.players.length); }
+  function invFuori() { return INV_STORIA.personaggi.slice(inv.players.length); }
+  // tondo con il selfie del giocatore; senza foto (o senza giocatore) l'emoji del personaggio
+  function invAva(id, cls) {
+    const c = invChar(id), p = invPlayerOf(id);
+    const foto = p && p.selfie ? ' style="background-image:url(' + p.selfie + ')"' : '';
+    return '<span class="inv-ava ' + (cls || '') + (p ? '' : ' ghost') + '"' + foto + '>' + (p && p.selfie ? '' : c.emoji) + '</span>';
+  }
+  function invBtn(txt, fn, cls) { return '<button class="story-btn ' + (cls || 'go') + '" onclick="' + fn + '">' + txt + '</button>'; }
+
+  // ingresso dalla pagina giocatori
+  function invStart() {
+    inv.players = rosterNamesList().map(function (n) { return { name: n, char: 0, selfie: '' }; });
+    inv.i = 0; inv.sel = null; inv.accusa = null;
+    const n = inv.players.length;
+    document.getElementById('inv-tools-btn').style.display = 'none';
+    if (n < 4 || n > 8) { inv.step = 'numero'; invRender(); return; }
+    inv.step = 'scegli';
+    invRender();
+    gameIntro('page-investigatore', {
+      title: "L'INVESTI<span>GATORE</span>",
+      sub: 'Un delitto, un treno fermo nella neve: uno di voi mente',
+      sum: [giocatoriTxt(n), '🚂 ' + INV_STORIA.titolo]
+    });
+  }
+  function invBack() {
+    invPeekClose();
+    goTo(inv.step === 'finale' ? 'games' : 'players');
+  }
+  function invGo(step) { inv.step = step; inv.i = 0; inv.sel = null; invRender(); window.scrollTo(0, 0); }
+
+  function invRender() {
+    const body = document.getElementById('inv-body');
+    if (!body) return;
+    const S = INV_STORIA, p = inv.players[inv.i];
+    let h = '';
+    document.getElementById('inv-tools-btn').style.display =
+      (['prologo', 'turno1', 'turno2', 'accusa'].indexOf(inv.step) >= 0) ? '' : 'none';
+
+    if (inv.step === 'numero') {
+      h = '<div class="inv-tag">Quanti siete?</div>'
+        + '<div class="inv-h">Servono da <span>4 a 8</span> giocatori</div>'
+        + '<div class="inv-p">Ora siete in ' + inv.players.length + '. Ognuno interpreta un passeggero del treno: con meno di 4 non ci sono abbastanza sospetti, con più di 8 non ci sono abbastanza cabine.</div>'
+        + invBtn('← Cambia giocatori', "goTo('players')");
+
+    } else if (inv.step === 'scegli') {
+      h = '<div class="inv-pass"><div class="inv-tag">Passa il telefono a</div><div class="inv-pass-name">' + invEsc(p.name) + '</div></div>'
+        + '<div class="inv-p" style="text-align:center">Scegli chi sei su questo treno.</div>'
+        + '<div class="inv-chars">' + invInGioco().map(function (c) {
+            const preso = invPlayerOf(c.id);
+            return '<button class="inv-char' + (inv.sel === c.id ? ' sel' : '') + '"' + (preso ? ' disabled' : '') + ' onclick="invPick(' + c.id + ')">'
+              + '<span class="inv-ava">' + c.emoji + '</span>'
+              + '<span><span class="inv-char-role">' + c.ruolo + '</span>'
+              + '<span class="inv-char-sub" style="display:block">' + (preso ? 'Scelto da ' + invEsc(preso.name) : c.pub) + '</span></span></button>';
+          }).join('') + '</div>'
+        + (inv.sel ? invBtn('Sono ' + invChar(inv.sel).ruolo + ' →', 'invPickOk()') : '')
+        + (inv.i === 0 && !inv.sel ? invBtn('🎲 Assegna a caso a tutti', 'invPickRandom()', 'ghost') : '');
+
+    } else if (inv.step === 'selfie') {
+      const c = invChar(p.char);
+      h = '<div class="inv-pass"><div class="inv-tag">' + invEsc(p.name) + ', sei</div><div class="inv-pass-name">' + c.ruolo + '</div>'
+        + '<div class="inv-p">' + c.nome + '</div>' + invAva(c.id, 'big') + '</div>'
+        + '<div class="inv-p" style="text-align:center">Fatti una foto: finirà sul passaporto del tuo personaggio e negli indizi. Resta solo su questo telefono, fino a fine partita.</div>'
+        + '<label class="story-btn go" style="cursor:pointer">📸 ' + (p.selfie ? 'Rifai la foto' : 'Scatta il selfie')
+        +   '<input type="file" accept="image/*" capture="user" style="display:none" onchange="invSelfie(this)"></label>'
+        + invBtn(p.selfie ? 'Va bene così →' : 'Salta, niente foto →', 'invSelfieOk()', p.selfie ? 'go' : 'ghost');
+
+    } else if (inv.step === 'prologo') {
+      h = '<div class="inv-tag">' + S.sotto + '</div><div class="inv-h">' + S.titolo.replace('23:40', '<span>23:40</span>') + '</div>'
+        + '<div class="inv-card"><div class="inv-sheet-lbl">Foto ricordo a Porta Nuova, ore 23:35</div>' + invCast() + '</div>'
+        + '<div class="inv-p">' + S.ambiente + '</div>'
+        + '<div class="inv-card gold"><div class="inv-sheet-lbl">La vittima</div><div class="inv-p">' + S.vittima + '</div></div>'
+        + '<div class="inv-card"><div class="inv-sheet-lbl">Quello che sanno tutti</div><ul class="inv-list inv-p">'
+        +   S.fatti.map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul></div>'
+        + '<div class="inv-card"><div class="inv-sheet-lbl">Il vagone letto</div>' + invPianta() + '</div>'
+        + '<div class="inv-p"><b>La regola:</b> gli innocenti non mentono mai sui fatti. Possono tacere il loro segreto finché nessuno glielo chiede in faccia. <b>L\'assassino può mentire su tutto.</b></div>'
+        + invBtn('Leggete le schede segrete →', "invGo('schede')");
+
+    } else if (inv.step === 'schede') {
+      const c = invChar(p.char);
+      h = inv.sel
+        ? invScheda(c) + invBtn(inv.i < inv.players.length - 1 ? 'Ho letto: nascondi e passa →' : 'Ho letto: si comincia →', 'invSchedaOk()')
+        : '<div class="inv-pass"><div class="inv-tag">Passa il telefono a</div><div class="inv-pass-name">' + invEsc(p.name) + '</div>'
+          + '<div class="inv-p">' + c.ruolo + '</div>' + invAva(c.id, 'big') + '</div>'
+          + '<div class="inv-p" style="text-align:center">Scheda segreta: leggila da solo, che nessuno guardi.</div>'
+          + invBtn('👁 Mostra la mia scheda', 'invSchedaShow()');
+
+    } else if (inv.step === 'turno1' || inv.step === 'turno2') {
+      const t = inv.step === 'turno1' ? 1 : 2;
+      const docs = invFuori().filter(function (c) { return c.doc && c.doc['t' + t]; });
+      h = '<div class="inv-tag">Turno ' + t + ' di 2</div>'
+        + '<div class="inv-h">' + (t === 1 ? 'Chi l\'ha visto <span>vivo?</span>' : 'Dov\'eravate <span>al buio?</span>') + '</div>'
+        + '<div class="inv-p">A turno, ognuno racconta il suo <b>indizio del turno ' + t + '</b> (è sulla scheda segreta). Poi discutete, fate domande, incastrate gli orari. Per rileggere la scheda tocca le persone in alto a destra.</div>';
+      if (t === 1) {
+        h += '<div class="inv-foto">' + INV_FOTO.orologio + '<div class="inv-foto-cap"><b>Foto 1.</b> L\'orologio da taschino di Ferrante, trovato sul tappeto della cabina 3 con il vetro incrinato.</div></div>';
+      } else {
+        h += '<div class="inv-foto">' + INV_FOTO.porta + '<div class="inv-foto-cap"><b>Foto 2.</b> La porta interna tra le cabine 3 e 4, vista dalla cabina della vittima. Guardate il chiavistello.</div></div>'
+          + '<div class="inv-foto"><div class="inv-clip"><div class="inv-clip-date">Genova · marzo 1929</div>'
+          +   '<div class="inv-clip-title">Muore una paziente in una clinica privata: medico radiato dall\'albo</div>'
+          +   '<div class="inv-clip-txt">La commissione ha deciso ieri. Il dottor <span class="inv-clip-tear"></span> non potrà più esercitare.</div></div>'
+          +   '<div class="inv-foto-cap"><b>Foto 3.</b> Un vecchio ritaglio di giornale, stretto nella mano della vittima. Il nome è strappato.</div></div>';
+      }
+      docs.forEach(function (c) {
+        h += '<div class="inv-doc"><div class="inv-doc-t">📄 ' + c.doc.titolo + '</div>' + c.doc['t' + t] + '</div>';
+      });
+      h += invBtn(t === 1 ? 'Turno 2 →' : 'È il momento di accusare →', "invGo('" + (t === 1 ? 'turno2' : 'accusa') + "')");
+      if (t === 2) h += invBtn('← Rivedi il turno 1', "invGo('turno1')", 'ghost');
+
+    } else if (inv.step === 'accusa') {
+      h = '<div class="inv-tag">L\'accusa</div><div class="inv-h">Chi è <span>l\'assassino?</span></div>'
+        + '<div class="inv-p">Mettetevi d\'accordo e toccate il colpevole. Si accusa una volta sola.</div>'
+        + '<div class="inv-chars">' + invInGioco().map(function (c) {
+            const pl = invPlayerOf(c.id);
+            return '<button class="inv-char' + (inv.sel === c.id ? ' sel' : '') + '" onclick="invAccusaSel(' + c.id + ')">' + invAva(c.id)
+              + '<span><span class="inv-char-role">' + c.ruolo + '</span><span class="inv-char-sub" style="display:block">' + c.nome + ' · ' + invEsc(pl.name) + '</span></span></button>';
+          }).join('') + '</div>'
+        + (inv.sel ? invBtn('Accusiamo ' + invChar(inv.sel).ruolo, 'invAccusaOk()') : '')
+        + invBtn('← Torna agli indizi', "invGo('turno2')", 'ghost');
+
+    } else if (inv.step === 'finale') {
+      const k = S.personaggi.find(function (c) { return c.assassino; }), pk = invPlayerOf(k.id);
+      const giusto = inv.accusa === k.id;
+      h = '<div class="inv-esito ' + (giusto ? 'ok' : 'ko') + '">' + (giusto ? 'Caso risolto!' : 'Avete sbagliato…') + '</div>'
+        + '<div class="inv-p" style="text-align:center">' + (giusto
+            ? 'Avete smascherato l\'assassino. <b>' + invEsc(pk.name) + '</b>, questa volta beve chi ha ucciso.'
+            : 'Avete accusato ' + invChar(inv.accusa).ruolo + ', che era innocente. <b>' + invEsc(pk.name) + '</b> l\'ha fatta franca: bevono gli investigatori.') + '</div>'
+        + '<div class="inv-news"><div class="inv-news-head">La Gazzetta della Sera · 16 gennaio 1934</div>'
+        +   '<div class="inv-news-title">' + (giusto ? 'Arrestato sul Torino–Parigi' : 'Delitto del vagone letto: il colpevole era lui') + '</div>'
+        +   invAva(k.id) + '<div class="inv-news-txt"><b>' + k.nome + '</b>, ' + k.ruolo.toLowerCase() + ' (interpretato da ' + invEsc(pk.name) + ')</div></div>'
+        + '<div class="inv-card"><div class="inv-sheet-lbl">Com\'è andata davvero</div><div class="inv-p">' + S.finale + '<br><br><b>' + S.chiusa + '</b></div></div>'
+        + invBtn('Torna ai giochi', "goTo('games')")
+        + invBtn('↺ Rigioca con altri ruoli', 'invStart()', 'ghost');
+    }
+    body.innerHTML = h;
+  }
+
+  // ---- scelta dei personaggi e selfie ----
+  function invPick(id) { inv.sel = id; invRender(); }
+  function invPickOk() {
+    inv.players[inv.i].char = inv.sel; inv.sel = null; inv.step = 'selfie'; invRender(); window.scrollTo(0, 0);
+  }
+  function invPickRandom() {
+    const ids = invInGioco().map(function (c) { return c.id; }).sort(function () { return Math.random() - 0.5; });
+    inv.players.forEach(function (p, k) { p.char = ids[k]; });
+    inv.i = 0; inv.sel = null; inv.step = 'selfie'; invRender(); window.scrollTo(0, 0);
+  }
+  // riduce la foto a un quadrato piccolo: basta per i tondi e pesa poco
+  function invSelfie(input) {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = function () {
+      const im = new Image();
+      im.onload = function () {
+        const L = 320, cv = document.createElement('canvas'); cv.width = cv.height = L;
+        const lato = Math.min(im.width, im.height);
+        cv.getContext('2d').drawImage(im, (im.width - lato) / 2, (im.height - lato) / 2, lato, lato, 0, 0, L, L);
+        inv.players[inv.i].selfie = cv.toDataURL('image/jpeg', 0.82);
+        invRender();
+      };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  }
+  function invSelfieOk() {
+    // il prossimo che non ha ancora un personaggio sceglie; se sono gia' assegnati tutti (a caso) si passa ai selfie successivi
+    if (inv.i < inv.players.length - 1) {
+      inv.i++;
+      inv.step = inv.players[inv.i].char ? 'selfie' : 'scegli';
+      invRender(); window.scrollTo(0, 0);
+    } else invGo('prologo');
+  }
+
+  // ---- pezzi riusati ----
+  function invCast() {
+    return '<div class="inv-cast">' + INV_STORIA.personaggi.map(function (c) {
+      const p = invPlayerOf(c.id);
+      return '<div class="inv-cast-item">' + invAva(c.id) + '<div class="inv-cast-role">' + c.ruolo.replace(/^(Il|La|L')\s?/, '') + '</div>'
+        + '<div class="inv-cast-name">' + (p ? invEsc(p.name) : 'non in gioco') + '</div></div>';
+    }).join('') + '</div>';
+  }
+  function invPianta() {
+    const cab = INV_STORIA.cabine;
+    let h = '<div class="inv-car">';
+    for (let k = 0; k < cab.length; k += 2) {
+      h += '<div class="inv-pair">' + [k, k + 1].map(function (j) {
+        const c = cab[j] ? invChar(cab[j]) : null;
+        return '<div class="inv-cab' + (c ? '' : ' vittima') + '"><span class="inv-cab-n">' + (j + 1) + '</span><span class="inv-cab-e">' + (c ? c.emoji : '💀') + '</span></div>';
+      }).join('') + '</div>';
+    }
+    h += '</div><div class="inv-car-note">1 Contessa · 2 Illusionista · <b>3 Ferrante</b> · 4 Dottore · 5 Segretaria · 6 Ingegnere · 7 Cantante · 8 Nipote. La linea tratteggiata è la porta interna tra due cabine. Il Conduttore sta in corridoio.</div>';
+    return h;
+  }
+  function invScheda(c) {
+    const sec = function (lbl, txt) { return '<div class="inv-sheet-sec"><div class="inv-sheet-lbl">' + lbl + '</div><div class="inv-p">' + txt + '</div></div>'; };
+    return '<div class="inv-tag">Scheda segreta</div><div class="inv-h">' + c.ruolo + '</div><div class="inv-p">' + c.nome + '</div>'
+      + (c.assassino ? '<div class="inv-killer">🔪 Sei tu l\'assassino. Non farti scoprire.</div>' : '')
+      + '<div class="inv-card">'
+      + sec('Il tuo segreto', c.segreto) + sec(c.assassino ? 'Cosa racconti' : 'Dov\'eri', c.dove)
+      + sec('Il tuo indizio · turno 1', c.t1) + sec('Il tuo indizio · turno 2', c.t2)
+      + (c.dritta ? sec('Un consiglio', c.dritta) : '')
+      + '</div>';
+  }
+  function invSchedaShow() { inv.sel = 1; invRender(); window.scrollTo(0, 0); }
+  function invSchedaOk() {
+    inv.sel = null;
+    if (inv.i < inv.players.length - 1) { inv.i++; invRender(); window.scrollTo(0, 0); }
+    else invGo('turno1');
+  }
+
+  // ---- accusa ----
+  function invAccusaSel(id) { inv.sel = id; invRender(); }
+  function invAccusaOk() { inv.accusa = inv.sel; invGo('finale'); }
+
+  // ---- "persone" in alto a destra: passeggeri, pianta, rileggere la propria scheda ----
+  function invOpenTools() {
+    document.getElementById('inv-tools-body').innerHTML =
+      '<div class="inv-sheet-lbl">Passeggeri</div>' + invCast()
+      + '<div class="inv-sheet-lbl" style="margin-top:14px">Il vagone</div>' + invPianta()
+      + '<div class="inv-sheet-lbl" style="margin-top:14px">Rileggi la tua scheda</div>'
+      + '<div class="inv-chars">' + inv.players.map(function (p, k) {
+          return '<button class="inv-char" onclick="invPeek(' + k + ')">' + invAva(p.char)
+            + '<span><span class="inv-char-role">' + invEsc(p.name) + '</span><span class="inv-char-sub" style="display:block">' + invChar(p.char).ruolo + '</span></span></button>';
+        }).join('') + '</div>';
+    infoSheetOpen('inv-tools');
+  }
+  function invPeek(k) {
+    infoSheetClose('inv-tools');
+    invPeekClose();
+    const p = inv.players[k], c = invChar(p.char);
+    const el = document.createElement('div');
+    el.className = 'inv-peek'; el.id = 'inv-peek';
+    el.innerHTML = '<div class="inv-body"><div class="inv-pass"><div class="inv-tag">Passa il telefono a</div><div class="inv-pass-name">' + invEsc(p.name) + '</div></div>'
+      + '<div id="inv-peek-in">' + invBtn('👁 Mostra la mia scheda', 'invPeekShow(' + c.id + ')') + '</div>'
+      + invBtn('Chiudi', 'invPeekClose()', 'ghost') + '</div>';
+    document.body.appendChild(el);
+  }
+  function invPeekShow(id) { document.getElementById('inv-peek-in').innerHTML = invScheda(invChar(id)); }
+  function invPeekClose() { const el = document.getElementById('inv-peek'); if (el) el.remove(); }
+
   /* ===== KINGS ===== */
   const kingsCards = [
     { val:'A', suit:'♠', rule:'ACE — WATERFALL', desc:'Tutti bevono in sequenza. Non puoi smettere finché chi ti precede non smette.' },
@@ -15217,7 +15694,7 @@
   // giochi che richiedono la rosa condivisa (vedi rosterOpenFor)
   // Giochi con sesso obbligatorio | solo nome | diretti senza rosa
   const ROSTER_GAMES_GENDER = ['diktat', 'obbligo'];  // sesso richiesto
-  const ROSTER_GAMES_NAME   = ['shotiq', 'raffica'];     // solo nome, no sesso
+  const ROSTER_GAMES_NAME   = ['shotiq', 'raffica', 'investigatore'];     // solo nome, no sesso
   const ROSTER_GAMES = ROSTER_GAMES_GENDER.concat(ROSTER_GAMES_NAME); // tutti quelli che passano dalla pagina giocatori
   const GAMES = [
     // ---- FISSI ----
@@ -15226,6 +15703,7 @@
     { sec:'fixed', emoji:'👑', name:'Kings', type:'app', players:'3+', c:'var(--surface)', sub:'Il re dei giochi da bar', page:'kings' },
     { sec:'fixed', emoji:'🎲', name:'Obbligo o Verità', type:'app', players:'2+', c:'var(--bg)', sub:'Sfida o confessa, o bevi', page:'obbligo' },
     { sec:'fixed', emoji:'🤳', name:'Heads Up!', type:'app', players:'3+', c:'var(--bg)', page:'headsup', sub:'Indovina la parola sulla fronte', rules:'Tieni il telefono sulla fronte: gli altri ti danno indizi per farti indovinare la parola. Ogni parola persa = un sorso.' },
+    { sec:'fixed', emoji:'🕵️', name:'L\'Investigatore', type:'app', players:'4-8', c:'#0E1A2B', page:'investigatore', sub:'Cena con delitto: scopri chi mente' },
     { sec:'rotation', emoji:'🎡', name:'Roulette Alcolica', type:'app', players:'2+', c:'#3A0A2A', sub:'Gira e scopri chi beve', rules:'Gira la ruota sullo schermo: dove si ferma decide chi beve e quanto. Veloce e senza materiale.' },
     { sec:'rotation', emoji:'⚡', name:'A Raffica', type:'app', players:'3+', c:'var(--surface)', page:'raffica', sub:'Categoria + lettera: chi sbaglia beve', rules:'L\'app dà una categoria e una lettera. A turno dici una parola di quella categoria che inizia con quella lettera, senza ripetere. Chi si blocca o sbaglia beve e prende un punto, poi si riparte.' },
     { sec:'fixed', emoji:'📖', name:'Il Cantastorie', type:'app', players:'3+', c:'var(--surface)', page:'cantastorie', sub:'Una storia, una frase a testa', rules:'Si costruisce una storia una frase a testa, seguendo i prompt dell\'app. Chi si blocca, ripete o perde il filo, beve.' },
@@ -15493,7 +15971,7 @@
 
   /* Giochi con una pagina propria: aperti dalla lista, tengono acceso
      il pulsante Giochi nella barra. */
-  var gamePages = ['players','diktat','shotiq','kings','beerpong','flipcup','obbligo','cantastorie','raffica','headsup'];
+  var gamePages = ['players','diktat','shotiq','kings','beerpong','flipcup','obbligo','cantastorie','raffica','headsup','investigatore'];
 
   /* Le teste di menu e prenota sono fissate al viewport, quindi non
      occupano piu' spazio nel documento: senza questo il contenuto
