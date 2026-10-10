@@ -2199,6 +2199,8 @@
   .inv-news-title { font-size:clamp(24px,7.5vw,34px); font-weight:700; line-height:1.02; margin:12px 0 10px; }
   .inv-news .inv-ava { width:46%; height:auto; aspect-ratio:1/1; margin:0 auto 10px; border-radius:4px; border:2px solid #221d14; filter:grayscale(1) contrast(1.1) sepia(0.25); font-size:64px; }
   .inv-news-txt { font-size:12.5px; line-height:1.4; }
+  .inv-news-scene { border:2px solid #221d14; margin-bottom:10px; }
+  .inv-news-scene svg { display:block; width:100%; height:auto; filter:grayscale(1) contrast(1.08) sepia(0.22); }
   .inv-esito { text-align:center; font-family:'Bebas Neue',sans-serif; font-size:clamp(34px,10vw,48px); letter-spacing:1px; line-height:1; }
   .inv-esito.ok { color:var(--success); }
   .inv-esito.ko { color:#ff7a7a; }
@@ -15449,7 +15451,7 @@
 
     } else if (inv.step === 'prologo') {
       h = '<div class="inv-tag">' + S.sotto + '</div><div class="inv-h">' + S.titolo.replace('23:40', '<span>23:40</span>') + '</div>'
-        + '<div class="inv-card"><div class="inv-sheet-lbl">Foto ricordo a Porta Nuova, ore 23:35</div>' + invCast() + '</div>'
+        + '<div class="inv-foto">' + invScenaBinario() + '<div class="inv-foto-cap"><b>Foto ricordo</b> a Porta Nuova, ore 23:35. Chi è sbiadito stasera non gioca, ma sul treno c\'è.</div></div>'
         + '<div class="inv-p">' + S.ambiente + '</div>'
         + '<div class="inv-card gold"><div class="inv-sheet-lbl">La vittima</div><div class="inv-p">' + S.vittima + '</div></div>'
         + '<div class="inv-card"><div class="inv-sheet-lbl">Quello che sanno tutti</div><ul class="inv-list inv-p">'
@@ -15474,13 +15476,15 @@
         + '<div class="inv-h">' + (t === 1 ? 'Chi l\'ha visto <span>vivo?</span>' : 'Dov\'eravate <span>al buio?</span>') + '</div>'
         + '<div class="inv-p">A turno, ognuno racconta il suo <b>indizio del turno ' + t + '</b> (è sulla scheda segreta). Poi discutete, fate domande, incastrate gli orari. Per rileggere la scheda tocca le persone in alto a destra.</div>';
       if (t === 1) {
-        h += '<div class="inv-foto">' + INV_FOTO.orologio + '<div class="inv-foto-cap"><b>Foto 1.</b> L\'orologio da taschino di Ferrante, trovato sul tappeto della cabina 3 con il vetro incrinato.</div></div>';
+        h += '<div class="inv-foto">' + INV_FOTO.orologio + '<div class="inv-foto-cap"><b>Foto 1.</b> L\'orologio da taschino di Ferrante, trovato sul tappeto della cabina 3 con il vetro incrinato.</div></div>'
+          + '<div class="inv-foto">' + invScenaRistorante() + '<div class="inv-foto-cap"><b>Foto 2.</b> Il vagone ristorante, scattata col lampo al magnesio da un viaggiatore. L\'orologio a muro segna l\'1:20. Guardate chi c\'è, e chi non c\'è.</div></div>';
       } else {
-        h += '<div class="inv-foto">' + INV_FOTO.porta + '<div class="inv-foto-cap"><b>Foto 2.</b> La porta interna tra le cabine 3 e 4, vista dalla cabina della vittima. Guardate il chiavistello.</div></div>'
+        h += '<div class="inv-foto">' + invScenaCorridoio() + '<div class="inv-foto-cap"><b>Foto 3.</b> Schizzo della polizia, dal racconto di un testimone: verso l\'1:35 un uomo esce dalla cabina 4. Era buio, e l\'ha visto solo di spalle.</div></div>'
+          + '<div class="inv-foto">' + INV_FOTO.porta + '<div class="inv-foto-cap"><b>Foto 4.</b> La porta interna tra le cabine 3 e 4, vista dalla cabina della vittima. Guardate il chiavistello.</div></div>'
           + '<div class="inv-foto"><div class="inv-clip"><div class="inv-clip-date">Genova · marzo 1929</div>'
           +   '<div class="inv-clip-title">Muore una paziente in una clinica privata: medico radiato dall\'albo</div>'
           +   '<div class="inv-clip-txt">La commissione ha deciso ieri. Il dottor <span class="inv-clip-tear"></span> non potrà più esercitare.</div></div>'
-          +   '<div class="inv-foto-cap"><b>Foto 3.</b> Un vecchio ritaglio di giornale, stretto nella mano della vittima. Il nome è strappato.</div></div>';
+          +   '<div class="inv-foto-cap"><b>Foto 5.</b> Un vecchio ritaglio di giornale, stretto nella mano della vittima. Il nome è strappato.</div></div>';
       }
       docs.forEach(function (c) {
         h += '<div class="inv-doc"><div class="inv-doc-t">📄 ' + c.doc.titolo + '</div>' + c.doc['t' + t] + '</div>';
@@ -15508,12 +15512,143 @@
             : 'Avete accusato ' + invChar(inv.accusa).ruolo + ', che era innocente. <b>' + invEsc(pk.name) + '</b> l\'ha fatta franca: bevono gli investigatori.') + '</div>'
         + '<div class="inv-news"><div class="inv-news-head">La Gazzetta della Sera · 16 gennaio 1934</div>'
         +   '<div class="inv-news-title">' + (giusto ? 'Arrestato sul Torino–Parigi' : 'Delitto del vagone letto: il colpevole era lui') + '</div>'
-        +   invAva(k.id) + '<div class="inv-news-txt"><b>' + k.nome + '</b>, ' + k.ruolo.toLowerCase() + ' (interpretato da ' + invEsc(pk.name) + ')</div></div>'
+        +   '<div class="inv-news-scene">' + invScenaArresto(k.id) + '</div><div class="inv-news-txt"><b>' + k.nome + '</b>, ' + k.ruolo.toLowerCase() + ' (interpretato da ' + invEsc(pk.name) + ')</div></div>'
         + '<div class="inv-card"><div class="inv-sheet-lbl">Com\'è andata davvero</div><div class="inv-p">' + S.finale + '<br><br><b>' + S.chiusa + '</b></div></div>'
         + invBtn('Torna ai giochi', "goTo('games')")
         + invBtn('↺ Rigioca con altri ruoli', 'invStart()', 'ghost');
     }
     body.innerHTML = h;
+  }
+
+  /* ---- Scene illustrate con le facce dei giocatori ----
+     Ogni personaggio ha un corpo disegnato (cappotto e cappello suoi) e,
+     al posto della testa, il selfie del giocatore incollato come un
+     adesivo: tondo, bordo bianco, un po' storto. Senza selfie c'e' una
+     faccina disegnata; se il personaggio non e' giocato, e' sbiadito.
+     Coordinate in unita' del viewBox: la scena si adatta a ogni schermo. */
+  const INV_ABITO = { 1:'#1d2f55', 2:'#5b2a52', 3:'#5a5f66', 4:'#16161a', 5:'#2f6b4f', 6:'#6b4a2c', 7:'#a3262a', 8:'#b9a37a' };
+  let invSvgN = 0;
+  function invCappello(id, hx, hy, r) {
+    const e = function (cx, cy, rx, ry, f) { return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + f + '"/>'; };
+    const q = function (x, y, w, h, f, rx) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (rx || 0) + '" fill="' + f + '"/>'; };
+    if (id === 1) return q(hx - r * 0.95, hy - r * 1.35, r * 1.9, r * 0.65, '#1d2f55', r * 0.2) + q(hx - r * 0.95, hy - r * 0.86, r * 1.9, r * 0.12, '#c9a441') + q(hx - r * 1.1, hy - r * 0.74, r * 2.2, r * 0.16, '#101a33', r * 0.08);
+    if (id === 2) return e(hx, hy - r * 0.82, r * 1.65, r * 0.34, '#3f1c39') + e(hx, hy - r * 1.12, r * 0.85, r * 0.5, '#5b2a52') + '<path d="M' + (hx + r * 0.5) + ' ' + (hy - r * 1.2) + ' q' + (r * 0.9) + ' ' + (-r * 0.9) + ' ' + (r * 1.3) + ' ' + (-r * 0.2) + '" fill="none" stroke="#f7cc49" stroke-width="' + (r * 0.14) + '" stroke-linecap="round"/>';
+    if (id === 3) return q(hx - r * 0.75, hy - r * 1.55, r * 1.5, r * 0.85, '#34373c', r * 0.35) + e(hx, hy - r * 0.78, r * 1.25, r * 0.2, '#26282c');
+    if (id === 4) return q(hx - r * 0.7, hy - r * 2.15, r * 1.4, r * 1.4, '#0c0c0e') + q(hx - r * 0.7, hy - r * 1.05, r * 1.4, r * 0.22, '#a3262a') + e(hx, hy - r * 0.78, r * 1.2, r * 0.2, '#0c0c0e');
+    if (id === 5) return '<path d="M' + (hx - r * 1.02) + ' ' + (hy - r * 0.5) + ' a' + (r * 1.02) + ' ' + (r * 0.95) + ' 0 0 1 ' + (r * 2.04) + ' 0 z" fill="#24543e"/>';
+    if (id === 6) return q(hx - r * 0.75, hy - r * 1.5, r * 1.5, r * 0.8, '#4e3620', r * 0.3) + q(hx - r * 0.75, hy - r * 0.98, r * 1.5, r * 0.14, '#2a1c10') + e(hx, hy - r * 0.78, r * 1.3, r * 0.2, '#3a2716');
+    if (id === 7) return '<circle cx="' + (hx + r * 0.78) + '" cy="' + (hy - r * 0.78) + '" r="' + (r * 0.3) + '" fill="#e0483f"/><circle cx="' + (hx + r * 0.78) + '" cy="' + (hy - r * 0.78) + '" r="' + (r * 0.12) + '" fill="#f7cc49"/>';
+    return e(hx + r * 0.12, hy - r * 0.86, r * 1.15, r * 0.36, '#9c8760') + e(hx + r * 0.75, hy - r * 0.72, r * 0.55, r * 0.14, '#7d6c4c');
+  }
+  // figura in piedi: (cx, piedi) = dove poggia; k = scala
+  function invFig(id, cx, piedi, k) {
+    const p = invPlayerOf(id), r = 15 * k, hx = cx, hy = piedi - 74 * k - r * 0.55;
+    const n = ++invSvgN, col = INV_ABITO[id];
+    let g = '<g' + (p ? '' : ' opacity="0.45"') + '>'
+      + '<path d="M' + (cx - 16 * k) + ' ' + piedi + ' L' + (cx - 12 * k) + ' ' + (piedi - 66 * k) + ' Q' + cx + ' ' + (piedi - 78 * k) + ' ' + (cx + 12 * k) + ' ' + (piedi - 66 * k) + ' L' + (cx + 16 * k) + ' ' + piedi + ' Z" fill="' + col + '"/>'
+      + '<path d="M' + cx + ' ' + (piedi - 70 * k) + ' L' + cx + ' ' + (piedi - 6 * k) + '" stroke="rgba(255,255,255,0.18)" stroke-width="' + (1.2 * k) + '"/>';
+    if (id === 2 || id === 7) g += '<ellipse cx="' + cx + '" cy="' + (piedi - 64 * k) + '" rx="' + (13 * k) + '" ry="' + (5 * k) + '" fill="#d9cdb8"/>';
+    if (id === 3) g += '<rect x="' + (cx + 13 * k) + '" y="' + (piedi - 22 * k) + '" width="' + (15 * k) + '" height="' + (12 * k) + '" rx="' + (2 * k) + '" fill="#3b2415"/><path d="M' + (cx + 17 * k) + ' ' + (piedi - 22 * k) + ' q' + (3.5 * k) + ' ' + (-6 * k) + ' ' + (7 * k) + ' 0" fill="none" stroke="#3b2415" stroke-width="' + (1.6 * k) + '"/>';
+    if (id === 4) g += '<path d="M' + (cx - 16 * k) + ' ' + piedi + ' L' + (cx - 22 * k) + ' ' + (piedi - 60 * k) + ' L' + (cx - 12 * k) + ' ' + (piedi - 66 * k) + ' Z" fill="#a3262a"/>';
+    // la testa: adesivo col selfie, oppure faccina disegnata
+    const rot = ((id * 37) % 13) - 6;
+    g += '<g transform="rotate(' + rot + ' ' + hx + ' ' + hy + ')">'
+      + '<circle cx="' + (hx + 1.2 * k) + '" cy="' + (hy + 1.8 * k) + '" r="' + (r + 2.4 * k) + '" fill="rgba(0,0,0,0.45)"/>'
+      + '<circle cx="' + hx + '" cy="' + hy + '" r="' + (r + 2.4 * k) + '" fill="#ffffff"/>';
+    if (p && p.selfie) {
+      g += '<clipPath id="invc' + n + '"><circle cx="' + hx + '" cy="' + hy + '" r="' + r + '"/></clipPath>'
+        + '<image href="' + p.selfie + '" x="' + (hx - r) + '" y="' + (hy - r) + '" width="' + (2 * r) + '" height="' + (2 * r) + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#invc' + n + ')"/>';
+    } else {
+      g += '<circle cx="' + hx + '" cy="' + hy + '" r="' + r + '" fill="#e8c9a4"/>'
+        + '<circle cx="' + (hx - r * 0.35) + '" cy="' + (hy - r * 0.1) + '" r="' + (r * 0.1) + '" fill="#2a2218"/><circle cx="' + (hx + r * 0.35) + '" cy="' + (hy - r * 0.1) + '" r="' + (r * 0.1) + '" fill="#2a2218"/>'
+        + '<path d="M' + (hx - r * 0.3) + ' ' + (hy + r * 0.35) + ' q' + (r * 0.3) + ' ' + (r * 0.25) + ' ' + (r * 0.6) + ' 0" fill="none" stroke="#2a2218" stroke-width="' + (r * 0.09) + '" stroke-linecap="round"/>';
+    }
+    g += '</g>' + invCappello(id, hx, hy, r) + '</g>';
+    return g;
+  }
+  function invNeve(n, w, h) {
+    let s = '';
+    for (let i = 0; i < n; i++) s += '<circle cx="' + ((i * 97 + 13) % w) + '" cy="' + ((i * 53 + 7) % h) + '" r="' + (1 + (i % 3) * 0.5) + '" fill="rgba(255,255,255,0.75)"/>';
+    return s;
+  }
+  function invOraMuro(cx, cy, r, ore, min) {
+    const a = function (deg, len) { const t = (deg - 90) * Math.PI / 180; return 'x2="' + (cx + Math.cos(t) * len).toFixed(1) + '" y2="' + (cy + Math.sin(t) * len).toFixed(1) + '"'; };
+    return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#f3ead2" stroke="#c9a441" stroke-width="' + (r * 0.16) + '"/>'
+      + '<line x1="' + cx + '" y1="' + cy + '" ' + a((ore % 12 + min / 60) * 30, r * 0.5) + ' stroke="#2a2218" stroke-width="' + (r * 0.16) + '" stroke-linecap="round"/>'
+      + '<line x1="' + cx + '" y1="' + cy + '" ' + a(min * 6, r * 0.78) + ' stroke="#2a2218" stroke-width="' + (r * 0.1) + '" stroke-linecap="round"/>';
+  }
+
+  // 1 · foto ricordo sul marciapiede: tutti e otto davanti al treno.
+  // Due file sfalsate: davanti i quattro sempre in gioco, dietro gli altri.
+  function invScenaBinario() {
+    const C = INV_STORIA.personaggi;
+    const lab = function (c, x, y) { return '<text x="' + x + '" y="' + y + '" text-anchor="middle" font-family="Manrope,sans-serif" font-size="7.5" font-weight="800" fill="#f3ead2">' + c.ruolo.replace(/^(Il|La|L')\s?/, '').toUpperCase() + '</text>'; };
+    let s = '<svg viewBox="0 0 360 272" role="img" aria-label="Foto ricordo dei passeggeri a Porta Nuova"><rect width="360" height="272" fill="#0f1726"/>'
+      + '<rect x="0" y="34" width="360" height="112" fill="#3d1414"/><rect x="0" y="34" width="360" height="7" fill="#c9a441"/><rect x="0" y="138" width="360" height="5" fill="#c9a441"/>';
+    for (let i = 0; i < 6; i++) s += '<rect x="' + (14 + i * 58) + '" y="52" width="42" height="34" rx="4" fill="#f4d98a" opacity="0.9"/>';
+    s += '<rect x="0" y="146" width="360" height="126" fill="#2a2f3a"/><rect x="0" y="146" width="360" height="4" fill="#f7cc49" opacity="0.5"/>'
+      + '<line x1="330" y1="0" x2="330" y2="10" stroke="#c9a441" stroke-width="3"/>' + invOraMuro(330, 20, 10, 23, 35)
+      + invNeve(26, 360, 150);
+    [0, 1, 2, 3].forEach(function (i) { const c = C[i + 4], x = 84 + i * 84; s += invFig(c.id, x, 200, 0.85) + lab(c, x, 104); });
+    [0, 1, 2, 3].forEach(function (i) { const c = C[i], x = 42 + i * 84; s += invFig(c.id, x, 252, 1) + lab(c, x, 265); });
+    return s + '</svg>';
+  }
+  // 2 · il vagone ristorante all'1:20: chi c'era (e chi no)
+  function invScenaRistorante() {
+    let s = '<svg viewBox="0 0 360 240" role="img" aria-label="Il vagone ristorante all\'una e venti"><rect width="360" height="240" fill="#2a160f"/>'
+      + '<rect x="0" y="0" width="360" height="150" fill="#4a2a1a"/>';
+    [20, 140, 260].forEach(function (x) { s += '<rect x="' + x + '" y="18" width="84" height="74" rx="6" fill="#0d1420"/><g transform="translate(' + x + ' 18)">' + invNeve(9, 84, 74) + '</g><rect x="' + x + '" y="18" width="84" height="74" rx="6" fill="none" stroke="#c9a441" stroke-width="3"/>'; });
+    s += invOraMuro(122, 52, 13, 1, 20)
+      + '<text x="122" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#c9a441">ORE 1:20</text>'
+      // bancone e barman (senza volto: non e' un personaggio)
+      + '<rect x="286" y="118" width="74" height="122" fill="#1c0f0a"/><rect x="280" y="112" width="80" height="10" fill="#6b4a2c"/>'
+      + '<circle cx="326" cy="86" r="11" fill="#1c0f0a"/><path d="M308 112 Q326 92 344 112 Z" fill="#f3ead2"/>'
+      // i due al tavolo
+      + invFig(4, 88, 268, 1.6) + invFig(2, 178, 268, 1.6)
+      // tavolo davanti a loro, con candela e carte
+      + '<rect x="40" y="176" width="220" height="64" fill="#f3ead2"/><rect x="40" y="176" width="220" height="6" fill="#d9cdb8"/>'
+      + '<rect x="141" y="150" width="6" height="26" fill="#f3ead2"/><ellipse cx="144" cy="145" rx="4" ry="7" fill="#f7cc49"/><circle cx="144" cy="146" r="20" fill="#f7cc49" opacity="0.14"/>'
+      + '<g transform="rotate(-12 86 200)"><rect x="76" y="188" width="18" height="26" rx="2" fill="#ffffff" stroke="#2a2218"/><text x="85" y="206" text-anchor="middle" font-size="12" fill="#a3262a">♥</text></g>'
+      + '<g transform="rotate(9 110 202)"><rect x="100" y="190" width="18" height="26" rx="2" fill="#ffffff" stroke="#2a2218"/><text x="109" y="208" text-anchor="middle" font-size="12" fill="#16161a">♠</text></g>'
+      // sedia vuota
+      + '<rect x="226" y="112" width="46" height="64" rx="6" fill="rgba(0,0,0,0.25)" stroke="#f7cc49" stroke-width="2.2" stroke-dasharray="5 4"/>'
+      + '<text x="249" y="141" text-anchor="middle" font-family="Manrope,sans-serif" font-size="9" font-weight="800" fill="#f7cc49">SEDIA</text><text x="249" y="153" text-anchor="middle" font-family="Manrope,sans-serif" font-size="9" font-weight="800" fill="#f7cc49">VUOTA</text>'
+      // lampo al magnesio
+      + '<rect width="360" height="240" fill="url(#invlampo)"/><defs><radialGradient id="invlampo" cx="50%" cy="45%" r="75%"><stop offset="55%" stop-color="#fff" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity="0.6"/></radialGradient></defs>';
+    return s + '</svg>';
+  }
+  // 3 · il corridoio: un uomo esce dalla cabina 4, di spalle
+  function invScenaCorridoio() {
+    let s = '<svg viewBox="0 0 360 240" role="img" aria-label="Un uomo di spalle esce dalla cabina 4"><rect width="360" height="240" fill="#120d09"/>'
+      + '<path d="M0 240 L130 150 L230 150 L360 240 Z" fill="#3a1f1a"/><path d="M130 150 L230 150 L230 40 L130 40 Z" fill="#0d0907"/>'
+      + '<path d="M230 40 L360 0 L360 240 L230 150 Z" fill="#4a2f1c"/><path d="M130 40 L0 0 L0 240 L130 150 Z" fill="#2c1b10"/>';
+    [[250, 52, 28, 96, '5'], [292, 36, 44, 150, '4']].forEach(function (d) {
+      s += '<rect x="' + d[0] + '" y="' + d[1] + '" width="' + d[2] + '" height="' + d[3] + '" rx="3" fill="#6b4a2c"/>'
+        + '<rect x="' + (d[0] + d[2] / 2 - 7) + '" y="' + (d[1] + 8) + '" width="14" height="11" rx="2" fill="#c9a441"/><text x="' + (d[0] + d[2] / 2) + '" y="' + (d[1] + 17) + '" text-anchor="middle" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#2a2218">' + d[4] + '</text>';
+    });
+    s += '<rect x="292" y="36" width="44" height="150" rx="3" fill="#0d0907" opacity="0.75"/>'
+      + '<circle cx="64" cy="70" r="46" fill="#f7cc49" opacity="0.10"/><rect x="61" y="62" width="6" height="18" fill="#f3ead2"/><ellipse cx="64" cy="57" rx="4" ry="7" fill="#f7cc49"/>'
+      // l'uomo di spalle: cappotto scuro, cappello, valigetta. Niente faccia.
+      + '<path d="M252 232 L258 118 Q282 100 306 118 L312 232 Z" fill="#1c1e22"/>'
+      + '<circle cx="282" cy="94" r="20" fill="#16171a"/><rect x="264" y="66" width="36" height="18" rx="7" fill="#101114"/><ellipse cx="282" cy="84" rx="27" ry="4.5" fill="#101114"/>'
+      + '<rect x="308" y="186" width="26" height="20" rx="3" fill="#2a1a10"/><path d="M314 186 q7 -11 14 0" fill="none" stroke="#2a1a10" stroke-width="2.5"/>'
+      + '<g transform="rotate(-8 282 94)"><circle cx="282" cy="94" r="15" fill="#ffffff"/><text x="282" y="101" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="#a3262a">?</text></g>';
+    return s + '</svg>';
+  }
+  // 4 · l'arresto: l'assassino tra due gendarmi
+  function invScenaArresto(id) {
+    const gend = function (cx) {
+      return '<path d="M' + (cx - 17) + ' 226 L' + (cx - 13) + ' 150 Q' + cx + ' 138 ' + (cx + 13) + ' 150 L' + (cx + 17) + ' 226 Z" fill="#1d2f55"/>'
+        + '<circle cx="' + cx + '" cy="128" r="14" fill="#e8c9a4"/><rect x="' + (cx - 13) + '" y="104" width="26" height="14" rx="3" fill="#101a33"/><rect x="' + (cx - 15) + '" y="116" width="30" height="4" fill="#101a33"/>'
+        + '<line x1="' + cx + '" y1="150" x2="' + cx + '" y2="220" stroke="#c9a441" stroke-width="1.5" stroke-dasharray="1 9" stroke-linecap="round"/>';
+    };
+    return '<svg viewBox="0 0 360 240" role="img" aria-label="L\'arresto"><rect width="360" height="240" fill="#1b2433"/>'
+      + '<rect x="0" y="40" width="360" height="96" fill="#3d1414"/><rect x="0" y="40" width="360" height="7" fill="#c9a441"/>'
+      + '<rect x="24" y="60" width="52" height="40" rx="4" fill="#f4d98a"/><rect x="284" y="60" width="52" height="40" rx="4" fill="#f4d98a"/>'
+      + '<rect x="0" y="136" width="360" height="104" fill="#e9edf2"/>' + invNeve(24, 360, 140)
+      + gend(112) + gend(248) + invFig(id, 180, 228, 1.25)
+      + '<path d="M150 190 h60" stroke="#8f8a80" stroke-width="4" stroke-linecap="round"/><circle cx="150" cy="190" r="6" fill="none" stroke="#8f8a80" stroke-width="3"/><circle cx="210" cy="190" r="6" fill="none" stroke="#8f8a80" stroke-width="3"/>'
+      + '</svg>';
   }
 
   // ---- scelta dei personaggi e selfie ----
