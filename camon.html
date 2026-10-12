@@ -2749,31 +2749,13 @@
     padding: 18px 24px 130px; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   .siq-rule {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(247,204,73,0.1); border: 1px solid rgba(247,204,73,0.28);
-    border-radius: 12px; padding: 11px 14px; margin-bottom: 20px;
-    font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8);
+    display: block;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 12px 14px; margin-bottom: 18px;
+    font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 600; line-height: 1.5; color: var(--text-sub);
   }
-  .siq-rule span { font-size: 17px; }
+  .siq-rule b { color: var(--brand); font-weight: 800; }
   .siq-area { justify-content: center !important; }
-  .siq-question {
-    font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1.08;
-    letter-spacing: 0.5px; color: var(--text); max-width: 340px; text-align: center;
-    text-shadow: 0 2px 14px rgba(0,0,0,0.25); animation: sqPop 0.32s ease;
-  }
-  .siq-answer {
-    margin-top: 22px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 16px; padding: 16px 22px; max-width: 320px; animation: sqPop 0.3s ease;
-  }
-  .siq-answer-lbl {
-    font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800;
-    letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5);
-    margin-bottom: 5px; text-align: center;
-  }
-  .siq-answer-val {
-    font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.5px;
-    color: var(--text); text-align: center; line-height: 1.05;
-  }
   /* Shot IQ — argomento libero (AI) */
   .siq-custom {
     flex: 1; display: flex; flex-direction: column; justify-content: center;
@@ -2817,100 +2799,127 @@
     flex: 1; display: flex; flex-direction: column;
     padding: 14px 20px 100px; width: 100%; overflow-y: auto;
   }
-  /* multi-select argomenti */
-  .siq-multi-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 4px; }
-  .siq-multi-card {
-    display: flex; align-items: center; gap: 12px; width: 100%;
-    background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 14px; padding: 12px 14px; cursor: pointer; text-align: left;
-    -webkit-tap-highlight-color: transparent; transition: background 0.15s, border-color 0.15s;
-  }
-  .siq-multi-card.on { background: rgba(247,204,73,0.1); border-color: var(--brand); }
-  .siq-multi-emoji { font-size: 24px; flex-shrink: 0; }
-  .siq-multi-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-  .siq-multi-name { font-family: 'Bebas Neue', sans-serif; font-size: 19px; color: var(--text); letter-spacing: 0.4px; line-height: 1; }
-  .siq-multi-desc { font-family: 'Manrope', sans-serif; font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.25; }
-  .siq-multi-check {
-    width: 24px; height: 24px; border-radius: 8px; flex-shrink: 0;
-    border: 2px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center;
-    color: var(--bg); font-size: 15px; font-weight: 900; transition: background 0.15s, border-color 0.15s;
-  }
-  .siq-multi-card.on .siq-multi-check { background: var(--brand); border-color: var(--brand); }
-  .siq-ai-link { color: var(--brand) !important; }
-  #siq-multi-btn:disabled { opacity: 0.5; }
-  /* board spicchi */
-  .siq-board {
-    display: flex; flex-direction: column; gap: 8px;
-    background: rgba(0,0,0,0.22); border-radius: 16px; padding: 12px 14px;
-    margin-bottom: 16px;
-  }
-  .siq-board-row { display: flex; align-items: center; gap: 10px; }
-  .siq-board-name {
+  /* scelta argomenti: griglia a due colonne. Niente emoji: ogni materia
+     ha il suo triangolino colorato, lo stesso che poi si conquista. */
+  .siq-pick-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .siq-pick-count {
     font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 800;
-    color: rgba(255,255,255,0.85); width: 66px; flex-shrink: 0;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-sub);
+  }
+  .siq-pick-count b { color: var(--brand); }
+  .siq-random-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: transparent; border: 1.5px solid var(--brand); color: var(--brand);
+    border-radius: 999px; padding: 8px 15px 7px; cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px;
+    -webkit-tap-highlight-color: transparent; transition: transform 0.12s, background 0.15s;
+  }
+  .siq-random-btn:active { transform: scale(0.96); background: rgba(247,204,73,0.14); }
+  .siq-random-btn svg { margin-top: -1px; }
+  .siq-tri { display: block; flex-shrink: 0; width: 20px; height: 19px; }
+  .siq-multi-list { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 16px; }
+  .siq-multi-card {
+    position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 9px;
+    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 13px 13px 12px; cursor: pointer; text-align: left;
+    -webkit-tap-highlight-color: transparent; transition: background 0.15s, border-color 0.15s, opacity 0.15s, transform 0.12s;
+  }
+  .siq-multi-card:active { transform: scale(0.98); }
+  .siq-multi-card.on { background: rgba(247,204,73,0.09); border-color: var(--brand); }
+  /* ne hai gia' scelte 6: le altre si spengono finche' non ne togli una */
+  .siq-multi-list.full .siq-multi-card:not(.on) { opacity: 0.38; }
+  .siq-multi-info { display: flex; flex-direction: column; gap: 3px; }
+  .siq-multi-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--text); letter-spacing: 0.5px; line-height: 1; }
+  .siq-multi-desc { font-family: 'Manrope', sans-serif; font-size: 11px; color: var(--text-sub); line-height: 1.3; }
+  .siq-multi-check {
+    position: absolute; top: 11px; right: 11px; width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center;
+    color: var(--on-brand); transition: background 0.15s, border-color 0.15s;
+  }
+  .siq-multi-check svg { width: 12px; height: 12px; opacity: 0; }
+  .siq-multi-card.on .siq-multi-check { background: var(--brand); border-color: var(--brand); }
+  .siq-multi-card.on .siq-multi-check svg { opacity: 1; }
+  .siq-ai-link { color: var(--brand) !important; margin-top: 18px !important; }
+  #siq-multi-btn:disabled { opacity: 0.5; }
+  /* tabellone: una riga per giocatore, chi e' di turno e' acceso in giallo */
+  .siq-board {
+    display: flex; flex-direction: column; gap: 3px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 6px; margin-bottom: 14px;
+  }
+  .siq-board-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 11px; transition: background 0.2s; }
+  .siq-board-row.current { background: rgba(247,204,73,0.11); }
+  .siq-board-name {
+    font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.6px; line-height: 1;
+    color: var(--text-sub); width: 30%; flex-shrink: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .siq-board-name.current { color: var(--brand); }
-  .siq-board-wedges { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
-  .siq-wedge {
-    font-size: 17px; line-height: 1; transition: opacity 0.3s, transform 0.3s;
-  }
-  .siq-wedge.won { animation: sqPop 0.4s ease; }
+  .siq-board-row.current .siq-board-name { color: var(--brand); }
+  .siq-board-wedges { display: flex; gap: 5px; flex: 1; }
+  .siq-board-wedges .siq-tri { width: 17px; height: 16px; }
+  .siq-tri.won { animation: sqPop 0.4s ease; }
   .siq-board-count {
     font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800;
-    color: rgba(255,255,255,0.5); flex-shrink: 0;
+    color: var(--text-muted); flex-shrink: 0;
   }
+  .siq-board-row.current .siq-board-count { color: var(--text-sub); }
   .siq-turn {
-    font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.5px;
-    color: var(--text); text-align: center; margin-bottom: 12px;
+    font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800;
+    letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-sub);
+    text-align: center; margin-bottom: 8px;
   }
-  .siq-turn span { color: var(--brand); }
-  /* ---- RUOTA (stile Trivia Crack) ---- */
-  .siq-wheel-stage { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .siq-wheel-wrap { position: relative; width: min(74vw, 290px); aspect-ratio: 1; margin: 4px auto 2px; }
+  .siq-turn span {
+    display: block; margin-top: 3px; text-transform: none;
+    font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; line-height: 1; color: var(--brand);
+  }
+  /* ---- RUOTA ---- */
+  .siq-wheel-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .siq-wheel-wrap {
+    position: relative; width: min(76vw, 300px); aspect-ratio: 1; margin: 12px auto 2px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
   .siq-wheel {
     width: 100%; height: 100%; border-radius: 50%; position: relative;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.45), inset 0 0 0 6px rgba(255,255,255,0.08), inset 0 0 40px rgba(0,0,0,0.35);
+    box-shadow: 0 14px 36px rgba(0,0,0,0.55);
     transition: transform 4s cubic-bezier(0.16, 0.84, 0.22, 1);
     will-change: transform;
   }
-  .siq-wheel-emoji {
-    position: absolute; inset: 0; display: flex; justify-content: center; align-items: flex-start;
-    padding-top: 7%; font-size: 23px; line-height: 1; transform-origin: center center;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); pointer-events: none;
-  }
+  .siq-wheel svg { display: block; width: 100%; height: 100%; }
+  .siq-wheel-lbl { font-family: 'Bebas Neue', sans-serif; font-size: 11.5px; letter-spacing: 0.7px; fill: #111111; }
   .siq-wheel-hub {
-    position: absolute; inset: 34%; border-radius: 50%;
-    background: radial-gradient(circle at 40% 35%, #10403A, #06211E);
-    box-shadow: inset 0 0 0 3px rgba(255,255,255,0.12), 0 4px 14px rgba(0,0,0,0.5);
-    display: flex; align-items: center; justify-content: center; font-size: 26px;
-    pointer-events: none;
+    position: absolute; inset: 35%; border-radius: 50%;
+    background: var(--bg-deep); border: 2px solid var(--brand);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; transition: transform 0.12s;
   }
+  .siq-wheel-wrap:active .siq-wheel-hub { transform: scale(0.93); }
+  .siq-wheel-hub svg { height: 58%; width: auto; display: block; }
   .siq-wheel-ptr {
-    position: absolute; top: -4px; left: 50%; transform: translateX(-50%); z-index: 3;
-    width: 0; height: 0; border-left: 13px solid transparent; border-right: 13px solid transparent;
-    border-top: 22px solid var(--text); filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+    position: absolute; top: -3.5%; left: 50%; transform: translateX(-50%); z-index: 3;
+    width: 10%; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));
   }
+  .siq-wheel-ptr svg { display: block; width: 100%; height: auto; }
   .siq-spin-btn {
     width: 100%; max-width: 300px; border: none; border-radius: 15px; padding: 16px;
-    background: var(--brand); color: var(--bg); cursor: pointer;
+    background: var(--brand); color: var(--on-brand); cursor: pointer;
     font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1.5px;
     -webkit-tap-highlight-color: transparent; transition: transform 0.12s, opacity 0.2s;
-    box-shadow: 0 6px 18px rgba(247,204,73,0.35);
   }
-  .siq-spin-btn:active { transform: scale(0.97); }
-  .siq-spin-btn:disabled { opacity: 0.45; box-shadow: none; }
+  .siq-spin-btn:active { transform: scale(0.97); background: var(--brand-press); }
+  .siq-spin-btn:disabled { opacity: 0.45; }
   .siq-spin-hint {
     font-family: 'Manrope', sans-serif; font-size: 11.5px; line-height: 1.5;
-    color: rgba(255,255,255,0.55); text-align: center; max-width: 300px; padding: 0 6px;
+    color: var(--text-muted); text-align: center; max-width: 300px; padding: 0 6px;
   }
   .siq-streak {
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 800;
-    color: rgba(255,255,255,0.8); letter-spacing: 0.3px;
+    font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-sub);
   }
-  .siq-streak-dot { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.18); display: inline-block; }
-  .siq-streak-dot.on { background: var(--brand); box-shadow: 0 0 8px rgba(250,204,21,0.6); }
+  .siq-streak span:last-child { margin-left: 4px; }
+  .siq-streak-dot { width: 22px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.14); display: inline-block; }
+  .siq-streak-dot.on { background: var(--brand); }
   /* pulsante "Ricomincia" nell'header (in alto a destra) */
   .siq-reset-btn {
     margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
@@ -2948,60 +2957,98 @@
   .siq-modal-cancel:active, .siq-modal-ok:active { transform: scale(0.97); }
   .siq-modal-cancel { background: rgba(255,255,255,0.1); border: none; color: var(--text); }
   .siq-modal-ok { background: var(--error); border: none; color: var(--text); }
-  /* ---- scelta corona ---- */
+  /* ---- domanda bonus: scelta del triangolino ---- */
   .siq-crownpick { display: block; width: 100%; animation: sqPop 0.35s ease; }
   .siq-crownpick-title {
-    font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.5px;
-    color: var(--brand); text-align: center; margin: 6px 0 16px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; line-height: 1;
+    color: var(--brand); text-align: center; margin: 8px 0 5px;
   }
-  .siq-crownpick-list { display: flex; flex-direction: column; gap: 10px; }
+  .siq-crownpick-sub {
+    font-family: 'Manrope', sans-serif; font-size: 13px; color: var(--text-sub);
+    text-align: center; margin-bottom: 16px;
+  }
+  .siq-crownpick-list { display: flex; flex-direction: column; gap: 9px; }
   .siq-crownpick-btn {
-    display: flex; align-items: center; gap: 12px; width: 100%;
-    background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; gap: 13px; width: 100%;
+    background: var(--surface); border: 1.5px solid var(--border); color: var(--text-muted);
     border-radius: 14px; padding: 14px 16px; cursor: pointer; text-align: left;
-    -webkit-tap-highlight-color: transparent; transition: transform 0.12s, background 0.15s;
+    -webkit-tap-highlight-color: transparent; transition: transform 0.12s, border-color 0.15s;
   }
-  .siq-crownpick-btn:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
-  .siq-cp-emoji { font-size: 24px; flex-shrink: 0; }
-  .siq-cp-name { flex: 1; font-family: 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.4px; }
-  .siq-cp-tri { font-size: 18px; flex-shrink: 0; }
+  .siq-crownpick-btn:active { transform: scale(0.98); border-color: var(--brand); }
+  .siq-cp-name { flex: 1; font-family: 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.5px; color: var(--text); line-height: 1; }
+  /* ---- carta domanda ---- */
   .siq-question-stage { display: flex; flex-direction: column; width: 100%; }
   .siq-game-card {
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 18px; padding: 22px 20px; text-align: center;
-    display: flex; flex-direction: column; align-items: center;
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 3px solid var(--siq-c, var(--brand));
+    border-radius: 20px; padding: 20px 20px 24px; text-align: left;
+    display: flex; flex-direction: column; align-items: flex-start;
   }
-  .siq-controls { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .siq-cat {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1.3px; line-height: 1;
+    color: var(--siq-c, var(--brand));
+  }
+  .siq-cat .siq-tri { width: 15px; height: 14px; }
+  .siq-cat-bonus {
+    background: var(--brand); color: var(--on-brand); border-radius: 999px; padding: 4px 9px 3px;
+    font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+  }
+  .siq-question {
+    font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 800; line-height: 1.3;
+    color: var(--text); animation: sqPop 0.32s ease;
+  }
+  .siq-answer {
+    width: 100%; margin-top: 20px; padding-top: 16px;
+    border-top: 1px dashed var(--border); animation: sqPop 0.3s ease;
+  }
+  .siq-answer-lbl {
+    font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px;
+  }
+  .siq-answer-val {
+    font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.5px;
+    color: var(--brand); line-height: 1.05;
+  }
+  .siq-controls { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
   .siq-reveal-btn, .siq-judge-ok, .siq-judge-no {
-    border: none; border-radius: 13px; padding: 15px;
-    font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 1px;
+    border: none; border-radius: 15px; padding: 16px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 1.5px;
     cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.12s, opacity 0.15s;
   }
   .siq-reveal-btn:active, .siq-judge-ok:active, .siq-judge-no:active { transform: scale(0.98); }
-  .siq-reveal-btn { background: rgba(255,255,255,0.1); color: var(--text); }
+  .siq-reveal-btn, .siq-judge-ok { background: var(--brand); color: var(--on-brand); }
   .siq-judge { display: flex; gap: 10px; }
-  .siq-judge-ok { flex: 1; background: var(--brand); color: var(--bg); }
-  .siq-judge-no { flex: 1; background: rgba(255,80,80,0.18); border: 1px solid rgba(255,80,80,0.4) !important; color: #ff7b7b; }
-  .siq-roll-msg {
-    text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 22px;
-    letter-spacing: 0.5px; color: var(--text); padding: 8px; animation: sqPop 0.3s ease;
+  .siq-judge-ok { flex: 1; }
+  .siq-judge-no { flex: 1; background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+  /* esito tra una domanda e l'altra */
+  .siq-roll-msg { text-align: center; padding: 14% 8px 0; animation: sqPop 0.3s ease; }
+  .siq-roll-msg b {
+    display: block; font-family: 'Bebas Neue', sans-serif; font-weight: 400;
+    font-size: 46px; letter-spacing: 1px; line-height: 1; color: var(--brand);
+  }
+  .siq-roll-msg.bad b { color: var(--text); }
+  .siq-roll-msg span {
+    display: block; margin-top: 9px;
+    font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; color: var(--text-sub);
   }
   /* vittoria */
   .siq-win {
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 30px 28px 100px; text-align: center; gap: 6px;
   }
-  .siq-win-trophy { font-size: 76px; animation: sqPop 0.5s ease; }
+  .siq-win-logo { animation: sqPop 0.5s ease; }
+  .siq-win-logo svg { display: block; height: 84px; width: auto; }
   .siq-win-lbl {
-    font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 800;
-    letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 8px;
+    font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 800;
+    letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-sub); margin-top: 14px;
   }
   .siq-win-name {
-    font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 1px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 56px; letter-spacing: 1px;
     color: var(--brand); line-height: 1; margin-bottom: 8px;
   }
   .siq-win-rank {
-    font-family: 'Manrope', sans-serif; font-size: 13px; color: rgba(255,255,255,0.6);
+    font-family: 'Manrope', sans-serif; font-size: 13px; color: var(--text-sub);
     line-height: 1.7; margin-bottom: 24px;
   }
   .siq-win .siq-custom-btn { width: 100%; max-width: 280px; }
@@ -6169,7 +6216,7 @@
   <div class="page game-detail" id="page-shotiq">
     <div class="gd-header">
       <button class="back-btn" onclick="siqBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">TRI<span>VIAL</span> 🧠</div>
+      <div class="gd-title">TRI<span>VIAL</span></div>
       <button class="siq-reset-btn" id="siq-reset-btn" onclick="siqResetConfirm()" style="display:none">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         Ricomincia
@@ -6183,10 +6230,17 @@
         <div class="sq-modes-tag">Trivial · Ruota</div>
         <div class="sq-modes-title">Scegli le 6 categorie</div>
       </div>
-      <div class="siq-rule"><span>🎡</span> Scegli 6 argomenti: sono gli spicchi della ruota. Giri, rispondi e ogni 3 risposte esatte scatta la domanda bonus per conquistare un triangolino. Chi li completa tutti e 6 vince!</div>
+      <div class="siq-rule">Sono gli spicchi della ruota. Giri, rispondi, e ogni <b>3 risposte esatte</b> scatta la domanda bonus che vale un triangolino. Vince chi li prende <b>tutti e 6</b>.</div>
+      <div class="siq-pick-bar">
+        <div class="siq-pick-count" id="siq-pick-count"></div>
+        <button class="siq-random-btn" onclick="siqRandomCats()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          Scegli a caso
+        </button>
+      </div>
       <div class="siq-multi-list" id="siq-multi-list"></div>
-      <button class="sq-modes-back siq-ai-link" onclick="siqOpenCustom()">✏️ Oppure un argomento libero (AI) →</button>
       <button class="siq-custom-btn" id="siq-multi-btn" onclick="siqPrimaryAction()" disabled>Inizia</button>
+      <button class="sq-modes-back siq-ai-link" onclick="siqOpenCustom()">Oppure un argomento libero (AI) →</button>
       <button class="sq-modes-back" onclick="siqBackToPlayers()">← Cambia giocatori</button>
     </div>
 
@@ -6202,10 +6256,10 @@
         <button type="submit" class="siq-custom-btn" id="siq-custom-btn">Genera domande</button>
       </form>
       <div class="siq-custom-examples">
-        <button onclick="siqExample('Basket NBA')">🏀 Basket NBA</button>
-        <button onclick="siqExample('Formula 1')">🏎️ Formula 1</button>
-        <button onclick="siqExample('Harry Potter')">⚡ Harry Potter</button>
-        <button onclick="siqExample('Cucina italiana')">🍝 Cucina italiana</button>
+        <button onclick="siqExample('Basket NBA')">Basket NBA</button>
+        <button onclick="siqExample('Formula 1')">Formula 1</button>
+        <button onclick="siqExample('Harry Potter')">Harry Potter</button>
+        <button onclick="siqExample('Cucina italiana')">Cucina italiana</button>
       </div>
       <div class="siq-custom-status" id="siq-custom-status" style="display:none"></div>
       <button class="sq-modes-back" onclick="siqShowModes()">← Torna agli argomenti</button>
@@ -6221,26 +6275,27 @@
 
       <!-- STAGE A: ruota da girare -->
       <div class="siq-wheel-stage" id="siq-wheel-stage">
-        <div class="siq-wheel-wrap">
-          <div class="siq-wheel-ptr"></div>
+        <div class="siq-wheel-wrap" onclick="siqSpin()" role="button" aria-label="Gira la ruota">
+          <div class="siq-wheel-ptr"><svg viewBox="0 0 24 22"><path d="M12 19.5 2.5 3h19z" fill="#F7CC49" stroke="#111111" stroke-width="2" stroke-linejoin="round"/></svg></div>
           <div class="siq-wheel" id="siq-wheel"></div>
-          <div class="siq-wheel-hub" id="siq-wheel-hub">🎯</div>
+          <div class="siq-wheel-hub" id="siq-wheel-hub"></div>
         </div>
         <div class="siq-streak" id="siq-streak"></div>
         <button class="siq-spin-btn" id="siq-spin-btn" onclick="siqSpin()">GIRA LA RUOTA</button>
-        <div class="siq-spin-hint">Rispondi giusto e tiri ancora, sbagli e bevi. Ogni 3 risposte esatte scatta la 🌟 DOMANDA BONUS: scegli la categoria e vinci il triangolino!</div>
+        <div class="siq-spin-hint">Giusto: giri ancora. Sbagliato: bevi. Ogni 3 esatte, domanda bonus per un triangolino.</div>
       </div>
 
       <!-- STAGE B: domanda bonus (scelta categoria) -->
       <div class="siq-crownpick" id="siq-crownpick" style="display:none">
-        <div class="siq-crownpick-title">🌟 DOMANDA BONUS! Scegli il triangolino da conquistare</div>
+        <div class="siq-crownpick-title">Domanda bonus</div>
+        <div class="siq-crownpick-sub">Scegli il triangolino da conquistare</div>
         <div class="siq-crownpick-list" id="siq-crownpick-list"></div>
       </div>
 
       <!-- STAGE C: carta domanda -->
       <div class="siq-question-stage" id="siq-question-stage" style="display:none">
         <div class="siq-game-card">
-          <div class="sq-prompt-cat" id="siq-cat">CULTURA</div>
+          <div class="siq-cat" id="siq-cat"></div>
           <div class="siq-question" id="siq-question">—</div>
           <div class="siq-answer" id="siq-answer" style="display:none">
             <div class="siq-answer-lbl">Risposta</div>
@@ -6250,8 +6305,8 @@
         <div class="siq-controls" id="siq-controls">
           <button class="siq-reveal-btn" id="siq-reveal-btn" onclick="siqReveal()">Mostra la risposta</button>
           <div class="siq-judge" id="siq-judge" style="display:none">
-            <button class="siq-judge-ok" onclick="siqJudge(true)">✓ Giusto</button>
-            <button class="siq-judge-no" onclick="siqJudge(false)">✗ Sbagliato</button>
+            <button class="siq-judge-ok" onclick="siqJudge(true)">Giusto</button>
+            <button class="siq-judge-no" onclick="siqJudge(false)">Sbagliato</button>
           </div>
         </div>
       </div>
@@ -6262,7 +6317,7 @@
 
     <!-- 4. vittoria -->
     <div class="siq-win" id="siq-win" style="display:none">
-      <div class="siq-win-trophy">🏆</div>
+      <div class="siq-win-logo" id="siq-win-logo"></div>
       <div class="siq-win-lbl">Vince</div>
       <div class="siq-win-name" id="siq-win-name">—</div>
       <div class="siq-win-rank" id="siq-win-rank"></div>
@@ -13138,8 +13193,12 @@
   }
 
   /* ===== SHOT IQ — TRIVIAL ALCOLICO ===== */
+  /* Colori delle materie: restano riconoscibili (blu cultura, verde
+     sport, rosso hot...) ma smorzati e scaldati, cosi' stanno accanto al
+     giallo CAMON sul nero senza sembrare un altro gioco. Il giallo del
+     marchio non e' di nessuna materia: resta per tasti e turno. */
   const siqCategories = [
-    { key:'cultura', emoji:'🧠', name:'Cultura Generale', desc:'Domande miste classiche da quiz', c:'#3B82F6', q:[
+    { key:'cultura', emoji:'🧠', name:'Cultura Generale', desc:'Domande miste classiche da quiz', c:'#6E93D6', q:[
       { q:'Qual è il fiume più lungo del mondo?', a:'Il Nilo (o il Rio delle Amazzoni)' },
       { q:'In che anno è caduto il Muro di Berlino?', a:'1989' },
       { q:'Quanti sono i continenti?', a:'7' },
@@ -13187,7 +13246,7 @@
       { q:'Qual è il simbolo chimico dell\'argento?', a:'Ag' },
       { q:'Chi ha inventato il telefono (attribuito)?', a:'Alexander Graham Bell' }
     ]},
-    { key:'musica', emoji:'🎵', name:'Musica & Spettacolo', desc:'Canzoni, film, serie TV, celebrità', c:'#EC4899', q:[
+    { key:'musica', emoji:'🎵', name:'Musica & Spettacolo', desc:'Canzoni, film, serie TV, celebrità', c:'#E07A9B', q:[
       { q:'Quale band ha scritto "Bohemian Rhapsody"?', a:'I Queen' },
       { q:'Come si chiama il maghetto creato da J.K. Rowling?', a:'Harry Potter' },
       { q:'Chi canta "Shape of You"?', a:'Ed Sheeran' },
@@ -13234,7 +13293,7 @@
       { q:'Quale gruppo italiano ha cantato "Albachiara"? (autore)', a:'Vasco Rossi' },
       { q:'Chi è la protagonista femminile di "Grease"?', a:'Olivia Newton-John (Sandy)' }
     ]},
-    { key:'sport', emoji:'⚽', name:'Sport', desc:'Calcio, olimpiadi, record e curiosità', c:'var(--success)', q:[
+    { key:'sport', emoji:'⚽', name:'Sport', desc:'Calcio, olimpiadi, record e curiosità', c:'#7DBB6B', q:[
       { q:'Ogni quanti anni si tengono le Olimpiadi estive?', a:'Ogni 4 anni' },
       { q:'Quanti giocatori ha una squadra di calcio in campo?', a:'11' },
       { q:'In che sport si usa il termine "ace"?', a:'Tennis (e pallavolo)' },
@@ -13280,7 +13339,7 @@
       { q:'Quale città ospita la corsa automobilistica di Monaco (F1)?', a:'Montecarlo' },
       { q:'Chi ha vinto più medaglie d\'oro olimpiche di sempre?', a:'Michael Phelps (nuoto)' }
     ]},
-    { key:'hot', emoji:'🔥', name:'Hot / Piccante', desc:'Domande spinte, stile festa adulta', c:'var(--error)', q:[
+    { key:'hot', emoji:'🔥', name:'Hot / Piccante', desc:'Domande spinte, stile festa adulta', c:'#E2573F', q:[
       { q:'Qual è il nome scientifico del "bacio alla francese"?', a:'Bacio con la lingua (limonare)' },
       { q:'In che film del 2015 si parla di "cinquanta sfumature"?', a:'Cinquanta sfumature di grigio' },
       { q:'Qual è l\'afrodisiaco più famoso che si mangia crudo?', a:'Le ostriche' },
@@ -13327,7 +13386,7 @@
       { q:'Come si chiama la cotta improvvisa a prima vista?', a:'Colpo di fulmine' },
       { q:'Quale ormone del "buonumore" si libera baciando?', a:'La dopamina (e l\'ossitocina)' }
     ]},
-    { key:'scienza', emoji:'🔬', name:'Scienza', desc:'Fisica, chimica, natura e spazio', c:'#14B8A6', q:[
+    { key:'scienza', emoji:'🔬', name:'Scienza', desc:'Fisica, chimica, natura e spazio', c:'#4DB3A2', q:[
       { q:'Qual è il gas più abbondante nell\'atmosfera terrestre?', a:'L\'azoto (78%)' },
       { q:'Quante zampe ha un ragno?', a:'8' },
       { q:'Qual è la velocità della luce (circa)?', a:'300.000 km/s' },
@@ -13373,7 +13432,7 @@
       { q:'Come si chiama la galassia in cui viviamo?', a:'La Via Lattea' },
       { q:'Quanti litri di sangue ha in media un adulto?', a:'Circa 5 litri' }
     ]},
-    { key:'geografia', emoji:'🌍', name:'Geografia', desc:'Capitali, stati, monti e mari', c:'#F59E0B', q:[
+    { key:'geografia', emoji:'🌍', name:'Geografia', desc:'Capitali, stati, monti e mari', c:'#E8943A', q:[
       { q:'Qual è la capitale del Giappone?', a:'Tokyo' },
       { q:'Qual è il deserto più grande del mondo?', a:'L\'Antartide (o il Sahara, tra quelli caldi)' },
       { q:'In quale continente si trova l\'Egitto?', a:'Africa' },
@@ -13419,7 +13478,7 @@
       { q:'Qual è la capitale dei Paesi Bassi?', a:'Amsterdam' },
       { q:'In quale nazione si trova la Torre di Pisa?', a:'In Italia' }
     ]},
-    { key:'storia', emoji:'🏛️', name:'Storia', desc:'Eventi, personaggi ed epoche', c:'#A855F7', q:[
+    { key:'storia', emoji:'🏛️', name:'Storia', desc:'Eventi, personaggi ed epoche', c:'#A583D8', q:[
       { q:'In che anno è finita la Seconda Guerra Mondiale?', a:'1945' },
       { q:'Chi è stato il primo uomo a mettere piede sulla Luna?', a:'Neil Armstrong' },
       { q:'Quale impero costruì il Colosseo?', a:'L\'Impero Romano' },
@@ -13465,7 +13524,7 @@
       { q:'Quale antica città greca era rivale di Atene?', a:'Sparta' },
       { q:'In quale anno affondò il Titanic?', a:'1912' }
     ]},
-    { key:'cinema', emoji:'🎬', name:'Cinema & TV', desc:'Film, registi, serie e attori', c:'#6366F1', q:[
+    { key:'cinema', emoji:'🎬', name:'Cinema & TV', desc:'Film, registi, serie e attori', c:'#D9C9A3', q:[
       { q:'In quale saga compare "Dart Fener" (Darth Vader)?', a:'Star Wars' },
       { q:'Chi ha diretto "Titanic" e "Avatar"?', a:'James Cameron' },
       { q:'Come si chiama il maggiordomo di Batman?', a:'Alfred' },
@@ -13646,18 +13705,49 @@
     document.getElementById('page-shotiq').style.background = '';
     siqUpdateHeaderBtn();
   }
+  // triangolino di una materia: pieno se conquistato/scelto, solo contorno se no
+  function siqTri(color, pieno, extra) {
+    return '<svg class="siq-tri' + (extra ? ' ' + extra : '') + '" viewBox="0 0 24 22" aria-hidden="true">'
+      + '<path d="M12 3 21.5 19.5h-19z" stroke-width="2.6" stroke-linejoin="round" '
+      + (pieno ? 'fill="' + color + '" stroke="' + color + '"' : 'fill="none" stroke="rgba(255,255,255,0.2)"')
+      + '/></svg>';
+  }
+  // il logo CAMON, preso da quello della bottom bar (una sola copia nel file)
+  function siqLogo() {
+    const src = document.querySelector('.bottom-nav .nav-logo');
+    if (!src) return '';
+    const copia = src.cloneNode(true);
+    copia.removeAttribute('class');
+    return copia.outerHTML;
+  }
+  // nome corto per lo spicchio della ruota
+  const SIQ_SHORT = { cultura:'CULTURA', musica:'MUSICA', sport:'SPORT', hot:'HOT',
+                      scienza:'SCIENZA', geografia:'GEOGRAFIA', storia:'STORIA', cinema:'CINEMA' };
   function siqRenderMulti() {
     const wrap = document.getElementById('siq-multi-list');
+    wrap.classList.toggle('full', siqSelected.length >= SIQ_PICK_COUNT);
     wrap.innerHTML = siqCategories.map(function(c) {
       const on = siqSelected.indexOf(c) >= 0;
       return '<button class="siq-multi-card' + (on ? ' on' : '') + '" onclick="siqToggleCat(\'' + c.key + '\')">'
-        + '<span class="siq-multi-emoji">' + c.emoji + '</span>'
-        + '<span class="siq-multi-info"><span class="siq-multi-name" style="color:' + c.c + '">' + c.name + '</span>'
+        + siqTri(c.c, true)
+        + '<span class="siq-multi-info"><span class="siq-multi-name">' + c.name + '</span>'
         + '<span class="siq-multi-desc">' + c.desc + '</span></span>'
-        + '<span class="siq-multi-check">' + (on ? '✓' : '') + '</span>'
+        + '<span class="siq-multi-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7"/></svg></span>'
         + '</button>';
     }).join('');
     siqUpdateMultiBtn();
+  }
+  // "Scegli a caso": 6 materie pescate a sorte, per chi non ha voglia di sceglierle
+  function siqRandomCats() {
+    siqGuardEdit(function(){
+      const mischiate = siqCategories.slice();
+      for (let i = mischiate.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = mischiate[i]; mischiate[i] = mischiate[j]; mischiate[j] = t;
+      }
+      siqSelected = mischiate.slice(0, SIQ_PICK_COUNT);
+      siqRenderMulti();
+    });
   }
   const SIQ_PICK_COUNT = 6; // spicchi fissi: come nel Trivial classico
   function siqToggleCat(key) {
@@ -13677,8 +13767,10 @@
     const n = siqSelected.length;
     const canResume = siqGameLive && !siqDirty && n === SIQ_PICK_COUNT;
     btn.disabled = n !== SIQ_PICK_COUNT;
-    btn.textContent = canResume ? '▶ Riprendi la partita'
-      : (n === SIQ_PICK_COUNT ? ('Inizia · ' + n + ' spicchi') : ('Scegli ' + n + '/' + SIQ_PICK_COUNT + ' argomenti'));
+    btn.textContent = canResume ? 'Riprendi la partita'
+      : (n === SIQ_PICK_COUNT ? 'Inizia la partita' : ('Scegline ancora ' + (SIQ_PICK_COUNT - n)));
+    const conta = document.getElementById('siq-pick-count');
+    if (conta) conta.innerHTML = '<b>' + n + '</b> su ' + SIQ_PICK_COUNT + ' scelte';
   }
   function siqOpenCustom() {
     siqHideAll();
@@ -13701,14 +13793,14 @@
     if (!SIQ_API_URL) {
       statusEl.style.display = 'block';
       statusEl.className = 'siq-custom-status error';
-      statusEl.textContent = '⚙️ Funzione AI non ancora attiva. Verrà collegata a breve! Per ora usa gli argomenti predefiniti.';
+      statusEl.textContent = 'Funzione AI non ancora attiva. Verrà collegata a breve! Per ora usa gli argomenti predefiniti.';
       return;
     }
 
     btn.disabled = true;
     statusEl.style.display = 'block';
     statusEl.className = 'siq-custom-status loading';
-    statusEl.textContent = '🧠 Sto preparando 10 domande su "' + topic + '"…';
+    statusEl.textContent = 'Sto preparando 10 domande su "' + topic + '"…';
 
     try {
       const res = await fetch(SIQ_API_URL, {
@@ -13722,13 +13814,13 @@
       if (!questions.length) throw new Error('vuoto');
       btn.disabled = false;
       // argomento AI = un singolo spicchio (partita veloce)
-      const aiCat = { key: 'ai', emoji: '✏️', name: topic.toUpperCase(), c: 'var(--brand)', q: questions };
+      const aiCat = { key: 'ai', emoji: '', name: topic.toUpperCase(), c: '#F7CC49', q: questions };
       siqSelected = [aiCat];
       siqStartGame();
     } catch (e) {
       btn.disabled = false;
       statusEl.className = 'siq-custom-status error';
-      statusEl.textContent = '😕 Non sono riuscito a generare le domande. Riprova tra poco o scegli un altro argomento.';
+      statusEl.textContent = 'Non sono riuscito a generare le domande. Riprova tra poco o scegli un altro argomento.';
     }
   }
 
@@ -13810,20 +13902,37 @@
     });
   }
 
-  // disegna la ruota (gradiente conico + emoji per spicchio) — segmenti fissi per la partita
+  /* Disegna la ruota: spicchi pieni nel colore della materia, separati da
+     un filo nero, col nome scritto lungo il bordo (si legge dritto quando
+     lo spicchio si ferma in alto, sotto il puntatore). Bordo giallo e logo
+     CAMON al centro, che non gira. */
   function siqBuildWheel() {
     const wheel = document.getElementById('siq-wheel');
     const N = siqSegments.length;
     const seg = 360 / N;
-    var stops = [];
-    var emojis = '';
+    const R = 93, C = 100;
+    function punto(gradi, r) {
+      const a = (gradi - 90) * Math.PI / 180;
+      return (C + r * Math.cos(a)).toFixed(2) + ' ' + (C + r * Math.sin(a)).toFixed(2);
+    }
+    var spicchi = '', nomi = '';
     siqSegments.forEach(function(s, i){
-      stops.push(s.cat.c + ' ' + (i*seg) + 'deg ' + ((i+1)*seg) + 'deg');
-      var a = (i + 0.5) * seg; // centro spicchio (gradi da ore 12, orario)
-      emojis += '<span class="siq-wheel-emoji" style="transform:rotate(' + a + 'deg)">' + s.cat.emoji + '</span>';
+      if (N === 1) {
+        spicchi += '<circle cx="100" cy="100" r="' + R + '" fill="' + s.cat.c + '"/>';
+      } else {
+        spicchi += '<path d="M100 100 L' + punto(i * seg, R) + ' A' + R + ' ' + R + ' 0 ' + (seg > 180 ? 1 : 0) + ' 1 ' + punto((i + 1) * seg, R) + ' Z" fill="' + s.cat.c + '" stroke="#111111" stroke-width="1.6" stroke-linejoin="round"/>';
+      }
+      const nome = SIQ_SHORT[s.cat.key] || String(s.cat.name).slice(0, 11);
+      nomi += '<text class="siq-wheel-lbl" x="100" y="29" text-anchor="middle" transform="rotate(' + ((i + 0.5) * seg) + ' 100 100)">' + siqEsc(nome) + '</text>';
     });
-    wheel.style.background = 'conic-gradient(from 0deg,' + stops.join(',') + ')';
-    wheel.innerHTML = emojis;
+    wheel.innerHTML = '<svg viewBox="0 0 200 200" aria-hidden="true">'
+      + '<circle cx="100" cy="100" r="99" fill="#0A0A0A"/>'
+      + spicchi
+      + '<circle cx="100" cy="100" r="96.5" fill="none" stroke="#F7CC49" stroke-width="3"/>'
+      + nomi + '</svg>';
+    wheel.style.background = 'none';
+    const hub = document.getElementById('siq-wheel-hub');
+    if (hub && !hub.firstChild) hub.innerHTML = siqLogo();
     wheel.style.transition = 'none';
     wheel.style.transform = 'rotate(0deg)';
     void wheel.offsetWidth; // reset
@@ -13836,10 +13945,10 @@
     board.innerHTML = siqPlayers.map(function(p, i){
       const wedges = siqSelected.map(function(cat){
         const won = p.wedges.indexOf(cat.key) >= 0;
-        return '<span class="siq-wedge' + (won ? ' won' : '') + '" style="color:' + cat.c + ';opacity:' + (won ? '1' : '0.16') + '">▲</span>';
+        return siqTri(cat.c, won, won ? 'won' : '');
       }).join('');
-      return '<div class="siq-board-row">'
-        + '<div class="siq-board-name' + (i === siqTurn ? ' current' : '') + '">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + ' ' + siqEsc(p.name) + '</div>'
+      return '<div class="siq-board-row' + (i === siqTurn ? ' current' : '') + '">'
+        + '<div class="siq-board-name">' + siqEsc(p.name) + '</div>'
         + '<div class="siq-board-wedges">' + wedges + '</div>'
         + '<div class="siq-board-count">' + p.wedges.length + '/' + siqSelected.length + '</div>'
         + '</div>';
@@ -13868,7 +13977,7 @@
     for (var k = 0; k < SIQ_BONUS_EVERY; k++) {
       dots += '<span class="siq-streak-dot' + (k < done ? ' on' : '') + '"></span>';
     }
-    el.innerHTML = dots + '<span>' + done + '/' + SIQ_BONUS_EVERY + ' al bonus 🌟</span>';
+    el.innerHTML = dots + '<span>' + done + '/' + SIQ_BONUS_EVERY + ' al bonus</span>';
   }
 
   // gira la ruota e determina lo spicchio d'arrivo
@@ -13906,10 +14015,10 @@
     document.getElementById('siq-roll-msg').style.display = 'none';
     const list = document.getElementById('siq-crownpick-list');
     list.innerHTML = missing.map(function(cat){
-      return '<button class="siq-crownpick-btn" style="border-color:' + cat.c + '" onclick="siqBonusChoose(\'' + cat.key + '\')">'
-        + '<span class="siq-cp-emoji">' + cat.emoji + '</span>'
-        + '<span class="siq-cp-name" style="color:' + cat.c + '">' + cat.name + '</span>'
-        + '<span class="siq-cp-tri" style="color:' + cat.c + '">▲</span>'
+      return '<button class="siq-crownpick-btn" onclick="siqBonusChoose(\'' + cat.key + '\')">'
+        + siqTri(cat.c, true)
+        + '<span class="siq-cp-name">' + siqEsc(cat.name) + '</span>'
+        + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>'
         + '</button>';
     }).join('');
     document.getElementById('siq-crownpick').style.display = 'block';
@@ -13935,8 +14044,12 @@
     const cat = siqCurrentCat;
     const item = siqCurrentItem;
     if (!cat || !item) { siqShowSpin(); return; }
-    document.getElementById('page-shotiq').style.background = 'linear-gradient(160deg,' + cat.c + ',' + siqShade(cat.c) + ')';
-    document.getElementById('siq-cat').textContent = (siqBonus ? '🌟 BONUS · ' : '') + cat.emoji + ' ' + cat.name;
+    /* Niente piu' pagina tutta colorata: resta il nero CAMON, con un alone
+       della materia in alto e il suo colore sul bordo della carta. */
+    document.getElementById('page-shotiq').style.background = 'radial-gradient(130% 55% at 50% 0%,' + cat.c + '40, transparent 72%) var(--bg)';
+    document.getElementById('siq-question-stage').style.setProperty('--siq-c', cat.c);
+    document.getElementById('siq-cat').innerHTML = siqTri(cat.c, true) + '<span>' + siqEsc(cat.name) + '</span>'
+      + (siqBonus ? '<span class="siq-cat-bonus">BONUS</span>' : '');
     const qEl = document.getElementById('siq-question');
     qEl.textContent = item.q;
     document.getElementById('siq-answer-val').textContent = item.a;
@@ -13973,11 +14086,13 @@
     msg.style.display = 'block';
     const p = siqPlayers[siqTurn];
     const cat = siqCurrentCat;
+    msg.className = 'siq-roll-msg';
 
     if (!correct) {
       // sbagliata (normale o bonus) → beve e passa il turno; il progresso cala di 1 (non si azzera)
       p.correct = Math.max(0, p.correct - 1);
-      msg.innerHTML = '🍺 ' + siqEsc(p.name) + ' sbaglia e beve un sorso';
+      msg.className = 'siq-roll-msg bad';
+      msg.innerHTML = '<b>Sbagliato</b><span>' + siqEsc(p.name) + ' beve un sorso</span>';
       setTimeout(siqNextTurn, 1650);
       return;
     }
@@ -13985,7 +14100,7 @@
     if (siqBonus) {
       // DOMANDA BONUS giusta → conquista il triangolino scelto
       if (p.wedges.indexOf(cat.key) < 0) p.wedges.push(cat.key);
-      msg.innerHTML = '🔺 ' + siqEsc(p.name) + ' conquista il triangolino ' + cat.name + '!';
+      msg.innerHTML = '<b>Triangolino preso</b><span>' + siqEsc(p.name) + ' conquista ' + siqEsc(cat.name) + '</span>';
       siqRenderBoard();
       if (p.wedges.length >= siqSelected.length) { setTimeout(siqWin, 1200); return; }
       // continua a giocare: gira di nuovo
@@ -13996,10 +14111,10 @@
     // domanda normale giusta → +1 alla streak, poi tira ancora (o scatta il bonus)
     p.correct++;
     if (p.correct % SIQ_BONUS_EVERY === 0) {
-      msg.innerHTML = '🌟 ' + siqEsc(p.name) + ': 3 risposte esatte! DOMANDA BONUS';
+      msg.innerHTML = '<b>Domanda bonus</b><span>' + siqEsc(p.name) + ': 3 risposte esatte</span>';
       setTimeout(siqShowBonusPick, 1650);
     } else {
-      msg.innerHTML = '✅ Giusto ' + siqEsc(p.name) + '! Tira ancora';
+      msg.innerHTML = '<b>Giusto</b><span>' + siqEsc(p.name) + ' gira ancora</span>';
       setTimeout(siqShowSpin, 1500);
     }
   }
@@ -14019,19 +14134,13 @@
     siqHideAll();
     document.getElementById('siq-win').style.display = 'flex';
     document.getElementById('siq-win-name').textContent = ranked[0].name;
+    const logo = document.getElementById('siq-win-logo');
+    if (logo && !logo.firstChild) logo.innerHTML = siqLogo();
     const rest = ranked.slice(1).map(function(r, idx){
-      return (idx + 2) + '° ' + siqEsc(r.name) + ' · ' + r.n + ' spicchi';
+      return (idx + 2) + '° ' + siqEsc(r.name) + ' · ' + r.n + (r.n === 1 ? ' triangolino' : ' triangolini');
     }).join('<br>');
     document.getElementById('siq-win-rank').innerHTML = rest ? 'Classifica<br>' + rest : '';
     document.getElementById('page-shotiq').style.background = '';
-  }
-  // scurisce un colore hex per il gradiente di sfondo
-  function siqShade(hex) {
-    const n = parseInt(hex.slice(1), 16);
-    const r = Math.round(((n >> 16) & 255) * 0.5);
-    const g = Math.round(((n >> 8) & 255) * 0.5);
-    const b = Math.round((n & 255) * 0.5);
-    return 'rgb(' + r + ',' + g + ',' + b + ')';
   }
 
   /* ===== OBBLIGO O VERITÀ ===== */
