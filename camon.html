@@ -4995,6 +4995,9 @@
   #page-menu .scroll-area,
   #prof-preview-section,
   #prof-edit-section { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 184px) !important; }
+  /* La scheda profilo aveva gia' il suo spazio in fondo: sommato a
+     quello qui sopra la staccava troppo dal bollino. */
+  #prof-preview-section .prof-info { padding-bottom: 0 !important; }
 
   /* La pagina giochi e' fatta apposta per occupare tutto lo schermo:
      le slide scattano una a una dentro il suo scroller. Nel flusso
