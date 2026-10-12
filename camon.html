@@ -16644,6 +16644,32 @@
     document.querySelectorAll('.page-fit').forEach(function (p) { osservatore.observe(p); });
   }
 
+  /* Una pagina ferma (Diktat) e' alta esattamente uno schermo: il
+     documento non ha niente da scorrere. iOS pero' a volte lo sposta lo
+     stesso — la tastiera che si chiude, un trascinamento a vuoto, il
+     ritorno dall'app in background — e poi non lo rimette a posto: resta
+     una fascia nera sopra o sotto finche' non si ricarica. Sulle altre
+     pagine basta scorrere e si sistema, qui no: lo si riporta in cima
+     appena succede. */
+  function raddrizzaPaginaFerma() {
+    if (!document.querySelector('.page.active.page-fit.is-fixed')) return;
+    // con la tastiera aperta lo spostamento e' voluto: si aspetta che si chiuda
+    const a = document.activeElement;
+    if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return;
+    const vv = window.visualViewport;
+    if (window.scrollY || (vv && vv.offsetTop)) window.scrollTo(0, 0);
+  }
+  function raddrizzaTraPoco() { setTimeout(raddrizzaPaginaFerma, 120); }
+  window.addEventListener('scroll', raddrizzaPaginaFerma, { passive: true });
+  window.addEventListener('orientationchange', function () { setTimeout(raddrizzaPaginaFerma, 350); });
+  window.addEventListener('pageshow', raddrizzaTraPoco);
+  document.addEventListener('focusout', raddrizzaTraPoco);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) raddrizzaTraPoco(); });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('scroll', raddrizzaPaginaFerma);
+    window.visualViewport.addEventListener('resize', raddrizzaTraPoco);
+  }
+
   function goTo(page) {
     if (!mostra(page)) { mostra('home'); storico = ['home']; return; }
     storico.push(page);
