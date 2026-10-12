@@ -6910,7 +6910,6 @@
 
     <!-- Sotto-filtri DRINK -->
     <div class="cat-row" id="cats-drink">
-      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
       <button class="cat-btn" onclick="filterCat(this,'cocktail')">Cocktail</button>
       <button class="cat-btn" onclick="filterCat(this,'shot')">Shot</button>
       <button class="cat-btn" onclick="filterCat(this,'birra')">Birra</button>
@@ -6920,7 +6919,6 @@
 
     <!-- Sotto-filtri CIBO -->
     <div class="cat-row" id="cats-cibo" style="display:none">
-      <button class="cat-btn active" onclick="filterCat(this,'tutti')">Tutti</button>
       <button class="cat-btn" onclick="filterCat(this,'pizza')">Pizza</button>
       <button class="cat-btn" onclick="filterCat(this,'burger')">Burger</button>
       <button class="cat-btn" onclick="filterCat(this,'panuozzo')">Panuozzi</button>
@@ -11572,10 +11570,9 @@
     // mostra la fila di sotto-filtri giusta
     document.getElementById('cats-drink').style.display = macro === 'drink' ? 'flex' : 'none';
     document.getElementById('cats-cibo').style.display  = macro === 'cibo'  ? 'flex' : 'none';
-    // resetta il sotto-filtro attivo su "Tutti"
+    // nessuna categoria accesa = si vede tutto
     const row = document.getElementById('cats-' + macro);
     row.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    row.querySelector('.cat-btn').classList.add('active');
     applyMenuFilter('tutti');
     /* Torna in cima alla lista: a scorrere ora e' il documento, non
        piu' la .scroll-area, e la testa fissa resta comunque in alto. */
@@ -11587,9 +11584,12 @@
 
   function filterCat(btn, cat) {
     const row = btn.closest('.cat-row');
+    /* Non c'e' piu' il tasto "Tutti": ritoccare la categoria accesa la
+       spegne e tornano tutti i prodotti. */
+    const eraAttivo = btn.classList.contains('active');
     row.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    applyMenuFilter(cat);
+    if (!eraAttivo) btn.classList.add('active');
+    applyMenuFilter(eraAttivo ? 'tutti' : cat);
   }
 
   let menuCat = 'tutti';
