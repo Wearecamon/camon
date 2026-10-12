@@ -1909,6 +1909,24 @@
   }
   .game-intro.via { opacity:0; pointer-events:none; }
   .game-intro .ot-start-sub { margin-bottom:18px; }
+  /* Come si gioca: sta qui, nella schermata di partenza, e non piu' in
+     riquadri sparsi nelle schermate di preparazione. */
+  .game-intro-how {
+    width:100%; max-width:320px; margin:0 auto 22px;
+    display:flex; flex-direction:column; gap:9px; text-align:left;
+  }
+  .game-intro-how p {
+    display:flex; align-items:baseline; gap:11px;
+    font-family:'Manrope',sans-serif; font-size:13px; line-height:1.45; color:rgba(255,255,255,0.62);
+  }
+  .game-intro-how p i {
+    flex-shrink:0; width:0.7em; font-style:normal; text-align:center;
+    font-family:'Bebas Neue',sans-serif; font-size:17px; line-height:1; color:var(--brand);
+  }
+  .game-intro-how b { color:var(--text); font-weight:700; }
+  .ot-start-screen { padding:0 8%; }
+  .ot-start-screen .ot-start-sub { margin-bottom:18px; }
+  .ot-start-screen .game-intro-how { margin-bottom:30px; }
   .game-intro-sum { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:34px; }
   .game-intro-sum span {
     font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; color:rgba(255,255,255,0.7);
@@ -1953,21 +1971,12 @@
   .hu-modes { flex:1; min-height:0; display:flex; flex-direction:column; padding:16px 22px 130px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .hu-intro { font-family:'Manrope',sans-serif; font-size:12.5px; line-height:1.5; color:rgba(255,255,255,0.75); text-align:center; margin-bottom:18px; }
   .hu-intro b { font-weight:800; }
-  /* come si gioca */
-  .hu-how { background:rgba(247,204,73,0.08); border:1px solid rgba(247,204,73,0.25); border-radius:16px; padding:16px 16px 14px; margin-bottom:16px; }
-  .hu-how-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.5px; color:var(--text); margin-bottom:12px; }
-  .hu-how-step { display:flex; align-items:flex-start; gap:11px; margin-bottom:11px; }
-  .hu-how-step:last-child { margin-bottom:0; }
-  .hu-how-step span { flex-shrink:0; width:23px; height:23px; border-radius:50%; background:var(--brand); color:var(--bg);
-    font-family:'Bebas Neue',sans-serif; font-size:15px; display:flex; align-items:center; justify-content:center; margin-top:1px; }
-  .hu-how-step p { margin:0; font-family:'Manrope',sans-serif; font-size:13px; line-height:1.45; color:rgba(255,255,255,0.82); }
-  .hu-how-step b { font-weight:800; color:var(--text); }
   .hu-start-label { font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:800; color:rgba(255,255,255,0.7); text-align:center; margin-bottom:12px; }
   .hu-mode-card { display:flex; align-items:center; gap:13px; width:100%; text-align:left; cursor:pointer;
     background:linear-gradient(135deg,rgba(247,204,73,0.16),rgba(247,204,73,0.06)); border:1.5px solid rgba(247,204,73,0.4);
     border-radius:16px; padding:16px 16px; -webkit-tap-highlight-color:transparent; transition:transform 0.12s; }
   .hu-mode-card:active { transform:scale(0.98); }
-  .hu-mode-emoji { font-size:28px; flex-shrink:0; }
+  .hu-mode-emoji { flex-shrink:0; display:flex; color:var(--brand); }
   .hu-mode-info { flex:1; display:flex; flex-direction:column; gap:2px; }
   .hu-mode-name { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.5px; color:var(--text); line-height:1; }
   .hu-mode-desc { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.55); line-height:1.3; }
@@ -1978,7 +1987,6 @@
     background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.12); border-radius:15px;
     -webkit-tap-highlight-color:transparent; transition:transform 0.12s, background 0.15s; }
   .hu-cat-card:active { transform:scale(0.97); background:rgba(255,255,255,0.1); }
-  .hu-cat-emoji { font-size:26px; }
   .hu-cat-name { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:0.4px; color:var(--text); line-height:1; }
   .hu-cat-n { font-family:'Manrope',sans-serif; font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); }
   /* schermata scrivi */
@@ -2026,14 +2034,6 @@
 
   /* ---- Il Cantastorie ---- */
   #page-cantastorie { background:var(--bg); }
-  .cs-how { background:rgba(247,204,73,0.08); border:1px solid rgba(247,204,73,0.28); border-radius:16px; padding:16px 16px 14px; margin-bottom:16px; }
-  .cs-how-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.5px; color:var(--text); margin-bottom:12px; }
-  .cs-how-step { display:flex; align-items:flex-start; gap:11px; margin-bottom:11px; }
-  .cs-how-step:last-child { margin-bottom:0; }
-  .cs-how-step span { flex-shrink:0; width:23px; height:23px; border-radius:50%; background:var(--brand); color:var(--surface);
-    font-family:'Bebas Neue',sans-serif; font-size:15px; display:flex; align-items:center; justify-content:center; margin-top:1px; }
-  .cs-how-step p { margin:0; font-family:'Manrope',sans-serif; font-size:13px; line-height:1.45; color:rgba(255,255,255,0.82); }
-  .cs-how-step b { font-weight:800; color:var(--text); }
   /* schermata gioco */
   .cs-play { flex:1; min-height:0; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 24px 120px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   /* passa il telefono */
@@ -2046,7 +2046,6 @@
   .cs-banner { position:absolute; inset:0; z-index:10; background:rgba(46,42,5,0.97); display:flex; flex-direction:column;
     align-items:center; justify-content:center; text-align:center; padding:30px; animation:csBannerIn 0.3s ease; }
   @keyframes csBannerIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:none; } }
-  .cs-banner-emoji { font-size:72px; line-height:1; animation:sqPop 0.4s ease; }
   .cs-banner-title { font-family:'Bebas Neue',sans-serif; font-size:44px; letter-spacing:1px; color:var(--error); margin-top:8px; }
   .cs-banner-sub { font-family:'Manrope',sans-serif; font-size:15px; color:rgba(255,255,255,0.8); margin-bottom:26px; }
   .cs-banner-sub span { color:var(--brand); font-weight:800; }
@@ -2077,7 +2076,6 @@
   .ra-score-row { display:flex; align-items:center; gap:12px; width:100%; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.12);
     border-radius:14px; padding:12px 14px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.12s, background 0.15s; text-align:left; }
   .ra-score-row:active { transform:scale(0.98); background:rgba(239,68,68,0.18); }
-  .ra-score-avatar { font-size:20px; flex-shrink:0; }
   .ra-score-name { flex:1; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:0.4px; color:var(--text); }
   .ra-score-pts { flex-shrink:0; font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; color:var(--brand); }
   .ra-score-pts b { color:var(--error); }
@@ -2748,13 +2746,6 @@
     flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-start;
     padding: 18px 24px 130px; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
-  .siq-rule {
-    display: block;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 14px; padding: 12px 14px; margin-bottom: 18px;
-    font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 600; line-height: 1.5; color: var(--text-sub);
-  }
-  .siq-rule b { color: var(--brand); font-weight: 800; }
   .siq-area { justify-content: center !important; }
   /* Shot IQ — argomento libero (AI) */
   .siq-custom {
@@ -6182,11 +6173,11 @@
            tasto del rifiuto, cosi' si legge cosa costa mentre lo si preme -->
       <div class="sq-judge" id="sq-judge">
         <button class="sq-judge-no" onclick="sqAnswer(false)">
-          <span class="sq-judge-lbl">✗ Penitenza</span>
+          <span class="sq-judge-lbl">Penitenza</span>
           <span class="sq-judge-pen" id="sq-pen">Bevi 1 sorso</span>
         </button>
         <button class="sq-judge-ok" onclick="sqAnswer(true)">
-          <span class="sq-judge-lbl">✓ Fatto</span>
+          <span class="sq-judge-lbl">Fatto</span>
         </button>
       </div>
       <!-- carta di follow-up: si prosegue e basta -->
@@ -6230,7 +6221,6 @@
         <div class="sq-modes-tag">Trivial · Ruota</div>
         <div class="sq-modes-title">Scegli le 6 categorie</div>
       </div>
-      <div class="siq-rule">Sono gli spicchi della ruota. Giri, rispondi, e ogni <b>3 risposte esatte</b> scatta la domanda bonus che vale un triangolino. Vince chi li prende <b>tutti e 6</b>.</div>
       <div class="siq-pick-bar">
         <div class="siq-pick-count" id="siq-pick-count"></div>
         <button class="siq-random-btn" onclick="siqRandomCats()">
@@ -6367,6 +6357,11 @@
         <div class="ot-start-label">gioco da bar</div>
         <div class="ot-start-title">OBBLIGO <span>O VERITÀ</span></div>
         <div class="ot-start-sub">Sfida o confessa… o bevi</div>
+        <div class="game-intro-how">
+          <p><i>1</i><span>Tocca lo schermo: la ruota sceglie <b>chi chiede</b> e <b>chi risponde</b>.</span></p>
+          <p><i>2</i><span>Chi risponde sceglie tra <b>verità</b> e <b>obbligo</b>. Senza idee? Tocca <b>Consiglio</b>.</span></p>
+          <p><i>3</i><span>Non rispondi o non lo fai? Bevi.</span></p>
+        </div>
         <div class="ot-start-cta">Tocca per giocare</div>
       </div>
 
@@ -6444,7 +6439,7 @@
         Aggiungi chi gioca, poi tocca la ruota per scegliere: il blocco
         <b>chiede</b> mostra chi <b>fa la domanda</b>, il blocco
         <b>risponde</b> chi <b>risponde o esegue</b>.
-        Quando i nomi si rivelano, tocca <b>💡 Consiglio</b> per farti suggerire
+        Quando i nomi si rivelano, tocca <b>Consiglio</b> per farti suggerire
         una verità o un obbligo.
       </div>
       <button class="game-modal-btn" onclick="obbligoInfoClose()">Ho capito</button>
@@ -6458,24 +6453,18 @@
   <div class="page game-detail" id="page-headsup" style="background:var(--bg)">
     <div class="gd-header">
       <button class="back-btn" onclick="headsBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">HEADS <span style="color:var(--brand)">UP!</span> 🤳</div>
+      <div class="gd-title">HEADS <span style="color:var(--brand)">UP!</span> </div>
     </div>
 
     <!-- 1. scelta modalità -->
     <div class="hu-modes" id="hu-modes">
-      <div class="hu-how">
-        <div class="hu-how-title">🤳 Come si gioca</div>
-        <div class="hu-how-step"><span>1</span><p>Un giocatore tiene il telefono <b>sulla fronte</b>, schermo verso gli altri, <b>senza guardarlo</b>.</p></div>
-        <div class="hu-how-step"><span>2</span><p>Sullo schermo compare una parola: gli altri gliela fanno <b>indovinare</b> con indizi, mimo o descrizioni (senza dirla!).</p></div>
-        <div class="hu-how-step"><span>3</span><p>Appena indovina, <b>tocca lo schermo</b> per far uscire la parola dopo — senza staccare il telefono dalla fronte.</p></div>
-      </div>
-      <div class="hu-start-label">Come vuoi le parole? 👇</div>
+      <div class="hu-start-label">Come vuoi le parole? </div>
       <button class="hu-mode-card" onclick="huOpenWrite()">
-        <span class="hu-mode-emoji">✍️</span>
+        <span class="hu-mode-emoji"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
         <span class="hu-mode-info"><span class="hu-mode-name">Scrivi tu</span><span class="hu-mode-desc">Qualcuno scrive il nome / personaggio da indovinare</span></span>
         <span class="hu-mode-arrow">→</span>
       </button>
-      <div class="hu-cats-label">🎲 Oppure scegli una categoria a caso</div>
+      <div class="hu-cats-label">Oppure scegli una categoria</div>
       <div class="hu-cats" id="hu-cats"></div>
     </div>
 
@@ -6494,12 +6483,12 @@
     <div class="hu-stage" id="hu-stage" style="display:none" onclick="huNext()">
       <div class="hu-stage-head">
         <button class="hu-stage-back" onclick="event.stopPropagation(); headsBack()" aria-label="Indietro"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Esci</button>
-        <span class="hu-stage-logo">HEADS <span>UP!</span> 🤳</span>
+        <span class="hu-stage-logo">HEADS <span>UP!</span> </span>
       </div>
       <div class="hu-cat-tag" id="hu-cat-tag"></div>
       <div class="hu-word" id="hu-word">—</div>
       <div class="hu-stage-bottom">
-        <div class="hu-stage-hint">👆 Indovinato? Tocca lo schermo per la prossima parola</div>
+        <div class="hu-stage-hint">Indovinato? Tocca lo schermo per la prossima parola</div>
       </div>
     </div>
   </div>
@@ -6511,22 +6500,16 @@
   <div class="page game-detail" id="page-cantastorie" style="background:var(--bg)">
     <div class="gd-header">
       <button class="back-btn" onclick="csBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">IL <span style="color:var(--brand)">CANTASTORIE</span> 📖</div>
+      <div class="gd-title">IL <span style="color:var(--brand)">CANTASTORIE</span> </div>
     </div>
 
     <!-- setup giocatori -->
     <div class="sq-setup" id="cs-setup">
-      <div class="cs-how">
-        <div class="cs-how-title">📖 Come si gioca</div>
-        <div class="cs-how-step"><span>1</span><p>Si costruisce <b>una storia insieme</b>, una frase a testa, a turno.</p></div>
-        <div class="cs-how-step"><span>2</span><p>Ad ogni turno l'app ti dà un <b>prompt</b> (un inizio o un colpo di scena) da <b>infilare</b> nella tua frase.</p></div>
-        <div class="cs-how-step"><span>3</span><p>Chi si <b>blocca</b>, ripete o perde il filo <b>beve</b> 🍺. E se la frase non convince e gli altri la <b>bocciano a maggioranza</b>, chi l'ha detta beve.</p></div>
-      </div>
-      <div class="cs-opt-label">🎭 Tema della storia</div>
+      <div class="cs-opt-label">Tema della storia</div>
       <div class="cs-chips" id="cs-themes"></div>
-      <div class="cs-opt-label">👥 Quanti giocatori?</div>
+      <div class="cs-opt-label">Quanti giocatori?</div>
       <div class="cs-chips" id="cs-player-chips"></div>
-      <div class="cs-opt-label">⏱ Tempo per turno</div>
+      <div class="cs-opt-label">Tempo per turno</div>
       <div class="cs-chips" id="cs-timer-opts"></div>
       <button class="sq-start-btn" id="cs-start-btn" onclick="csStart()">Inizia la storia</button>
     </div>
@@ -6551,7 +6534,7 @@
           <div class="cs-cat" id="cs-cat">APERTURA</div>
           <div class="cs-prompt" id="cs-prompt">—</div>
         </div>
-        <div class="cs-fail">🍺 Ti blocchi, ripeti, perdi il filo, o la frase viene bocciata a maggioranza? Bevi un sorso e la storia continua.</div>
+        <div class="cs-fail">Ti blocchi, ripeti, perdi il filo, o la frase viene bocciata a maggioranza? Bevi un sorso e la storia continua.</div>
         <div class="cs-actions">
           <button class="cs-new" onclick="csNewStory()">↻ Nuova storia</button>
           <button class="cs-next" onclick="csNext()">Continua →</button>
@@ -6560,7 +6543,6 @@
 
       <!-- banner tempo scaduto -->
       <div class="cs-banner" id="cs-banner" style="display:none">
-        <div class="cs-banner-emoji">🍺</div>
         <div class="cs-banner-title">TEMPO SCADUTO!</div>
         <div class="cs-banner-sub"><span id="cs-banner-name">—</span> beve un sorso</div>
         <div class="cs-banner-actions">
@@ -6578,17 +6560,11 @@
   <div class="page game-detail" id="page-raffica" style="background:var(--bg)">
     <div class="gd-header">
       <button class="back-btn" onclick="raBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">A <span style="color:var(--brand)">RAFFICA</span> ⚡</div>
+      <div class="gd-title">A <span style="color:var(--brand)">RAFFICA</span> </div>
     </div>
 
     <!-- setup -->
     <div class="sq-setup" id="ra-setup">
-      <div class="cs-how" style="background:rgba(247,204,73,0.08); border-color:rgba(247,204,73,0.28);">
-        <div class="cs-how-title">⚡ Come si gioca</div>
-        <div class="cs-how-step"><span style="background:var(--brand); color:var(--bg);">1</span><p>L'app dà una <b>categoria</b> e una <b>lettera</b> (es. Animali · M).</p></div>
-        <div class="cs-how-step"><span style="background:var(--brand); color:var(--bg);">2</span><p>A turno, veloci, ognuno dice una parola di quella categoria che inizia con quella lettera — <b>senza ripetere</b>.</p></div>
-        <div class="cs-how-step"><span style="background:var(--brand); color:var(--bg);">3</span><p>Chi si <b>blocca</b>, ripete o sbaglia: <b>tocca il suo nome</b> → beve e prende un punto, poi si riparte.</p></div>
-      </div>
       <button class="sq-start-btn" id="ra-start-btn" onclick="raStart()" disabled>Inizia a giocare</button>
     </div>
 
@@ -6596,12 +6572,12 @@
     <div class="ra-play" id="ra-play" style="display:none">
       <div class="ra-starter" id="ra-starter">Inizia —</div>
       <div class="ra-challenge">
-        <div class="ra-cat" id="ra-cat">🐾 ANIMALI</div>
+        <div class="ra-cat" id="ra-cat">ANIMALI</div>
         <div class="ra-letter">lettera <span id="ra-letter">M</span></div>
       </div>
       <div class="ra-instr" id="ra-instr">A turno una parola della categoria con questa lettera. Vietato ripetere!</div>
-      <button class="ra-new" onclick="raNewChallenge()">🎲 Nuova sfida</button>
-      <div class="ra-score-label">Chi sbaglia? Toccalo: beve e +1 punto 🍺</div>
+      <button class="ra-new" onclick="raNewChallenge()">Nuova sfida</button>
+      <div class="ra-score-label">Chi sbaglia? Toccalo: beve e +1 punto </div>
       <div class="ra-players" id="ra-score-list"></div>
       <button class="ra-reset" onclick="raResetScores()">Azzera punti</button>
     </div>
@@ -6614,7 +6590,7 @@
   <div class="page game-detail" id="page-kings" style="background:var(--bg)">
     <div class="gd-header">
       <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="gd-title">KINGS <span style="color:var(--brand)">👑</span></div>
+      <div class="gd-title">KIN<span style="color:var(--brand)">GS</span></div>
     </div>
     <div class="kings-area" onclick="kingsDraw()">
       <div class="kings-card-wrap">
@@ -12984,7 +12960,8 @@
 
   /* Schermata di partenza comune a tutti i giochi (come Obbligo o Verita').
      Si appoggia sopra la pagina del gioco, gia' pronta sotto: un tocco la
-     fa sparire e si gioca. cfg: { title (html), sub, sum: [riassunto] } */
+     fa sparire e si gioca. cfg: { title (html), sub, how: [come si gioca,
+     una riga per passo], sum: [riassunto] } */
   function gameIntro(pageId, cfg) {
     const page = document.getElementById(pageId);
     if (!page) return;
@@ -12998,6 +12975,9 @@
     el.innerHTML = '<div class="ot-start-label">gioco da bar</div>'
       + '<div class="ot-start-title">' + cfg.title + '</div>'
       + '<div class="ot-start-sub">' + cfg.sub + '</div>'
+      + ((cfg.how && cfg.how.length)
+          ? '<div class="game-intro-how">' + cfg.how.map(function (t, k) { return '<p><i>' + (k + 1) + '</i><span>' + t + '</span></p>'; }).join('') + '</div>'
+          : '')
       + ((cfg.sum && cfg.sum.length)
           ? '<div class="game-intro-sum">' + cfg.sum.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>'
           : '')
@@ -13057,7 +13037,12 @@
     gameIntro('page-diktat', {
       title: 'DIK<span>TAT</span>',
       sub: 'Le carte comandano: chi non esegue, beve',
-      sum: [giocatoriTxt(sqPlayers.length), modo ? modo.emoji + ' ' + modo.name : 'Difficolta\' ' + lv]
+      how: [
+        'Esce una carta: una sfida o una domanda.',
+        'La fai? <b>Fatto</b>. Ti rifiuti? <b>Penitenza</b>: bevi quello che dice il tasto.',
+        'Il gioco si regola da solo: più carte fate, più sale.'
+      ],
+      sum: [giocatoriTxt(sqPlayers.length), modo ? modo.name : 'Difficolta\' ' + lv]
     });
   }
   function sqPick(exclude) {
@@ -13577,7 +13562,6 @@
   let siqRevealed = false;
 
   // ===== meccanica a spicchi =====
-  const SIQ_PAWNS = ['🔴','🔵','🟢','🟡','🟣','🟠','⚫','🟤'];
   let siqPlayers = [];      // { name, wedges:[catKey,...] }
   let siqTurn = 0;          // indice giocatore di turno
   let siqSelected = [];     // categorie scelte (oggetti categoria) — restano da una sessione all'altra
@@ -13898,6 +13882,11 @@
     gameIntro('page-shotiq', {
       title: 'TRI<span>VIAL</span>',
       sub: 'Gira la ruota e rispondi: sbagli, bevi',
+      how: [
+        'Gira la ruota: lo spicchio decide la materia.',
+        'Rispondi giusto e giri ancora. Sbagli: bevi e passi il turno.',
+        'Ogni <b>3 risposte esatte</b> scatta la domanda bonus, che vale un triangolino. Vince chi li prende <b>tutti e 6</b>.'
+      ],
       sum: [giocatoriTxt(siqPlayers.length), siqSelected.length + ' argomenti']
     });
   }
@@ -14623,7 +14612,6 @@
   function huRenderCats() {
     document.getElementById('hu-cats').innerHTML = huCats.map(function(c){
       return '<button class="hu-cat-card" onclick="huSelectCat(\'' + c.key + '\')">'
-        + '<span class="hu-cat-emoji">' + c.emoji + '</span>'
         + '<span class="hu-cat-name">' + c.name + '</span>'
         + '<span class="hu-cat-n">' + c.words.length + ' parole</span>'
         + '</button>';
@@ -14642,17 +14630,22 @@
     const val = document.getElementById('hu-input').value.trim();
     if (!val) { document.getElementById('hu-input').focus(); return; }
     huMode = 'write';
-    huShowWord(val, '✍️ Indovina');
+    huShowWord(val, 'Indovina');
   }
   function huSelectCat(key) {
     const cat = huCats.find(function(c){ return c.key === key; });
     if (!cat) return;
     huMode = key;
-    huActiveCatName = cat.emoji + ' ' + cat.name;
+    huActiveCatName = cat.name;
     huShowWord(huDraw(cat), huActiveCatName);
     gameIntro('page-headsup', {
       title: 'HEADS <span>UP!</span>',
       sub: 'Telefono in fronte: gli altri ti fanno indovinare',
+      how: [
+        'Tieni il telefono <b>sulla fronte</b>, schermo verso gli altri, senza guardarlo.',
+        'Gli altri ti fanno indovinare la parola con indizi e mimo, <b>senza dirla</b>.',
+        'Indovinato? <b>Tocca lo schermo</b> per la parola dopo.'
+      ],
       sum: [huActiveCatName],
       z: 310
     });
@@ -14874,7 +14867,7 @@
   }
   function csRenderThemes() {
     document.getElementById('cs-themes').innerHTML = csThemes.map(function(t){
-      return '<button class="cs-chip' + (t.key === csTheme ? ' on' : '') + '" onclick="csPickTheme(\'' + t.key + '\')">' + t.emoji + ' ' + t.name + '</button>';
+      return '<button class="cs-chip' + (t.key === csTheme ? ' on' : '') + '" onclick="csPickTheme(\'' + t.key + '\')">' + t.name + '</button>';
     }).join('');
   }
   function csPickTheme(k) { csTheme = k; csRenderThemes(); }
@@ -14911,7 +14904,12 @@
     gameIntro('page-cantastorie', {
       title: 'IL <span>CANTASTORIE</span>',
       sub: 'Una storia, una frase a testa: chi perde il filo, beve',
-      sum: [theme.emoji + ' Tema ' + theme.name]
+      how: [
+        'Si costruisce <b>una storia insieme</b>, una frase a testa.',
+        "A ogni turno l'app ti dà uno spunto da <b>infilare</b> nella tua frase.",
+        'Ti blocchi, ripeti o la frase viene <b>bocciata a maggioranza</b>? Bevi.'
+      ],
+      sum: ['Tema ' + theme.name]
     });
   }
   // schermata "passa il telefono": nessun timer finché il prossimo non inizia
@@ -14934,8 +14932,8 @@
   function csShowPrompt(isOpener) {
     const cat = document.getElementById('cs-cat');
     const prompt = document.getElementById('cs-prompt');
-    if (isOpener) { cat.textContent = '📖 Apertura · inizia tu'; prompt.textContent = csDraw(csOpenerPool); }
-    else { cat.textContent = '✨ La svolta · continua la storia'; prompt.textContent = csDraw(csTwistPool); }
+    if (isOpener) { cat.textContent = 'Apertura · inizia tu'; prompt.textContent = csDraw(csOpenerPool); }
+    else { cat.textContent = 'La svolta · continua la storia'; prompt.textContent = csDraw(csTwistPool); }
     document.getElementById('cs-turn').innerHTML = 'Tocca a <span>' + huEscape(csCurrentPlayerName()) + '</span>';
     prompt.style.animation = 'none'; void prompt.offsetWidth; prompt.style.animation = '';
     csStartTimer();
@@ -15029,6 +15027,11 @@
     gameIntro('page-raffica', {
       title: 'A <span>RAFFICA</span>',
       sub: 'Categoria + lettera: chi si blocca, beve',
+      how: [
+        "L'app dà una <b>categoria</b> e una <b>lettera</b>.",
+        'A turno, veloci: una parola di quella categoria con quella lettera, <b>senza ripetere</b>.',
+        'Chi si blocca o sbaglia: <b>toccate il suo nome</b>. Beve e prende un punto.'
+      ],
       sum: [giocatoriTxt(raPlayers.length)]
     });
   }
@@ -15039,7 +15042,7 @@
     raLastCat = ci;
     const cat = raCats[ci];
     const letter = raLetters[Math.floor(Math.random() * raLetters.length)];
-    document.getElementById('ra-cat').textContent = cat.e + ' ' + cat.n.toUpperCase();
+    document.getElementById('ra-cat').textContent = cat.n.toUpperCase();
     document.getElementById('ra-letter').textContent = letter;
     document.getElementById('ra-instr').textContent = 'A turno: un ' + '“' + cat.n + '” che inizia per ' + letter + '. Vietato ripetere!';
     // ruota chi inizia
@@ -15051,9 +15054,8 @@
   function raRenderScores() {
     document.getElementById('ra-score-list').innerHTML = raPlayers.map(function(p, i){
       return '<button class="ra-score-row" onclick="raFail(' + i + ')">'
-        + '<span class="ra-score-avatar">' + SIQ_PAWNS[i % SIQ_PAWNS.length] + '</span>'
         + '<span class="ra-score-name">' + huEscape(p.name) + '</span>'
-        + '<span class="ra-score-pts">' + (p.score > 0 ? '<b>' + p.score + '</b> ' : '') + '🍺</span>'
+        + '<span class="ra-score-pts">' + (p.score > 0 ? '<b>' + p.score + '</b>' : '') + '</span>'
         + '</button>';
     }).join('');
   }
@@ -15068,8 +15070,7 @@
     raRenderScores();
   }
   function raBack() {
-    if (raScreen === 'play') raShowSetup();
-    else goTo('players');
+    goTo('players'); // la preparazione non ha piu' niente da scegliere: si torna alla rosa
   }
 
   /* ===== STORIA = SHOT GRATIS ===== */
@@ -15525,7 +15526,12 @@
     gameIntro('page-investigatore', {
       title: "L'INVESTI<span>GATORE</span>",
       sub: 'Un delitto, un treno fermo nella neve: uno di voi mente',
-      sum: [giocatoriTxt(n), '🚂 ' + INV_STORIA.titolo]
+      how: [
+        'Ognuno ha un <b>personaggio</b> e una scheda segreta, che legge solo lui.',
+        "Interrogatevi: gli innocenti non mentono sui fatti, <b>l'assassino può mentire su tutto</b>.",
+        'Alla fine si vota il colpevole.'
+      ],
+      sum: [giocatoriTxt(n), INV_STORIA.titolo]
     });
   }
   function invBack() {
@@ -16655,9 +16661,13 @@
     if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
     if (page === 'investigatore' && typeof invEnter === 'function') invEnter();
     if (page === 'kings' && typeof gameIntro === 'function') gameIntro('page-kings', {
-      title: 'KINGS <span>👑</span>',
+      title: 'KIN<span>GS</span>',
       sub: 'Pesca una carta e segui la regola: il re comanda',
-      sum: ['Tocca il mazzo per pescare']
+      how: [
+        'A turno si pesca una carta toccando lo schermo.',
+        'Ogni carta ha la sua regola: leggila ed eseguila.',
+        'Col <b>Re</b> inventi una regola che vale fino alla fine: chi la rompe, beve.'
+      ]
     });
     // Segnale per il layout desktop dell'area titolare (vedi il
     // blocco @media min-width:900px): si aggiorna ad ogni cambio
