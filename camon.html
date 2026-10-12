@@ -4988,6 +4988,11 @@
      padding-bottom del form/lista, che si sommava creando troppo vuoto. */
   #page-book .book-scroll, #page-event .book-scroll { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 170px) !important; }
 
+  /* Home: in fondo ci sono DUE bollini (Free Shot e Carta), con l'alone
+     attorno. Stesso conto di sopra (100+60=160) piu' l'alone e un po'
+     di respiro: la targhetta Info locale si ferma sopra i bollini. */
+  #page-home .scroll-area { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 184px) !important; }
+
   /* La pagina giochi e' fatta apposta per occupare tutto lo schermo:
      le slide scattano una a una dentro il suo scroller. Nel flusso
      normale non erediterebbe piu' un'altezza, quindi gliela diamo. */
