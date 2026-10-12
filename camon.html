@@ -16770,8 +16770,43 @@
      una fascia nera sopra o sotto finche' non si ricarica. Sulle altre
      pagine basta scorrere e si sistema, qui no: lo si riporta in cima
      appena succede. */
+  /* Heads Up si gioca col telefono di traverso sulla fronte: se il blocco
+     rotazione e' spento iOS gira l'app, e quando la rimette dritta a volte
+     tiene per buona l'altezza vecchia, piu' corta dello schermo. Sotto
+     resta una fascia nera finche' non si ricarica. Qui, a rotazione
+     finita, si fa rileggere a iOS le misure (ritoccando e rimettendo
+     uguale il viewport) e si ridisegna cio' che dipende dall'altezza. */
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  // letto una volta sola: e' il valore a cui si torna sempre
+  const viewportGiusto = viewportMeta ? viewportMeta.getAttribute('content') : '';
+  function rimisuraSchermo(ancheViewport) {
+    if (ancheViewport && viewportMeta) {
+      viewportMeta.setAttribute('content', viewportGiusto + ', shrink-to-fit=no');
+      // timer e non requestAnimationFrame: quello a scheda nascosta non parte
+      setTimeout(function () { viewportMeta.setAttribute('content', viewportGiusto); }, 50);
+    }
+    setTimeout(function () {
+      fitSoon();
+      if (typeof huScreen !== 'undefined' && huScreen === 'stage') { huLayoutStage(); huFit(); }
+      raddrizzaPaginaFerma();
+    }, 80);
+  }
+  window.addEventListener('orientationchange', function () {
+    setTimeout(function () { rimisuraSchermo(true); }, 400);
+    setTimeout(function () { rimisuraSchermo(false); }, 1000);
+  });
+  window.addEventListener('pageshow', function () { rimisuraSchermo(false); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) rimisuraSchermo(false); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function () { rimisuraSchermo(false); });
+
+  function paginaFermaAttiva() {
+    if (document.querySelector('.page.active.page-fit.is-fixed')) return true;
+    // il palco di Heads Up copre tutto lo schermo e non scorre
+    const attiva = document.querySelector('.page.active');
+    return !!attiva && attiva.id === 'page-headsup' && typeof huScreen !== 'undefined' && huScreen === 'stage';
+  }
   function raddrizzaPaginaFerma() {
-    if (!document.querySelector('.page.active.page-fit.is-fixed')) return;
+    if (!paginaFermaAttiva()) return;
     // con la tastiera aperta lo spostamento e' voluto: si aspetta che si chiuda
     const a = document.activeElement;
     if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return;
