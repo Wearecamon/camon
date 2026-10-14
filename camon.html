@@ -3102,10 +3102,34 @@
   #siq-multi-btn:disabled { opacity: 0.5; }
   /* tabellone: una riga per giocatore, chi e' di turno e' acceso in giallo */
   .siq-board {
-    display: flex; flex-direction: column; gap: 3px;
+    display: flex; align-items: stretch; gap: 6px;
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 16px; padding: 6px; margin-bottom: 14px;
   }
+  .siq-board-righe { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
+  .siq-board-righe.scorre .siq-board-row { animation: siqScorre 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes siqScorre { from { transform: translateY(70%); opacity: 0.2; } to { transform: none; opacity: 1; } }
+  .siq-board-name i {
+    display: block; font-style: normal; margin-bottom: 3px;
+    font-family: 'Manrope', sans-serif; font-size: 9px; font-weight: 800; letter-spacing: 1.8px;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .siq-board-row.current .siq-board-name i { color: rgba(247,204,73,0.7); }
+  .siq-board-row.next { opacity: 0.75; }
+  .siq-board-info {
+    flex: 0 0 44px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05); border: none; border-radius: 11px; color: var(--text-sub);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .siq-board-info:active { background: rgba(255,255,255,0.12); color: var(--text); }
+  .siq-classifica-card { text-align: left; }
+  .siq-classifica-card .siq-modal-title { text-align: center; }
+  .siq-classifica-list {
+    display: flex; flex-direction: column; gap: 3px; margin-bottom: 18px;
+    max-height: 52vh; overflow-y: auto;
+  }
+  .siq-classifica-list .siq-board-name { width: 34%; text-align: left; }
+  .siq-classifica-card .siq-custom-btn { width: 100%; }
   .siq-board-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 11px; transition: background 0.2s; }
   .siq-board-row.current { background: rgba(247,204,73,0.11); }
   .siq-board-name {
@@ -6570,6 +6594,15 @@
       <div class="siq-win-name" id="siq-win-name">—</div>
       <div class="siq-win-rank" id="siq-win-rank"></div>
       <button class="siq-custom-btn" onclick="siqSetupReset()">Nuova partita</button>
+    </div>
+
+    <!-- situazione di tutti i giocatori (la "i" del tabellone) -->
+    <div class="siq-modal" id="siq-classifica" style="display:none" onclick="if(event.target===this)siqClassificaChiudi()">
+      <div class="siq-modal-card siq-classifica-card">
+        <div class="siq-modal-title">Situazione</div>
+        <div class="siq-classifica-list" id="siq-classifica-list"></div>
+        <button class="siq-custom-btn" onclick="siqClassificaChiudi()">Chiudi</button>
+      </div>
     </div>
 
     <!-- modale di conferma (modifica setup / reset partita) -->
@@ -13093,8 +13126,14 @@
   }
   function rosterNamesList() { return roster.map(function (p) { return p.name; }); }
   rosterLoad(); // la rosa dell'ultima serata e' gia' pronta all'avvio
+  /* Quanti giocatori servono, gioco per gioco: "Continua" resta spento
+     finche' non ci sono, cosi' non si arriva a una schermata che poi
+     blocca. Chi non e' in elenco gioca da 2 in su, senza tetto. */
+  const ROSTER_LIMITI = { investigatore: { min: 4, max: 8 }, raffica: { min: 3 } };
+  function rosterMin() { const l = ROSTER_LIMITI[rosterNext]; return (l && l.min) || 2; }
+  function rosterMax() { const l = ROSTER_LIMITI[rosterNext]; return (l && l.max) || ROSTER_MAX; }
   function rosterComplete() {
-    if (roster.length < 2) return false;
+    if (roster.length < rosterMin() || roster.length > rosterMax()) return false;
     if (!rosterNeedsGender) return true; // sesso non richiesto: basta avere 2+ nomi
     return roster.every(function (p) { return !!p.gender; });
   }
@@ -13161,8 +13200,13 @@
     const ok = rosterComplete();
     document.getElementById('roster-continue').disabled = !ok;
     const hint = document.getElementById('roster-hint');
-    if (roster.length < 2) {
-      hint.textContent = 'Aggiungi almeno 2 persone per iniziare';
+    if (roster.length < rosterMin()) {
+      const mancano = rosterMin() - roster.length;
+      hint.textContent = 'Servono almeno ' + rosterMin() + ' giocatori: ' + (mancano === 1 ? 'ne manca 1' : 'ne mancano ' + mancano);
+      hint.classList.remove('hidden');
+    } else if (roster.length > rosterMax()) {
+      const troppi = roster.length - rosterMax();
+      hint.textContent = 'Si gioca al massimo in ' + rosterMax() + ': ' + (troppi === 1 ? 'togline 1' : 'togline ' + troppi);
       hint.classList.remove('hidden');
     } else if (needGender && !ok) {
       hint.textContent = 'Seleziona il sesso di tutti per iniziare';
@@ -14101,7 +14145,7 @@
     siqScreen = 'area';
     siqGameLive = true; siqDirty = false;
     siqBuildPools();
-    siqTurn = 0; siqRevealed = false; siqBusy = false; siqWheelRot = 0;
+    siqTurn = 0; siqRevealed = false; siqBusy = false; siqWheelRot = 0; siqBoardTurno = -1;
     siqPlayers.forEach(function(p){ p.wedges = []; p.correct = 0; });
     // spicchi ruota: solo le categorie scelte (il bonus arriva col conteggio delle 3 giuste)
     siqSegments = siqSelected.map(function(cat){ return { type:'cat', cat:cat }; });
@@ -14160,20 +14204,45 @@
     siqWheelRot = 0;
   }
 
+  // una riga del tabellone: nome, triangolini, conteggio
+  function siqBoardRow(p, cls, etichetta) {
+    const wedges = siqSelected.map(function(cat){
+      const won = p.wedges.indexOf(cat.key) >= 0;
+      return siqTri(cat.c, won, won ? 'won' : '');
+    }).join('');
+    return '<div class="siq-board-row' + (cls ? ' ' + cls : '') + '">'
+      + '<div class="siq-board-name">' + (etichetta ? '<i>' + etichetta + '</i>' : '') + siqEsc(p.name) + '</div>'
+      + '<div class="siq-board-wedges">' + wedges + '</div>'
+      + '<div class="siq-board-count">' + p.wedges.length + '/' + siqSelected.length + '</div>'
+      + '</div>';
+  }
+  /* Il tabellone mostra solo chi gioca adesso e chi viene dopo: con tanti
+     giocatori l'elenco intero allungava la pagina e la faceva scorrere.
+     Tutti gli altri stanno dietro la "i". Quando passa il turno le due
+     righe scorrono verso l'alto. */
+  let siqBoardTurno = -1;
   function siqRenderBoard() {
     const board = document.getElementById('siq-board');
-    board.innerHTML = siqPlayers.map(function(p, i){
-      const wedges = siqSelected.map(function(cat){
-        const won = p.wedges.indexOf(cat.key) >= 0;
-        return siqTri(cat.c, won, won ? 'won' : '');
-      }).join('');
-      return '<div class="siq-board-row' + (i === siqTurn ? ' current' : '') + '">'
-        + '<div class="siq-board-name">' + siqEsc(p.name) + '</div>'
-        + '<div class="siq-board-wedges">' + wedges + '</div>'
-        + '<div class="siq-board-count">' + p.wedges.length + '/' + siqSelected.length + '</div>'
-        + '</div>';
-    }).join('');
+    const n = siqPlayers.length;
+    const ora = siqPlayers[siqTurn], dopo = siqPlayers[(siqTurn + 1) % n];
+    const scorre = siqBoardTurno >= 0 && siqBoardTurno !== siqTurn;
+    siqBoardTurno = siqTurn;
+    board.innerHTML = '<div class="siq-board-righe' + (scorre ? ' scorre' : '') + '">'
+      + siqBoardRow(ora, 'current', 'Tocca a')
+      + (n > 1 ? siqBoardRow(dopo, 'next', 'Prossimo') : '')
+      + '</div>'
+      + '<button class="siq-board-info" onclick="siqClassificaApri()" aria-label="Situazione di tutti i giocatori">'
+      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg>'
+      + '</button>';
   }
+  // la "i": la situazione di tutti, con i triangolini di ognuno
+  function siqClassificaApri() {
+    document.getElementById('siq-classifica-list').innerHTML = siqPlayers.map(function (p, i) {
+      return siqBoardRow(p, i === siqTurn ? 'current' : '', '');
+    }).join('');
+    document.getElementById('siq-classifica').style.display = 'flex';
+  }
+  function siqClassificaChiudi() { document.getElementById('siq-classifica').style.display = 'none'; }
 
   // STAGE ruota: mostra la ruota e il pulsante GIRA per il giocatore di turno
   function siqShowSpin() {
@@ -17113,9 +17182,22 @@
     const a = document.activeElement;
     if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) return; // si e' solo passati a un altro campo
     rimisuraSchermo(true);
-    const y = window.scrollY;
-    window.scrollTo(0, y + 1);
-    window.scrollTo(0, y);
+    /* La prima versione dava solo una spinta di un pixel allo scorrimento:
+       sulle pagine che non scorrono (la rosa dei giocatori) non succedeva
+       niente e la fascia restava. Qui si fa quello che fa cambiare pagina,
+       che infatti la toglie: la pagina attiva sparisce e ricompare (nello
+       stesso istante, non si vede) e lo scorrimento torna entro i limiti
+       veri, anche se iOS lo aveva lasciato spostato. */
+    const pg = document.querySelector('.page.active');
+    if (pg) {
+      pg.style.setProperty('display', 'none', 'important');
+      void pg.offsetHeight;
+      pg.style.removeProperty('display');
+    }
+    const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const vv = window.visualViewport;
+    if (window.scrollY > max || (vv && vv.offsetTop > 0)) window.scrollTo(0, Math.min(window.scrollY, max));
+    if (typeof fitActivePage === 'function') fitActivePage();
   }
   document.addEventListener('focusout', function (e) {
     const t = e.target;
@@ -17126,7 +17208,16 @@
   });
   window.addEventListener('pageshow', function () { rimisuraSchermo(false); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) rimisuraSchermo(false); });
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', function () { rimisuraSchermo(false); });
+  if (window.visualViewport) {
+    let vvAltezza = window.visualViewport.height;
+    window.visualViewport.addEventListener('resize', function () {
+      const h = window.visualViewport.height;
+      // l'area visibile torna alta di colpo: la tastiera si e' appena chiusa
+      if (h - vvAltezza > 120) { setTimeout(tastieraChiusa, 60); setTimeout(tastieraChiusa, 500); }
+      vvAltezza = h;
+      rimisuraSchermo(false);
+    });
+  }
 
   function paginaFermaAttiva() {
     if (document.querySelector('.page.active.page-fit.is-fixed')) return true;
