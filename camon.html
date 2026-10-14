@@ -16500,10 +16500,12 @@
   const INV_VOLTO = {
     // ovali larghi: coprono anche orecchie e mascella, cosi' del viso
     // originale non resta niente ai lati
-    1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224, bucoSu: 0.86 },   // sotto la visiera
-    2: { x: 0.500, y: 0.293, rx: 0.165, ry: 0.142 },
-    3: { x: 0.531, y: 0.324, rx: 0.165, ry: 0.138, occhiali: true },
-    4: { x: 0.525, y: 0.334, rx: 0.180, ry: 0.145, baffi: true }
+    // collo: quanto scende sotto il mento il collo del giocatore, in altezze
+    // del viso, fino al colletto (Contessa: fino alla collana)
+    1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224, bucoSu: 0.86, collo: 0.12 },   // sotto la visiera
+    2: { x: 0.500, y: 0.293, rx: 0.165, ry: 0.142, collo: 0.26 },
+    3: { x: 0.531, y: 0.324, rx: 0.165, ry: 0.138, occhiali: true, collo: 0.12 },
+    4: { x: 0.525, y: 0.334, rx: 0.180, ry: 0.145, baffi: true, collo: 0.14 }
   };
   const INV_CW = 810, INV_CH = 1080;             // misura del fotomontaggio (3:4 come i ritratti)
   const invImgCache = {};
@@ -16931,6 +16933,14 @@
     // sopra il buco sale fino all'attaccatura dei capelli, cosi' della fronte
     // del personaggio non resta niente (col berretto si ferma sotto la visiera)
     invPoligono(g, invContorno(P, 1.3, (INV_VOLTO[id] && INV_VOLTO[id].bucoSu) || 1.1, 1.12)); g.fill();
+    // e il collo: dalla mascella giu' fino al colletto, cosi' si vede il collo del giocatore
+    const fh = Math.hypot(P[152].x - P[10].x, P[152].y - P[10].y);
+    const giu = P[152].y + ((INV_VOLTO[id] && INV_VOLTO[id].collo) || 0.12) * fh;
+    const jl = P[172], jr = P[397], mx = (jl.x + jr.x) / 2, mezzo = Math.abs(jr.x - jl.x) / 2;
+    invPoligono(g, [
+      { x: mx - mezzo * 0.92, y: jl.y }, { x: mx + mezzo * 0.92, y: jr.y },
+      { x: mx + mezzo * 0.78, y: giu }, { x: mx - mezzo * 0.78, y: giu }
+    ]); g.fill();
     invCostumi[id] = c;
     return c;
   }
@@ -17055,7 +17065,7 @@
     l.globalCompositeOperation = 'destination-in';
     if (persona) l.drawImage(persona, 0, 0, sw, sh);
     l.setTransform(1, 0, 0, 1, 0, 0);
-    const testa = invContorno(Q, 1.7, 1.9, 1.5);
+    const testa = invContorno(Q, 1.7, 1.9, 2.0);   // sotto arriva fino al collo
     const M = document.createElement('canvas'); M.width = W; M.height = H;
     const m = M.getContext('2d');
     m.shadowColor = '#000'; m.shadowBlur = W * 0.03; m.shadowOffsetX = W * 3; m.translate(-W * 3, 0);
