@@ -2208,7 +2208,6 @@
     font-family:'Bebas Neue',sans-serif; line-height:0.95; letter-spacing:0.5px; color:var(--text); word-break:break-word;
     text-shadow:0 3px 20px rgba(0,0,0,0.4); animation:otIn 0.25s ease; }
   .hu-stage-bottom { width:100%; display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
-  .hu-stage-hint { font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(255,255,255,0.45); text-align:center; }
   .hu-next-btn { width:100%; max-width:340px; border:none; border-radius:14px; padding:16px; background:var(--brand); color:var(--bg); cursor:pointer;
     font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; -webkit-tap-highlight-color:transparent; transition:transform 0.12s; box-shadow:0 6px 18px rgba(247,204,73,0.3); }
   .hu-next-btn:active { transform:scale(0.98); }
@@ -2249,11 +2248,9 @@
   .ra-letter { font-family:'Manrope',sans-serif; font-size:14px; font-weight:700; color:rgba(255,255,255,0.6); margin-top:10px; text-transform:uppercase; letter-spacing:1px; }
   .ra-letter span { display:inline-block; margin-left:4px; min-width:44px; padding:2px 10px; border-radius:10px; background:var(--brand); color:var(--bg);
     font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:0; vertical-align:middle; }
-  .ra-instr { font-family:'Manrope',sans-serif; font-size:12.5px; line-height:1.45; color:rgba(255,255,255,0.6); text-align:center; margin-bottom:16px; max-width:330px; }
   .ra-new { width:100%; max-width:340px; border:none; border-radius:14px; padding:15px; background:var(--brand); color:var(--bg); cursor:pointer;
     font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:1px; -webkit-tap-highlight-color:transparent; transition:transform 0.12s; box-shadow:0 6px 18px rgba(247,204,73,0.3); margin-bottom:22px; }
   .ra-new:active { transform:scale(0.98); }
-  .ra-score-label { font-family:'Manrope',sans-serif; font-size:12px; font-weight:700; color:rgba(255,255,255,0.55); text-align:center; margin-bottom:10px; }
   .ra-players { width:100%; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
   .ra-score-row { display:flex; align-items:center; gap:12px; width:100%; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.12);
     border-radius:14px; padding:12px 14px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.12s, background 0.15s; text-align:left; }
@@ -2268,7 +2265,6 @@
     padding:26px 22px; text-align:center; display:flex; flex-direction:column; align-items:center; }
   .cs-cat { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--brand); margin-bottom:14px; }
   .cs-prompt { font-family:'Bebas Neue',sans-serif; font-size:30px; line-height:1.12; letter-spacing:0.4px; color:var(--text); animation:otIn 0.28s ease; }
-  .cs-fail { font-family:'Manrope',sans-serif; font-size:12px; line-height:1.4; color:rgba(255,255,255,0.5); text-align:center; margin:16px 0 20px; max-width:320px; }
   .cs-actions { display:flex; gap:10px; width:100%; max-width:360px; }
   .cs-new { flex:0 0 auto; background:rgba(255,255,255,0.1); border:none; border-radius:14px; padding:15px 16px; color:var(--text);
     font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.12s; }
@@ -3041,10 +3037,6 @@
   }
   .siq-spin-btn:active { transform: scale(0.97); background: var(--brand-press); }
   .siq-spin-btn:disabled { opacity: 0.45; }
-  .siq-spin-hint {
-    font-family: 'Manrope', sans-serif; font-size: 11.5px; line-height: 1.5;
-    color: var(--text-muted); text-align: center; max-width: 300px; padding: 0 6px;
-  }
   .siq-streak {
     display: flex; align-items: center; justify-content: center; gap: 6px;
     font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800;
@@ -6289,7 +6281,6 @@
         <div class="sq-modes-title">Quanto si spinge?</div>
       </div>
       <div class="sq-modes-list" id="sq-modes-list"></div>
-      <div class="sq-modes-note">Da qui in poi il gioco si regola da solo: piu' carte fate, piu' sale.</div>
       <button class="sq-modes-back" onclick="goTo('players')">← Cambia giocatori</button>
     </div>
 
@@ -6409,7 +6400,6 @@
         </div>
         <div class="siq-streak" id="siq-streak"></div>
         <button class="siq-spin-btn" id="siq-spin-btn" onclick="siqSpin()">GIRA LA RUOTA</button>
-        <div class="siq-spin-hint">Giusto: giri ancora. Sbagliato: bevi. Ogni 3 esatte, domanda bonus per un triangolino.</div>
       </div>
 
       <!-- STAGE B: domanda bonus (scelta categoria) -->
@@ -6625,7 +6615,6 @@
       <div class="hu-cat-tag" id="hu-cat-tag"></div>
       <div class="hu-word" id="hu-word">—</div>
       <div class="hu-stage-bottom">
-        <div class="hu-stage-hint">Indovinato? Tocca lo schermo per la prossima parola</div>
       </div>
     </div>
   </div>
@@ -6671,7 +6660,6 @@
           <div class="cs-cat" id="cs-cat">APERTURA</div>
           <div class="cs-prompt" id="cs-prompt">—</div>
         </div>
-        <div class="cs-fail">Ti blocchi, ripeti, perdi il filo, o la frase viene bocciata a maggioranza? Bevi un sorso e la storia continua.</div>
         <div class="cs-actions">
           <button class="cs-new" onclick="csNewStory()">↻ Nuova storia</button>
           <button class="cs-next" onclick="csNext()">Continua →</button>
@@ -6712,9 +6700,7 @@
         <div class="ra-cat" id="ra-cat">ANIMALI</div>
         <div class="ra-letter">lettera <span id="ra-letter">M</span></div>
       </div>
-      <div class="ra-instr" id="ra-instr">A turno una parola della categoria con questa lettera. Vietato ripetere!</div>
       <button class="ra-new" onclick="raNewChallenge()">Nuova sfida</button>
-      <div class="ra-score-label">Chi sbaglia? Toccalo: beve e +1 punto </div>
       <div class="ra-players" id="ra-score-list"></div>
       <button class="ra-reset" onclick="raResetScores()">Azzera punti</button>
     </div>
@@ -6747,7 +6733,6 @@
       </div>
       <div class="kings-rule" id="kings-rule"><span class="kings-rule-val">K</span> IL RE COMANDA</div>
       <div class="kings-rule-desc" id="kings-desc">Il re fa una regola per il resto del gioco. Chi la rompe beve.</div>
-      <div class="kings-tap-hint">Tocca lo schermo per pescare</div>
     </div>
   </div>
 
@@ -15143,7 +15128,6 @@
     const letter = raLetters[Math.floor(Math.random() * raLetters.length)];
     document.getElementById('ra-cat').textContent = cat.n.toUpperCase();
     document.getElementById('ra-letter').textContent = letter;
-    document.getElementById('ra-instr').textContent = 'A turno: un ' + '“' + cat.n + '” che inizia per ' + letter + '. Vietato ripetere!';
     // ruota chi inizia
     if (raPlayers.length) {
       document.getElementById('ra-starter').innerHTML = 'Inizia <span>' + huEscape(raPlayers[raStarter % raPlayers.length].name) + '</span> →';
