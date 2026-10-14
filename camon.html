@@ -19,7 +19,7 @@
 <meta name="apple-mobile-web-app-title" content="CAMON">
 <meta name="theme-color" content="#0A0A0A">
 <!-- rete di sicurezza per gli iOS che non riconoscono display-mode: vedi --top-extra -->
-<script>if (window.navigator.standalone) document.documentElement.style.setProperty('--top-extra', '14px');</script>
+<script>if (window.navigator.standalone) { document.documentElement.style.setProperty('--top-extra', '14px'); document.documentElement.style.setProperty('--schermo-h', '100lvh'); }</script>
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
@@ -99,13 +99,20 @@
        Impostati da uno script; qui i valori neutri per browser/desktop. */
     --vp-gap: 0px;
     --app-h: 100%;
+    /* Altezza dello schermo per le pagine a tutto schermo (giochi).
+       Nel browser e' 100dvh, che segue le barre di Safari. Nell'app sulla
+       Home diventa 100lvh (vedi sotto): dopo che si chiude la tastiera iOS
+       a volte ricalcola dvh togliendo la zona della lineetta in fondo, e
+       la pagina restava piu' corta lasciando una fascia nera sotto. lvh e'
+       fisso, la tastiera non lo tocca. */
+    --schermo-h: 100dvh;
     /* Spazio che la bottom bar si prende in fondo: 64 di barra, 16 sotto
        e un po' d'aria. Una sola fonte per tutte le pagine, cosi' non ci
        sono numeri sparsi che si disallineano. */
     --nav-space: calc(96px + var(--safe-bottom));
   }
   @media (display-mode: standalone), (display-mode: fullscreen) {
-    :root { --top-extra: 14px; }
+    :root { --top-extra: 14px; --schermo-h: 100lvh; }
   }
   /* pagine senza testata dedicata: il contenuto parte sotto l'orologio */
   #page-book { padding-top: var(--safe-top); }
@@ -1017,8 +1024,8 @@
   .game-modal-btn:active { opacity:0.85; }
 
   .game-slide {
-    height: 100dvh;
-    min-height: 100dvh;
+    height: var(--schermo-h);
+    min-height: var(--schermo-h);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -1964,7 +1971,7 @@
   /* Le pagine dell'app scorrono nel flusso normale del documento (non
      flex), quindi "flex:1" qui non baste-rebbe: serve un'altezza vera,
      altrimenti i figli position:absolute (inset:0) collassano a 0. */
-  .ot-play { height:100dvh; position:relative; display:none; overflow:hidden; }
+  .ot-play { height:var(--schermo-h); position:relative; display:none; overflow:hidden; }
   .ot-play-back { position:absolute; top:calc(14px + var(--safe-top)); left:16px; z-index:6; background:rgba(0,0,0,0.35); border:none; color:var(--text); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .ot-play-back:active { background:rgba(0,0,0,0.5); }
   .ot-reveal-full { position:absolute; inset:0; overflow:hidden; cursor:pointer; -webkit-tap-highlight-color:transparent; }
@@ -2263,7 +2270,7 @@
      ammassato in alto. Margini in %, altezze in vh/dvh. */
   .cs-setup, .cs-play {
     position:relative; display:flex; flex-direction:column;
-    min-height:calc(100dvh - 76px - var(--safe-top));
+    min-height:calc(var(--schermo-h) - 76px - var(--safe-top));
     padding:1vh 6% calc(var(--nav-space) + 2vh);
   }
   /* ---- preparazione ---- */
@@ -3540,8 +3547,8 @@
      misure dipendono da --kc, l'altezza della carta (in dvh, con un tetto
      sulla larghezza), cosi' su ogni telefono resta in proporzione. */
   .kings-area {
-    --kc: min(46dvh, 112vw);
-    min-height: calc(100dvh - 76px - var(--safe-top));
+    --kc: min(calc(var(--schermo-h) * 0.46), 112vw);
+    min-height: calc(var(--schermo-h) - 76px - var(--safe-top));
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 1vh 6% calc(var(--nav-space) + 1vh);
     text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -5276,7 +5283,7 @@
      suo fondo arriva comunque in basso invece di tagliarsi a meta'. */
   .page.active {
     display: block !important;
-    min-height: 100dvh;
+    min-height: var(--schermo-h);
     /* Un contenitore che taglia il contenuto impedisce alla testa
        fissa di agganciarsi: qui a scorrere e' solo il documento.
        La pagina giochi resta l'eccezione, piu' sotto. */
@@ -5325,7 +5332,7 @@
     display: flex !important;
     flex-direction: column;
     position: relative !important;
-    height: 100dvh !important;
+    height: var(--schermo-h) !important;
     overflow: hidden !important;
   }
   /* Le pagine dei singoli giochi si posizionano al proprio interno. */
@@ -5356,7 +5363,7 @@
   .page-fit.active {
     display: flex !important;
     flex-direction: column;
-    height: 100dvh !important;
+    height: var(--schermo-h) !important;
     min-height: 0 !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
