@@ -3382,23 +3382,20 @@
   #page-kings { background: var(--bg); }
   #page-kings .gd-title span { color: var(--brand); }
 
+  /* La carta e' la protagonista: occupa quasi tutto lo schermo. Tutte le
+     misure dipendono da --kc, l'altezza della carta (in dvh, con un tetto
+     sulla larghezza), cosi' su ogni telefono resta in proporzione. */
   .kings-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 28px 100px;
-    text-align: center;
+    --kc: min(46dvh, 112vw);
+    min-height: calc(100dvh - 76px - var(--safe-top));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1vh 6% calc(var(--nav-space) + 1vh);
+    text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
-  .kings-card-wrap {
-    perspective: 800px;
-    margin-bottom: 28px;
-  }
+  .kings-card-wrap { perspective: 1200px; margin-bottom: 3vh; }
   .kings-card {
-    width: 170px;
-    height: 240px;
-    border-radius: 14px;
+    height: var(--kc); aspect-ratio: 170 / 240;
+    border-radius: calc(var(--kc) * 0.06);
     cursor: pointer;
     transition: transform 0.5s;
     position: relative;
@@ -3411,92 +3408,96 @@
     inset: 0;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    border-radius: 14px;
+    border-radius: inherit;
     overflow: hidden;
   }
-  /* Dorso carta. Il bordo esterno e' bianco panna, non giallo: e' il
-     margine chiaro che fa leggere subito "carta da gioco". Il giallo
-     resta dentro, sul reticolo e sulla cornicetta. */
+  /* Dorso: giallo CAMON pieno, una cornicetta nera sottile e il logo in
+     nero. Niente reticolo: pulito come il resto dell'app. */
   .kings-card-front {
-    background: #f2efe6;
-    border: none;
-    padding: 7px;
+    background: var(--brand);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+    padding: 5.5%;
     display: flex; align-items: stretch; justify-content: stretch;
   }
-  /* campo interno: reticolo a rombi, il classico dorso da mazzo */
   .kings-back-brand {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 10px; flex: 1; border-radius: 7px;
-    border: 1px solid rgba(247,204,73,0.5);
-    background:
-      repeating-linear-gradient(45deg, rgba(247,204,73,0.10) 0 5px, transparent 5px 10px),
-      repeating-linear-gradient(-45deg, rgba(247,204,73,0.10) 0 5px, transparent 5px 10px),
-      var(--bg);
-    box-shadow: inset 0 0 0 3px rgba(20,20,20,0.9), inset 0 0 22px rgba(0,0,0,0.55);
+    gap: 4%; flex: 1; border-radius: calc(var(--kc) * 0.035);
+    border: 1.5px solid rgba(17,17,17,0.85);
   }
-  /* il marchio prende il colore da qui: le sue forme usano currentColor */
-  .kings-back-logo { color: var(--text); line-height: 0; }
-  .kings-back-logo svg { width: 46px; height: auto; display: block; }
+  .kings-back-logo { color: #111111; line-height: 0; }
+  .kings-back-logo svg { width: calc(var(--kc) * 0.27); height: auto; display: block; }
+  .kings-back-logo svg [fill="#F7CC49"] { fill: #111111; }
   .kings-back-sub {
-    font-family: 'Manrope', sans-serif; font-size: 9px; font-weight: 800;
-    letter-spacing: 4px; color: var(--brand);
-    /* la spaziatura cade anche dopo l'ultima lettera e spostava la
-       scritta di 4px a sinistra rispetto al logo: qui si recupera */
-    text-indent: 4px;
+    font-family: 'Manrope', sans-serif; font-size: calc(var(--kc) * 0.038); font-weight: 800;
+    letter-spacing: 0.45em; color: #111111;
+    /* la spaziatura cade anche dopo l'ultima lettera: qui si recupera */
+    text-indent: 0.45em;
   }
-  .kings-tap-hint {
-    font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 600;
-    color: rgba(247,204,73,0.6); letter-spacing: 0.5px;
-    animation: kingsTapPulse 1.8s ease-in-out infinite;
+  /* "Tocca lo schermo per pescare": non sta sempre li', compare al centro
+     dello schermo e lampeggia solo se nessuno pesca (vedi kingsHint). */
+  .kings-idle-hint {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 150;
+    background: #111111; border: 1.5px solid var(--brand); color: var(--brand);
+    border-radius: 999px; padding: 13px 22px 11px; white-space: nowrap; pointer-events: none;
+    font-family: 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 1.5px;
+    box-shadow: 0 10px 34px rgba(0,0,0,0.6);
+    opacity: 0; visibility: hidden;
   }
-  @keyframes kingsTapPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+  /* il fondo resta pieno (sotto c'e' il dorso): lampeggiano scritta e bordo */
+  .kings-idle-hint.show { visibility: visible; opacity: 1; animation: kingsTapPulse 1.1s ease-in-out infinite; }
+  @keyframes kingsTapPulse {
+    0%,100% { color: rgba(247,204,73,0.3); border-color: rgba(247,204,73,0.3); }
+    50% { color: var(--brand); border-color: var(--brand); }
+  }
   /* fronte carta realistico */
   .kings-card-back {
     background: var(--text);
     transform: rotateY(180deg);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.55);
   }
   .pc-corner {
     position: absolute;
     display: flex; flex-direction: column; align-items: center;
     font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 0.9;
   }
-  .pc-corner .pc-rank { font-size: 22px; }
-  .pc-corner .pc-suit { font-size: 18px; }
-  .pc-tl { top: 10px; left: 11px; }
-  .pc-br { bottom: 10px; right: 11px; transform: rotate(180deg); }
+  .pc-corner .pc-rank { font-size: calc(var(--kc) * 0.1); }
+  .pc-corner .pc-suit { font-size: calc(var(--kc) * 0.08); }
+  .pc-tl { top: 4.5%; left: 6.5%; }
+  .pc-br { bottom: 4.5%; right: 6.5%; transform: rotate(180deg); }
   .pc-center {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 96px; line-height: 1;
+    font-size: calc(var(--kc) * 0.42); line-height: 1;
   }
-  .pc-center.face { font-size: 84px; }
+  .pc-center.face { font-size: calc(var(--kc) * 0.36); }
   .pc-red { color: #D32F2F; }
   .pc-black { color: var(--surface); }
-  /* Titolo della regola: e' la cosa che si legge da lontano mentre si
-     gioca, quindi sta grosso. La parte prima del trattino (il valore
-     della carta) va in giallo, il nome della regola in bianco. */
+  /* Titolo della regola: si legge da lontano mentre si gioca, quindi e'
+     grande. La parte prima del trattino (il valore della carta) va in
+     giallo, il nome della regola in bianco. */
   .kings-rule {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 34px;
+    font-size: clamp(38px, 11.5vw, 52px);
     color: var(--text);
     letter-spacing: 0.5px;
-    line-height: 1.05;
-    margin-bottom: 10px;
-    max-width: 300px;
+    line-height: 1;
+    margin-bottom: 1.2vh;
+    max-width: 100%;
     text-align: center;
   }
   .kings-rule .kings-rule-val { color: var(--brand); }
   .kings-rule-desc {
     font-family: 'Manrope', sans-serif;
-    font-size: 14.5px;
+    font-size: clamp(16px, 4.6vw, 19px);
     font-weight: 600;
-    color: rgba(255,255,255,0.72);
-    line-height: 1.55;
-    max-width: 290px;
-    margin: 0 auto 26px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.45;
+    max-width: 92%;
+    margin: 0 auto;
     text-align: center;
   }
+  /* prima della prima carta c'e' solo il dorso: niente regola appesa */
+  .kings-area.vuota .kings-rule, .kings-area.vuota .kings-rule-desc { visibility: hidden; }
   .kings-draw-btn {
     background: var(--brand);
     border: none;
@@ -5393,7 +5394,7 @@
     }
 
     /* Elementi pulsanti / infiniti: spenti esplicitamente */
-    .kings-tap-hint,
+    .kings-idle-hint.show,
     .nav-invite-dot,
     .gsq-lamp,
     .gsq-face,
@@ -6715,7 +6716,7 @@
       <button class="back-btn" onclick="goTo('games')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="gd-title">KIN<span style="color:var(--brand)">GS</span></div>
     </div>
-    <div class="kings-area" onclick="kingsDraw()">
+    <div class="kings-area vuota" id="kings-area" onclick="kingsDraw()">
       <div class="kings-card-wrap">
         <div class="kings-card" id="kings-card">
           <div class="kings-card-front">
@@ -6733,6 +6734,7 @@
       </div>
       <div class="kings-rule" id="kings-rule"><span class="kings-rule-val">K</span> IL RE COMANDA</div>
       <div class="kings-rule-desc" id="kings-desc">Il re fa una regola per il resto del gioco. Chi la rompe beve.</div>
+      <div class="kings-idle-hint" id="kings-idle-hint">Tocca lo schermo per pescare</div>
     </div>
   </div>
 
@@ -16319,7 +16321,42 @@
     return '<span class="kings-rule-val">' + huEscape(m[0]) + '</span> '
       + huEscape(m.slice(1).join(' — '));
   }
+  /* "Tocca lo schermo per pescare" compare solo se serve: entrando in
+     Kings, se dopo qualche secondo nessuno ha ancora pescato. Dopo la
+     prima carta si e' capito come funziona e non ricompare piu'. */
+  const KINGS_HINT_MS = 3500;
+  let kingsHintTimer = null;
+  let kingsPescate = 0;
+  function kingsHintNascondi() {
+    clearTimeout(kingsHintTimer);
+    const h = document.getElementById('kings-idle-hint');
+    if (h) h.classList.remove('show');
+  }
+  function kingsHintProgramma() {
+    kingsHintNascondi();
+    let dopoIntro = false;
+    function controlla() {
+      const pg = document.getElementById('page-kings');
+      if (!pg || !pg.classList.contains('active') || kingsPescate) return;
+      // finche' c'e' la schermata di partenza si aspetta; il conto parte quando si chiude
+      if (pg.querySelector('.game-intro')) { dopoIntro = true; kingsHintTimer = setTimeout(controlla, 400); return; }
+      if (dopoIntro) { dopoIntro = false; kingsHintTimer = setTimeout(controlla, KINGS_HINT_MS); return; }
+      document.getElementById('kings-idle-hint').classList.add('show');
+    }
+    kingsHintTimer = setTimeout(controlla, KINGS_HINT_MS);
+  }
+  function kingsEnter() {
+    kingsPescate = 0;
+    kingsFlipped = false;
+    document.getElementById('kings-card').classList.remove('flipped');
+    document.getElementById('kings-area').classList.add('vuota');
+    kingsHintProgramma();
+  }
+
   function kingsDraw() {
+    kingsPescate++;
+    kingsHintNascondi();
+    document.getElementById('kings-area').classList.remove('vuota');
     const card = document.getElementById('kings-card');
     // se una carta è già rivelata, gira prima sul dorso, poi scopri la nuova
     card.classList.remove('flipped');
@@ -16751,6 +16788,7 @@
     if (page === 'obbligo' && typeof obbligoReset === 'function') obbligoReset();
     if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
     if (page === 'investigatore' && typeof invEnter === 'function') invEnter();
+    if (page === 'kings' && typeof kingsEnter === 'function') kingsEnter();
     if (page === 'kings' && typeof gameIntro === 'function') gameIntro('page-kings', {
       title: 'KIN<span>GS</span>',
       sub: 'Pesca una carta e segui la regola: il re comanda',
