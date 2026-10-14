@@ -16502,7 +16502,7 @@
     // originale non resta niente ai lati
     // collo: quanto scende sotto il mento il collo del giocatore, in altezze
     // del viso, fino al colletto (Contessa: fino alla collana)
-    1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224, bucoSu: 0.86, collo: 0.12 },   // sotto la visiera
+    1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224, bucoSu: 0.86, collo: 0.12, cappello: true },   // sotto la visiera
     2: { x: 0.500, y: 0.293, rx: 0.165, ry: 0.142, collo: 0.26 },
     3: { x: 0.531, y: 0.324, rx: 0.165, ry: 0.138, collo: 0.12 },
     4: { x: 0.525, y: 0.334, rx: 0.180, ry: 0.145, collo: 0.14 }
@@ -16943,6 +16943,46 @@
     go.drawImage(m, 0, 0);
     return out;
   }
+  /* Sulla testa del giocatore: dentro il viso si tiene tutto; fuori
+     (tempie, fronte alta, orecchie, collo) solo i punti col colore della
+     sua pelle, misurato sulle guance. Cosi' i suoi capelli spariscono e
+     al loro posto si vedono quelli del personaggio. */
+  function invSoloPelle(L, Q, zona) {
+    const b = invBox(zona), W = L.width, H = L.height;
+    const x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y));
+    const w = Math.min(W - x0, Math.ceil(b.w) + 1), h = Math.min(H - y0, Math.ceil(b.h) + 1);
+    if (w < 4 || h < 4) return;
+    const g = L.getContext('2d'), img = g.getImageData(x0, y0, w, h), d = img.data;
+    const ycc = function (i) {
+      const r = d[i], gg = d[i + 1], bb = d[i + 2];
+      return [0.299 * r + 0.587 * gg + 0.114 * bb, 128 - 0.169 * r - 0.331 * gg + 0.5 * bb, 128 + 0.5 * r - 0.419 * gg - 0.081 * bb];
+    };
+    // pelle del giocatore: guance e naso
+    const camp = [];
+    const cx0 = Q[234].x + (Q[454].x - Q[234].x) * 0.22, cx1 = Q[234].x + (Q[454].x - Q[234].x) * 0.78;
+    const cy0 = (Q[33].y + Q[263].y) / 2 + (Q[0].y - Q[168].y) * 0.15, cy1 = Q[0].y - (Q[0].y - Q[1].y) * 0.4;
+    const xa = Math.min(cx0, cx1), xb = Math.max(cx0, cx1);
+    for (let y = Math.round(cy0); y < cy1; y += 2) for (let x = Math.round(xa); x < xb; x += 2) {
+      const xx = x - x0, yy = y - y0;
+      if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+      const i = (yy * w + xx) * 4; if (d[i + 3] > 200) camp.push(ycc(i));
+    }
+    if (camp.length < 20) return;
+    const media = [0, 1, 2].map(function (j) { return camp.reduce(function (t, v) { return t + v[j]; }, 0) / camp.length; });
+    const dev = [0, 1, 2].map(function (j) { return Math.sqrt(camp.reduce(function (t, v) { return t + (v[j] - media[j]) * (v[j] - media[j]); }, 0) / camp.length) + 1; });
+    // il viso vero e proprio si tiene intero
+    const dentro = document.createElement('canvas'); dentro.width = w; dentro.height = h;
+    const gd = dentro.getContext('2d');
+    gd.translate(-x0, -y0); invPoligono(gd, invContorno(Q, 0.98, 0.98, 1.0)); gd.fill();
+    const dd = gd.getImageData(0, 0, w, h).data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (!d[i + 3] || dd[i + 3] > 128) continue;
+      const v = ycc(i);
+      const dc = Math.hypot((v[1] - media[1]) / dev[1], (v[2] - media[2]) / dev[2]);
+      if (!(dc < 3.4 && v[0] > media[0] * 0.3 && v[0] < media[0] * 1.8)) d[i + 3] = 0;
+    }
+    g.putImageData(img, x0, y0);
+  }
   /* Lo sfondo del ritratto senza il personaggio. Non c'e' niente dietro di
      lui da recuperare, quindi il suo posto si riempie con i colori che ha
      intorno: si rimpicciolisce l'immagine bucata a ogni passo (i buchi si
@@ -17031,13 +17071,20 @@
     l.globalCompositeOperation = 'destination-in';
     if (persona) l.drawImage(persona, 0, 0, sw, sh);
     l.setTransform(1, 0, 0, 1, 0, 0);
-    const testa = invContorno(Q, 1.7, 1.9, 2.0);   // sotto arriva fino al collo
+    /* Quanto della testa del giocatore si tiene. Col cappello (Conduttore)
+       anche i suoi capelli, che spuntano sotto la visiera. Se il personaggio
+       ha i suoi capelli, quelli del giocatore vanno via: si tiene solo dalla
+       fronte in giu', orecchie e collo compresi. */
+    const capp = INV_VOLTO[id] && INV_VOLTO[id].cappello;
+    const testa = capp ? invContorno(Q, 1.7, 1.9, 2.0) : invContorno(Q, 1.4, 1.15, 2.0);
     const M = document.createElement('canvas'); M.width = W; M.height = H;
     const m = M.getContext('2d');
     m.shadowColor = '#000'; m.shadowBlur = W * 0.03; m.shadowOffsetX = W * 3; m.translate(-W * 3, 0);
     invPoligono(m, testa); m.fill();
     l.drawImage(M, 0, 0);
     l.globalCompositeOperation = 'source-over';
+    // senza cappello: fuori dal viso del giocatore resta solo la sua pelle (via i suoi capelli)
+    if (!capp) invSoloPelle(L, Q, testa);
     // stessa correzione per faccia, orecchie e collo: misurata sul viso, applicata a tutta la testa
     invColoriVolto(L, invBox(invContorno(Q, 1, 1, 1)), id, invBox(testa));
     ctx.drawImage(L, 0, 0);
