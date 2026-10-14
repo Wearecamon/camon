@@ -17101,6 +17101,12 @@
   function fitActivePage() {
     const page = document.querySelector('.page.active.page-fit');
     if (!page) return;
+    /* Con la tastiera aperta non si rimisura: l'area visibile si accorcia
+       di colpo, la pagina passava da ferma a scorrevole e tutto saltava
+       per un attimo (il "flash" toccando il campo del nome). Si resta come
+       si era; quando la tastiera si chiude, tastieraChiusa() rimisura. */
+    const attivo = document.activeElement;
+    if (attivo && (attivo.tagName === 'INPUT' || attivo.tagName === 'TEXTAREA') && page.contains(attivo)) return;
     const disponibile = altezzaUtile();
     /* Se lo schermo non e' ancora misurabile (pagina non disposta, tab in
        background) non si tira a indovinare: si lascia lo stato com'e' e si
