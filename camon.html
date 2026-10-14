@@ -16500,7 +16500,7 @@
   const INV_VOLTO = {
     // ovali larghi: coprono anche orecchie e mascella, cosi' del viso
     // originale non resta niente ai lati
-    1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224 },
+    1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224, bucoSu: 0.86 },   // sotto la visiera
     2: { x: 0.500, y: 0.293, rx: 0.165, ry: 0.142 },
     3: { x: 0.531, y: 0.324, rx: 0.165, ry: 0.138, occhiali: true },
     4: { x: 0.525, y: 0.334, rx: 0.180, ry: 0.145, baffi: true }
@@ -16928,9 +16928,67 @@
     g.globalCompositeOperation = 'destination-out';
     g.shadowColor = '#000'; g.shadowBlur = W * 0.02; g.shadowOffsetX = W * 3;
     g.translate(-W * 3, 0);
-    invPoligono(g, invContorno(P, 1.3, 0.86, 1.12)); g.fill();
+    // sopra il buco sale fino all'attaccatura dei capelli, cosi' della fronte
+    // del personaggio non resta niente (col berretto si ferma sotto la visiera)
+    invPoligono(g, invContorno(P, 1.3, (INV_VOLTO[id] && INV_VOLTO[id].bucoSu) || 1.1, 1.12)); g.fill();
     invCostumi[id] = c;
     return c;
+  }
+  /* Lo sfondo del ritratto senza il personaggio. Non c'e' niente dietro di
+     lui da recuperare, quindi il suo posto si riempie con i colori che ha
+     intorno: si rimpicciolisce l'immagine bucata a ogni passo (i buchi si
+     chiudono con la media dei vicini) e poi la si ricompone dal piccolo al
+     grande. Sotto al giocatore e al costume resta un vagone sfocato,
+     credibile, senza un secondo personaggio. */
+  const invSfondi = {};
+  function invSfondo(id) {
+    if (invSfondi[id]) return invSfondi[id];
+    const base = invImgPronte[id];
+    if (!base || !invCamSeg) return null;
+    const pers = invPersona(invCamSeg, base);
+    if (!pers) return null;
+    const W = 540, H = Math.round(540 * base.naturalHeight / base.naturalWidth);
+    const c0 = document.createElement('canvas'); c0.width = W; c0.height = H;
+    const g0 = c0.getContext('2d');
+    g0.drawImage(base, 0, 0, W, H);
+    g0.globalCompositeOperation = 'destination-out';
+    // la sagoma un po' allargata (l'ombra sfocata), per non lasciare l'alone del personaggio
+    g0.shadowColor = '#000'; g0.shadowBlur = W * 0.03;
+    g0.drawImage(pers, 0, 0, W, H); g0.drawImage(pers, 0, 0, W, H);
+    /* Riempimento riga per riga: il buco si chiude sfumando dal colore che
+       c'e' a sinistra a quello che c'e' a destra, come se le pareti del
+       vagone continuassero. Poi una sfocatura leggera, solo li'. */
+    const img = g0.getImageData(0, 0, W, H), d = img.data;
+    for (let y = 0; y < H; y++) {
+      let x = 0;
+      while (x < W) {
+        if (d[(y * W + x) * 4 + 3] > 200) { x++; continue; }
+        const x0 = x; while (x < W && d[(y * W + x) * 4 + 3] <= 200) x++;
+        const L = x0 > 0 ? (y * W + x0 - 1) * 4 : -1, R = x < W ? (y * W + x) * 4 : -1;
+        for (let k = x0; k < x; k++) {
+          const t = (k - x0 + 1) / (x - x0 + 1), i = (y * W + k) * 4;
+          for (let c = 0; c < 3; c++) {
+            const l = L >= 0 ? d[L + c] : (R >= 0 ? d[R + c] : 20), r = R >= 0 ? d[R + c] : l;
+            d[i + c] = l + (r - l) * t;
+          }
+          d[i + 3] = 0;   // resta segnato come buco, per la sfocatura qui sotto
+        }
+      }
+    }
+    const pieno = document.createElement('canvas'); pieno.width = W; pieno.height = H;
+    const gp = pieno.getContext('2d'), imgP = gp.createImageData(W, H);
+    for (let i = 0; i < d.length; i += 4) { imgP.data[i] = d[i]; imgP.data[i + 1] = d[i + 1]; imgP.data[i + 2] = d[i + 2]; imgP.data[i + 3] = 255; }
+    gp.putImageData(imgP, 0, 0);
+    // sfocatura: rimpicciolire e ringrandire
+    const pic = document.createElement('canvas'); pic.width = Math.round(W / 10); pic.height = Math.round(H / 10);
+    pic.getContext('2d').drawImage(pieno, 0, 0, pic.width, pic.height);
+    const sf = document.createElement('canvas'); sf.width = W; sf.height = H;
+    const gs = sf.getContext('2d');
+    gs.drawImage(pic, 0, 0, W, H);
+    // sopra, il vagone vero dove il personaggio non c'era
+    gs.drawImage(c0, 0, 0);
+    invSfondi[id] = sf;
+    return sf;
   }
   // occhiali e baffi del personaggio disegnati sui punti del viso Q (in coordinate della tela)
   function invAccessori(ctx, id, Q, W) {
@@ -16974,7 +17032,9 @@
     const W = cv.width, H = cv.height, base = invImgPronte[id], P = invPuntiRitratto[id];
     const ctx = cv.getContext('2d');
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
-    if (base) ctx.drawImage(base, 0, 0, W, H);
+    // dietro: il vagone senza il personaggio (il costume ce l'ha addosso il giocatore)
+    const sf = invSfondo(id);
+    if (sf) ctx.drawImage(sf, 0, 0, W, H); else if (base) ctx.drawImage(base, 0, 0, W, H);
     const cost = invCostume(id);
     if (!Ps || !P || !cost) return false;
     const S = invFit(P, Ps);                      // ritratto -> sorgente
