@@ -2422,13 +2422,30 @@
   .inv-pass { text-align:center; padding:8% 0 2%; display:flex; flex-direction:column; align-items:center; gap:10px; }
   .inv-pass-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,13vw,60px); line-height:1; color:var(--brand); letter-spacing:1px; }
 
-  /* avatar: selfie nel tondo, oppure l'emoji del personaggio */
+  /* avatar: selfie nel tondo, oppure il monogramma del personaggio */
   .inv-ava {
     flex-shrink:0; border-radius:50%; background:var(--surface-2) center/cover no-repeat;
     border:2px solid rgba(247,204,73,0.55); display:flex; align-items:center; justify-content:center;
     width:44px; height:44px; font-size:20px; line-height:1;
   }
   .inv-ava.big { width:42%; max-width:170px; height:auto; aspect-ratio:1/1; font-size:64px; border-width:3px; }
+  .inv-ava.mono { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.5px; color:#fff; }
+  .inv-ava.mono b { font-weight:400; text-shadow:0 1px 3px rgba(0,0,0,0.35); }
+  .inv-ava.mono.big { font-size:clamp(48px,14vw,68px); }
+  .inv-cast-item .inv-ava.mono { font-size:clamp(17px,5vw,22px); }
+  .inv-news .inv-ava.mono { font-size:64px; }
+  /* "Come giocate?": due scelte grandi, con un disegno al posto delle emoji */
+  .inv-modi { display:flex; flex-direction:column; gap:12px; margin-top:6px; }
+  .inv-modo {
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; gap:6px;
+    min-height:24vh; padding:20px; border-radius:22px; text-align:left; cursor:pointer;
+    background:var(--surface); border:1.5px solid var(--border); color:var(--text);
+    -webkit-tap-highlight-color:transparent; transition:border-color 0.15s, transform 0.12s, background 0.15s;
+  }
+  .inv-modo:active { transform:scale(0.985); border-color:var(--brand); background:rgba(247,204,73,0.06); }
+  .inv-modo svg { color:var(--brand); margin-bottom:auto; }
+  .inv-modo-t { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:0.8px; line-height:1; margin-top:2.4vh; }
+  .inv-modo-d { font-family:'Manrope',sans-serif; font-size:13px; line-height:1.45; color:var(--text-sub); }
   .inv-ava.ghost { border-style:dashed; border-color:rgba(255,255,255,0.2); opacity:0.55; }
 
   /* scelta del personaggio */
@@ -2457,7 +2474,7 @@
   .inv-cab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 0 6px; min-width:0; }
   .inv-cab + .inv-cab { border-left:1px dashed rgba(247,204,73,0.55); }
   .inv-cab-n { font-family:'Bebas Neue',sans-serif; font-size:15px; color:var(--text-sub); line-height:1; }
-  .inv-cab-e { font-size:17px; line-height:1; }
+  .inv-cab-e { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:0.5px; line-height:1; color:var(--text); }
   .inv-cab.vittima { background:rgba(239,68,68,0.16); }
   .inv-car-note { font-family:'Manrope',sans-serif; font-size:11.5px; color:var(--text-sub); line-height:1.45; margin-top:8px; }
 
@@ -15736,11 +15753,22 @@
   function invPlayerOf(id) { return inv.players.find(function (p) { return p.char === id; }); }
   function invInGioco() { return INV_STORIA.personaggi.slice(0, inv.players.length); }
   function invFuori() { return INV_STORIA.personaggi.slice(inv.players.length); }
-  // tondo con il selfie del giocatore; senza foto (o senza giocatore) l'emoji del personaggio
+  /* Le iniziali del personaggio (Ernesto Gallo -> EG, «Il Grande Zoran» -> Z):
+     sono il suo segno al posto delle vecchie emoji. */
+  function invIniziali(c) {
+    return String(c.nome).replace(/[«»]/g, '').split(/\s+/)
+      .filter(function (w) { return w && /^[A-ZÀ-Ý]/.test(w) && ['Il', 'La', 'Lo', 'Grande'].indexOf(w) < 0; })
+      .map(function (w) { return w[0]; }).join('').slice(0, 2);
+  }
+  // tondo col monogramma sul colore dell'abito del personaggio (senza selfie)
+  function invMono(c, cls) {
+    return '<span class="inv-ava mono ' + (cls || '') + '" style="background-color:' + (INV_ABITO[c.id] || '#252525') + '"><b>' + invIniziali(c) + '</b></span>';
+  }
+  // tondo con il selfie del giocatore; senza foto il monogramma, sbiadito se nessuno lo gioca
   function invAva(id, cls) {
     const c = invChar(id), p = invPlayerOf(id);
-    const foto = p && p.selfie ? ' style="background-image:url(' + p.selfie + ')"' : '';
-    return '<span class="inv-ava ' + (cls || '') + (p ? '' : ' ghost') + '"' + foto + '>' + (p && p.selfie ? '' : c.emoji) + '</span>';
+    if (p && p.selfie) return '<span class="inv-ava ' + (cls || '') + '" style="background-image:url(' + p.selfie + ')"></span>';
+    return invMono(c, (cls || '') + (p ? '' : ' ghost'));
   }
   function invBtn(txt, fn, cls) { return '<button class="story-btn ' + (cls || 'go') + '" onclick="' + fn + '">' + txt + '</button>'; }
 
@@ -15797,19 +15825,19 @@
         + '<div class="inv-chars">' + invInGioco().map(function (c) {
             const preso = invPlayerOf(c.id);
             return '<button class="inv-char' + (inv.sel === c.id ? ' sel' : '') + '"' + (preso ? ' disabled' : '') + ' onclick="invPick(' + c.id + ')">'
-              + '<span class="inv-ava">' + c.emoji + '</span>'
+              + invMono(c)
               + '<span><span class="inv-char-role">' + c.ruolo + '</span>'
               + '<span class="inv-char-sub" style="display:block">' + (preso ? 'Scelto da ' + invEsc(preso.name) : c.pub) + '</span></span></button>';
           }).join('') + '</div>'
         + (inv.sel ? invBtn('Sono ' + invChar(inv.sel).ruolo + ' →', 'invPickOk()') : '')
-        + (inv.i === 0 && !inv.sel ? invBtn('🎲 Assegna a caso a tutti', 'invPickRandom()', 'ghost') : '');
+        + (inv.i === 0 && !inv.sel ? invBtn('Assegna a caso a tutti', 'invPickRandom()', 'ghost') : '');
 
     } else if (inv.step === 'selfie') {
       const c = invChar(p.char);
       h = '<div class="inv-pass"><div class="inv-tag">' + invEsc(p.name) + ', sei</div><div class="inv-pass-name">' + c.ruolo + '</div>'
         + '<div class="inv-p">' + c.nome + '</div>' + invAva(c.id, 'big') + '</div>'
         + '<div class="inv-p" style="text-align:center">Fatti una foto: finirà sul passaporto del tuo personaggio e negli indizi. Resta solo su questo telefono, fino a fine partita.</div>'
-        + '<label class="story-btn go" style="cursor:pointer">📸 ' + (p.selfie ? 'Rifai la foto' : 'Scatta il selfie')
+        + '<label class="story-btn go" style="cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>' + (p.selfie ? 'Rifai la foto' : 'Scatta il selfie')
         +   '<input type="file" accept="image/*" capture="user" style="display:none" onchange="invSelfie(this)"></label>'
         + invBtn(p.selfie ? 'Va bene così →' : 'Salta, niente foto →', 'invSelfieOk()', p.selfie ? 'go' : 'ghost');
 
@@ -15832,7 +15860,7 @@
         : '<div class="inv-pass"><div class="inv-tag">Passa il telefono a</div><div class="inv-pass-name">' + invEsc(p.name) + '</div>'
           + '<div class="inv-p">' + c.ruolo + '</div>' + invAva(c.id, 'big') + '</div>'
           + '<div class="inv-p" style="text-align:center">Scheda segreta: leggila da solo, che nessuno guardi.</div>'
-          + invBtn('👁 Mostra la mia scheda', 'invSchedaShow()');
+          + invBtn('Mostra la mia scheda', 'invSchedaShow()');
 
     } else if (inv.step === 'turno1' || inv.step === 'turno2') {
       const t = inv.step === 'turno1' ? 1 : 2;
@@ -15852,7 +15880,7 @@
           +   '<div class="inv-foto-cap"><b>Foto 5.</b> Un vecchio ritaglio di giornale, stretto nella mano della vittima. Il nome è strappato.</div></div>';
       }
       docs.forEach(function (c) {
-        h += '<div class="inv-doc"><div class="inv-doc-t">📄 ' + c.doc.titolo + '</div>' + c.doc['t' + t] + '</div>';
+        h += '<div class="inv-doc"><div class="inv-doc-t">' + c.doc.titolo + '</div>' + c.doc['t' + t] + '</div>';
       });
       h += invNext(t === 1 ? 'Turno 2 →' : 'È il momento di accusare →', t === 1 ? 'turno2' : 'accusa');
       if (t === 2 && (!inv.m || inv.m.host)) h += invBtn('← Rivedi il turno 1', inv.m ? "invHost('turno1')" : "invGo('turno1')", 'ghost');
@@ -16198,12 +16226,12 @@
     el.innerHTML = '<div class="inv-body">' + invScheda(invChar(me.char)) + invBtn('Chiudi', 'invPeekClose()') + '</div>';
     document.body.appendChild(el);
   }
-  function invMSchedaBtn() { return invBtn('🔒 La mia scheda segreta', 'invMScheda()', 'ghost'); }
+  function invMSchedaBtn() { return invBtn('La mia scheda segreta', 'invMScheda()', 'ghost'); }
   function invCondividi(btn) {
     const url = location.origin + location.pathname + '?inv=' + inv.m.code;
     const txt = 'Entra nella partita de L\'Investigatore su CamOn. Codice: ' + inv.m.code;
     if (navigator.share) { navigator.share({ title: 'CamOn · L\'Investigatore', text: txt, url: url }).catch(function () {}); return; }
-    const fatto = function () { btn.textContent = '✓ Link copiato'; };
+    const fatto = function () { btn.textContent = 'Link copiato'; };
     if (navigator.clipboard) navigator.clipboard.writeText(url).then(fatto, function () { btn.textContent = url; });
     else btn.textContent = url;
   }
@@ -16219,11 +16247,13 @@
     const err = inv.err ? '<div class="inv-killer">' + invEsc(inv.err) + '</div>' : '';
     if (inv.step === 'modo') {
       return '<div class="inv-tag">Cena con delitto · 4–8 giocatori</div><div class="inv-h">Come <span>giocate?</span></div>'
-        + '<div class="inv-chars">'
-        + '<button class="inv-char" onclick="invGo(\'mmenu\')"><span class="inv-ava">📲</span><span><span class="inv-char-role">Ognuno sul suo telefono</span>'
-        +   '<span class="inv-char-sub" style="display:block">Scheda segreta privata, nessun passaggio di telefono. Uno crea la partita, gli altri entrano col codice.</span></span></button>'
-        + '<button class="inv-char" onclick="invSolo()"><span class="inv-ava">📱</span><span><span class="inv-char-role">Un telefono solo</span>'
-        +   '<span class="inv-char-sub" style="display:block">Ve lo passate per leggere, uno alla volta, la propria scheda segreta.</span></span></button></div>';
+        + '<div class="inv-modi">'
+        + '<button class="inv-modo" onclick="invGo(\'mmenu\')"><svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="14" height="26" rx="3"/><rect x="21" y="3" width="14" height="32" rx="3"/><rect x="39" y="7" width="14" height="26" rx="3"/><line x1="26" y1="30" x2="30" y2="30" stroke-linecap="round"/></svg>'
+        +   '<span class="inv-modo-t">Ognuno sul suo telefono</span>'
+        +   '<span class="inv-modo-d">La scheda segreta resta sul tuo telefono. Uno crea la partita, gli altri entrano col codice.</span></button>'
+        + '<button class="inv-modo" onclick="invSolo()"><svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="21" y="3" width="14" height="32" rx="3"/><line x1="26" y1="30" x2="30" y2="30"/><path d="M4 19h10M10 15l4 4-4 4"/><path d="M52 19H42M46 15l-4 4 4 4"/></svg>'
+        +   '<span class="inv-modo-t">Un telefono solo</span>'
+        +   '<span class="inv-modo-d">Ve lo passate: ognuno legge la sua scheda da solo, poi lo ridà.</span></button></div>';
     }
     if (inv.step === 'mmenu') {
       let nome = ''; try { nome = localStorage.getItem('camon_inv_nome') || ''; } catch (e) {}
@@ -16253,7 +16283,7 @@
         return '<div class="inv-tag">' + invEsc(me.name) + ', tocca a te</div><div class="inv-h">Chi sei su <span>questo treno?</span></div>'
           + '<div class="inv-chars">' + invInGioco().map(function (c) {
               const preso = invPlayerOf(c.id);
-              return '<button class="inv-char"' + (preso ? ' disabled' : '') + ' onclick="invMPick(' + c.id + ')"><span class="inv-ava">' + c.emoji + '</span>'
+              return '<button class="inv-char"' + (preso ? ' disabled' : '') + ' onclick="invMPick(' + c.id + ')">' + invMono(c)
                 + '<span><span class="inv-char-role">' + c.ruolo + '</span><span class="inv-char-sub" style="display:block">' + (preso ? 'Scelto da ' + invEsc(preso.name) : c.pub) + '</span></span></button>';
             }).join('') + '</div>';
       }
@@ -16262,14 +16292,14 @@
         return '<div class="inv-pass"><div class="inv-tag">' + invEsc(me.name) + ', sei</div><div class="inv-pass-name">' + c.ruolo + '</div>'
           + '<div class="inv-p">' + c.nome + '</div>' + invAva(c.id, 'big') + '</div>'
           + '<div class="inv-p" style="text-align:center">Fatti una foto: la vedranno gli altri giocatori negli indizi. Non viene salvata: sparisce a fine partita.</div>'
-          + '<label class="story-btn go" style="cursor:pointer">📸 ' + (me.selfie ? 'Rifai la foto' : 'Scatta il selfie')
+          + '<label class="story-btn go" style="cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>' + (me.selfie ? 'Rifai la foto' : 'Scatta il selfie')
           +   '<input type="file" accept="image/*" capture="user" style="display:none" onchange="invSelfie(this)"></label>'
           + invBtn(me.selfie ? 'Va bene così →' : 'Salta, niente foto →', 'invMSelfieOk()', me.selfie ? 'go' : 'ghost');
       }
       const mancano = inv.players.filter(function (p) { return !p.char; });
       return '<div class="inv-tag">Sei ' + c.ruolo + '</div><div class="inv-h">Leggi la tua <span>scheda</span></div>'
         + '<div class="inv-p">Mentre gli altri scelgono, leggi chi sei e cosa sai. Resta solo sul tuo telefono.</div>'
-        + invBtn('🔒 La mia scheda segreta', 'invMScheda()')
+        + invBtn('La mia scheda segreta', 'invMScheda()')
         + '<div class="inv-card"><div class="inv-sheet-lbl">Personaggi</div>' + invCast() + '</div>'
         + (mancano.length
             ? '<div class="inv-p" style="text-align:center">Devono ancora scegliere: <b>' + mancano.map(function (p) { return invEsc(p.name); }).join(', ') + '</b></div>'
@@ -16353,7 +16383,7 @@
     for (let k = 0; k < cab.length; k += 2) {
       h += '<div class="inv-pair">' + [k, k + 1].map(function (j) {
         const c = cab[j] ? invChar(cab[j]) : null;
-        return '<div class="inv-cab' + (c ? '' : ' vittima') + '"><span class="inv-cab-n">' + (j + 1) + '</span><span class="inv-cab-e">' + (c ? c.emoji : '💀') + '</span></div>';
+        return '<div class="inv-cab' + (c ? '' : ' vittima') + '"><span class="inv-cab-n">' + (j + 1) + '</span><span class="inv-cab-e">' + (c ? invIniziali(c) : '&dagger;') + '</span></div>';
       }).join('') + '</div>';
     }
     h += '</div><div class="inv-car-note">1 Contessa · 2 Illusionista · <b>3 Ferrante</b> · 4 Dottore · 5 Segretaria · 6 Ingegnere · 7 Cantante · 8 Nipote. La linea tratteggiata è la porta interna tra due cabine. Il Conduttore sta in corridoio.</div>';
@@ -16362,7 +16392,7 @@
   function invScheda(c) {
     const sec = function (lbl, txt) { return '<div class="inv-sheet-sec"><div class="inv-sheet-lbl">' + lbl + '</div><div class="inv-p">' + txt + '</div></div>'; };
     return '<div class="inv-tag">Scheda segreta</div><div class="inv-h">' + c.ruolo + '</div><div class="inv-p">' + c.nome + '</div>'
-      + (c.assassino ? '<div class="inv-killer">🔪 Sei tu l\'assassino. Non farti scoprire.</div>' : '')
+      + (c.assassino ? '<div class="inv-killer">Sei tu l\'assassino. Non farti scoprire.</div>' : '')
       + '<div class="inv-card">'
       + sec('Il tuo segreto', c.segreto) + sec(c.assassino ? 'Cosa racconti' : 'Dov\'eri', c.dove)
       + sec('Il tuo indizio · turno 1', c.t1) + sec('Il tuo indizio · turno 2', c.t2)
@@ -16385,7 +16415,7 @@
     document.getElementById('inv-tools-body').innerHTML =
       '<div class="inv-sheet-lbl">Passeggeri</div>' + invCast()
       + '<div class="inv-sheet-lbl" style="margin-top:14px">Il vagone</div>' + invPianta()
-      + (inv.m ? '<div style="margin-top:14px">' + invBtn('🔒 La mia scheda segreta', "infoSheetClose('inv-tools');invMScheda()", 'ghost') + '</div>'
+      + (inv.m ? '<div style="margin-top:14px">' + invBtn('La mia scheda segreta', "infoSheetClose('inv-tools');invMScheda()", 'ghost') + '</div>'
       : '<div class="inv-sheet-lbl" style="margin-top:14px">Rileggi la tua scheda</div>'
       + '<div class="inv-chars">' + inv.players.map(function (p, k) {
           return '<button class="inv-char" onclick="invPeek(' + k + ')">' + invAva(p.char)
@@ -16400,7 +16430,7 @@
     const el = document.createElement('div');
     el.className = 'inv-peek'; el.id = 'inv-peek';
     el.innerHTML = '<div class="inv-body"><div class="inv-pass"><div class="inv-tag">Passa il telefono a</div><div class="inv-pass-name">' + invEsc(p.name) + '</div></div>'
-      + '<div id="inv-peek-in">' + invBtn('👁 Mostra la mia scheda', 'invPeekShow(' + c.id + ')') + '</div>'
+      + '<div id="inv-peek-in">' + invBtn('Mostra la mia scheda', 'invPeekShow(' + c.id + ')') + '</div>'
       + invBtn('Chiudi', 'invPeekClose()', 'ghost') + '</div>';
     document.body.appendChild(el);
   }
