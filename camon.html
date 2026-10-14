@@ -16789,6 +16789,9 @@
     if (page === 'cantastorie' && typeof csEnter === 'function') csEnter();
     if (page === 'investigatore' && typeof invEnter === 'function') invEnter();
     if (page === 'kings' && typeof kingsEnter === 'function') kingsEnter();
+    // Heads Up: si entra sempre dalla scelta (Scrivi tu o una categoria); prima
+    // nessuno disegnava le categorie e restava solo "Scrivi tu".
+    if (page === 'headsup' && typeof headsEnter === 'function') headsEnter();
     if (page === 'kings' && typeof gameIntro === 'function') gameIntro('page-kings', {
       title: 'KIN<span>GS</span>',
       sub: 'Pesca una carta e segui la regola: il re comanda',
