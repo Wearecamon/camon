@@ -16651,21 +16651,292 @@
     invComposti.set(chiave, 'attesa');
     Promise.all([invPrepara(p.char), invImg(p.selfie)]).then(function (r) {
       const cv = document.createElement('canvas'); cv.width = INV_CW; cv.height = INV_CH;
-      invDisegna(cv, p.char, r[1]);
+      invIncolla(cv, p.char, r[1]);
       invComposti.set(chiave, cv.toDataURL('image/jpeg', 0.86));
       invRender();
     }).catch(function () { invComposti.delete(chiave); });
     return '';
   }
 
-  // ---- fotocamera con l'ovale ----
+  /* ===== FILTRO VOLTO =====
+     Riconoscimento del volto sul telefono (MediaPipe Face Landmarker: la
+     foto non esce mai dal telefono). Trova 478 punti sulla faccia del
+     giocatore e su quella del personaggio; la faccia del giocatore viene
+     ritagliata lungo il suo contorno vero (niente sfondo, niente forme
+     fisse), ruotata e scalata per combaciare con quella del ritratto,
+     colorata come il ritratto e sfumata sul bordo. Se la libreria non si
+     carica (niente rete), resta il metodo con l'ovale. */
+  const INV_MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+  const INV_MP_MODELLO = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+  // contorno del viso (fronte, tempie, mascella, mento) nell'ordine di MediaPipe
+  const INV_OVALE_IDX = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377,
+                         152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+  // punti usati per far combaciare le due facce: contorno, occhi, naso, bocca
+  const INV_FIT_IDX = INV_OVALE_IDX.concat([33, 133, 362, 263, 1, 61, 291, 13, 14]);
+  let invMpPronto = null;
+  function invMpCarica() {
+    if (!invMpPronto) {
+      invMpPronto = (async function () {
+        const mod = await import(INV_MP + '/vision_bundle.mjs');
+        const fs = await mod.FilesetResolver.forVisionTasks(INV_MP + '/wasm');
+        const opz = function (d) { return { baseOptions: { modelAssetPath: INV_MP_MODELLO, delegate: d }, runningMode: 'VIDEO', numFaces: 1 }; };
+        try { return await mod.FaceLandmarker.createFromOptions(fs, opz('GPU')); }
+        catch (e) { return await mod.FaceLandmarker.createFromOptions(fs, opz('CPU')); }
+      })().catch(function (e) { console.warn('Filtro volto non disponibile:', e); invMpPronto = null; return null; });
+    }
+    return invMpPronto;
+  }
+  let invMpT = 0;
+  // i punti della faccia in pixel della sorgente (video, foto o ritratto), o null
+  function invMpPunti(lm, src, w, h) {
+    const t = Math.max(performance.now(), invMpT + 1); invMpT = t;
+    let r = null;
+    try { r = lm.detectForVideo(src, t); } catch (e) { return null; }
+    const f = r && r.faceLandmarks && r.faceLandmarks[0];
+    return f ? f.map(function (q) { return { x: q.x * w, y: q.y * h }; }) : null;
+  }
+  const invPuntiRitratto = {};
+  function invPrepPunti(lm, id) {
+    if (invPuntiRitratto[id] !== undefined) return invPuntiRitratto[id];
+    const b = invImgPronte[id];
+    invPuntiRitratto[id] = b ? invMpPunti(lm, b, b.naturalWidth, b.naturalHeight) : null;
+    return invPuntiRitratto[id];
+  }
+  function invBox(poly) {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    poly.forEach(function (q) { x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); });
+    return { x: x0, y: y0, w: Math.max(2, x1 - x0), h: Math.max(2, y1 - y0) };
+  }
+  // colori della faccia portati verso quelli del viso del ritratto, solo dentro il riquadro della faccia
+  const invStatVolto = {};
+  function invColoriVolto(F, rf, id) {
+    const base = invImgPronte[id], Pp = invPuntiRitratto[id];
+    if (!invStatVolto[id]) invStatVolto[id] = invMisura(base, invBox(INV_OVALE_IDX.map(function (i) { return Pp[i]; })));
+    const P = invStatVolto[id], Fs = invMisura(F, rf);
+    const x = Math.max(0, Math.floor(rf.x)), y = Math.max(0, Math.floor(rf.y));
+    const w = Math.min(F.width - x, Math.ceil(rf.w) + 2), h = Math.min(F.height - y, Math.ceil(rf.h) + 2);
+    if (w < 2 || h < 2) return;
+    const g = F.getContext('2d'), img = g.getImageData(x, y, w, h), d = img.data;
+    const A = [], B = [];
+    for (let k = 0; k < 3; k++) {
+      const gain = Math.min(1.5, Math.max(0.65, P[k].s / Fs[k].s));
+      A[k] = 1 + (gain - 1) * 0.85;
+      B[k] = (P[k].m - Fs[k].m * gain) * 0.85;
+    }
+    for (let i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      d[i] = d[i] * A[0] + B[0]; d[i + 1] = d[i + 1] * A[1] + B[1]; d[i + 2] = d[i + 2] * A[2] + B[2];
+    }
+    g.putImageData(img, x, y);
+  }
+  /* Il fotomontaggio vero e proprio, su una tela di qualunque misura 3:4.
+     Ps: punti della faccia del giocatore nella sorgente src. */
+  function invSwap(cv, id, src, Ps) {
+    const W = cv.width, H = cv.height, base = invImgPronte[id], P0 = invPuntiRitratto[id];
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    if (base) ctx.drawImage(base, 0, 0, W, H);
+    if (!base || !Ps || !P0) return false;
+    const kx = W / base.naturalWidth, ky = H / base.naturalHeight;
+    const Pp = P0.map(function (q) { return { x: q.x * kx, y: q.y * ky }; });
+    // rotazione + scala + spostamento che porta la faccia del giocatore su quella del personaggio
+    let msx = 0, msy = 0, mdx = 0, mdy = 0;
+    INV_FIT_IDX.forEach(function (i) { msx += Ps[i].x; msy += Ps[i].y; mdx += Pp[i].x; mdy += Pp[i].y; });
+    const n = INV_FIT_IDX.length; msx /= n; msy /= n; mdx /= n; mdy /= n;
+    let a = 0, b = 0, q2 = 0;
+    INV_FIT_IDX.forEach(function (i) {
+      const sx = Ps[i].x - msx, sy = Ps[i].y - msy, dx = Pp[i].x - mdx, dy = Pp[i].y - mdy;
+      a += sx * dx + sy * dy; b += sx * dy - sy * dx; q2 += sx * sx + sy * sy;
+    });
+    const A = a / q2, B = b / q2, tx = mdx - (A * msx - B * msy), ty = mdy - (B * msx + A * msy);
+    const T = function (q) { return { x: A * q.x - B * q.y + tx, y: B * q.x + A * q.y + ty }; };
+    // il contorno vero della faccia del giocatore, portato sul ritratto e stretto di un filo
+    let poly = INV_OVALE_IDX.map(function (i) { return T(Ps[i]); });
+    const cx = poly.reduce(function (t, q) { return t + q.x; }, 0) / poly.length;
+    const cy = poly.reduce(function (t, q) { return t + q.y; }, 0) / poly.length;
+    // la parte alta (fronte) un po' piu' stretta: ciuffi e cappelli del giocatore restano fuori
+    poly = poly.map(function (q) { const k = q.y < cy ? 0.9 : 0.97; return { x: cx + (q.x - cx) * 0.97, y: cy + (q.y - cy) * k }; });
+    // maschera sfumata (l'ombra sfocata della forma, spostata dentro la tela)
+    const M = document.createElement('canvas'); M.width = W; M.height = H;
+    const m = M.getContext('2d');
+    m.shadowColor = '#000'; m.shadowBlur = Math.max(4, W * 0.014); m.shadowOffsetX = W * 3;
+    m.translate(-W * 3, 0);
+    m.beginPath(); poly.forEach(function (q, k) { if (k) m.lineTo(q.x, q.y); else m.moveTo(q.x, q.y); }); m.closePath(); m.fill();
+    // la faccia
+    const F = document.createElement('canvas'); F.width = W; F.height = H;
+    const f = F.getContext('2d');
+    f.setTransform(A, B, -B, A, tx, ty);
+    f.drawImage(src, 0, 0);
+    f.setTransform(1, 0, 0, 1, 0, 0);
+    f.globalCompositeOperation = 'destination-in';
+    f.drawImage(M, 0, 0);
+    f.globalCompositeOperation = 'source-over';
+    invColoriVolto(F, invBox(poly), id);
+    ctx.drawImage(F, 0, 0);
+    // cio' che fa riconoscere il personaggio resta sopra
+    const v = INV_VOLTO[id] || {};
+    if (v.taglio) ctx.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight * v.taglio, 0, 0, W, H * v.taglio);
+    const media = function (i, j) { return { x: (Pp[i].x + Pp[j].x) / 2, y: (Pp[i].y + Pp[j].y) / 2 }; };
+    const dist = function (u, w) { return Math.hypot(u.x - w.x, u.y - w.y); };
+    if (v.occhiali) {
+      const L = media(33, 133), R = media(362, 263), r = dist(Pp[33], Pp[133]) * 0.62;
+      ctx.save(); ctx.strokeStyle = 'rgba(206,176,120,0.95)'; ctx.lineWidth = Math.max(1.5, W * 0.0032);
+      [L, R].forEach(function (e) { ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, Math.PI * 2); ctx.stroke(); });
+      ctx.beginPath(); ctx.moveTo(L.x + r, L.y); ctx.quadraticCurveTo((L.x + R.x) / 2, (L.y + R.y) / 2 - r * 0.45, R.x - r, R.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L.x - r, L.y); ctx.lineTo(Pp[234].x, Pp[234].y - r * 0.3);
+      ctx.moveTo(R.x + r, R.y); ctx.lineTo(Pp[454].x, Pp[454].y - r * 0.3); ctx.stroke();
+      ctx.restore();
+    }
+    if (v.baffi) {
+      // baffi a manubrio: tra naso e labbro, folti al centro e arricciati in punta
+      const c0 = { x: Pp[164].x * 0.6 + Pp[0].x * 0.4, y: Pp[164].y * 0.6 + Pp[0].y * 0.4 };
+      const w = dist(Pp[61], Pp[291]);
+      ctx.save(); ctx.fillStyle = '#17110c';
+      ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = Math.max(1, w * 0.04);
+      [-1, 1].forEach(function (d) {
+        ctx.beginPath();
+        ctx.moveTo(c0.x, c0.y - 0.12 * w);
+        ctx.bezierCurveTo(c0.x + d * 0.25 * w, c0.y - 0.20 * w, c0.x + d * 0.48 * w, c0.y - 0.10 * w, c0.x + d * 0.62 * w, c0.y - 0.02 * w);
+        ctx.bezierCurveTo(c0.x + d * 0.74 * w, c0.y + 0.03 * w, c0.x + d * 0.86 * w, c0.y - 0.06 * w, c0.x + d * 0.84 * w, c0.y - 0.26 * w);
+        ctx.bezierCurveTo(c0.x + d * 0.92 * w, c0.y - 0.10 * w, c0.x + d * 0.82 * w, c0.y + 0.12 * w, c0.x + d * 0.60 * w, c0.y + 0.10 * w);
+        ctx.bezierCurveTo(c0.x + d * 0.40 * w, c0.y + 0.09 * w, c0.x + d * 0.18 * w, c0.y + 0.10 * w, c0.x, c0.y + 0.06 * w);
+        ctx.closePath(); ctx.fill();
+      });
+      ctx.restore();
+    }
+    return true;
+  }
+  /* Cosa viaggia verso gli altri telefoni: il ritaglio del fotomontaggio
+     attorno al viso (largo, cosi' la faccia ci sta tutta). Dall'altra
+     parte lo si rincolla nello stesso punto del ritratto. */
+  const INV_RITAGLIO_K = 1.4;
+  function invRitaglioBox(id, W, H) {
+    const v = INV_VOLTO[id] || { x: 0.5, y: 0.32, rx: 0.17, ry: 0.15 };
+    const rx = Math.min(0.5, v.rx * INV_RITAGLIO_K), ry = Math.min(0.5, v.ry * INV_RITAGLIO_K);
+    const x = Math.max(0, (v.x - rx) * W), y = Math.max(0, (v.y - ry) * H);
+    return { x: x, y: y, w: Math.min(W - x, 2 * rx * W), h: Math.min(H - y, 2 * ry * H) };
+  }
+  function invRitaglio(cv, id) {
+    const r = invRitaglioBox(id, cv.width, cv.height);
+    const c = document.createElement('canvas'); c.width = Math.round(r.w); c.height = Math.round(r.h);
+    c.getContext('2d').drawImage(cv, r.x, r.y, r.w, r.h, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.86);
+  }
+  function invIncolla(cv, id, img) {
+    const base = invImgPronte[id], ctx = cv.getContext('2d');
+    if (base) ctx.drawImage(base, 0, 0, cv.width, cv.height);
+    const r = invRitaglioBox(id, cv.width, cv.height);
+    // il bordo del ritaglio e' gia' ritratto: una sfumatura leggera basta a non vedere lo stacco
+    const f = document.createElement('canvas'); f.width = Math.round(r.w); f.height = Math.round(r.h);
+    const g = f.getContext('2d');
+    g.drawImage(img, 0, 0, f.width, f.height);
+    g.globalCompositeOperation = 'destination-in';
+    g.save(); g.translate(f.width / 2, f.height / 2); g.scale(1, f.height / f.width);
+    const gr = g.createRadialGradient(0, 0, 0, 0, 0, f.width / 2);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.9, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(-f.width, -f.width, 2 * f.width, 2 * f.width);
+    g.restore();
+    ctx.drawImage(f, r.x, r.y);
+  }
+
+  // ---- fotocamera con il filtro: il ritratto con la propria faccia, dal vivo ----
+  let invCamLm = null, invCamFinale = null;
+  function invCamFiltro(p, c) {
+    const el = document.createElement('div');
+    el.className = 'inv-cam'; el.id = 'inv-cam';
+    el.innerHTML = '<video id="inv-cam-v" class="nascosto" playsinline autoplay muted></video>'
+      + '<div class="inv-cam-top"><div class="inv-tag">' + c.ruolo + '</div>'
+      +   '<div class="inv-cam-txt">Diventa ' + c.ruolo.toLowerCase() + '</div>'
+      +   '<div class="inv-cam-sub" id="inv-cam-sub">Preparo il filtro… la prima volta ci mette qualche secondo.</div></div>'
+      + '<div class="inv-cam-prova"><canvas id="inv-cam-live" width="540" height="720"></canvas></div>'
+      + '<div class="inv-cam-bar">'
+      +   '<button class="inv-cam-x" onclick="invCamChiudi()">Annulla</button>'
+      +   '<button class="inv-cam-scatto" id="inv-cam-scatto" onclick="invCamScattaFiltro()" aria-label="Scatta" style="visibility:hidden"></button>'
+      +   '<label class="inv-cam-x">Galleria<input type="file" accept="image/*" style="display:none" onchange="invCamDaFile(this)"></label>'
+      + '</div>';
+    document.body.appendChild(el);
+    const sub = function (t) { const e = document.getElementById('inv-cam-sub'); if (e) e.textContent = t; };
+    Promise.all([invMpCarica(), invPrepara(p.char)]).then(function (r) {
+      const lm = r[0];
+      if (!document.getElementById('inv-cam')) return;
+      if (!lm || !invPrepPunti(lm, p.char)) {          // niente filtro: si torna all'ovale
+        invCamChiudi(); invCamCartonato(p, c); return;
+      }
+      invCamLm = lm;
+      const cv = document.getElementById('inv-cam-live'); if (cv) invSwap(cv, p.char, null, null);
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { sub('La fotocamera non si apre: scegli una foto dalla Galleria.'); return; }
+      sub('Guarda dritto, con la luce davanti alla faccia.');
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false })
+        .then(function (fl) {
+          if (!document.getElementById('inv-cam')) { fl.getTracks().forEach(function (t) { t.stop(); }); return; }
+          invCamFlusso = fl;
+          const v = document.getElementById('inv-cam-v');
+          v.srcObject = fl; v.play().catch(function () {});
+          const b = document.getElementById('inv-cam-scatto'); if (b) b.style.visibility = '';
+          invCamGiroFiltro(p.char);
+        })
+        .catch(function () { sub('La fotocamera non si apre: scegli una foto dalla Galleria.'); });
+    });
+  }
+  let invCamVisto = true;
+  function invCamGiroFiltro(id) {
+    const v = document.getElementById('inv-cam-v'), cv = document.getElementById('inv-cam-live');
+    if (!v || !cv || !invCamFlusso || !invCamLm) return;
+    if (v.videoWidth && v.readyState >= 2) {
+      const Ps = invMpPunti(invCamLm, v, v.videoWidth, v.videoHeight);
+      invSwap(cv, id, v, Ps);
+      if (!!Ps !== invCamVisto) {
+        invCamVisto = !!Ps;
+        const e = document.getElementById('inv-cam-sub');
+        if (e) e.textContent = Ps ? 'Guarda dritto, con la luce davanti alla faccia.' : 'Non vedo la tua faccia: mettila tutta nell\'inquadratura.';
+      }
+    }
+    requestAnimationFrame(function () { invCamGiroFiltro(id); });
+  }
+  function invCamScattaFiltro() {
+    const p = invChiFoto(), v = document.getElementById('inv-cam-v');
+    if (!p || !v || !v.videoWidth || !invCamLm) return;
+    const Ps = invMpPunti(invCamLm, v, v.videoWidth, v.videoHeight);
+    if (!Ps) return;
+    const full = document.createElement('canvas'); full.width = INV_CW; full.height = INV_CH;
+    invSwap(full, p.char, v, Ps);
+    invCamFerma();
+    invCamRisultato(full);
+  }
+  // ultimo passo: il risultato, da tenere o rifare
+  function invCamRisultato(full) {
+    const p = invChiFoto(), el = document.getElementById('inv-cam');
+    if (!p || !el) return;
+    invCamFinale = full;
+    el.innerHTML = '<div class="inv-cam-top"><div class="inv-tag">' + invChar(p.char).ruolo + '</div>'
+      + '<div class="inv-cam-txt">Ti piace?</div></div>'
+      + '<div class="inv-cam-prova"><canvas id="inv-cam-prova" width="' + INV_CW + '" height="' + INV_CH + '"></canvas></div>'
+      + '<div class="inv-cam-bar">'
+      +   '<button class="inv-cam-x" onclick="invCamApri()">Rifai</button>'
+      +   '<button class="inv-cam-ok" onclick="invCamSalvaFiltro()">Fatto</button>'
+      + '</div>';
+    document.getElementById('inv-cam-prova').getContext('2d').drawImage(full, 0, 0);
+  }
+  function invCamSalvaFiltro() {
+    const p = invChiFoto(); if (!p || !invCamFinale) return;
+    p.ritratto = invCamFinale.toDataURL('image/jpeg', 0.88);
+    p.selfie = invRitaglio(invCamFinale, p.char);
+    invComposti.set(p.char + '|' + p.selfie, p.ritratto);
+    if (inv.m) invMFace(p.selfie);
+    invCamFinale = null;
+    invCamChiudi();
+    invRender();
+  }
+
+  // ---- fotocamera con l'ovale (riserva, e personaggi senza ritratto) ----
   let invCamFlusso = null, invCamFoto = null, invCamAdj = { s: 1, dx: 0, dy: 0 };
   function invCamApri() {
     const p = invChiFoto(); if (!p || !p.char) return;
     const c = invChar(p.char);
     invPrepara(p.char);
     invCamChiudi();
-    if (INV_RITRATTI[p.char]) { invCamCartonato(p, c); return; }
+    if (INV_RITRATTI[p.char]) { invCamFiltro(p, c); return; }
     const el = document.createElement('div');
     el.className = 'inv-cam'; el.id = 'inv-cam';
     el.innerHTML = '<video id="inv-cam-v" playsinline autoplay muted></video>'
@@ -16782,6 +17053,17 @@
     rd.onload = function () {
       const im = new Image();
       im.onload = function () {
+        const p = invChiFoto();
+        if (invCamLm && p && INV_RITRATTI[p.char] && invPuntiRitratto[p.char]) {
+          const Ps = invMpPunti(invCamLm, im, im.naturalWidth, im.naturalHeight);
+          if (Ps) {
+            const full = document.createElement('canvas'); full.width = INV_CW; full.height = INV_CH;
+            invSwap(full, p.char, im, Ps);
+            invCamFerma();
+            invCamRisultato(full);
+            return;
+          }
+        }
         const w = Math.min(im.width, im.height / 1.2) * 0.75, h = w * 1.2;
         const cv = document.createElement('canvas'); cv.width = 480; cv.height = 576;
         cv.getContext('2d').drawImage(im, (im.width - w) / 2, (im.height - h) / 2.6, w, h, 0, 0, 480, 576);
@@ -16839,15 +17121,16 @@
     const p = invChiFoto(); if (!p || !invCamFoto) return;
     const o = invOvale(p.char);
     const fac = invFaccia(invCamFoto, Math.round(2 * o.rx), Math.round(2 * o.ry), invCamAdj, p.char);
-    const selfie = fac.toDataURL('image/jpeg', 0.85);
-    p.selfie = selfie;
+    let selfie = fac.toDataURL('image/jpeg', 0.85);
     p.ritratto = '';
     if (INV_RITRATTI[p.char] && invImgPronte[p.char]) {
       const cv = document.createElement('canvas'); cv.width = INV_CW; cv.height = INV_CH;
       invDisegna(cv, p.char, fac);
       p.ritratto = cv.toDataURL('image/jpeg', 0.86);
+      selfie = invRitaglio(cv, p.char);
       invComposti.set(p.char + '|' + selfie, p.ritratto);
     }
+    p.selfie = selfie;
     if (inv.m) invMFace(selfie);
     invCamFoto = null;
     invCamChiudi();
