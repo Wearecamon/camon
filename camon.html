@@ -16927,6 +16927,27 @@
     setTimeout(function () { rimisuraSchermo(true); }, 400);
     setTimeout(function () { rimisuraSchermo(false); }, 1000);
   });
+  /* La tastiera: e' lei che lascia la fascia nera. Su iPhone, dall'app
+     sulla Home, quando la tastiera si chiude iOS a volte tiene la pagina
+     alta come se la tastiera fosse ancora li', e la fascia resta anche
+     cambiando pagina. Appena la tastiera e' davvero chiusa (nessun campo
+     di testo attivo) si fanno rileggere le misure e si da' una spinta di
+     un pixel allo scorrimento, che obbliga iOS a ridisegnare. */
+  function tastieraChiusa() {
+    const a = document.activeElement;
+    if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) return; // si e' solo passati a un altro campo
+    rimisuraSchermo(true);
+    const y = window.scrollY;
+    window.scrollTo(0, y + 1);
+    window.scrollTo(0, y);
+  }
+  document.addEventListener('focusout', function (e) {
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) {
+      setTimeout(tastieraChiusa, 350);
+      setTimeout(tastieraChiusa, 900); // iOS chiude la tastiera con un'animazione: si ricontrolla a fine corsa
+    }
+  });
   window.addEventListener('pageshow', function () { rimisuraSchermo(false); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) rimisuraSchermo(false); });
   if (window.visualViewport) window.visualViewport.addEventListener('resize', function () { rimisuraSchermo(false); });
