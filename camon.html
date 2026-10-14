@@ -16504,8 +16504,8 @@
     // del viso, fino al colletto (Contessa: fino alla collana)
     1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224, bucoSu: 0.86, collo: 0.12 },   // sotto la visiera
     2: { x: 0.500, y: 0.293, rx: 0.165, ry: 0.142, collo: 0.26 },
-    3: { x: 0.531, y: 0.324, rx: 0.165, ry: 0.138, occhiali: true, collo: 0.12 },
-    4: { x: 0.525, y: 0.334, rx: 0.180, ry: 0.145, baffi: true, collo: 0.14 }
+    3: { x: 0.531, y: 0.324, rx: 0.165, ry: 0.138, collo: 0.12 },
+    4: { x: 0.525, y: 0.334, rx: 0.180, ry: 0.145, collo: 0.14 }
   };
   const INV_CW = 810, INV_CH = 1080;             // misura del fotomontaggio (3:4 come i ritratti)
   const invImgCache = {};
@@ -16612,31 +16612,6 @@
     if (v.taglio && base) {
       const ty = v.taglio * INV_CH;
       ctx.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight * v.taglio, 0, 0, INV_CW, ty);
-    }
-    // il segno del personaggio ridisegnato sopra la faccia del giocatore
-    if (v.occhiali) {
-      const ey = o.cy - 0.34 * o.ry, ex = 0.39 * o.rx, r = 0.27 * o.rx;
-      ctx.save(); ctx.strokeStyle = 'rgba(206,176,120,0.95)'; ctx.lineWidth = 2.4;
-      ctx.beginPath(); ctx.arc(o.cx - ex, ey, r, 0, Math.PI * 2); ctx.stroke();
-      ctx.beginPath(); ctx.arc(o.cx + ex, ey, r, 0, Math.PI * 2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(o.cx - ex + r, ey); ctx.quadraticCurveTo(o.cx, ey - r * 0.45, o.cx + ex - r, ey); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(o.cx - ex - r, ey); ctx.lineTo(o.cx - o.rx * 0.98, ey - r * 0.15);
-      ctx.moveTo(o.cx + ex + r, ey); ctx.lineTo(o.cx + o.rx * 0.98, ey - r * 0.15); ctx.stroke();
-      ctx.restore();
-    }
-    if (v.baffi) {
-      const my = o.cy + 0.36 * o.ry, w = 0.84 * o.rx;
-      ctx.save(); ctx.fillStyle = '#17110c';
-      [-1, 1].forEach(function (d) {
-        ctx.beginPath();
-        ctx.moveTo(o.cx, my - 0.05 * w);
-        ctx.quadraticCurveTo(o.cx + d * 0.30 * w, my - 0.16 * w, o.cx + d * 0.52 * w, my - 0.02 * w);
-        ctx.quadraticCurveTo(o.cx + d * 0.66 * w, my + 0.04 * w, o.cx + d * 0.70 * w, my - 0.16 * w);
-        ctx.quadraticCurveTo(o.cx + d * 0.64 * w, my - 0.02 * w, o.cx + d * 0.50 * w, my + 0.06 * w);
-        ctx.quadraticCurveTo(o.cx + d * 0.28 * w, my + 0.10 * w, o.cx, my + 0.03 * w);
-        ctx.closePath(); ctx.fill();
-      });
-      ctx.restore();
     }
   }
   /* Fotomontaggio di un giocatore. Chi ha scattato ce l'ha subito; sugli
@@ -16766,12 +16741,14 @@
   }
   // colori della faccia portati verso quelli del viso del ritratto, solo dentro il riquadro della faccia
   const invStatVolto = {};
-  function invColoriVolto(F, rf, id) {
+  // rf: dove si misura la pelle (il viso); ra: dove si applica la correzione (se manca, li' stesso)
+  function invColoriVolto(F, rf, id, ra) {
     const base = invImgPronte[id], Pp = invPuntiRitratto[id];
     if (!invStatVolto[id]) invStatVolto[id] = invMisura(base, invBox(INV_OVALE_IDX.map(function (i) { return Pp[i]; })));
     const P = invStatVolto[id], Fs = invMisura(F, rf);
-    const x = Math.max(0, Math.floor(rf.x)), y = Math.max(0, Math.floor(rf.y));
-    const w = Math.min(F.width - x, Math.ceil(rf.w) + 2), h = Math.min(F.height - y, Math.ceil(rf.h) + 2);
+    const r = ra || rf;
+    const x = Math.max(0, Math.floor(r.x)), y = Math.max(0, Math.floor(r.y));
+    const w = Math.min(F.width - x, Math.ceil(r.w) + 2), h = Math.min(F.height - y, Math.ceil(r.h) + 2);
     if (w < 2 || h < 2) return;
     const g = F.getContext('2d'), img = g.getImageData(x, y, w, h), d = img.data;
     const A = [], B = [];
@@ -16843,37 +16820,9 @@
     f.globalCompositeOperation = 'source-over';
     invColoriVolto(F, invBox(poly), id);
     ctx.drawImage(F, 0, 0);
-    // cio' che fa riconoscere il personaggio resta sopra
+    // il berretto resta sopra
     const v = INV_VOLTO[id] || {};
     if (v.taglio) ctx.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight * v.taglio, 0, 0, W, H * v.taglio);
-    const media = function (i, j) { return { x: (Pp[i].x + Pp[j].x) / 2, y: (Pp[i].y + Pp[j].y) / 2 }; };
-    const dist = function (u, w) { return Math.hypot(u.x - w.x, u.y - w.y); };
-    if (v.occhiali) {
-      const L = media(33, 133), R = media(362, 263), r = dist(Pp[33], Pp[133]) * 0.62;
-      ctx.save(); ctx.strokeStyle = 'rgba(206,176,120,0.95)'; ctx.lineWidth = Math.max(1.5, W * 0.0032);
-      [L, R].forEach(function (e) { ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, Math.PI * 2); ctx.stroke(); });
-      ctx.beginPath(); ctx.moveTo(L.x + r, L.y); ctx.quadraticCurveTo((L.x + R.x) / 2, (L.y + R.y) / 2 - r * 0.45, R.x - r, R.y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(L.x - r, L.y); ctx.lineTo(Pp[234].x, Pp[234].y - r * 0.3);
-      ctx.moveTo(R.x + r, R.y); ctx.lineTo(Pp[454].x, Pp[454].y - r * 0.3); ctx.stroke();
-      ctx.restore();
-    }
-    if (v.baffi) {
-      // baffi a manubrio: tra naso e labbro, folti al centro e arricciati in punta
-      const c0 = { x: Pp[164].x * 0.6 + Pp[0].x * 0.4, y: Pp[164].y * 0.6 + Pp[0].y * 0.4 };
-      const w = dist(Pp[61], Pp[291]);
-      ctx.save(); ctx.fillStyle = '#17110c';
-      ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = Math.max(1, w * 0.04);
-      [-1, 1].forEach(function (d) {
-        ctx.beginPath();
-        ctx.moveTo(c0.x, c0.y - 0.12 * w);
-        ctx.bezierCurveTo(c0.x + d * 0.25 * w, c0.y - 0.20 * w, c0.x + d * 0.48 * w, c0.y - 0.10 * w, c0.x + d * 0.62 * w, c0.y - 0.02 * w);
-        ctx.bezierCurveTo(c0.x + d * 0.74 * w, c0.y + 0.03 * w, c0.x + d * 0.86 * w, c0.y - 0.06 * w, c0.x + d * 0.84 * w, c0.y - 0.26 * w);
-        ctx.bezierCurveTo(c0.x + d * 0.92 * w, c0.y - 0.10 * w, c0.x + d * 0.82 * w, c0.y + 0.12 * w, c0.x + d * 0.60 * w, c0.y + 0.10 * w);
-        ctx.bezierCurveTo(c0.x + d * 0.40 * w, c0.y + 0.09 * w, c0.x + d * 0.18 * w, c0.y + 0.10 * w, c0.x, c0.y + 0.06 * w);
-        ctx.closePath(); ctx.fill();
-      });
-      ctx.restore();
-    }
     return true;
   }
   // rotazione + scala + spostamento che porta i punti P sui punti Q
@@ -16926,23 +16875,73 @@
     g.drawImage(base, 0, 0);
     g.globalCompositeOperation = 'destination-in';
     g.drawImage(pers, 0, 0, W, H);
-    // il buco del viso, sfumato: via pelle e orecchie del personaggio
+    // 1) dentro il contorno del viso va via tutto (occhi, sopracciglia, labbra, baffi)
     g.globalCompositeOperation = 'destination-out';
-    g.shadowColor = '#000'; g.shadowBlur = W * 0.02; g.shadowOffsetX = W * 3;
+    g.save();
+    g.shadowColor = '#000'; g.shadowBlur = W * 0.008; g.shadowOffsetX = W * 3;
     g.translate(-W * 3, 0);
-    // sopra il buco sale fino all'attaccatura dei capelli, cosi' della fronte
-    // del personaggio non resta niente (col berretto si ferma sotto la visiera)
-    invPoligono(g, invContorno(P, 1.3, (INV_VOLTO[id] && INV_VOLTO[id].bucoSu) || 1.1, 1.12)); g.fill();
-    // e il collo: dalla mascella giu' fino al colletto, cosi' si vede il collo del giocatore
-    const fh = Math.hypot(P[152].x - P[10].x, P[152].y - P[10].y);
-    const giu = P[152].y + ((INV_VOLTO[id] && INV_VOLTO[id].collo) || 0.12) * fh;
-    const jl = P[172], jr = P[397], mx = (jl.x + jr.x) / 2, mezzo = Math.abs(jr.x - jl.x) / 2;
-    invPoligono(g, [
-      { x: mx - mezzo * 0.92, y: jl.y }, { x: mx + mezzo * 0.92, y: jr.y },
-      { x: mx + mezzo * 0.78, y: giu }, { x: mx - mezzo * 0.78, y: giu }
-    ]); g.fill();
+    invPoligono(g, invContorno(P, 1.02, (INV_VOLTO[id] && INV_VOLTO[id].bucoSu) || 1.0, 1.02)); g.fill();
+    g.restore();
+    // 2) attorno, via la pelle del personaggio (orecchie, tempie, mascella, collo):
+    //    si riconosce dal colore, cosi' il taglio segue il contorno vero
+    const pelle = invPellePersonaggio(id, base, P);
+    if (pelle) g.drawImage(pelle, 0, 0, W, H);
+    g.globalCompositeOperation = 'source-over';
     invCostumi[id] = c;
     return c;
+  }
+  /* La pelle del personaggio attorno al viso. Si misura il colore della
+     sua pelle al centro del viso (guance e naso) e si segnano i punti con
+     lo stesso colore nella zona di testa e collo: orecchie, tempie,
+     mascella, collo fino al colletto. Capelli, cappello e vestiti hanno
+     un altro colore e restano. Torna una maschera (alfa = pelle). */
+  function invPellePersonaggio(id, base, P) {
+    const W = 360, H = Math.round(360 * base.naturalHeight / base.naturalWidth), k = W / base.naturalWidth;
+    const Pk = P.map(function (q) { return { x: q.x * k, y: q.y * k }; });
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    g.drawImage(base, 0, 0, W, H);
+    const d = g.getImageData(0, 0, W, H).data;
+    const ycc = function (i) {
+      const r = d[i], gg = d[i + 1], b = d[i + 2];
+      return [0.299 * r + 0.587 * gg + 0.114 * b, 128 - 0.169 * r - 0.331 * gg + 0.5 * b, 128 + 0.5 * r - 0.419 * gg - 0.081 * b];
+    };
+    // colore della pelle: guance e naso, tra occhi e bocca
+    const camp = [];
+    const x0 = Pk[234].x + (Pk[454].x - Pk[234].x) * 0.22, x1 = Pk[234].x + (Pk[454].x - Pk[234].x) * 0.78;
+    const y0 = (Pk[33].y + Pk[263].y) / 2 + (Pk[0].y - Pk[168].y) * 0.15, y1 = Pk[0].y - (Pk[0].y - Pk[1].y) * 0.4;
+    for (let y = Math.round(y0); y < y1; y++) for (let x = Math.round(x0); x < x1; x++) camp.push(ycc((y * W + x) * 4));
+    if (camp.length < 20) return null;
+    const media = [0, 1, 2].map(function (j) { return camp.reduce(function (t, v) { return t + v[j]; }, 0) / camp.length; });
+    const dev = [0, 1, 2].map(function (j) { return Math.sqrt(camp.reduce(function (t, v) { return t + (v[j] - media[j]) * (v[j] - media[j]); }, 0) / camp.length) + 1; });
+    // zona dove cercare: testa e collo fino al colletto
+    const fh = Math.hypot(Pk[152].x - Pk[10].x, Pk[152].y - Pk[10].y);
+    const giu = Pk[152].y + ((INV_VOLTO[id] && INV_VOLTO[id].collo) || 0.12) * fh;
+    const zona = document.createElement('canvas'); zona.width = W; zona.height = H;
+    const gz = zona.getContext('2d');
+    gz.fillStyle = '#000';
+    invPoligono(gz, invContorno(Pk, 1.5, 1.15, 1.25)); gz.fill();
+    const jl = Pk[172], jr = Pk[397], mx = (jl.x + jr.x) / 2, mezzo = Math.abs(jr.x - jl.x) / 2;
+    invPoligono(gz, [{ x: mx - mezzo * 1.05, y: jl.y }, { x: mx + mezzo * 1.05, y: jr.y },
+                     { x: mx + mezzo * 0.95, y: giu }, { x: mx - mezzo * 0.95, y: giu }]); gz.fill();
+    const dz = gz.getImageData(0, 0, W, H).data;
+    const m = document.createElement('canvas'); m.width = W; m.height = H;
+    const gm = m.getContext('2d'), im = gm.createImageData(W, H), a = im.data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (!dz[i + 3]) continue;
+      const v = ycc(i);
+      const dc = Math.hypot((v[1] - media[1]) / dev[1], (v[2] - media[2]) / dev[2]);
+      if (dc < 3.2 && v[0] > media[0] * 0.35 && v[0] < media[0] * 1.7) a[i + 3] = 255;
+    }
+    gm.putImageData(im, 0, 0);
+    // bordi morbidi e via i puntini isolati: rimpicciolire e ringrandire
+    const pic = document.createElement('canvas'); pic.width = Math.round(W / 3); pic.height = Math.round(H / 3);
+    pic.getContext('2d').drawImage(m, 0, 0, pic.width, pic.height);
+    const out = document.createElement('canvas'); out.width = W; out.height = H;
+    const go = out.getContext('2d');
+    go.drawImage(pic, 0, 0, W, H);
+    go.drawImage(m, 0, 0);
+    return out;
   }
   /* Lo sfondo del ritratto senza il personaggio. Non c'e' niente dietro di
      lui da recuperare, quindi il suo posto si riempie con i colori che ha
@@ -17000,39 +16999,6 @@
     invSfondi[id] = sf;
     return sf;
   }
-  // occhiali e baffi del personaggio disegnati sui punti del viso Q (in coordinate della tela)
-  function invAccessori(ctx, id, Q, W) {
-    const v = INV_VOLTO[id] || {};
-    const media = function (i, j) { return { x: (Q[i].x + Q[j].x) / 2, y: (Q[i].y + Q[j].y) / 2 }; };
-    const dist = function (u, w) { return Math.hypot(u.x - w.x, u.y - w.y); };
-    if (v.occhiali) {
-      const L = media(33, 133), R = media(362, 263), r = dist(Q[33], Q[133]) * 0.62;
-      ctx.save(); ctx.strokeStyle = 'rgba(206,176,120,0.95)'; ctx.lineWidth = Math.max(1.5, r * 0.09);
-      [L, R].forEach(function (e) { ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, Math.PI * 2); ctx.stroke(); });
-      ctx.beginPath(); ctx.moveTo(L.x + r, L.y); ctx.quadraticCurveTo((L.x + R.x) / 2, (L.y + R.y) / 2 - r * 0.45, R.x - r, R.y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(L.x - r, L.y); ctx.lineTo(Q[234].x, Q[234].y - r * 0.3);
-      ctx.moveTo(R.x + r, R.y); ctx.lineTo(Q[454].x, Q[454].y - r * 0.3); ctx.stroke();
-      ctx.restore();
-    }
-    if (v.baffi) {
-      const c0 = { x: Q[164].x * 0.6 + Q[0].x * 0.4, y: Q[164].y * 0.6 + Q[0].y * 0.4 };
-      const w = dist(Q[61], Q[291]);
-      // il verso dei baffi segue l'inclinazione della testa
-      const ang = Math.atan2(Q[291].y - Q[61].y, Q[291].x - Q[61].x);
-      ctx.save(); ctx.translate(c0.x, c0.y); ctx.rotate(ang);
-      ctx.fillStyle = '#17110c'; ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = Math.max(1, w * 0.04);
-      [-1, 1].forEach(function (d) {
-        ctx.beginPath();
-        ctx.moveTo(0, -0.12 * w);
-        ctx.bezierCurveTo(d * 0.25 * w, -0.20 * w, d * 0.48 * w, -0.10 * w, d * 0.62 * w, -0.02 * w);
-        ctx.bezierCurveTo(d * 0.74 * w, 0.03 * w, d * 0.86 * w, -0.06 * w, d * 0.84 * w, -0.26 * w);
-        ctx.bezierCurveTo(d * 0.92 * w, -0.10 * w, d * 0.82 * w, 0.12 * w, d * 0.60 * w, 0.10 * w);
-        ctx.bezierCurveTo(d * 0.40 * w, 0.09 * w, d * 0.18 * w, 0.10 * w, 0, 0.06 * w);
-        ctx.closePath(); ctx.fill();
-      });
-      ctx.restore();
-    }
-  }
   /* La scena del filtro: sfondo del vagone, il giocatore (testa, senza lo
      sfondo di casa sua) e sopra il costume, che segue la testa.
      vista 'live': inquadratura della fotocamera, a specchio, come uno
@@ -17072,14 +17038,14 @@
     invPoligono(m, testa); m.fill();
     l.drawImage(M, 0, 0);
     l.globalCompositeOperation = 'source-over';
-    invColoriVolto(L, invBox(invContorno(Q, 1, 1, 1)), id);
+    // stessa correzione per faccia, orecchie e collo: misurata sul viso, applicata a tutta la testa
+    invColoriVolto(L, invBox(invContorno(Q, 1, 1, 1)), id, invBox(testa));
     ctx.drawImage(L, 0, 0);
     // il costume, portato sulla testa del giocatore
     const CS = invMul(V, S);
     ctx.setTransform(CS.a, CS.b, CS.c, CS.d, CS.e, CS.f);
     ctx.drawImage(cost, 0, 0);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    invAccessori(ctx, id, Q, W);
     return true;
   }
 
