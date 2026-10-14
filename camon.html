@@ -2449,6 +2449,8 @@
   /* fotocamera con l'ovale, a tutto schermo */
   .inv-cam { position:fixed; inset:0; z-index:450; background:#000; overflow:hidden; }
   .inv-cam video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+  /* nel cartonato il video serve solo da sorgente: a schermo c'e' il ritratto */
+  .inv-cam video.nascosto { width:2px; height:2px; opacity:0; pointer-events:none; }
   .inv-cam-ovale {
     position:absolute; left:50%; top:47%; transform:translate(-50%,-50%);
     width:min(64vw,300px); aspect-ratio:1/1.2; border-radius:50%;
@@ -16501,7 +16503,7 @@
     3: { x: 0.531, y: 0.322, rx: 0.152, ry: 0.123, occhiali: true },
     4: { x: 0.529, y: 0.332, rx: 0.152, ry: 0.132, baffi: true }
   };
-  const INV_CW = 600, INV_CH = 800;              // misura del fotomontaggio (3:4 come i ritratti)
+  const INV_CW = 810, INV_CH = 1080;             // misura del fotomontaggio (3:4 come i ritratti)
   const invImgCache = {};
   function invImg(url) {
     if (!invImgCache[url]) invImgCache[url] = new Promise(function (ok, ko) {
@@ -16527,15 +16529,54 @@
     return '<div class="inv-pass" style="padding:0">' + invAva(p.char, 'big') + '</div>';
   }
 
+  /* Colori: luce e tinta della faccia del giocatore vengono portate verso
+     quelle del viso originale del ritratto (media e contrasto, canale per
+     canale, misurati al centro dell'ovale). Cosi' la faccia sembra presa
+     sotto le stesse lampade, invece di un adesivo con un'altra luce. */
+  function invMisura(src, W, H) {
+    const t = document.createElement('canvas'); t.width = 40; t.height = 48;
+    const g = t.getContext('2d');
+    g.drawImage(src, W.x, W.y, W.w, W.h, 0, 0, 40, 48);
+    const d = g.getImageData(0, 0, 40, 48).data;
+    const m = [0, 0, 0], q = [0, 0, 0]; let n = 0;
+    for (let y = 0; y < 48; y++) for (let x = 0; x < 40; x++) {
+      const ex = (x - 19.5) / 20, ey = (y - 23.5) / 24;
+      if (ex * ex + ey * ey > 0.36) continue;     // solo il centro: niente capelli ne' sfondo
+      const i = (y * 40 + x) * 4;
+      for (let k = 0; k < 3; k++) { m[k] += d[i + k]; q[k] += d[i + k] * d[i + k]; }
+      n++;
+    }
+    return m.map(function (v, k) { const mu = v / n; return { m: mu, s: Math.sqrt(Math.max(1, q[k] / n - mu * mu)) }; });
+  }
+  const invStatRitratto = {};
+  function invColori(c, id) {
+    const base = invImgPronte[id]; if (!base) return;
+    if (!invStatRitratto[id]) {
+      const v = INV_VOLTO[id], bw = base.naturalWidth, bh = base.naturalHeight;
+      invStatRitratto[id] = invMisura(base, { x: (v.x - v.rx) * bw, y: (v.y - v.ry) * bh, w: 2 * v.rx * bw, h: 2 * v.ry * bh });
+    }
+    const P = invStatRitratto[id], F = invMisura(c, { x: 0, y: 0, w: c.width, h: c.height });
+    const g = c.getContext('2d'), img = g.getImageData(0, 0, c.width, c.height), d = img.data;
+    const A = [], B = [];
+    for (let k = 0; k < 3; k++) {
+      const gain = Math.min(1.5, Math.max(0.65, P[k].s / F[k].s));
+      // 85% verso il ritratto: abbastanza per legare, non tanto da cancellare la faccia
+      A[k] = 1 + (gain - 1) * 0.85;
+      B[k] = (P[k].m - F[k].m * gain) * 0.85;
+    }
+    for (let i = 0; i < d.length; i += 4) {
+      d[i] = d[i] * A[0] + B[0]; d[i + 1] = d[i + 1] * A[1] + B[1]; d[i + 2] = d[i + 2] * A[2] + B[2];
+    }
+    g.putImageData(img, 0, 0);
+  }
   // la faccia ritagliata, nella misura dell'ovale del personaggio, con zoom e spostamento
-  function invFaccia(foto, W, H, adj) {
+  function invFaccia(foto, W, H, adj, id) {
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const g = c.getContext('2d');
-    // i colori della faccia si avvicinano a quelli del ritratto: piu' caldi e meno accesi
-    g.filter = 'sepia(0.22) saturate(0.9) brightness(0.94) contrast(1.05)';
     const sc = adj.s * Math.max(W / foto.width, H / foto.height);
     const w = foto.width * sc, h = foto.height * sc;
     g.drawImage(foto, (W - w) / 2 + adj.dx * W, (H - h) / 2 + adj.dy * H, w, h);
+    invColori(c, id);
     return c;
   }
   // misura in pixel dell'ovale del personaggio dentro il fotomontaggio
@@ -16622,6 +16663,7 @@
     const c = invChar(p.char);
     invPrepara(p.char);
     invCamChiudi();
+    if (INV_RITRATTI[p.char]) { invCamCartonato(p, c); return; }
     const el = document.createElement('div');
     el.className = 'inv-cam'; el.id = 'inv-cam';
     el.innerHTML = '<video id="inv-cam-v" playsinline autoplay muted></video>'
@@ -16644,6 +16686,68 @@
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false })
       .then(function (fl) { invCamFlusso = fl; v.srcObject = fl; })
       .catch(niente);
+  }
+  /* Il "cartonato": mentre si inquadra, a schermo c'e' gia' il ritratto con
+     la propria faccia nel buco, aggiornato dal vivo. Si avvicina o allontana
+     il telefono finche' la faccia combacia, e si scatta. */
+  let invCamZoomLive = 0.6;           // quanta parte del video finisce nel buco
+  function invCamCartonato(p, c) {
+    const el = document.createElement('div');
+    el.className = 'inv-cam'; el.id = 'inv-cam';
+    el.innerHTML = '<video id="inv-cam-v" class="nascosto" playsinline autoplay muted></video>'
+      + '<div class="inv-cam-top"><div class="inv-tag">' + c.ruolo + '</div>'
+      +   '<div class="inv-cam-txt">Metti la faccia nel ritratto</div>'
+      +   '<div class="inv-cam-sub" id="inv-cam-sub">Avvicina o allontana il telefono finché la tua faccia prende il posto della sua. Guarda dritto.</div></div>'
+      + '<div class="inv-cam-prova"><canvas id="inv-cam-live" width="' + INV_CW + '" height="' + INV_CH + '"></canvas></div>'
+      + '<div class="inv-cam-bar">'
+      +   '<button class="inv-cam-x" onclick="invCamChiudi()">Annulla</button>'
+      +   '<button class="inv-cam-scatto" id="inv-cam-scatto" onclick="invCamScattaLive()" aria-label="Scatta"></button>'
+      +   '<label class="inv-cam-x">Galleria<input type="file" accept="image/*" style="display:none" onchange="invCamDaFile(this)"></label>'
+      + '</div>';
+    document.body.appendChild(el);
+    const v = document.getElementById('inv-cam-v');
+    const niente = function () {
+      const sub = document.getElementById('inv-cam-sub');
+      if (sub) sub.textContent = 'La fotocamera non si apre: scegli una foto dalla Galleria.';
+      const b = document.getElementById('inv-cam-scatto'); if (b) b.style.visibility = 'hidden';
+    };
+    invPrepara(p.char).then(function () {
+      const cv = document.getElementById('inv-cam-live'); if (cv) invDisegna(cv, p.char, null);
+    });
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { niente(); return; }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false })
+      .then(function (fl) { invCamFlusso = fl; v.srcObject = fl; v.play().catch(function () {}); invCamGiro(p.char); })
+      .catch(niente);
+  }
+  // la faccia presa dal video: il centro dell'inquadratura, a specchio, nella forma dell'ovale
+  function invCamFacciaDalVideo(v, id) {
+    const o = invOvale(id), FW = Math.round(2 * o.rx), FH = Math.round(2 * o.ry);
+    const vw = v.videoWidth, vh = v.videoHeight;
+    let cw = vw * invCamZoomLive, ch = cw * FH / FW;
+    if (ch > vh * 0.95) { ch = vh * 0.95; cw = ch * FW / FH; }
+    const sx = (vw - cw) / 2, sy = Math.max(0, Math.min(vh - ch, vh * 0.45 - ch / 2));
+    const c = document.createElement('canvas'); c.width = FW; c.height = FH;
+    const g = c.getContext('2d');
+    g.translate(FW, 0); g.scale(-1, 1);
+    g.drawImage(v, sx, sy, cw, ch, 0, 0, FW, FH);
+    return c;
+  }
+  function invCamGiro(id) {
+    const v = document.getElementById('inv-cam-v'), cv = document.getElementById('inv-cam-live');
+    if (!v || !cv || !invCamFlusso) return;
+    if (v.videoWidth && invImgPronte[id]) {
+      const f = invCamFacciaDalVideo(v, id);
+      invColori(f, id);
+      invDisegna(cv, id, f);
+    }
+    requestAnimationFrame(function () { invCamGiro(id); });
+  }
+  function invCamScattaLive() {
+    const p = invChiFoto(), v = document.getElementById('inv-cam-v');
+    if (!p || !v || !v.videoWidth) return;
+    invCamFoto = invCamFacciaDalVideo(v, p.char);   // senza correzione: la rifa' il passo dopo
+    invCamFerma();
+    invCamSistema();
   }
   function invCamFerma() {
     if (invCamFlusso) { invCamFlusso.getTracks().forEach(function (t) { t.stop(); }); invCamFlusso = null; }
@@ -16694,8 +16798,8 @@
     invCamAdj = { s: 1, dx: 0, dy: 0 };
     if (!INV_RITRATTI[p.char]) { invCamSalva(); return; }   // senza ritratto non c'e' niente da sistemare
     el.innerHTML = '<div class="inv-cam-top"><div class="inv-tag">' + invChar(p.char).ruolo + '</div>'
-      + '<div class="inv-cam-txt">Sistema la faccia</div>'
-      + '<div class="inv-cam-sub">Trascinala col dito, ingrandisci o rimpicciolisci con − e +</div></div>'
+      + '<div class="inv-cam-txt">Ti piace?</div>'
+      + '<div class="inv-cam-sub">Se serve, trascina la faccia col dito o ingrandiscila con − e +</div></div>'
       + '<div class="inv-cam-prova"><canvas id="inv-cam-prova" width="' + INV_CW + '" height="' + INV_CH + '"></canvas></div>'
       + '<div class="inv-cam-bar">'
       +   '<button class="inv-cam-x" onclick="invCamApri()">Rifai</button>'
@@ -16725,14 +16829,14 @@
       const p = invChiFoto(), cv = document.getElementById('inv-cam-prova');
       if (!p || !cv || !invCamFoto) return;
       const o = invOvale(p.char);
-      invDisegna(cv, p.char, invFaccia(invCamFoto, Math.round(4 * o.rx), Math.round(4 * o.ry), invCamAdj));
+      invDisegna(cv, p.char, invFaccia(invCamFoto, Math.round(2 * o.rx), Math.round(2 * o.ry), invCamAdj, p.char));
     });
   }
   function invCamZoom(k) { invCamAdj.s = Math.min(2.6, Math.max(0.55, invCamAdj.s * k)); invCamProva(); }
   function invCamSalva() {
     const p = invChiFoto(); if (!p || !invCamFoto) return;
     const o = invOvale(p.char);
-    const fac = invFaccia(invCamFoto, Math.round(4 * o.rx), Math.round(4 * o.ry), invCamAdj);
+    const fac = invFaccia(invCamFoto, Math.round(2 * o.rx), Math.round(2 * o.ry), invCamAdj, p.char);
     const selfie = fac.toDataURL('image/jpeg', 0.85);
     p.selfie = selfie;
     p.ritratto = '';
