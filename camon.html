@@ -16970,16 +16970,64 @@
     if (camp.length < 20) return;
     const media = [0, 1, 2].map(function (j) { return camp.reduce(function (t, v) { return t + v[j]; }, 0) / camp.length; });
     const dev = [0, 1, 2].map(function (j) { return Math.sqrt(camp.reduce(function (t, v) { return t + (v[j] - media[j]) * (v[j] - media[j]); }, 0) / camp.length) + 1; });
-    // il viso vero e proprio si tiene intero
+    // i capelli castani hanno un colore simile alla pelle ma sono piu' scuri:
+    // sulla fronte (stessa luce del viso) si e' piu' severi sulla luminosita'
+    const pelle = function (i, fronte) {
+      const v = ycc(i);
+      const dc = Math.hypot((v[1] - media[1]) / dev[1], (v[2] - media[2]) / dev[2]);
+      return dc < (fronte ? 2.6 : 2.9) && v[0] > media[0] * (fronte ? 0.72 : 0.62) && v[0] < media[0] * 1.8;
+    };
+    // il viso: dalle sopracciglia in giu' si tiene intero (occhi, bocca...)
     const dentro = document.createElement('canvas'); dentro.width = w; dentro.height = h;
     const gd = dentro.getContext('2d');
     gd.translate(-x0, -y0); invPoligono(gd, invContorno(Q, 0.98, 0.98, 1.0)); gd.fill();
-    const dd = gd.getImageData(0, 0, w, h).data;
+    const ddTutto = gd.getImageData(0, 0, w, h).data;
+    // sopra le sopracciglia (la fronte) no: li' puo' esserci la frangia
+    const B1 = Q[105], B2 = Q[334], fh = Math.hypot(Q[152].x - Q[10].x, Q[152].y - Q[10].y);
+    let dx = B2.x - B1.x, dy = B2.y - B1.y; const ln = Math.hypot(dx, dy) || 1; dx /= ln; dy /= ln;
+    let nx = dy, ny = -dx; if (ny > 0) { nx = -nx; ny = -ny; }          // verso l'alto
+    const su = 0.04 * fh, lungo = fh * 4;
+    const a1 = { x: B1.x + nx * su - dx * lungo, y: B1.y + ny * su - dy * lungo }, a2 = { x: B2.x + nx * su + dx * lungo, y: B2.y + ny * su + dy * lungo };
+    gd.globalCompositeOperation = 'destination-out';
+    invPoligono(gd, [a1, a2, { x: a2.x + nx * lungo, y: a2.y + ny * lungo }, { x: a1.x + nx * lungo, y: a1.y + ny * lungo }]); gd.fill();
+    const ddViso = gd.getImageData(0, 0, w, h).data;
+    // fuori dal viso: via tutto cio' che non e' pelle (capelli ai lati, sfondo)
     for (let i = 0; i < d.length; i += 4) {
-      if (!d[i + 3] || dd[i + 3] > 128) continue;
-      const v = ycc(i);
-      const dc = Math.hypot((v[1] - media[1]) / dev[1], (v[2] - media[2]) / dev[2]);
-      if (!(dc < 3.4 && v[0] > media[0] * 0.3 && v[0] < media[0] * 1.8)) d[i + 3] = 0;
+      if (!d[i + 3] || ddTutto[i + 3] > 128) continue;
+      if (!pelle(i)) d[i + 3] = 0;
+    }
+    // bordo del viso (tempie, lati delle guance): li' possono cadere ciuffi e riccioli.
+    // Il centro (occhi, naso, bocca) resta intatto; sul bordo, dove non c'e' pelle,
+    // la pelle continua dall'interno verso l'esterno, riga per riga
+    const nucleo = document.createElement('canvas'); nucleo.width = w; nucleo.height = h;
+    const gn = nucleo.getContext('2d');
+    gn.translate(-x0, -y0); invPoligono(gn, invContorno(Q, 0.74, 0.8, 0.9)); gn.fill();
+    const dn = gn.getImageData(0, 0, w, h).data;
+    const ovale = INV_OVALE_IDX.map(function (k) { return Q[k]; });
+    const cxv = ovale.reduce(function (t, q) { return t + q.x; }, 0) / ovale.length - x0;
+    const bordo = function (i) { return ddViso[i + 3] > 128 && dn[i + 3] <= 128; };
+    for (let y = 0; y < h; y++) {
+      for (let x = Math.min(w - 2, Math.floor(cxv)); x >= 0; x--) {          // verso sinistra
+        const i = (y * w + x) * 4;
+        if (!bordo(i) || pelle(i, true)) continue;
+        const j = i + 4; d[i] = d[j]; d[i + 1] = d[j + 1]; d[i + 2] = d[j + 2]; d[i + 3] = d[j + 3];
+      }
+      for (let x = Math.max(1, Math.ceil(cxv)); x < w; x++) {                // verso destra
+        const i = (y * w + x) * 4;
+        if (!bordo(i) || pelle(i, true)) continue;
+        const j = i - 4; d[i] = d[j]; d[i + 1] = d[j + 1]; d[i + 2] = d[j + 2]; d[i + 3] = d[j + 3];
+      }
+    }
+    // sulla fronte: dove c'e' frangia, la fronte continua verso l'alto col colore
+    // della pelle che c'e' subito sotto (colonna per colonna, dal basso in su)
+    for (let x = 0; x < w; x++) {
+      for (let y = h - 2; y >= 0; y--) {
+        const i = (y * w + x) * 4;
+        if (ddTutto[i + 3] <= 128 || ddViso[i + 3] > 128) continue;   // solo la fronte
+        if (pelle(i, true)) continue;
+        const j = ((y + 1) * w + x) * 4;
+        d[i] = d[j]; d[i + 1] = d[j + 1]; d[i + 2] = d[j + 2]; d[i + 3] = d[j + 3];
+      }
     }
     g.putImageData(img, x0, y0);
   }
