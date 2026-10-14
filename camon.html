@@ -2258,27 +2258,126 @@
 
   /* ---- Il Cantastorie ---- */
   #page-cantastorie { background:var(--bg); }
-  /* schermata gioco */
-  .cs-play { flex:1; min-height:0; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 24px 120px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-  /* passa il telefono */
-  .cs-ready { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-  .cs-ready-hint { font-family:'Manrope',sans-serif; font-size:14px; color:rgba(255,255,255,0.6); margin-bottom:4px; }
-  .cs-ready-name { font-family:'Bebas Neue',sans-serif; font-size:50px; line-height:1; color:var(--brand); margin-bottom:26px; }
-  .cs-begin { width:100%; max-width:300px; }
-  .cs-round { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  /* banner tempo scaduto */
-  .cs-banner { position:absolute; inset:0; z-index:10; background:rgba(46,42,5,0.97); display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center; padding:30px; animation:csBannerIn 0.3s ease; }
-  @keyframes csBannerIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:none; } }
-  .cs-banner-title { font-family:'Bebas Neue',sans-serif; font-size:44px; letter-spacing:1px; color:var(--error); margin-top:8px; }
-  .cs-banner-sub { font-family:'Manrope',sans-serif; font-size:15px; color:rgba(255,255,255,0.8); margin-bottom:26px; }
+  /* Schermate del Cantastorie: alte quanto lo schermo libero fra testata
+     e bottom bar, cosi' il contenuto si distribuisce invece di stare
+     ammassato in alto. Margini in %, altezze in vh/dvh. */
+  .cs-setup, .cs-play {
+    position:relative; display:flex; flex-direction:column;
+    min-height:calc(100dvh - 76px - var(--safe-top));
+    padding:1vh 6% calc(var(--nav-space) + 2vh);
+  }
+  /* ---- preparazione ---- */
+  .cs-setup { gap:2.6vh; }
+  .cs-sec { display:flex; flex-direction:column; gap:10px; }
+  .cs-sec-temi { flex:1; min-height:34vh; }
+  .cs-sec-lbl {
+    font-family:'Manrope',sans-serif; font-size:10.5px; font-weight:800; letter-spacing:2.5px;
+    text-transform:uppercase; color:rgba(255,255,255,0.5);
+  }
+  .cs-themes { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:1fr; gap:10px; }
+  .cs-theme {
+    position:relative; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-start; gap:4px;
+    text-align:left; padding:16px; border-radius:20px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    background:var(--surface); border:1.5px solid var(--border); color:var(--text);
+    transition:background 0.15s, border-color 0.15s, transform 0.12s;
+  }
+  .cs-theme:active { transform:scale(0.98); }
+  .cs-theme svg { position:absolute; top:16px; left:16px; color:rgba(255,255,255,0.4); transition:color 0.15s; }
+  .cs-theme-name { font-family:'Bebas Neue',sans-serif; font-size:27px; letter-spacing:0.8px; line-height:1; }
+  .cs-theme-desc { font-family:'Manrope',sans-serif; font-size:11.5px; line-height:1.3; color:var(--text-sub); }
+  .cs-theme.on { background:rgba(247,204,73,0.1); border-color:var(--brand); }
+  .cs-theme.on svg, .cs-theme.on .cs-theme-name { color:var(--brand); }
+  .cs-opt-row {
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 12px 12px 18px; border-radius:18px; background:var(--surface); border:1px solid rgba(255,255,255,0.08);
+  }
+  .cs-opt-name { font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:0.6px; color:var(--text); line-height:1; }
+  .cs-stepper { display:flex; align-items:center; gap:6px; }
+  .cs-stepper button {
+    width:40px; height:40px; border-radius:50%; border:1.5px solid var(--border); background:transparent;
+    color:var(--text); font-family:'Manrope',sans-serif; font-size:20px; font-weight:700; line-height:1;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .cs-stepper button:active { background:rgba(255,255,255,0.1); }
+  .cs-stepper button:disabled { opacity:0.3; }
+  .cs-step-n { min-width:42px; text-align:center; font-family:'Bebas Neue',sans-serif; font-size:32px; line-height:1; color:var(--brand); }
+  .cs-seg { display:flex; padding:3px; border-radius:999px; background:rgba(255,255,255,0.06); }
+  .cs-seg button {
+    border:none; background:transparent; color:rgba(255,255,255,0.7); border-radius:999px; padding:9px 13px;
+    font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:background 0.15s, color 0.15s;
+  }
+  .cs-seg button.on { background:var(--brand); color:var(--on-brand); }
+  /* ---- passa il telefono: nome al centro, tasto in fondo ---- */
+  .cs-ready, .cs-round { flex:1; width:100%; display:flex; flex-direction:column; }
+  .cs-ready-mid { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .cs-ready-hint {
+    font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px;
+    text-transform:uppercase; color:rgba(255,255,255,0.55); margin-bottom:1.2vh;
+  }
+  .cs-ready-name {
+    font-family:'Bebas Neue',sans-serif; font-size:clamp(56px,17vw,88px); line-height:0.95;
+    letter-spacing:1px; color:var(--brand);
+  }
+  /* in colonna flex:1 lo allungherebbe in altezza: qui resta un tasto */
+  .cs-ready .cs-begin { width:100%; flex:none; }
+  /* ---- turno: chi tocca e tempo in alto, spunto al centro, tasti in fondo ---- */
+  .cs-turn {
+    font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px;
+    text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center;
+  }
+  .cs-turn span {
+    display:block; margin-top:4px; text-transform:none; letter-spacing:1px;
+    font-family:'Bebas Neue',sans-serif; font-size:34px; line-height:1; color:var(--brand);
+  }
+  .cs-card {
+    flex:1; width:100%; margin:2.4vh 0; display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; padding:4vh 7%; border-radius:24px;
+    background:var(--surface); border:1px solid rgba(255,255,255,0.08);
+  }
+  .cs-cat {
+    font-family:'Manrope',sans-serif; font-size:10.5px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--on-brand); background:var(--brand); border-radius:999px; padding:6px 12px 5px; margin-bottom:2.6vh;
+  }
+  .cs-prompt {
+    font-family:'Bebas Neue',sans-serif; font-size:clamp(32px,9.4vw,44px); line-height:1.08;
+    letter-spacing:0.5px; color:var(--text); animation:otIn 0.28s ease;
+  }
+  .cs-actions { display:flex; gap:10px; width:100%; }
+  .cs-new, .cs-next {
+    border-radius:15px; padding:16px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:1.3px; line-height:1; transition:transform 0.12s;
+  }
+  .cs-actions .cs-new, .cs-actions .cs-next { align-self:auto; }
+  .cs-new { flex:0 0 40%; white-space:nowrap; background:transparent; border:1.5px solid var(--border); color:var(--text); }
+  .cs-next { flex:1; background:var(--brand); border:1.5px solid var(--brand); color:var(--on-brand); }
+  .cs-new:active, .cs-next:active { transform:scale(0.98); }
+  /* barra del tempo */
+  .cs-timer { display:flex; align-items:center; gap:10px; width:100%; margin-top:1.6vh; }
+  .cs-timer-bar { flex:1; height:6px; border-radius:6px; background:rgba(255,255,255,0.12); overflow:hidden; }
+  .cs-timer-fill { height:100%; width:100%; border-radius:6px; background:var(--brand); }
+  .cs-timer-num { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--brand); min-width:26px; text-align:right; }
+  .cs-timer.expired .cs-timer-fill { background:var(--error); }
+  .cs-timer.expired .cs-timer-num { color:var(--error); }
+  /* tempo scaduto */
+  .cs-banner {
+    position:absolute; inset:0; z-index:10; background:rgba(10,10,10,0.97); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:0 8% calc(var(--nav-space) + 2vh);
+    animation:csBannerIn 0.3s ease;
+  }
+  @keyframes csBannerIn { from { opacity:0; transform:scale(0.96); } to { opacity:1; transform:none; } }
+  .cs-banner-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(48px,14vw,64px); letter-spacing:1px; line-height:1; color:var(--error-soft); }
+  .cs-banner-sub { font-family:'Manrope',sans-serif; font-size:15px; color:rgba(255,255,255,0.8); margin:1.2vh 0 4vh; }
   .cs-banner-sub span { color:var(--brand); font-weight:800; }
-  .cs-banner-actions { display:flex; flex-direction:column; align-items:center; gap:9px; }
-  .cs-banner-btn { border:none; border-radius:11px; padding:10px 18px; cursor:pointer; -webkit-tap-highlight-color:transparent;
-    font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; transition:transform 0.12s, background 0.15s; }
-  .cs-banner-btn:active { transform:scale(0.96); }
-  .cs-banner-btn.primary { background:var(--brand); color:var(--surface); }
-  .cs-banner-btn:not(.primary) { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85); }
+  .cs-banner-actions { display:flex; flex-direction:column; gap:10px; width:100%; max-width:340px; }
+  .cs-banner-btn {
+    border-radius:15px; padding:16px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:1.3px; transition:transform 0.12s;
+  }
+  .cs-banner-btn:active { transform:scale(0.98); }
+  .cs-banner-btn.primary { background:var(--brand); border:1.5px solid var(--brand); color:var(--on-brand); }
+  .cs-banner-btn:not(.primary) { background:transparent; border:1.5px solid var(--border); color:var(--text); }
+
 
   /* ---- A Raffica ---- */
   #page-raffica { background:var(--bg); }
@@ -2302,35 +2401,6 @@
   .ra-score-pts { flex-shrink:0; font-family:'Manrope',sans-serif; font-size:13px; font-weight:800; color:var(--brand); }
   .ra-score-pts b { color:var(--error); }
   .ra-reset { background:none; border:none; color:rgba(255,255,255,0.45); font-family:'Manrope',sans-serif; font-size:12.5px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .cs-turn { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:0.5px; color:var(--text); text-align:center; margin-bottom:16px; }
-  .cs-turn span { color:var(--brand); }
-  .cs-card { width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(247,204,73,0.3); border-radius:20px;
-    padding:26px 22px; text-align:center; display:flex; flex-direction:column; align-items:center; }
-  .cs-cat { font-family:'Manrope',sans-serif; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--brand); margin-bottom:14px; }
-  .cs-prompt { font-family:'Bebas Neue',sans-serif; font-size:30px; line-height:1.12; letter-spacing:0.4px; color:var(--text); animation:otIn 0.28s ease; }
-  .cs-actions { display:flex; gap:10px; width:100%; max-width:360px; }
-  .cs-new { flex:0 0 auto; background:rgba(255,255,255,0.1); border:none; border-radius:14px; padding:15px 16px; color:var(--text);
-    font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.12s; }
-  .cs-new:active { transform:scale(0.97); }
-  .cs-next { flex:1; background:var(--brand); border:none; border-radius:14px; padding:15px; color:var(--surface);
-    font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:1px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.12s; box-shadow:0 6px 18px rgba(247,204,73,0.28); }
-  .cs-next:active { transform:scale(0.98); }
-  /* opzioni setup: temi + timer */
-  .cs-opt-label { font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; color:rgba(255,255,255,0.6); margin:16px 0 9px; }
-  .cs-chips { display:flex; flex-wrap:wrap; gap:8px; }
-  .cs-chip { background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.14); border-radius:999px;
-    padding:9px 15px; color:rgba(255,255,255,0.8); font-family:'Manrope',sans-serif; font-size:13px; font-weight:700;
-    cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s, border-color 0.15s, transform 0.12s; }
-  .cs-chip:active { transform:scale(0.96); }
-  .cs-chip.on { background:rgba(247,204,73,0.16); border-color:var(--brand); color:var(--brand); }
-  #cs-start-btn { margin-top:24px; }
-  /* barra timer */
-  .cs-timer { display:flex; align-items:center; gap:10px; width:100%; max-width:360px; margin-bottom:16px; }
-  .cs-timer-bar { flex:1; height:8px; border-radius:6px; background:rgba(255,255,255,0.12); overflow:hidden; }
-  .cs-timer-fill { height:100%; width:100%; border-radius:6px; background:var(--brand); }
-  .cs-timer-num { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--brand); min-width:26px; text-align:right; }
-  .cs-timer.expired .cs-timer-fill { background:var(--error); }
-  .cs-timer.expired .cs-timer-num { color:var(--error); }
 
   /* ============================================================
      L'INVESTIGATORE — cena con delitto, un telefono che gira.
@@ -6678,14 +6748,22 @@
       <div class="gd-title">IL <span style="color:var(--brand)">CANTASTORIE</span> </div>
     </div>
 
-    <!-- setup giocatori -->
-    <div class="sq-setup" id="cs-setup">
-      <div class="cs-opt-label">Tema della storia</div>
-      <div class="cs-chips" id="cs-themes"></div>
-      <div class="cs-opt-label">Quanti giocatori?</div>
-      <div class="cs-chips" id="cs-player-chips"></div>
-      <div class="cs-opt-label">Tempo per turno</div>
-      <div class="cs-chips" id="cs-timer-opts"></div>
+    <!-- preparazione: occupa tutto lo schermo, il tasto per iniziare sta in fondo -->
+    <div class="cs-setup" id="cs-setup">
+      <div class="cs-sec cs-sec-temi">
+        <div class="cs-sec-lbl">Tema della storia</div>
+        <div class="cs-themes" id="cs-themes"></div>
+      </div>
+      <div class="cs-sec">
+        <div class="cs-opt-row">
+          <div class="cs-opt-name">Giocatori</div>
+          <div class="cs-stepper" id="cs-player-chips"></div>
+        </div>
+        <div class="cs-opt-row">
+          <div class="cs-opt-name">Tempo per turno</div>
+          <div class="cs-seg" id="cs-timer-opts"></div>
+        </div>
+      </div>
       <button class="sq-start-btn" id="cs-start-btn" onclick="csStart()">Inizia la storia</button>
     </div>
 
@@ -6693,9 +6771,11 @@
     <div class="cs-play" id="cs-play" style="display:none">
       <!-- passa il telefono al prossimo -->
       <div class="cs-ready" id="cs-ready">
-        <div class="cs-ready-hint" id="cs-ready-hint">Passa il telefono a</div>
-        <div class="cs-ready-name" id="cs-ready-name">—</div>
-        <button class="cs-next cs-begin" onclick="csBeginTurn()">Inizia il turno →</button>
+        <div class="cs-ready-mid">
+          <div class="cs-ready-hint" id="cs-ready-hint">Passa il telefono a</div>
+          <div class="cs-ready-name" id="cs-ready-name">—</div>
+        </div>
+        <button class="cs-next cs-begin" onclick="csBeginTurn()">Inizia il turno</button>
       </div>
 
       <!-- turno in corso -->
@@ -6710,18 +6790,18 @@
           <div class="cs-prompt" id="cs-prompt">—</div>
         </div>
         <div class="cs-actions">
-          <button class="cs-new" onclick="csNewStory()">↻ Nuova storia</button>
-          <button class="cs-next" onclick="csNext()">Continua →</button>
+          <button class="cs-new" onclick="csNewStory()">Nuova storia</button>
+          <button class="cs-next" onclick="csNext()">Continua</button>
         </div>
       </div>
 
       <!-- banner tempo scaduto -->
       <div class="cs-banner" id="cs-banner" style="display:none">
-        <div class="cs-banner-title">TEMPO SCADUTO!</div>
+        <div class="cs-banner-title">Tempo scaduto</div>
         <div class="cs-banner-sub"><span id="cs-banner-name">—</span> beve un sorso</div>
         <div class="cs-banner-actions">
-          <button class="cs-banner-btn primary" onclick="csNext()">Ho bevuto · continua →</button>
-          <button class="cs-banner-btn" onclick="csNewStory()">↻ Inizia una nuova storia</button>
+          <button class="cs-banner-btn primary" onclick="csNext()">Ho bevuto, continua</button>
+          <button class="cs-banner-btn" onclick="csNewStory()">Nuova storia</button>
         </div>
       </div>
     </div>
@@ -15002,31 +15082,46 @@
     document.getElementById('cs-play').style.display = 'none';
     const inp = document.getElementById('cs-player-input'); if (inp) inp.value = '';
   }
+  // ogni tema ha una riga che dice che aria tira, e un'icona disegnata
+  const CS_THEME_INFO = {
+    mista:   { desc: 'Un po' + "'" + ' di tutto, a sorpresa', ico: '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>' },
+    horror:  { desc: 'Brividi e porte che cigolano', ico: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>' },
+    comico:  { desc: 'Situazioni assurde e figuracce', ico: '<circle cx="12" cy="12" r="9.5"/><path d="M8 14s1.5 2.5 4 2.5 4-2.5 4-2.5"/><line x1="9" y1="9.5" x2="9.01" y2="9.5"/><line x1="15" y1="9.5" x2="15.01" y2="9.5"/>' },
+    fantasy: { desc: 'Draghi, maghi e regni lontani', ico: '<path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>' }
+  };
   function csRenderThemes() {
     document.getElementById('cs-themes').innerHTML = csThemes.map(function(t){
-      return '<button class="cs-chip' + (t.key === csTheme ? ' on' : '') + '" onclick="csPickTheme(\'' + t.key + '\')">' + t.name + '</button>';
+      const info = CS_THEME_INFO[t.key] || { desc: '', ico: '' };
+      return '<button class="cs-theme' + (t.key === csTheme ? ' on' : '') + '" onclick="csPickTheme(\'' + t.key + '\')">'
+        + (info.ico ? '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + info.ico + '</svg>' : '')
+        + '<span class="cs-theme-name">' + t.name + '</span>'
+        + '<span class="cs-theme-desc">' + info.desc + '</span>'
+        + '</button>';
     }).join('');
   }
   function csPickTheme(k) { csTheme = k; csRenderThemes(); }
   function csRenderTimerOpts() {
     const opts = [{v:0,l:'Off'},{v:20,l:'20s'},{v:30,l:'30s'}];
     document.getElementById('cs-timer-opts').innerHTML = opts.map(function(o){
-      return '<button class="cs-chip' + (o.v === csTimerSec ? ' on' : '') + '" onclick="csPickTimer(' + o.v + ')">' + o.l + '</button>';
+      return '<button class="' + (o.v === csTimerSec ? 'on' : '') + '" onclick="csPickTimer(' + o.v + ')">' + o.l + '</button>';
     }).join('');
   }
   function csPickTimer(v) { csTimerSec = v; csRenderTimerOpts(); }
+  // giocatori: un contatore da 2 a 8 al posto di sette pastiglie
+  const CS_MIN_GIOCATORI = 2, CS_MAX_GIOCATORI = 8;
   function csRenderPlayers() {
-    // chip 2–8 giocatori
-    const counts = [2,3,4,5,6,7,8];
     const el = document.getElementById('cs-player-chips');
     if (el) {
-      el.innerHTML = counts.map(function(n){
-        return '<button class="cs-chip' + (n === csPlayerCount ? ' on' : '') + '" onclick="csSetPlayerCount(' + n + ')">' + n + '</button>';
-      }).join('');
+      el.innerHTML = '<button aria-label="Meno" onclick="csStepPlayers(-1)"' + (csPlayerCount <= CS_MIN_GIOCATORI ? ' disabled' : '') + '>&minus;</button>'
+        + '<span class="cs-step-n">' + csPlayerCount + '</span>'
+        + '<button aria-label="Piu\'" onclick="csStepPlayers(1)"' + (csPlayerCount >= CS_MAX_GIOCATORI ? ' disabled' : '') + '>+</button>';
     }
     document.getElementById('cs-start-btn').disabled = false;
   }
   function csSetPlayerCount(n) { csPlayerCount = n; csRenderPlayers(); }
+  function csStepPlayers(d) {
+    csSetPlayerCount(Math.min(CS_MAX_GIOCATORI, Math.max(CS_MIN_GIOCATORI, csPlayerCount + d)));
+  }
   let csPendingOpener = true;
   function csStart() {
     csScreen = 'play';
@@ -15056,7 +15151,7 @@
     document.getElementById('cs-banner').style.display = 'none';
     document.getElementById('cs-round').style.display = 'none';
     document.getElementById('cs-ready').style.display = 'flex';
-    document.getElementById('cs-ready-hint').textContent = isOpener ? 'Inizia la storia · tocca a' : 'Passa il telefono a';
+    document.getElementById('cs-ready-hint').textContent = isOpener ? 'Inizia la storia' : 'Passa il telefono a';
     document.getElementById('cs-ready-name').textContent = csCurrentPlayerName();
   }
   // il giocatore (che ora ha il telefono) fa partire il suo turno e il suo timer
