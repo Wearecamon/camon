@@ -2436,6 +2436,15 @@
     width:44px; height:44px; font-size:20px; line-height:1;
   }
   .inv-ava.big { width:42%; max-width:170px; height:auto; aspect-ratio:1/1; font-size:64px; border-width:3px; }
+  /* ritratto: zoom sul viso (al centro, a un terzo dall'alto dell'immagine) */
+  .inv-ava.ritratto { background-size:200% auto; background-position:50% 21%; }
+  .inv-ava.ritratto.ghost { filter:grayscale(1); }
+  .inv-char .inv-ava { width:56px; height:56px; }
+  /* in testa alla scheda segreta: il personaggio a figura intera */
+  .inv-scheda-foto {
+    width:100%; aspect-ratio:4/3; border-radius:20px; background:var(--surface) center 18%/cover no-repeat;
+    border:1px solid rgba(255,255,255,0.08); box-shadow:0 14px 34px rgba(0,0,0,0.45); margin-bottom:4px;
+  }
   .inv-ava.mono { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:0.5px; color:#fff; }
   .inv-ava.mono b { font-weight:400; text-shadow:0 1px 3px rgba(0,0,0,0.35); }
   .inv-ava.mono.big { font-size:clamp(48px,14vw,68px); }
@@ -15836,8 +15845,19 @@
       .filter(function (w) { return w && /^[A-ZÀ-Ý]/.test(w) && ['Il', 'La', 'Lo', 'Grande'].indexOf(w) < 0; })
       .map(function (w) { return w[0]; }).join('').slice(0, 2);
   }
-  // tondo col monogramma sul colore dell'abito del personaggio (senza selfie)
+  /* Ritratti realistici dei personaggi (cartella investigatore/immagini).
+     Chi ce l'ha mostra il ritratto, gli altri le iniziali finche' non
+     arriva il loro. Il viso nei ritratti sta al centro, a un terzo
+     dall'alto: il tondo lo inquadra da li'. */
+  const INV_RITRATTI = {
+    1: 'investigatore/immagini/ritratto-1-conduttore.webp',
+    2: 'investigatore/immagini/ritratto-2-contessa.webp',
+    3: 'investigatore/immagini/ritratto-3-dottore.webp',
+    4: 'investigatore/immagini/ritratto-4-illusionista.webp'
+  };
+  // tondo col ritratto del personaggio, o col monogramma sul colore dell'abito
   function invMono(c, cls) {
+    if (INV_RITRATTI[c.id]) return '<span class="inv-ava ritratto ' + (cls || '') + '" style="background-image:url(' + INV_RITRATTI[c.id] + ')"></span>';
     return '<span class="inv-ava mono ' + (cls || '') + '" style="background-color:' + (INV_ABITO[c.id] || '#252525') + '"><b>' + invIniziali(c) + '</b></span>';
   }
   // tondo con il selfie del giocatore; senza foto il monogramma, sbiadito se nessuno lo gioca
@@ -16467,7 +16487,8 @@
   }
   function invScheda(c) {
     const sec = function (lbl, txt) { return '<div class="inv-sheet-sec"><div class="inv-sheet-lbl">' + lbl + '</div><div class="inv-p">' + txt + '</div></div>'; };
-    return '<div class="inv-tag">Scheda segreta</div><div class="inv-h">' + c.ruolo + '</div><div class="inv-p">' + c.nome + '</div>'
+    return (INV_RITRATTI[c.id] ? '<div class="inv-scheda-foto" style="background-image:url(' + INV_RITRATTI[c.id] + ')"></div>' : '')
+      + '<div class="inv-tag">Scheda segreta</div><div class="inv-h">' + c.ruolo + '</div><div class="inv-p">' + c.nome + '</div>'
       + (c.assassino ? '<div class="inv-killer">Sei tu l\'assassino. Non farti scoprire.</div>' : '')
       + '<div class="inv-card">'
       + sec('Il tuo segreto', c.segreto) + sec(c.assassino ? 'Cosa racconti' : 'Dov\'eri', c.dove)
