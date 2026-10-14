@@ -16498,10 +16498,12 @@
   // larghezza; y, ry sull'altezza). taglio: sopra questa altezza torna il
   // ritratto (il berretto del conduttore resta sopra la fronte).
   const INV_VOLTO = {
-    1: { x: 0.505, y: 0.305, rx: 0.148, ry: 0.138, taglio: 0.224 },
-    2: { x: 0.500, y: 0.295, rx: 0.146, ry: 0.128 },
-    3: { x: 0.531, y: 0.322, rx: 0.152, ry: 0.123, occhiali: true },
-    4: { x: 0.529, y: 0.332, rx: 0.152, ry: 0.132, baffi: true }
+    // ovali larghi: coprono anche orecchie e mascella, cosi' del viso
+    // originale non resta niente ai lati
+    1: { x: 0.502, y: 0.300, rx: 0.195, ry: 0.150, taglio: 0.224 },
+    2: { x: 0.500, y: 0.293, rx: 0.165, ry: 0.142 },
+    3: { x: 0.531, y: 0.324, rx: 0.165, ry: 0.138, occhiali: true },
+    4: { x: 0.525, y: 0.334, rx: 0.180, ry: 0.145, baffi: true }
   };
   const INV_CW = 810, INV_CH = 1080;             // misura del fotomontaggio (3:4 come i ritratti)
   const invImgCache = {};
@@ -16600,7 +16602,7 @@
     g.globalCompositeOperation = 'destination-in';
     g.save(); g.translate(o.rx, o.ry); g.scale(1, o.ry / o.rx);
     const gr = g.createRadialGradient(0, 0, 0, 0, 0, o.rx);
-    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.8, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.86, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
     g.fillStyle = gr; g.fillRect(-o.rx, -o.rx, 2 * o.rx, 2 * o.rx);
     g.restore();
     ctx.drawImage(f, o.cx - o.rx, o.cy - o.ry);
@@ -16611,7 +16613,7 @@
     }
     // il segno del personaggio ridisegnato sopra la faccia del giocatore
     if (v.occhiali) {
-      const ey = o.cy - 0.38 * o.ry, ex = 0.42 * o.rx, r = 0.29 * o.rx;
+      const ey = o.cy - 0.34 * o.ry, ex = 0.39 * o.rx, r = 0.27 * o.rx;
       ctx.save(); ctx.strokeStyle = 'rgba(206,176,120,0.95)'; ctx.lineWidth = 2.4;
       ctx.beginPath(); ctx.arc(o.cx - ex, ey, r, 0, Math.PI * 2); ctx.stroke();
       ctx.beginPath(); ctx.arc(o.cx + ex, ey, r, 0, Math.PI * 2); ctx.stroke();
@@ -16621,7 +16623,7 @@
       ctx.restore();
     }
     if (v.baffi) {
-      const my = o.cy + 0.40 * o.ry, w = o.rx;
+      const my = o.cy + 0.36 * o.ry, w = 0.84 * o.rx;
       ctx.save(); ctx.fillStyle = '#17110c';
       [-1, 1].forEach(function (d) {
         ctx.beginPath();
