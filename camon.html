@@ -2474,7 +2474,7 @@
   .inv-cam-scatto:active { transform:scale(0.94); }
   .inv-cam-prova {
     position:absolute; left:50%; top:48%; transform:translate(-50%,-50%);
-    width:min(74vw,340px); aspect-ratio:3/4; border-radius:20px; overflow:hidden; touch-action:none;
+    width:min(90vw,420px); aspect-ratio:3/4; border-radius:20px; overflow:hidden; touch-action:none;
     box-shadow:0 16px 44px rgba(0,0,0,0.6);
   }
   .inv-cam-prova canvas { display:block; width:100%; height:100%; cursor:grab; }
@@ -16686,6 +16686,42 @@
     }
     return invMpPronto;
   }
+  /* Secondo riconoscimento, leggero: separa la persona dallo sfondo. Serve
+     perche' il ritaglio ora e' largo (orecchie, mascella, collo): dentro
+     ci devono finire le tue orecchie, non il muro dietro di te. */
+  const INV_SEG_MODELLO = 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite';
+  let invSegPronto = null;
+  function invSegCarica() {
+    if (!invSegPronto) {
+      invSegPronto = (async function () {
+        const mod = await import(INV_MP + '/vision_bundle.mjs');
+        const fs = await mod.FilesetResolver.forVisionTasks(INV_MP + '/wasm');
+        const opz = function (d) { return { baseOptions: { modelAssetPath: INV_SEG_MODELLO, delegate: d }, runningMode: 'VIDEO', outputCategoryMask: false, outputConfidenceMasks: true }; };
+        try { return await mod.ImageSegmenter.createFromOptions(fs, opz('GPU')); }
+        catch (e) { return await mod.ImageSegmenter.createFromOptions(fs, opz('CPU')); }
+      })().catch(function (e) { console.warn('Scontorno non disponibile:', e); invSegPronto = null; return null; });
+    }
+    return invSegPronto;
+  }
+  let invSegT = 0;
+  // maschera della persona (tela con l'alfa = quanto e' persona), nella misura della sorgente
+  function invPersona(seg, src) {
+    if (!seg) return null;
+    const t = Math.max(performance.now(), invSegT + 1); invSegT = t;
+    let out = null;
+    try {
+      seg.segmentForVideo(src, t, function (r) {
+        const ms = r && r.confidenceMasks; if (!ms || !ms.length) return;
+        const m = ms[ms.length - 1], mw = m.width, mh = m.height, d = m.getAsFloat32Array();
+        const c = document.createElement('canvas'); c.width = mw; c.height = mh;
+        const g = c.getContext('2d'), img = g.createImageData(mw, mh), a = img.data;
+        for (let i = 0; i < d.length; i++) a[i * 4 + 3] = Math.max(0, Math.min(255, (d[i] - 0.3) * 2.5 * 255));
+        g.putImageData(img, 0, 0);
+        out = c;
+      });
+    } catch (e) { return null; }
+    return out;
+  }
   let invMpT = 0;
   // i punti della faccia in pixel della sorgente (video, foto o ritratto), o null
   function invMpPunti(lm, src, w, h) {
@@ -16695,12 +16731,31 @@
     const f = r && r.faceLandmarks && r.faceLandmarks[0];
     return f ? f.map(function (q) { return { x: q.x * w, y: q.y * h }; }) : null;
   }
+  /* I punti del viso dei ritratti sono gia' calcolati e salvati in un
+     file: sul telefono non devono essere ritrovati (su alcuni ritratti il
+     riconoscimento del telefono poteva non trovarli, e quel personaggio
+     restava senza filtro). Il riconoscimento vale solo per i ritratti nuovi. */
+  let invPuntiFile = null;
+  function invPuntiCarica() {
+    if (!invPuntiFile) invPuntiFile = fetch('investigatore/immagini/punti-volto.json')
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .catch(function () { invPuntiFile = null; return {}; });
+    return invPuntiFile;
+  }
   const invPuntiRitratto = {};
+  let invPuntiDati = {};
   function invPrepPunti(lm, id) {
-    if (invPuntiRitratto[id] !== undefined) return invPuntiRitratto[id];
+    if (invPuntiRitratto[id]) return invPuntiRitratto[id];
     const b = invImgPronte[id];
-    invPuntiRitratto[id] = b ? invMpPunti(lm, b, b.naturalWidth, b.naturalHeight) : null;
-    return invPuntiRitratto[id];
+    if (!b) return null;
+    const salvati = invPuntiDati[id];
+    if (salvati) {
+      const w = b.naturalWidth, h = b.naturalHeight;
+      invPuntiRitratto[id] = salvati.split(';').map(function (c) { const v = c.split(','); return { x: v[0] / 10000 * w, y: v[1] / 10000 * h }; });
+    } else if (lm) {
+      invPuntiRitratto[id] = invMpPunti(lm, b, b.naturalWidth, b.naturalHeight);
+    }
+    return invPuntiRitratto[id] || null;
   }
   function invBox(poly) {
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
@@ -16731,7 +16786,7 @@
   }
   /* Il fotomontaggio vero e proprio, su una tela di qualunque misura 3:4.
      Ps: punti della faccia del giocatore nella sorgente src. */
-  function invSwap(cv, id, src, Ps) {
+  function invSwap(cv, id, src, Ps, persona) {
     const W = cv.width, H = cv.height, base = invImgPronte[id], P0 = invPuntiRitratto[id];
     const ctx = cv.getContext('2d');
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -16756,7 +16811,14 @@
     const cx = poly.reduce(function (t, q) { return t + q.x; }, 0) / poly.length;
     const cy = poly.reduce(function (t, q) { return t + q.y; }, 0) / poly.length;
     // la parte alta (fronte) un po' piu' stretta: ciuffi e cappelli del giocatore restano fuori
-    poly = poly.map(function (q) { const k = q.y < cy ? 0.9 : 0.97; return { x: cx + (q.x - cx) * 0.97, y: cy + (q.y - cy) * k }; });
+    /* Ritaglio largo: di lato fino alle orecchie e oltre, sotto fino al
+       collo, cosi' del viso del personaggio non resta pelle ne' orecchie.
+       Sopra resta un po' piu' basso: ciuffi e cappelli fuori. Lo sfondo
+       della foto lo toglie la maschera della persona. */
+    poly = poly.map(function (q) {
+      const ky = q.y < cy ? 0.92 : 1.12;
+      return { x: cx + (q.x - cx) * 1.24, y: cy + (q.y - cy) * ky };
+    });
     // maschera sfumata (l'ombra sfocata della forma, spostata dentro la tela)
     const M = document.createElement('canvas'); M.width = W; M.height = H;
     const m = M.getContext('2d');
@@ -16771,6 +16833,11 @@
     f.setTransform(1, 0, 0, 1, 0, 0);
     f.globalCompositeOperation = 'destination-in';
     f.drawImage(M, 0, 0);
+    if (persona) {   // via lo sfondo dietro al giocatore
+      f.setTransform(A, B, -B, A, tx, ty);
+      f.drawImage(persona, 0, 0, src.videoWidth || src.naturalWidth || src.width, src.videoHeight || src.naturalHeight || src.height);
+      f.setTransform(1, 0, 0, 1, 0, 0);
+    }
     f.globalCompositeOperation = 'source-over';
     invColoriVolto(F, invBox(poly), id);
     ctx.drawImage(F, 0, 0);
@@ -16807,10 +16874,149 @@
     }
     return true;
   }
+  // rotazione + scala + spostamento che porta i punti P sui punti Q
+  function invFit(P, Q) {
+    let msx = 0, msy = 0, mdx = 0, mdy = 0;
+    INV_FIT_IDX.forEach(function (i) { msx += P[i].x; msy += P[i].y; mdx += Q[i].x; mdy += Q[i].y; });
+    const n = INV_FIT_IDX.length; msx /= n; msy /= n; mdx /= n; mdy /= n;
+    let a = 0, b = 0, q2 = 0;
+    INV_FIT_IDX.forEach(function (i) {
+      const sx = P[i].x - msx, sy = P[i].y - msy, dx = Q[i].x - mdx, dy = Q[i].y - mdy;
+      a += sx * dx + sy * dy; b += sx * dy - sy * dx; q2 += sx * sx + sy * sy;
+    });
+    const A = a / q2, B = b / q2;
+    return { a: A, b: B, c: -B, d: A, e: mdx - (A * msx - B * msy), f: mdy - (B * msx + A * msy) };
+  }
+  function invMul(m, n) {   // m dopo n
+    return { a: m.a * n.a + m.c * n.b, b: m.b * n.a + m.d * n.b, c: m.a * n.c + m.c * n.d, d: m.b * n.c + m.d * n.d,
+             e: m.a * n.e + m.c * n.f + m.e, f: m.b * n.e + m.d * n.f + m.f };
+  }
+  function invInv(m) {
+    const det = m.a * m.d - m.b * m.c;
+    return { a: m.d / det, b: -m.b / det, c: -m.c / det, d: m.a / det,
+             e: (m.c * m.f - m.d * m.e) / det, f: (m.b * m.e - m.a * m.f) / det };
+  }
+  function invApplica(m, q) { return { x: m.a * q.x + m.c * q.y + m.e, y: m.b * q.x + m.d * q.y + m.f }; }
+  function invPoligono(ctx, poly) {
+    ctx.beginPath(); poly.forEach(function (q, k) { if (k) ctx.lineTo(q.x, q.y); else ctx.moveTo(q.x, q.y); }); ctx.closePath();
+  }
+  // contorno del viso allargato (coeff. orizzontale, sopra, sotto) attorno al suo centro
+  function invContorno(P, kx, ksu, kgiu) {
+    const poly = INV_OVALE_IDX.map(function (i) { return P[i]; });
+    const cx = poly.reduce(function (t, q) { return t + q.x; }, 0) / poly.length;
+    const cy = poly.reduce(function (t, q) { return t + q.y; }, 0) / poly.length;
+    return poly.map(function (q) { return { x: cx + (q.x - cx) * kx, y: cy + (q.y - cy) * (q.y < cy ? ksu : kgiu) }; });
+  }
+  /* Il costume del personaggio: il ritratto senza sfondo (scontorno) e
+     con un buco al posto del viso, largo fino alle orecchie e sotto il
+     mento. Restano cappello, capelli e vestiti: e' quello che il
+     giocatore "indossa". Si prepara una volta per personaggio. */
+  const invCostumi = {};
+  function invCostume(id) {
+    if (invCostumi[id]) return invCostumi[id];
+    const base = invImgPronte[id], P = invPuntiRitratto[id];
+    if (!base || !P || !invCamSeg) return null;
+    const W = base.naturalWidth, H = base.naturalHeight;
+    const pers = invPersona(invCamSeg, base);
+    if (!pers) return null;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    g.drawImage(base, 0, 0);
+    g.globalCompositeOperation = 'destination-in';
+    g.drawImage(pers, 0, 0, W, H);
+    // il buco del viso, sfumato: via pelle e orecchie del personaggio
+    g.globalCompositeOperation = 'destination-out';
+    g.shadowColor = '#000'; g.shadowBlur = W * 0.02; g.shadowOffsetX = W * 3;
+    g.translate(-W * 3, 0);
+    invPoligono(g, invContorno(P, 1.3, 0.86, 1.12)); g.fill();
+    invCostumi[id] = c;
+    return c;
+  }
+  // occhiali e baffi del personaggio disegnati sui punti del viso Q (in coordinate della tela)
+  function invAccessori(ctx, id, Q, W) {
+    const v = INV_VOLTO[id] || {};
+    const media = function (i, j) { return { x: (Q[i].x + Q[j].x) / 2, y: (Q[i].y + Q[j].y) / 2 }; };
+    const dist = function (u, w) { return Math.hypot(u.x - w.x, u.y - w.y); };
+    if (v.occhiali) {
+      const L = media(33, 133), R = media(362, 263), r = dist(Q[33], Q[133]) * 0.62;
+      ctx.save(); ctx.strokeStyle = 'rgba(206,176,120,0.95)'; ctx.lineWidth = Math.max(1.5, r * 0.09);
+      [L, R].forEach(function (e) { ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, Math.PI * 2); ctx.stroke(); });
+      ctx.beginPath(); ctx.moveTo(L.x + r, L.y); ctx.quadraticCurveTo((L.x + R.x) / 2, (L.y + R.y) / 2 - r * 0.45, R.x - r, R.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L.x - r, L.y); ctx.lineTo(Q[234].x, Q[234].y - r * 0.3);
+      ctx.moveTo(R.x + r, R.y); ctx.lineTo(Q[454].x, Q[454].y - r * 0.3); ctx.stroke();
+      ctx.restore();
+    }
+    if (v.baffi) {
+      const c0 = { x: Q[164].x * 0.6 + Q[0].x * 0.4, y: Q[164].y * 0.6 + Q[0].y * 0.4 };
+      const w = dist(Q[61], Q[291]);
+      // il verso dei baffi segue l'inclinazione della testa
+      const ang = Math.atan2(Q[291].y - Q[61].y, Q[291].x - Q[61].x);
+      ctx.save(); ctx.translate(c0.x, c0.y); ctx.rotate(ang);
+      ctx.fillStyle = '#17110c'; ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = Math.max(1, w * 0.04);
+      [-1, 1].forEach(function (d) {
+        ctx.beginPath();
+        ctx.moveTo(0, -0.12 * w);
+        ctx.bezierCurveTo(d * 0.25 * w, -0.20 * w, d * 0.48 * w, -0.10 * w, d * 0.62 * w, -0.02 * w);
+        ctx.bezierCurveTo(d * 0.74 * w, 0.03 * w, d * 0.86 * w, -0.06 * w, d * 0.84 * w, -0.26 * w);
+        ctx.bezierCurveTo(d * 0.92 * w, -0.10 * w, d * 0.82 * w, 0.12 * w, d * 0.60 * w, 0.10 * w);
+        ctx.bezierCurveTo(d * 0.40 * w, 0.09 * w, d * 0.18 * w, 0.10 * w, 0, 0.06 * w);
+        ctx.closePath(); ctx.fill();
+      });
+      ctx.restore();
+    }
+  }
+  /* La scena del filtro: sfondo del vagone, il giocatore (testa, senza lo
+     sfondo di casa sua) e sopra il costume, che segue la testa.
+     vista 'live': inquadratura della fotocamera, a specchio, come uno
+     specchio. vista 'ritratto': dritta e con la testa nella stessa
+     posizione e misura del ritratto, per la scheda e la lista passeggeri. */
+  function invCostumeScena(cv, id, src, sw, sh, Ps, persona, vista) {
+    const W = cv.width, H = cv.height, base = invImgPronte[id], P = invPuntiRitratto[id];
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
+    if (base) ctx.drawImage(base, 0, 0, W, H);
+    const cost = invCostume(id);
+    if (!Ps || !P || !cost) return false;
+    const S = invFit(P, Ps);                      // ritratto -> sorgente
+    let V;                                        // sorgente -> tela
+    if (vista === 'live') {
+      const k = Math.max(W / sw, H / sh), ox = (W - sw * k) / 2, oy = (H - sh * k) / 2;
+      V = { a: -k, b: 0, c: 0, d: k, e: W - ox, f: oy };
+    } else {
+      const k = W / base.naturalWidth, Si = invInv(S);
+      V = { a: Si.a * k, b: Si.b * k, c: Si.c * k, d: Si.d * k, e: Si.e * k, f: Si.f * k };
+    }
+    const Q = Ps.map(function (q) { return invApplica(V, q); });
+    // la testa del giocatore: dentro un'area larga attorno al viso, senza lo sfondo
+    const L = document.createElement('canvas'); L.width = W; L.height = H;
+    const l = L.getContext('2d');
+    l.setTransform(V.a, V.b, V.c, V.d, V.e, V.f);
+    l.drawImage(src, 0, 0, sw, sh);
+    l.globalCompositeOperation = 'destination-in';
+    if (persona) l.drawImage(persona, 0, 0, sw, sh);
+    l.setTransform(1, 0, 0, 1, 0, 0);
+    const testa = invContorno(Q, 1.7, 1.9, 1.5);
+    const M = document.createElement('canvas'); M.width = W; M.height = H;
+    const m = M.getContext('2d');
+    m.shadowColor = '#000'; m.shadowBlur = W * 0.03; m.shadowOffsetX = W * 3; m.translate(-W * 3, 0);
+    invPoligono(m, testa); m.fill();
+    l.drawImage(M, 0, 0);
+    l.globalCompositeOperation = 'source-over';
+    invColoriVolto(L, invBox(invContorno(Q, 1, 1, 1)), id);
+    ctx.drawImage(L, 0, 0);
+    // il costume, portato sulla testa del giocatore
+    const CS = invMul(V, S);
+    ctx.setTransform(CS.a, CS.b, CS.c, CS.d, CS.e, CS.f);
+    ctx.drawImage(cost, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    invAccessori(ctx, id, Q, W);
+    return true;
+  }
+
   /* Cosa viaggia verso gli altri telefoni: il ritaglio del fotomontaggio
      attorno al viso (largo, cosi' la faccia ci sta tutta). Dall'altra
      parte lo si rincolla nello stesso punto del ritratto. */
-  const INV_RITAGLIO_K = 1.4;
+  const INV_RITAGLIO_K = 1.9;   // largo: col costume la testa del giocatore (capelli compresi) deve starci tutta
   function invRitaglioBox(id, W, H) {
     const v = INV_VOLTO[id] || { x: 0.5, y: 0.32, rx: 0.17, ry: 0.15 };
     const rx = Math.min(0.5, v.rx * INV_RITAGLIO_K), ry = Math.min(0.5, v.ry * INV_RITAGLIO_K);
@@ -16857,8 +17063,11 @@
       + '</div>';
     document.body.appendChild(el);
     const sub = function (t) { const e = document.getElementById('inv-cam-sub'); if (e) e.textContent = t; };
-    Promise.all([invMpCarica(), invPrepara(p.char)]).then(function (r) {
+    invCamMaschera = null;
+    Promise.all([invMpCarica(), invPrepara(p.char), invSegCarica(), invPuntiCarica()]).then(function (r) {
       const lm = r[0];
+      invCamSeg = r[2];
+      invPuntiDati = r[3] || {};
       if (!document.getElementById('inv-cam')) return;
       if (!lm || !invPrepPunti(lm, p.char)) {          // niente filtro: si torna all'ovale
         invCamChiudi(); invCamCartonato(p, c); return;
@@ -16866,7 +17075,7 @@
       invCamLm = lm;
       const cv = document.getElementById('inv-cam-live'); if (cv) invSwap(cv, p.char, null, null);
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { sub('La fotocamera non si apre: scegli una foto dalla Galleria.'); return; }
-      sub('Guarda dritto, con la luce davanti alla faccia.');
+      sub('Il costume ti segue: mettiti in posa e scatta. Meglio con la luce davanti.');
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false })
         .then(function (fl) {
           if (!document.getElementById('inv-cam')) { fl.getTracks().forEach(function (t) { t.stop(); }); return; }
@@ -16879,17 +17088,19 @@
         .catch(function () { sub('La fotocamera non si apre: scegli una foto dalla Galleria.'); });
     });
   }
-  let invCamVisto = true;
+  let invCamVisto = true, invCamSeg = null, invCamMaschera = null, invCamGiri = 0;
   function invCamGiroFiltro(id) {
     const v = document.getElementById('inv-cam-v'), cv = document.getElementById('inv-cam-live');
     if (!v || !cv || !invCamFlusso || !invCamLm) return;
     if (v.videoWidth && v.readyState >= 2) {
       const Ps = invMpPunti(invCamLm, v, v.videoWidth, v.videoHeight);
-      invSwap(cv, id, v, Ps);
+      if (invCamSeg && (invCamGiri++ % 3 === 0 || !invCamMaschera)) invCamMaschera = invPersona(invCamSeg, v) || invCamMaschera;
+      // col costume se c'e' lo scontorno, altrimenti la faccia dentro il ritratto
+      if (!(invCamSeg && invCostumeScena(cv, id, v, v.videoWidth, v.videoHeight, Ps, invCamMaschera, 'live'))) invSwap(cv, id, v, Ps, invCamMaschera);
       if (!!Ps !== invCamVisto) {
         invCamVisto = !!Ps;
         const e = document.getElementById('inv-cam-sub');
-        if (e) e.textContent = Ps ? 'Guarda dritto, con la luce davanti alla faccia.' : 'Non vedo la tua faccia: mettila tutta nell\'inquadratura.';
+        if (e) e.textContent = Ps ? 'Il costume ti segue: mettiti in posa e scatta. Meglio con la luce davanti.' : 'Non vedo la tua faccia: mettila tutta nell\'inquadratura.';
       }
     }
     requestAnimationFrame(function () { invCamGiroFiltro(id); });
@@ -16900,7 +17111,8 @@
     const Ps = invMpPunti(invCamLm, v, v.videoWidth, v.videoHeight);
     if (!Ps) return;
     const full = document.createElement('canvas'); full.width = INV_CW; full.height = INV_CH;
-    invSwap(full, p.char, v, Ps);
+    const mask = invPersona(invCamSeg, v) || invCamMaschera;
+    if (!(invCamSeg && invCostumeScena(full, p.char, v, v.videoWidth, v.videoHeight, Ps, mask, 'ritratto'))) invSwap(full, p.char, v, Ps, mask);
     invCamFerma();
     invCamRisultato(full);
   }
@@ -17058,7 +17270,8 @@
           const Ps = invMpPunti(invCamLm, im, im.naturalWidth, im.naturalHeight);
           if (Ps) {
             const full = document.createElement('canvas'); full.width = INV_CW; full.height = INV_CH;
-            invSwap(full, p.char, im, Ps);
+            const mask = invPersona(invCamSeg, im);
+            if (!(invCamSeg && invCostumeScena(full, p.char, im, im.naturalWidth, im.naturalHeight, Ps, mask, 'ritratto'))) invSwap(full, p.char, im, Ps, mask);
             invCamFerma();
             invCamRisultato(full);
             return;
