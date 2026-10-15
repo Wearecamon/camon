@@ -1679,6 +1679,33 @@
   .camon-modal-btn.cancel { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); }
   .camon-modal-btn.ok { background:var(--brand); color:var(--bg); }
 
+  /* Avviso CamOn: prende il posto di alert() del browser. Scende
+     dall'alto, resta qualche secondo e sparisce; un tocco lo chiude. */
+  .camon-avviso {
+    position: fixed; z-index: 10000;
+    top: calc(var(--safe-top) + 1.5dvh); left: 50%;
+    width: 92%; max-width: 26rem;
+    display: flex; align-items: flex-start; gap: 0.75em;
+    padding: 0.95em 1.1em;
+    background: var(--surface); color: var(--text);
+    border: 1px solid rgba(247,204,73,0.3); border-left: 0.3em solid var(--brand);
+    border-radius: 14px;
+    box-shadow: 0 0.6em 2em rgba(0,0,0,0.55);
+    font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 600;
+    line-height: 1.45; white-space: pre-line;
+    transform: translate(-50%, -140%); opacity: 0;
+    transition: transform 0.32s cubic-bezier(.2,.9,.3,1.2), opacity 0.25s ease;
+    pointer-events: auto;
+  }
+  .camon-avviso.on { transform: translate(-50%, 0); opacity: 1; }
+  .camon-avviso-ico {
+    flex: 0 0 auto; width: 1.4em; height: 1.4em; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--brand); color: var(--on-brand);
+    font-size: 0.85em; font-weight: 800; margin-top: 0.05em;
+  }
+  .camon-avviso-txt { flex: 1 1 auto; }
+
   /* pulse sul tavolo assegnato */
   @keyframes tableGlow { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .table-assigned rect, .table-assigned circle { animation: tableGlow 1.4s ease-in-out infinite; }
@@ -4156,7 +4183,7 @@
   .offer-full-desc { font-family:'Manrope',sans-serif; font-size:13.5px; font-weight:500; color:rgba(255,255,255,0.5); line-height:1.6; margin-bottom:12px; }
   .offer-full-body { padding:14px 18px 18px; }
   .offer-full-meta { display:flex; flex-wrap:wrap; gap:8px; }
-  .offer-meta-chip { font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.3px; color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:30px; padding:5px 12px; }
+  .offer-meta-chip { display:inline-flex; align-items:center; gap:0.45em; font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.3px; color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:30px; padding:5px 12px; }
   .offer-cta-btn { display:block; width:calc(100% - 36px); margin:0 18px 18px; background:var(--brand); color:var(--bg); border:none; border-radius:12px; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
   .offer-cta-btn:active { opacity:0.85; }
   .offer-cta-btn:disabled { opacity:0.55; cursor:default; }
@@ -4166,6 +4193,12 @@
   .offer-prize-row { display:flex; align-items:baseline; gap:8px; font-family:'Manrope',sans-serif; font-size:13px; }
   .offer-prize-row b { flex-shrink:0; }
   .offer-prize-row span { color:rgba(255,255,255,0.55); }
+  /* icone delle chip: stesso tratto giallo delle icone di Impostazioni */
+  .offer-meta-chip svg { width:1.2em; height:1.2em; flex-shrink:0; fill:none; stroke:var(--brand); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  /* posizione nel podio al posto delle medaglie emoji */
+  .prize-pos { flex-shrink:0; align-self:center; min-width:2.6em; text-align:center; padding:0.2em 0.55em; border-radius:30px;
+               font-size:0.78em; font-weight:800; letter-spacing:0.5px; background:var(--brand-dim); color:var(--brand); }
+  .prize-pos.p1 { background:var(--brand); color:var(--on-brand); }
 
 
   /* ===== OFFERTE AUTO-SCROLL ===== */
@@ -5765,7 +5798,7 @@
 
       <!-- SUPPORTO -->
       <div class="settings-section-lbl">Supporto</div>
-      <div class="settings-row" onclick="alert('Scrivici su Instagram @camon.bar o via email.')">
+      <div class="settings-row" onclick="camonAvviso('Scrivici su Instagram @camon.bar o via email.')">
         <div class="settings-row-left">
           <div class="settings-row-ico">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -6055,8 +6088,8 @@
           <div class="offer-name">Birre e Spritz a €3</div>
           <div class="offer-full-desc">Tutte le birre alla spina e lo Spritz a prezzo fisso, ogni giorno della settimana. Avvicinati a uno spillatore, passa la tessera e versati quel che vuoi. Nessun limite di quantità durante l'orario.</div>
           <div class="offer-full-meta">
-            <span class="offer-meta-chip">🕕 18:00 – 20:00</span>
-            <span class="offer-meta-chip">📅 Ogni giorno</span>
+            <span class="offer-meta-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>18:00 – 20:00</span>
+            <span class="offer-meta-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Ogni giorno</span>
           </div>
         </div>
       </div>
@@ -6070,13 +6103,13 @@
           <div class="offer-name">Torneo Beer Pong</div>
           <div class="offer-full-desc">Iscriviti gratuitamente e sfida gli altri avventori. Si gioca a coppie, bracket eliminazione diretta.</div>
           <div class="offer-prizes">
-            <div class="offer-prize-row">🥇 <b>1° posto</b> <span>— coppa Beer Pong + Spritz omaggio per tutta la serata</span></div>
-            <div class="offer-prize-row">🥈 <b>2° posto</b> <span>— shot omaggio per la coppia</span></div>
-            <div class="offer-prize-row">🥉 <b>3° posto</b> <span>— 2×1 sulla prossima birra</span></div>
+            <div class="offer-prize-row"><b class="prize-pos p1">1°</b> <span>— coppa Beer Pong + Spritz omaggio per tutta la serata</span></div>
+            <div class="offer-prize-row"><b class="prize-pos">2°</b> <span>— shot omaggio per la coppia</span></div>
+            <div class="offer-prize-row"><b class="prize-pos">3°</b> <span>— 2×1 sulla prossima birra</span></div>
           </div>
           <div class="offer-full-meta">
-            <span class="offer-meta-chip">🕘 Dalle 21:00</span>
-            <span class="offer-meta-chip">🎟 Ingresso libero</span>
+            <span class="offer-meta-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Dalle 21:00</span>
+            <span class="offer-meta-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a3 3 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a3 3 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>Ingresso libero</span>
           </div>
         </div>
         <button class="offer-cta-btn beerpong-cta" onclick="event.stopPropagation();beerpongIscriviti()">Iscriviti al torneo</button>
@@ -6091,8 +6124,8 @@
           <div class="offer-name">Sconto Profilo</div>
           <div class="offer-full-desc">Completa il tuo profilo nell'app e ottieni il 10% di sconto sulla prima ricarica della tessera. Più info completi, più il locale può abbinarti al tavolo giusto.</div>
           <div class="offer-full-meta">
-            <span class="offer-meta-chip">🎁 10% sulla prima ricarica</span>
-            <span class="offer-meta-chip">🔒 Utenti registrati</span>
+            <span class="offer-meta-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>10% sulla prima ricarica</span>
+            <span class="offer-meta-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Utenti registrati</span>
           </div>
         </div>
         <button class="offer-cta-btn" onclick="event.stopPropagation();goTo('profile')">Completa il profilo</button>
@@ -9390,7 +9423,9 @@
     if (navigator.share) {
       navigator.share({ title: 'CAMON — Bar Torino', text: 'Vieni a CAMON, il bar universitario di Torino 🍹', url: window.location.href });
     } else {
-      alert('Copia il link e condividilo con i tuoi amici!');
+      var link = window.location.href;
+      if (navigator.clipboard) navigator.clipboard.writeText(link).then(function () { camonAvviso('Link copiato: incollalo ai tuoi amici.'); }, function () { camonAvviso('Copia il link e condividilo con i tuoi amici!'); });
+      else camonAvviso('Copia il link e condividilo con i tuoi amici!');
     }
   }
 
@@ -9448,9 +9483,9 @@
       // iOS Safari non supporta beforeinstallprompt — istruzioni manuali
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       if (isIOS) {
-        alert('Su iPhone:\n1. Tocca il tasto Condividi (□↑) in Safari\n2. Scorri e scegli "Aggiungi a schermata Home"\n3. CAMON apparirà come un\'app!');
+        camonAvviso('Su iPhone:\n1. Tocca il tasto Condividi (□↑) in Safari\n2. Scorri e scegli "Aggiungi a schermata Home"\n3. CAMON apparirà come un\'app!');
       } else {
-        alert('Apri CAMON in Chrome, poi tocca i tre puntini ⋮ in alto a destra e scegli "Aggiungi a schermata Home".');
+        camonAvviso('Apri CAMON in Chrome, poi tocca i tre puntini ⋮ in alto a destra e scegli "Aggiungi a schermata Home".');
       }
     }
   }
@@ -9460,7 +9495,6 @@
     settingsClose();
     setTimeout(() => {
       const msg = prompt('Descrivi il problema che hai riscontrato:');
-      if (msg && msg.trim()) alert('Grazie! Il tuo feedback è stato inviato al team di CAMON 🙏');
     }, 300);
   }
 
@@ -9524,27 +9558,43 @@
     'happy-hour': {
       badge: 'HAPPY HOUR', photo: 'happy-hour-bg.png', name: 'Birre e Spritz a €3',
       desc: 'Ogni giorno, dalle 18:00 alle 20:00, tutte le birre alla spina e lo Spritz passano a un prezzo fisso di 3€, qualunque sia lo stile o la gradazione della birra. Basta avvicinare la tessera CamOn a uno dei nostri spillatori self-service: nessuna fila al banco, nessun limite di quantità durante l\'orario. È il momento perfetto per un aperitivo lungo prima di cena, da soli o in compagnia.',
-      meta: ['🕕 18:00 – 20:00', '📅 Ogni giorno', '🍻 Nessun limite di quantità'],
+      meta: [['orario', '18:00 – 20:00'], ['data', 'Ogni giorno'], ['illimitato', 'Nessun limite di quantità']],
       cta: { label: 'Vai al menu', onclick: "goTo('menu')" }
     },
     'beerpong': {
       badge: 'OGNI MARTEDÌ', photo: 'beerpong2-bg.png', name: 'Torneo Beer Pong',
       desc: 'Ogni martedì dalle 21:00 organizziamo il nostro torneo di Beer Pong: iscrizione gratuita, si gioca a coppie con bracket a eliminazione diretta. Vieni con un amico o iscriviti da solo e ti abbiniamo noi — l\'importante è esserci in orario, i quarti di finale partono puntuali.',
       prizes: [
-        '🥇 <b>1° posto</b> <span>— coppa Beer Pong + Spritz omaggio per tutta la serata</span>',
-        '🥈 <b>2° posto</b> <span>— shot omaggio per la coppia</span>',
-        '🥉 <b>3° posto</b> <span>— 2×1 sulla prossima birra</span>'
+        '<b class="prize-pos p1">1°</b> <span>— coppa Beer Pong + Spritz omaggio per tutta la serata</span>',
+        '<b class="prize-pos">2°</b> <span>— shot omaggio per la coppia</span>',
+        '<b class="prize-pos">3°</b> <span>— 2×1 sulla prossima birra</span>'
       ],
-      meta: ['🕘 Dalle 21:00', '🎟 Ingresso libero'],
+      meta: [['orario', 'Dalle 21:00'], ['ingresso', 'Ingresso libero']],
       cta: { label: 'Iscriviti al torneo', onclick: 'beerpongIscriviti()', extraClass: 'beerpong-cta' }
     },
     'sconto-profilo': {
       badge: 'PROFILO', photo: 'sconto-profilo-bg.png', name: 'Sconto Profilo',
       desc: 'Completa il tuo profilo nell\'app — nome, età, interessi, una foto — e ottieni subito il 10% di sconto sulla tua prima ricarica della tessera. Non è solo uno sconto: più informazioni ci dai, meglio possiamo abbinarti al tavolo giusto se scegli un tavolo condiviso.',
-      meta: ['🎁 10% sulla prima ricarica', '🔒 Utenti registrati'],
+      meta: [['regalo', '10% sulla prima ricarica'], ['riservato', 'Utenti registrati']],
       cta: { label: 'Completa il profilo', onclick: "goTo('profile')" }
     }
   };
+  /* Icone a linea delle chip (orario, data...): niente emoji, stesso
+     tratto giallo delle icone del resto dell'app. */
+  const META_ICO = {
+    orario: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    data: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    ingresso: '<path d="M3 9a3 3 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a3 3 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/><path d="M13 5v2M13 11v2M13 17v2"/>',
+    regalo: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+    riservato: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    illimitato: '<path d="M18.2 8.2a5.5 5.5 0 1 1 0 7.6L12 12l-6.2-3.8a5.5 5.5 0 1 0 0 7.6L12 12z"/>',
+    premio: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'
+  };
+  function metaChip(ico, testo) {
+    return '<span class="offer-meta-chip"><svg viewBox="0 0 24 24" aria-hidden="true">' + (META_ICO[ico] || '') + '</svg>' + testo + '</span>';
+  }
+  const GIORNI_LUNGHI = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+  const MESI_LUNGHI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
   function detailPageOpen(pageLabel, photo, badge, name, bodyHTML) {
     document.getElementById('detail-page-title').textContent = pageLabel;
     document.getElementById('detail-hero').style.backgroundImage = photo ? "url('" + photo + "')" : 'none';
@@ -9558,7 +9608,7 @@
     if (!o) return;
     let body = '<p class="product-sheet-desc">' + o.desc + '</p>';
     if (o.prizes) body += '<div class="detail-prizes">' + o.prizes.map(function (p) { return '<div class="detail-prize-row">' + p + '</div>'; }).join('') + '</div>';
-    if (o.meta) body += '<div class="detail-meta">' + o.meta.map(function (m) { return '<span class="offer-meta-chip">' + m + '</span>'; }).join('') + '</div>';
+    if (o.meta) body += '<div class="detail-meta">' + o.meta.map(function (m) { return metaChip(m[0], m[1]); }).join('') + '</div>';
     if (o.cta) body += '<button class="offer-cta-btn' + (o.cta.extraClass ? ' ' + o.cta.extraClass : '') + '" style="width:100%;margin-top:20px" onclick="' + o.cta.onclick + '">' + o.cta.label + '</button>';
     detailPageOpen('OFFERTA', o.photo, o.badge, o.name, body);
     if (id === 'beerpong' && typeof beerpongRefreshBtn === 'function') beerpongRefreshBtn();
@@ -9567,9 +9617,14 @@
     const ev = EVENTI_DATA.find(function (e) { return e.id === id; });
     if (!ev) return;
     const next = eventiNextDate(ev);
-    const dataFmt = next.getDate() + ' ' + MESI_ABBR[next.getMonth()];
+    const dataFmt = GIORNI_LUNGHI[next.getDay()] + ' ' + next.getDate() + ' ' + MESI_LUNGHI[next.getMonth()];
+    // "Dalle 20:00 · Vinci un mese di drink": orario e dettaglio in due chip
+    const parti = String(ev.time || '').split(' · ');
     let body = '<p class="product-sheet-desc">' + (ev.desc || '') + '</p>';
-    body += '<div class="detail-meta"><span class="offer-meta-chip">📅 ' + dataFmt + '</span><span class="offer-meta-chip">🕒 ' + ev.time + '</span></div>';
+    body += '<div class="detail-meta">' + metaChip('data', dataFmt)
+      + (parti[0] ? metaChip('orario', parti[0]) : '')
+      + parti.slice(1).map(function (t) { return metaChip('premio', t); }).join('')
+      + '</div>';
     detailPageOpen('EVENTO', ev.photo, 'EVENTO', ev.name, body);
   }
 
@@ -10447,6 +10502,27 @@
   var bookPendingData = null;
   var bookPickedTable = null;
 
+  /* Al posto di alert(): stesso uso, camonAvviso('testo'), ma con la
+     grafica dell'app. Uno alla volta: il nuovo sostituisce il vecchio. */
+  function camonAvviso(msg) {
+    var vecchio = document.querySelector('.camon-avviso');
+    if (vecchio) vecchio.remove();
+    var el = document.createElement('div');
+    el.className = 'camon-avviso';
+    el.setAttribute('role', 'alert');
+    el.innerHTML = '<span class="camon-avviso-ico">!</span><span class="camon-avviso-txt"></span>';
+    el.querySelector('.camon-avviso-txt').textContent = String(msg);
+    document.body.appendChild(el);
+    var chiudi = function () {
+      el.classList.remove('on');
+      setTimeout(function () { el.remove(); }, 350);
+    };
+    el.addEventListener('click', chiudi);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add('on'); }); });
+    // testi lunghi (istruzioni) restano di piu'
+    setTimeout(chiudi, Math.min(9000, 2800 + String(msg).length * 45));
+  }
+
   function camonConfirm(msg, onOk) {
     var ov = document.createElement('div');
     ov.className = 'camon-modal-overlay';
@@ -10463,7 +10539,7 @@
       const dateInput = document.getElementById('invite-date');
       const dataProposta = dateInput ? dateInput.value : '';
       if (!dataProposta) {
-        alert('Proponi una sera per l\'invito.');
+        camonAvviso('Proponi una sera per l\'invito.');
         return;
       }
       if (inviteUser) {
@@ -10491,7 +10567,7 @@
             goTo('book');
           }, 2200);
         } catch (e) {
-          alert((e && e.message) || 'Non sono riuscito a mandare l\'invito. Riprova.');
+          camonAvviso((e && e.message) || 'Non sono riuscito a mandare l\'invito. Riprova.');
           btn.textContent = testoOriginale; btn.disabled = false;
         }
         return;
@@ -10504,7 +10580,7 @@
         if (typed && typed.trim()) target = typed.trim();
       }
       if (!target) {
-        alert(inviteMode === 'ig'
+        camonAvviso(inviteMode === 'ig'
           ? 'Scrivi il nome utente Instagram della persona.'
           : 'Scegli la persona da invitare, oppure invitala su Instagram.');
         return;
@@ -10519,8 +10595,8 @@
     const nome = ((_nm ? _nm.value.trim() : '') || 'Tu');
     const data = document.getElementById('book-data').value;
     const ora  = document.getElementById('book-ora').value;
-    if (!data) { alert('Scegli una data.'); return; }
-    if (!ora)  { alert('Scegli un orario.'); return; }
+    if (!data) { camonAvviso('Scegli una data.'); return; }
+    if (!ora)  { camonAvviso('Scegli un orario.'); return; }
 
     var personeNum = bookGetPersoneNum();
 
@@ -10907,7 +10983,7 @@
       if (error) throw error;
       await inviteRefresh();
     } catch (e) {
-      alert((e && e.message) || 'Non sono riuscito ad accettare l\'invito.');
+      camonAvviso((e && e.message) || 'Non sono riuscito ad accettare l\'invito.');
     }
   }
 
@@ -10927,11 +11003,11 @@
     await inviteRefresh();
     const inv = inviteFindById(id);
     if (!inv) {
-      alert('Non trovo più questo invito. Prova a tornare indietro e riaprire.');
+      camonAvviso('Non trovo più questo invito. Prova a tornare indietro e riaprire.');
       return;
     }
     if (!inv.booking_id) {
-      alert('La prenotazione non risulta ancora pronta. Aspetta un momento e riprova — se il problema resta, contattaci.');
+      camonAvviso('La prenotazione non risulta ancora pronta. Aspetta un momento e riprova — se il problema resta, contattaci.');
       return;
     }
     let booking = null;
@@ -10940,7 +11016,7 @@
       if (error) throw error;
       booking = data;
     } catch (e) {
-      alert('Non sono riuscito ad aprire la prenotazione: ' + ((e && e.message) || 'errore sconosciuto') + '. Riprova tra poco.');
+      camonAvviso('Non sono riuscito ad aprire la prenotazione: ' + ((e && e.message) || 'errore sconosciuto') + '. Riprova tra poco.');
       return;
     }
 
@@ -11027,11 +11103,11 @@
     await inviteRefresh();
     const inv = inviteFindById(id, 'mandato');
     if (!inv) {
-      alert('Non trovo più questo invito. Prova a tornare indietro e riaprire.');
+      camonAvviso('Non trovo più questo invito. Prova a tornare indietro e riaprire.');
       return;
     }
     if (!inv.booking_id) {
-      alert('La prenotazione non risulta ancora pronta. Aspetta un momento e riprova.');
+      camonAvviso('La prenotazione non risulta ancora pronta. Aspetta un momento e riprova.');
       return;
     }
     let booking = null;
@@ -11041,7 +11117,7 @@
       booking = (data || [])[0];
       if (!booking) throw new Error('Prenotazione non trovata.');
     } catch (e) {
-      alert('Non sono riuscito ad aprire la prenotazione: ' + ((e && e.message) || 'errore sconosciuto') + '.');
+      camonAvviso('Non sono riuscito ad aprire la prenotazione: ' + ((e && e.message) || 'errore sconosciuto') + '.');
       return;
     }
 
@@ -11096,7 +11172,7 @@
             document.getElementById('book-step1').style.display = 'flex';
             await inviteRefresh();
           } catch (e) {
-            alert((e && e.message) || 'Non sono riuscito a disdire.');
+            camonAvviso((e && e.message) || 'Non sono riuscito a disdire.');
           }
         });
       };
@@ -11136,7 +11212,7 @@
         document.getElementById('book-step1').style.display = 'flex';
         await inviteRefresh();
       } catch (e) {
-        alert((e && e.message) || 'Non sono riuscito ad annullare la prenotazione.');
+        camonAvviso((e && e.message) || 'Non sono riuscito ad annullare la prenotazione.');
       }
     });
   }
@@ -11148,7 +11224,7 @@
         if (error) throw error;
         await inviteRefresh();
       } catch (e) {
-        alert((e && e.message) || 'Non sono riuscito a rifiutare l\'invito.');
+        camonAvviso((e && e.message) || 'Non sono riuscito a rifiutare l\'invito.');
       }
     });
   }
@@ -11169,14 +11245,14 @@
     ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
     ov.querySelector('#invite-reschedule-confirm').onclick = async function () {
       const val = document.getElementById('invite-reschedule-date').value;
-      if (!val) { alert('Scegli una data.'); return; }
+      if (!val) { camonAvviso('Scegli una data.'); return; }
       try {
         const { error } = await window.sb.rpc('invite_reschedule', { p_invite_id: id, p_date: val });
         if (error) throw error;
         ov.remove();
         await inviteRefresh();
       } catch (e) {
-        alert((e && e.message) || 'Non sono riuscito a proporre la nuova data.');
+        camonAvviso((e && e.message) || 'Non sono riuscito a proporre la nuova data.');
       }
     };
     document.body.appendChild(ov);
@@ -11189,7 +11265,7 @@
         if (error) throw error;
         await inviteRefresh();
       } catch (e) {
-        alert((e && e.message) || 'Non sono riuscito a disdire.');
+        camonAvviso((e && e.message) || 'Non sono riuscito a disdire.');
       }
     });
   }
@@ -11329,7 +11405,7 @@
       });
     }
     if (!assigned) {
-      alert('Nessun tavolo disponibile per ' + personeNum + ' persone.');
+      camonAvviso('Nessun tavolo disponibile per ' + personeNum + ' persone.');
       return;
     }
     bookFinalizeWithTable(assigned);
@@ -11497,7 +11573,7 @@
     if (!currentBooking.table) {
       // capita con le prenotazioni nate da un invito segreto: il
       // tavolo lo assegna lo staff, non e' detto ci sia gia'.
-      alert('Il tavolo non è stato ancora assegnato — passa in cassa o aspetta, te lo diciamo appena è pronto.');
+      camonAvviso('Il tavolo non è stato ancora assegnato — passa in cassa o aspetta, te lo diciamo appena è pronto.');
       return;
     }
     bookHighlightTable(currentBooking.table);
@@ -11797,7 +11873,6 @@
   function addGuestInvite() {
     var name = document.getElementById('add-guest-input').value.trim();
     closeAddGuest();
-    alert('📲 Link inviato a "' + (name||'questo contatto') + '" per scaricare CAMON!\nQuando si iscrive potrà aggiungersi al tuo tavolo.');
   }
 
   function bookOpenChangePicker() {
@@ -11885,7 +11960,7 @@
           const { error } = await window.sb.rpc('booking_cancel_mine', { p_booking_id: currentBooking.id });
           if (error) throw error;
         } catch (e) {
-          alert((e && e.message) || 'Non sono riuscito ad annullare la prenotazione. Riprova.');
+          camonAvviso((e && e.message) || 'Non sono riuscito ad annullare la prenotazione. Riprova.');
           return;
         }
       }
@@ -12239,12 +12314,12 @@
   async function bandLink() {
     const input = document.getElementById('band-code-input');
     const code = (input.value || '').trim().toUpperCase();
-    if (code.length < 4) { alert('Inserisci un codice valido (almeno 4 caratteri), lo trovi stampato sul braccialetto.'); return; }
-    if (bands.some(b => b.code === code)) { alert('Questo braccialetto è già collegato al tuo conto.'); return; }
+    if (code.length < 4) { camonAvviso('Inserisci un codice valido (almeno 4 caratteri), lo trovi stampato sul braccialetto.'); return; }
+    if (bands.some(b => b.code === code)) { camonAvviso('Questo braccialetto è già collegato al tuo conto.'); return; }
 
     const user = await bandsWaitForUser(3000);
     if (!user) {
-      alert('Devi accedere al tuo account per collegare un braccialetto.');
+      camonAvviso('Devi accedere al tuo account per collegare un braccialetto.');
       return;
     }
 
@@ -12255,7 +12330,7 @@
 
     if (error) {
       console.error('[braccialetti] nfc_register:', error);
-      alert('Errore collegamento carta: ' + error.message);
+      camonAvviso('Errore collegamento carta: ' + error.message);
       return;
     }
 
@@ -12265,18 +12340,18 @@
 
   async function bandActivate(code) {
     const user = await bandsWaitForUser(3000);
-    if (!user) { alert('Devi accedere al tuo account.'); return; }
+    if (!user) { camonAvviso('Devi accedere al tuo account.'); return; }
     const { error } = await window.sb.rpc('nfc_set_active', { p_uid: code, p_user_id: user.id });
-    if (error) { console.error('[braccialetti] nfc_set_active:', error); alert('Errore attivazione carta: ' + error.message); return; }
+    if (error) { console.error('[braccialetti] nfc_set_active:', error); camonAvviso('Errore attivazione carta: ' + error.message); return; }
     await bandsSync();
   }
 
   function bandRemove(code) {
     camonConfirm('Rimuovere il braccialetto ' + code + ' dal conto?', async function() {
       const user = await bandsWaitForUser(3000);
-      if (!user) { alert('Devi accedere al tuo account.'); return; }
+      if (!user) { camonAvviso('Devi accedere al tuo account.'); return; }
       const { error } = await window.sb.rpc('nfc_unlink', { p_uid: code, p_user_id: user.id });
-      if (error) { console.error('[braccialetti] nfc_unlink:', error); alert('Errore rimozione carta: ' + error.message); return; }
+      if (error) { console.error('[braccialetti] nfc_unlink:', error); camonAvviso('Errore rimozione carta: ' + error.message); return; }
       await bandsSync();
     });
   }
@@ -12403,8 +12478,8 @@
     const input = document.getElementById('recharge-input');
     let amt = rechargeAmount;
     if (input.value) amt = parseFloat(input.value.replace(',', '.'));
-    if (!amt || amt <= 0) { alert('Scegli o inserisci un importo valido.'); return; }
-    if (amt < RECHARGE_MIN) { alert('La ricarica minima da app è €' + RECHARGE_MIN + '. Per importi inferiori puoi ricaricare al banco.'); return; }
+    if (!amt || amt <= 0) { camonAvviso('Scegli o inserisci un importo valido.'); return; }
+    if (amt < RECHARGE_MIN) { camonAvviso('La ricarica minima da app è €' + RECHARGE_MIN + '. Per importi inferiori puoi ricaricare al banco.'); return; }
     if (amt > 500) { amt = 500; }
 
     const btn = document.querySelector('.wallet-recharge-btn');
@@ -12412,7 +12487,7 @@
 
     if (window.sb) {
       const { data: { user } } = await window.sb.auth.getUser();
-      if (!user) { alert('Devi accedere al tuo account per ricaricare.'); return; }
+      if (!user) { camonAvviso('Devi accedere al tuo account per ricaricare.'); return; }
 
       btn.disabled = true; btn.textContent = 'Attendi…';
       const { error } = await window.sb.rpc('wallet_recharge', {
@@ -12422,7 +12497,7 @@
       btn.disabled = false;
       if (error) {
         btn.textContent = old;
-        alert('Ricarica non riuscita: ' + error.message);
+        camonAvviso('Ricarica non riuscita: ' + error.message);
         return;
       }
       await walletSyncFromServer(); // rilegge saldo/movimenti veri
@@ -15506,7 +15581,7 @@
           return;
         }
         if (!/find the function/i.test(msg)) {
-          alert('Non riesco a generare il codice: ' + (msg || e));
+          camonAvviso('Non riesco a generare il codice: ' + (msg || e));
           return;
         }
         // funzione non ancora installata sul database: ripiego sul codice locale
@@ -18519,7 +18594,7 @@
     // Senza connessione a Supabase (es. offline): torna al comportamento demo
     if (!window.sb) {
       if (authMode === 'signup') { otpStart(phone); }
-      else { profileCreated = true; profShowPreview(); alert('Bentornato! 🎉'); }
+      else { profileCreated = true; profShowPreview(); }
       return;
     }
 
@@ -18541,7 +18616,7 @@
           const nm = document.getElementById('edit-nome'); if (nm) nm.focus();
         } else {
           // serve la conferma via email prima di poter accedere
-          alert('Ti abbiamo inviato un\'email di conferma a ' + email + '.\nAprila, clicca il link, poi torna qui e premi Accedi.');
+          camonAvviso('Ti abbiamo inviato un\'email di conferma a ' + email + '.\nAprila, clicca il link, poi torna qui e premi Accedi.');
           profShowAuth('login');
         }
       } else {
@@ -18684,9 +18759,9 @@
     const nome = document.querySelector('.prof-name-input').value.trim();
     const sesso = document.querySelector('#chips-sesso .prof-chip.active');
     const stasera = document.querySelectorAll('.game-chip.active, .prof-chips .prof-chip.active');
-    if (!foto) { alert('Aggiungi una foto per continuare'); return; }
-    if (!nome) { alert('Inserisci il tuo nome'); return; }
-    if (!sesso) { alert('Seleziona il sesso'); return; }
+    if (!foto) { camonAvviso('Aggiungi una foto per continuare'); return; }
+    if (!nome) { camonAvviso('Inserisci il tuo nome'); return; }
+    if (!sesso) { camonAvviso('Seleziona il sesso'); return; }
     // profilo creato in questa sessione: sblocca anteprima e bonus (es. shot omaggio)
     profileCreated = true;
     if (!localStorage.getItem('camon_profile_id')) {
@@ -18881,7 +18956,7 @@
   /* Diritto di accesso: scarica una copia di tutto quello che
      sappiamo sull'utente, in un file json. */
   async function camonScaricaDati() {
-    if (!window.sb) { alert('Serve la connessione.'); return; }
+    if (!window.sb) { camonAvviso('Serve la connessione.'); return; }
     try {
       const { data, error } = await window.sb.rpc('export_my_data');
       if (error) throw error;
@@ -18892,7 +18967,7 @@
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(a.href);
     } catch (e) {
-      alert('Non riesco a preparare i dati: ' + ((e && e.message) || e));
+      camonAvviso('Non riesco a preparare i dati: ' + ((e && e.message) || e));
     }
   }
 
@@ -18911,10 +18986,9 @@
           if (error) throw error;
           try { await window.sb.auth.signOut(); } catch (e) {}
           try { localStorage.clear(); } catch (e) {}
-          alert('Account eliminato. Ci dispiace vederti andare.');
           location.reload();
         } catch (e) {
-          alert('Non riesco a eliminare l\'account: ' + ((e && e.message) || e));
+          camonAvviso('Non riesco a eliminare l\'account: ' + ((e && e.message) || e));
         }
       });
     });
