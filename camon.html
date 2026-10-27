@@ -2964,6 +2964,47 @@
     margin: 14px 4px 0;
   }
 
+  /* Diktat — scelta del livello a tutto schermo, senza icone: i cinque
+     livelli si dividono lo spazio fra il titolo e la bottom bar. A
+     sinistra il numero grande, poi nome e quante carte, a destra cinque
+     tacche che si riempiono col livello. Margini in %, altezze in vh. */
+  #sq-modes {
+    justify-content: flex-start; gap: 2.2vh;
+    min-height: calc(100dvh - 76px - var(--safe-top));
+    padding: 1vh 6% calc(var(--nav-space) + 2vh);
+  }
+  #sq-modes .sq-modes-head { margin-bottom: 0; }
+  #sq-modes .sq-modes-title { font-size: clamp(34px, 10vw, 44px); }
+  #sq-modes .sq-modes-list { flex: 1; display: flex; flex-direction: column; gap: 1.2vh; min-height: 0; }
+  #sq-modes .sq-mode-card {
+    flex: 1; min-height: 0; gap: 4.5%;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 1.4vh 5%;
+  }
+  #sq-modes .sq-mode-card:active { background: rgba(247,204,73,0.1); border-color: var(--brand); }
+  .sq-mode-num {
+    flex: none; width: 13%; text-align: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px, 12vw, 56px); line-height: 1;
+    color: var(--brand);
+  }
+  #sq-modes .sq-mode-name { font-size: clamp(20px, 6vw, 25px); letter-spacing: 0.6px; }
+  #sq-modes .sq-mode-desc { font-size: 11.5px; color: var(--text-sub); }
+  .sq-mode-meter { flex: none; display: flex; align-items: flex-end; gap: 3px; height: 26px; }
+  .sq-mode-meter i { display: block; width: 5px; border-radius: 3px; background: rgba(255,255,255,0.14); }
+  .sq-mode-meter i:nth-child(1) { height: 30%; }
+  .sq-mode-meter i:nth-child(2) { height: 47%; }
+  .sq-mode-meter i:nth-child(3) { height: 64%; }
+  .sq-mode-meter i:nth-child(4) { height: 82%; }
+  .sq-mode-meter i:nth-child(5) { height: 100%; }
+  .sq-mode-meter i.on { background: var(--brand); }
+  #sq-modes .sq-modes-note { margin: 0 4%; }
+  #sq-modes .sq-modes-back {
+    margin-top: 0; width: 100%; padding: 15px; border-radius: 15px;
+    border: 1.5px solid var(--border); color: var(--text);
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1.3px; line-height: 1;
+  }
+  #sq-modes .sq-modes-back:active { background: rgba(255,255,255,0.08); }
+
   /* Diktat — barra della difficolta' adattiva */
   .sq-diffbar {
     display: flex; align-items: center; gap: 10px; width: 100%;
@@ -6532,7 +6573,8 @@
         <div class="sq-modes-title">Quanto si spinge?</div>
       </div>
       <div class="sq-modes-list" id="sq-modes-list"></div>
-      <button class="sq-modes-back" onclick="goTo('players')">← Cambia giocatori</button>
+      <div class="sq-modes-note">Da qui si parte: poi il gioco sale e scende da solo.</div>
+      <button class="sq-modes-back" onclick="goTo('players')">Cambia giocatori</button>
     </div>
 
     <div class="sq-area fit-fill" id="sq-area" style="display:none">
@@ -13190,11 +13232,11 @@
   ];
   // livello di partenza: si sceglie una volta sola, poi il gioco si autoregola
   const sqModes = [
-    { lv:1, emoji:'😎', name:'Difficolta\' 1',  desc:'Rompighiaccio' },
-    { lv:2, emoji:'🍻', name:'Difficolta\' 2',  desc:'La serata inizia a prendere piede' },
-    { lv:3, emoji:'🔥', name:'Difficolta\' 3',  desc:'Domande vere, niente piu\' scherzi' },
-    { lv:4, emoji:'😈', name:'Difficolta\' 4',  desc:'Verita\' scomode' },
-    { lv:5, emoji:'💀', name:'Difficolta\' 5',  desc:'Senza freni' }
+    { lv:1, name:"Difficolta' 1", title:'Rompighiaccio',      desc:'Per scaldarsi' },
+    { lv:2, name:"Difficolta' 2", title:'Si prende il ritmo', desc:'La serata si scalda' },
+    { lv:3, name:"Difficolta' 3", title:'Domande vere',       desc:"Niente piu' scherzi" },
+    { lv:4, name:"Difficolta' 4", title:"Verita' scomode",   desc:"Qualcuno arrossira'" },
+    { lv:5, name:"Difficolta' 5", title:'Senza freni',        desc:'Niente da perdere' }
   ];
   const SQ_DEFAULT_PEN = 'Bevi 1 sorso';
   /* --- motore adattivo ---
@@ -13429,11 +13471,13 @@
     const wrap = document.getElementById('sq-modes-list');
     wrap.innerHTML = sqModes.map(function(m) {
       const count = sqPrompts.filter(function(p){ return p.lv === m.lv; }).length;
-      return '<button class="sq-mode-card" onclick="sqSelectMode(' + m.lv + ')">'
-        + '<span class="sq-mode-emoji">' + m.emoji + '</span>'
-        + '<span class="sq-mode-info"><span class="sq-mode-name">' + m.name + '</span>'
-        + '<span class="sq-mode-desc">' + m.desc + '</span></span>'
-        + '<span class="sq-mode-count">' + count + ' carte</span>'
+      let tacche = '';
+      for (let i = 1; i <= 5; i++) tacche += '<i' + (i <= m.lv ? ' class="on"' : '') + '></i>';
+      return '<button class="sq-mode-card" onclick="sqSelectMode(' + m.lv + ')" aria-label="' + m.name + ', ' + m.title + '">'
+        + '<span class="sq-mode-num">' + m.lv + '</span>'
+        + '<span class="sq-mode-info"><span class="sq-mode-name">' + m.title + '</span>'
+        + '<span class="sq-mode-desc">' + m.desc + ' · ' + count + ' carte</span></span>'
+        + '<span class="sq-mode-meter" aria-hidden="true">' + tacche + '</span>'
         + '</button>';
     }).join('');
   }
